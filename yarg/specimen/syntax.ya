@@ -15,6 +15,51 @@ fun gpio_callback() {
     print "hello 2";
 }
 
+var IO_BANK0_BASE 0x40014000;
+
+type io_bank0_status_ctrl struct {
+    muint32 ro status@0x0;
+    muint32 rw ctrl@0d4;
+}
+
+type io_bank0_irq_ctrl struct {
+    muint32 rw inte[4];
+    muint32 rw intf[4];
+    muint32 ro ints[4];
+}
+
+struct io_bank0_hw@IO_BANK0_BASE {
+    io_bank0_status_ctrl io[30];
+    muint32 rw intr[4];
+    io_bank0_irq_ctrl proc0_irq_ctrl;
+    io_bank0_irq_ctrl proc1_irq_ctrl;
+    io_bank0_irq_ctrl dormant_wake_irq_ctrl;
+}
+
+fun gpio_acknowledge_irq(gpio, events) {
+    io_bank0_hw->intr[gpio / 8] = events << (4 * (gpio % 8));
+}
+
+fun gpio_default_irq_handler() {
+    var core = coreNum();
+    var callback = callbacks[core];
+    io_bank0_irq_ctrl_hw_t *irq_ctrl_base = core ? &io_bank0_hw->proc1_irq_ctrl : &io_bank0_hw->proc0_irq_ctrl;
+    for (gpio = 0; gpio < NUM_BANK0_GPIOS; gpio+=8) {
+        uint32_t events8 = irq_ctrl_base->ints[gpio >> 3u];
+        // note we assume events8 is 0 for non-existent GPIO
+        for(uint i=gpio;events8 && i<gpio+8;i++) {
+            uint32_t events = events8 & 0xfu;
+            if (events && !(raw_irq_mask[core] & (1ull << i))) {
+                gpio_acknowledge_irq(i, events);
+                if (callback) {
+                    callback(i, events);
+                }
+            }
+            events8 >>= 4;
+        }
+    }
+}
+
 fun gpio_set_irq_callback(callback) {
     var core = coreNum();
     if (callbacks[core]) {
