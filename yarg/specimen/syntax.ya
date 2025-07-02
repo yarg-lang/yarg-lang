@@ -1,6 +1,3 @@
-import("gpio");
-import("machine");
-
 var IO_BANK0_BASE 0x40014000;
 
 type io_bank0_status_ctrl struct {
@@ -17,8 +14,7 @@ type io_bank0_irq_ctrl struct {
 struct io_bank0_hw@IO_BANK0_BASE {
     io_bank0_status_ctrl io[30];
     muint32 rw intr[4];
-    io_bank0_irq_ctrl proc0_irq_ctrl;
-    io_bank0_irq_ctrl proc1_irq_ctrl;
+    io_bank0_irq_ctrl proc_irq_ctrl[2];
     io_bank0_irq_ctrl dormant_wake_irq_ctrl;
 }
 
