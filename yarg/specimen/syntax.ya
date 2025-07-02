@@ -1,4 +1,4 @@
-var IO_BANK0_BASE 0x40014000;
+var IO_BANK0_BASE = 0x40014000;
 
 type io_bank0_status_ctrl struct {
     muint32 ro status@0x0;
@@ -11,12 +11,12 @@ type io_bank0_irq_ctrl struct {
     muint32 ro ints[4];
 }
 
-struct io_bank0_hw@IO_BANK0_BASE {
+struct {
     io_bank0_status_ctrl io[30];
     muint32 rw intr[4];
     io_bank0_irq_ctrl proc_irq_ctrl[2];
     io_bank0_irq_ctrl dormant_wake_irq_ctrl;
-}
+} io_bank0_hw@IO_BANK0_BASE
 
 fun gpio_acknowledge_irq(gpio, events) {
     io_bank0_hw->intr[gpio / 8] = events << (4 * (gpio % 8));

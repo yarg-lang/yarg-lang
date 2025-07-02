@@ -862,6 +862,34 @@ static ObjStmtStructDeclaration* structDeclaration() {
     return struct_;
 }
 
+ObjExpr* typeExpression() {
+
+    ObjExprStructDeclaration* struct_ = newExprStructDeclaration();
+
+    consume(TOKEN_LEFT_BRACE, "Expect '{' before struct body.");
+    while (!check(TOKEN_RIGHT_BRACE)) {
+        ObjStmtFieldDeclaration* field = fieldDeclaration();
+        pushWorkingNode((Obj*)field);
+        tableSet(&struct_->fields, field->name, OBJ_VAL(field));
+        popWorkingNode();
+    }
+    consume(TOKEN_RIGHT_BRACE, "Expect '}' after field declarations.");
+//    tableSet(&parser.ast->constants, struct_->name, OBJ_VAL(struct_));
+
+    return (ObjExpr*) struct_;
+}
+
+static ObjStmtTypeDeclaration* typeDeclaration() {
+    consume(TOKEN_IDENTIFIER, "Expect type name.");
+    ObjExpr* type = NULL;
+    if (match(TOKEN_STRUCT)) {
+        type = typeExpression();
+    } else if (match(TOKEN_MACHINE_UINT32)) {
+        type = NULL;
+    }
+    return NULL;
+}
+
 ObjStmt* declaration() {
     ObjStmt* stmt = NULL;
 
@@ -869,6 +897,8 @@ ObjStmt* declaration() {
         stmt = (ObjStmt*) classDeclaration();
     } else if (match(TOKEN_STRUCT)) {
         stmt = (ObjStmt*) structDeclaration();
+    } else if (match(TOKEN_TYPE)) {
+        stmt = (ObjStmt*) typeDeclaration();
     } else if (match(TOKEN_FUN)) {
         stmt = (ObjStmt*) funDeclaration("Expect function name.");
     } else if (match(TOKEN_VAR)) {

@@ -232,6 +232,12 @@ ObjExprType* newExprType(ExprTypeType type) {
     return expr;
 }
 
+ObjExprStructDeclaration* newExprStructDeclaration() {
+    ObjExprStructDeclaration* expr = ALLOCATE_OBJ(ObjExprStructDeclaration, OBJ_EXPR_STRUCTDECLARATION);
+    initTable(&expr->fields);
+    return expr;
+}
+
 static void printExprOperation(ObjExprOperation* opexpr) {
     switch (opexpr->operation) {
         case EXPR_OP_EQUAL: printf("=="); break;
