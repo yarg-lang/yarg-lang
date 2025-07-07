@@ -528,7 +528,7 @@ static void generateExprSuper(ObjExprSuper* super) {
     tempRootPop();
 }
 
-static void generateExprType(ObjExprType* type) {
+static void generateExprType(ObjExprTypeBuiltin* type) {
     switch (type->type) {
         case EXPR_TYPE_MUINT32: emitByte(OP_TYPE_LITERAL); return;
         default: return; // unreachable.
@@ -603,8 +603,8 @@ static void generateExprElt(ObjExpr* expr) {
             generateExprSuper(super);
             break;
         }
-        case OBJ_EXPR_TYPE: {
-            ObjExprType* t = (ObjExprType*)expr;
+        case OBJ_EXPR_TYPE_BUILTIN: {
+            ObjExprTypeBuiltin* t = (ObjExprTypeBuiltin*)expr;
             generateExprType(t);
             break;
         }

@@ -200,8 +200,8 @@ static ObjExpr* namedVariable(Token name, bool canAssign) {
     Value constant = NIL_VAL;
     if (tableGet(&parser.ast->constants, nameString, &constant)) {
         ObjExprNamedConstant* expr = newExprNamedConstant(name.start, name.length);
-        ObjStmtStructDeclaration* struct_ = (ObjStmtStructDeclaration*)AS_OBJ(constant);
-        expr->value = struct_->address;
+        ObjStmtMapDeclaration* map = (ObjStmtMapDeclaration*)AS_OBJ(constant);
+        expr->value = map->address;
 
         tempRootPop();
         return (ObjExpr*)expr;
@@ -272,13 +272,16 @@ static ObjExpr* dot(bool canAssign) {
         ObjExprNamedConstant* const_ = (ObjExprNamedConstant*) parser.prevExpr;
         Value val;
         tableGet(&parser.ast->constants, const_->name, &val);
-        ObjStmtStructDeclaration* struct_ = (ObjStmtStructDeclaration*) AS_OBJ(val);
-        Value field;
-        tableGet(&struct_->fields, expr->name, &field);
+        ObjStmtMapDeclaration* map = (ObjStmtMapDeclaration*) AS_OBJ(val);
 
-        ObjStmtFieldDeclaration* f = (ObjStmtFieldDeclaration*) AS_OBJ(field);
+        // TODO: calculate map address...
 
-        expr->offset = f->offset;
+        ///Value field;
+        //tableGet(&struct_->fields, expr->name, &field);
+
+        //ObjStmtFieldDeclaration* f = (ObjStmtFieldDeclaration*) AS_OBJ(field);
+
+        //expr->offset = 0; //f->offset;
     }
     
     if (canAssign && match(TOKEN_EQUAL)) {
@@ -361,7 +364,7 @@ static ObjExpr* builtin(bool canAssign) {
 
 static ObjExpr* type(bool canAssign) {
     switch (parser.previous.type) {
-        case TOKEN_MACHINE_UINT32: return (ObjExpr*) newExprType(EXPR_TYPE_MUINT32);
+        case TOKEN_MACHINE_UINT32: return (ObjExpr*) newExprTypeBuiltin(EXPR_TYPE_MUINT32);
         default: return NULL; // Unreachable
     }
 }
@@ -634,6 +637,7 @@ static ObjStmt* varDeclaration() {
 
 static ObjStmt* declaration();
 static ObjStmt* statement();
+static ObjExpr* typeExpression();
 
 static void block(ObjStmt** statements) {
 
@@ -825,7 +829,8 @@ static AccessRule consumeAccessToken() {
 }
 
 static ObjStmtFieldDeclaration* fieldDeclaration() {
-    consume(TOKEN_MACHINE_UINT32, "Expect type.");
+    ObjExpr* type = typeExpression();
+    pushWorkingNode((Obj*) type);
     AccessRule rule = consumeAccessToken();
     consume(TOKEN_IDENTIFIER, "Expect field name.");
     ObjStmtFieldDeclaration* field = newStmtFieldDeclaration(parser.previous.start, parser.previous.length, parser.previous.line);
@@ -833,38 +838,49 @@ static ObjStmtFieldDeclaration* fieldDeclaration() {
 
     field->access = rule;
 
+    if (match(TOKEN_LEFT_SQUARE_BRACKET)) {
+        ObjExpr* array_dimension = expression();
+        consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' after array dimension.");
+    }
+
     if (match(TOKEN_AT)) {
         field->offset = expression();
     }
     consume(TOKEN_SEMICOLON, "Expect ';' after field declaration.");
     popWorkingNode();
+    popWorkingNode();
     return field;
 }
 
-static ObjStmtStructDeclaration* structDeclaration() {
-    consume(TOKEN_IDENTIFIER, "Expect struct name.");
-    Token structName = parser.previous;
-    consume(TOKEN_AT, "Expect struct address declaration.");
-    ObjStmtStructDeclaration* struct_ = newStmtStructDeclaration(structName.start, structName.length, parser.previous.line);
-    pushWorkingNode((Obj*)struct_);
+static ObjStmtMapDeclaration* mapDeclaration() {
 
-    struct_->address = expression();
-    consume(TOKEN_LEFT_BRACE, "Expect '{' before struct body.");
-    while (!check(TOKEN_RIGHT_BRACE)) {
-        ObjStmtFieldDeclaration* field = fieldDeclaration();
-        pushWorkingNode((Obj*)field);
-        tableSet(&struct_->fields, field->name, OBJ_VAL(field));
-        popWorkingNode();
-    }
-    consume(TOKEN_RIGHT_BRACE, "Expect '}' after field declarations.");
-    tableSet(&parser.ast->constants, struct_->name, OBJ_VAL(struct_));
+    ObjExpr* type = typeExpression();
+    pushWorkingNode((Obj*)type);
+
+    AccessRule rule = consumeAccessToken();
+    consume(TOKEN_IDENTIFIER, "Expect map name.");
+
+    ObjStmtMapDeclaration* map = newStmtMapDeclaration(parser.previous.start, parser.previous.length, parser.previous.line);
+    pushWorkingNode((Obj*)map);
+    map->type = type;
+    map->access = rule;
+
+    consume(TOKEN_AT, "Expect @ after map name.");
+    map->address = expression();
+
+    consume(TOKEN_SEMICOLON, "Expect ';' after map declaration.");
+
+    tableSet(&parser.ast->constants, map->name, OBJ_VAL(map));
+
     popWorkingNode();
-    return struct_;
+    popWorkingNode();
+    return map;
 }
 
-ObjExpr* typeExpression() {
+ObjExpr* typeStructExpression() {
 
-    ObjExprStructDeclaration* struct_ = newExprStructDeclaration();
+    ObjExprTypeStruct* struct_ = newExprTypeStruct();
+    pushWorkingNode((Obj*)struct_);
 
     consume(TOKEN_LEFT_BRACE, "Expect '{' before struct body.");
     while (!check(TOKEN_RIGHT_BRACE)) {
@@ -874,20 +890,49 @@ ObjExpr* typeExpression() {
         popWorkingNode();
     }
     consume(TOKEN_RIGHT_BRACE, "Expect '}' after field declarations.");
-//    tableSet(&parser.ast->constants, struct_->name, OBJ_VAL(struct_));
 
+    popWorkingNode();
     return (ObjExpr*) struct_;
+}
+
+static bool matchKnownType() {
+    if (check(TOKEN_IDENTIFIER)) {
+        ObjString* name = copyString(parser.current.start, parser.current.length);
+        pushWorkingNode((Obj*)name);
+        Value val;
+        bool known = tableGet(&parser.ast->constants, name, &val);
+        popWorkingNode();
+        if (known) {
+            advance();
+            return true;
+        }
+    } 
+    return false;
+}
+
+static ObjExpr* typeExpression() {
+    if (match(TOKEN_STRUCT)) {
+        return typeStructExpression();
+    } else if (match(TOKEN_MACHINE_UINT32)) {
+        return (ObjExpr*) newExprTypeBuiltin(EXPR_TYPE_MUINT32);
+    } else if (matchKnownType()) {
+        return (ObjExpr*) newExprTypeKnown(parser.previous.start, parser.previous.length);
+    } else {
+        errorAtCurrent("Expected type expression.");
+        return NULL;
+    }
 }
 
 static ObjStmtTypeDeclaration* typeDeclaration() {
     consume(TOKEN_IDENTIFIER, "Expect type name.");
-    ObjExpr* type = NULL;
-    if (match(TOKEN_STRUCT)) {
-        type = typeExpression();
-    } else if (match(TOKEN_MACHINE_UINT32)) {
-        type = NULL;
-    }
-    return NULL;
+    ObjStmtTypeDeclaration* type = newStmtTypeDeclaration(parser.previous.start, parser.previous.length, parser.previous.line);
+    pushWorkingNode((Obj*)type);
+    type->type = typeExpression();
+
+    tableSet(&parser.ast->constants, type->name, OBJ_VAL(type));
+
+    popWorkingNode();
+    return type;
 }
 
 ObjStmt* declaration() {
@@ -895,8 +940,8 @@ ObjStmt* declaration() {
 
     if (match(TOKEN_CLASS)) {
         stmt = (ObjStmt*) classDeclaration();
-    } else if (match(TOKEN_STRUCT)) {
-        stmt = (ObjStmt*) structDeclaration();
+    } else if (match(TOKEN_MAP)) {
+        stmt = (ObjStmt*) mapDeclaration();
     } else if (match(TOKEN_TYPE)) {
         stmt = (ObjStmt*) typeDeclaration();
     } else if (match(TOKEN_FUN)) {

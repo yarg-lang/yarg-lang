@@ -87,10 +87,9 @@ ObjStmtClassDeclaration* newStmtClassDeclaration(const char* name, int nameLengt
     return decl;
 }
 
-ObjStmtStructDeclaration* newStmtStructDeclaration(const char* name, int nameLength, int line) {
-    ObjStmtStructDeclaration* struct_ = ALLOCATE_OBJ(ObjStmtStructDeclaration, OBJ_STMT_STRUCTDECLARATION);
+ObjStmtTypeDeclaration* newStmtTypeDeclaration(const char* name, int nameLength, int line) {
+    ObjStmtTypeDeclaration* struct_ = ALLOCATE_OBJ(ObjStmtTypeDeclaration, OBJ_STMT_TYPEDECLARATION);
     struct_->stmt.line = line;
-    initTable(&struct_->fields);
     tempRootPush(OBJ_VAL(struct_));
     struct_->name = copyString(name, nameLength);
     tempRootPop();
@@ -104,6 +103,15 @@ ObjStmtFieldDeclaration* newStmtFieldDeclaration(const char* name, int nameLengt
     field->name = copyString(name, nameLength);
     tempRootPop();
     return field;
+}
+
+ObjStmtMapDeclaration* newStmtMapDeclaration(const char* name, int nameLength, int line) {
+    ObjStmtMapDeclaration* map = ALLOCATE_OBJ(ObjStmtMapDeclaration, OBJ_STMT_MAPDECLARATION);
+    map->stmt.line = line;
+    tempRootPush(OBJ_VAL(map));
+    map->name = copyString(name, nameLength);
+    tempRootPop();
+    return map;
 }
 
 ObjExprOperation* newExprOperation(ObjExpr* rhs, ExprOp op) {
@@ -225,17 +233,24 @@ ObjExprSuper* newExprSuper(const char* name, int nameLength) {
     return expr;
 }
 
-ObjExprType* newExprType(ExprTypeType type) {
-    ObjExprType* expr = ALLOCATE_OBJ(ObjExprType, OBJ_EXPR_TYPE);
-    expr->expr.nextExpr = NULL;
+ObjExprTypeBuiltin* newExprTypeBuiltin(ExprTypeType type) {
+    ObjExprTypeBuiltin* expr = ALLOCATE_OBJ(ObjExprTypeBuiltin, OBJ_EXPR_TYPE_BUILTIN);
     expr->type = type;
     return expr;
 }
 
-ObjExprStructDeclaration* newExprStructDeclaration() {
-    ObjExprStructDeclaration* expr = ALLOCATE_OBJ(ObjExprStructDeclaration, OBJ_EXPR_STRUCTDECLARATION);
+ObjExprTypeStruct* newExprTypeStruct() {
+    ObjExprTypeStruct* expr = ALLOCATE_OBJ(ObjExprTypeStruct, OBJ_EXPR_TYPE_STRUCT);
     initTable(&expr->fields);
     return expr;
+}
+
+ObjExprTypeKnown* newExprTypeKnown(const char* name, int nameLength) {
+    ObjExprTypeKnown* type = ALLOCATE_OBJ(ObjExprTypeKnown, OBJ_EXPR_TYPE_KNOWN);
+    tempRootPush(OBJ_VAL(type));
+    type->name = copyString(name, nameLength);
+    tempRootPop();
+    return type;
 }
 
 static void printExprOperation(ObjExprOperation* opexpr) {
@@ -468,24 +483,13 @@ void printFieldDeclaration(ObjStmtFieldDeclaration* field) {
     }
 }
 
-void printStmtStructDeclaration(ObjStmtStructDeclaration* struct_) {
-    printf("struct ");
+void printStmtTypeDeclaration(ObjStmtTypeDeclaration* struct_) {
+    printf("type ");
     printObject(OBJ_VAL(struct_->name));
-    if (struct_->address) {
-        printf("@");
-        printExpr(struct_->address);
-    }
-    printf("\n{\n");
 
-    for (int i = 0; i < struct_->fields.count; i++) {
-        Entry* entry = &struct_->fields.entries[i];
-        if (entry->key) {
-            Obj* field = AS_OBJ(entry->value);
-            printFieldDeclaration((ObjStmtFieldDeclaration*)field);
-            printf("\n");
-        }
-    }
-    printf("}");
+    printf(" ");
+    printExpr(struct_->type);
+    printf(";");
 }
 
 void printStmtExpression(ObjStmtExpression* stmt) {
@@ -531,7 +535,7 @@ void printStmts(ObjStmt* stmts) {
             case OBJ_STMT_WHILE: printStmtWhile((ObjStmtWhile*)cursor); break;
             case OBJ_STMT_FOR: printStmtFor((ObjStmtFor*)cursor); break;
             case OBJ_STMT_CLASSDECLARATION: printStmtClassDeclaration((ObjStmtClassDeclaration*)cursor); break;
-            case OBJ_STMT_STRUCTDECLARATION: printStmtStructDeclaration((ObjStmtStructDeclaration*)cursor); break;
+            case OBJ_STMT_TYPEDECLARATION: printStmtTypeDeclaration((ObjStmtTypeDeclaration*)cursor); break;
             default: printf("Unknown stmt;"); break;
         }
         printf("\n");

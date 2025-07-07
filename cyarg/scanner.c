@@ -184,12 +184,20 @@ static TokenType identifierType() {
             if (scanner.current - scanner.start > 1) {
                 switch (scanner.start[1]) {
                     case 'a': {
-                        if (   scanner.current - scanner.start > 5
-                            && memcmp(scanner.start + 2, "ke_", 3) == 0) {
-                            switch (scanner.start[5]) {
-                                case 'a': return checkKeyword(6, 4, "rray", TOKEN_MAKE_ARRAY);
-                                case 'c': return checkKeyword(6, 6, "hannel", TOKEN_MAKE_CHANNEL);
-                                case 'r': return checkKeyword(6, 6, "outine", TOKEN_MAKE_ROUTINE);
+                        if (scanner.current - scanner.start > 2) {
+                            switch (scanner.start[2]) {
+                                case 'p': return checkKeyword(3, 0, "", TOKEN_MAP);
+                                case 'k': {
+                                    if (   scanner.current - scanner.start > 5
+                                        && memcmp(scanner.start + 3, "e_", 2) == 0) {
+                                        switch (scanner.start[5]) {
+                                            case 'a': return checkKeyword(6, 4, "rray", TOKEN_MAKE_ARRAY);
+                                            case 'c': return checkKeyword(6, 6, "hannel", TOKEN_MAKE_CHANNEL);
+                                            case 'r': return checkKeyword(6, 6, "outine", TOKEN_MAKE_ROUTINE);
+                                        }
+                                    }
+                                    break;
+                                }                                
                             }
                         }
                         break;

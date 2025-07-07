@@ -161,13 +161,17 @@ typedef enum {
 typedef struct {
     ObjExpr expr;
     ExprTypeType type;
-} ObjExprType;
+} ObjExprTypeBuiltin;
 
 typedef struct {
     ObjExpr expr;
     Table fields;
-} ObjExprStructDeclaration;
+} ObjExprTypeStruct;
 
+typedef struct {
+    ObjExpr expr;
+    ObjString* name;
+} ObjExprTypeKnown;
 
 typedef struct {
     ObjStmt stmt;
@@ -215,9 +219,10 @@ typedef struct {
 typedef struct {
     ObjStmt stmt;
     ObjString* name;
+    AccessRule access;
     ObjExpr* address;
-    Table fields;
-} ObjStmtStructDeclaration;
+    ObjExpr* type;
+} ObjStmtMapDeclaration;
 
 typedef struct {
     ObjStmt stmt;
@@ -263,8 +268,9 @@ ObjExprArrayElement* newExprArrayElement();
 ObjExprBuiltin* newExprBuiltin(ExprBuiltin fn, int arity);
 ObjExprDot* newExprDot(const char* name, int nameLength);
 ObjExprSuper* newExprSuper(const char* name, int nameLength);
-ObjExprType* newExprType(ExprTypeType type);
-ObjExprStructDeclaration* newExprStructDeclaration();
+ObjExprTypeBuiltin* newExprTypeBuiltin(ExprTypeType type);
+ObjExprTypeStruct* newExprTypeStruct();
+ObjExprTypeKnown* newExprTypeKnown(const char* name, int nameLength);
 
 ObjStmtExpression* newStmtExpression(ObjExpr* expr, ObjType statement, int line);
 ObjStmtBlock* newStmtBlock(int line);
@@ -272,9 +278,10 @@ ObjStmtBlock* newStmtBlock(int line);
 ObjStmtVarDeclaration* newStmtVarDeclaration(const char* name, int nameLength, ObjExpr* expr, int line);
 ObjStmtFunDeclaration* newStmtFunDeclaration(const char* name, int nameLength, int line);
 ObjStmtClassDeclaration* newStmtClassDeclaration(const char* name, int nameLength, int line);
-ObjStmtStructDeclaration* newStmtStructDeclaration(const char* name, int nameLength, int line);
+ObjStmtTypeDeclaration* newStmtTypeDeclaration(const char* name, int nameLength, int line);
 ObjStmtFieldDeclaration* newStmtFieldDeclaration(const char* name, int nameLength, int line);
-
+ObjStmtMapDeclaration* newStmtMapDeclaration(const char* name, int nameLength, int line);
+ 
 ObjStmtIf* newStmtIf(int line);
 ObjStmtWhile* newStmtWhile(int line);
 ObjStmtFor* newStmtFor(int line);
