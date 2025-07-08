@@ -274,14 +274,15 @@ static ObjExpr* dot(bool canAssign) {
         tableGet(&parser.ast->constants, const_->name, &val);
         ObjStmtMapDeclaration* map = (ObjStmtMapDeclaration*) AS_OBJ(val);
 
-        // TODO: calculate map address...
+        
+        ObjExprTypeStruct* struct_ = (ObjExprTypeStruct*) map->type;
 
-        ///Value field;
-        //tableGet(&struct_->fields, expr->name, &field);
+        Value field;
+        tableGet(&struct_->fields, expr->name, &field);
 
-        //ObjStmtFieldDeclaration* f = (ObjStmtFieldDeclaration*) AS_OBJ(field);
+        ObjStmtFieldDeclaration* f = (ObjStmtFieldDeclaration*) AS_OBJ(field);
 
-        //expr->offset = 0; //f->offset;
+        expr->offset = f->offset;
     }
     
     if (canAssign && match(TOKEN_EQUAL)) {
