@@ -227,6 +227,13 @@ static void defineMethod(ObjRoutine* routine, ObjString* name) {
 }
 
 static bool derefElement(ObjRoutine* routine) {
+    if (is_positive_integer(peek(routine, 0)) && is_positive_integer(peek(routine, 1))) {
+        pop(routine);
+        Value result = pop(routine);
+        push(routine, result);
+        return true;
+    }
+
     if (!isArray(peek(routine, 1)) || !is_positive_integer(peek(routine, 0))) {
         runtimeError(routine, "Expected an array and a positive or unsigned integer.");
         return false;
