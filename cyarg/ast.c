@@ -88,12 +88,12 @@ ObjStmtClassDeclaration* newStmtClassDeclaration(const char* name, int nameLengt
 }
 
 ObjStmtTypeDeclaration* newStmtTypeDeclaration(const char* name, int nameLength, int line) {
-    ObjStmtTypeDeclaration* struct_ = ALLOCATE_OBJ(ObjStmtTypeDeclaration, OBJ_STMT_TYPEDECLARATION);
-    struct_->stmt.line = line;
-    tempRootPush(OBJ_VAL(struct_));
-    struct_->name = copyString(name, nameLength);
+    ObjStmtTypeDeclaration* type = ALLOCATE_OBJ(ObjStmtTypeDeclaration, OBJ_STMT_TYPEDECLARATION);
+    type->stmt.line = line;
+    tempRootPush(OBJ_VAL(type));
+    type->name = copyString(name, nameLength);
     tempRootPop();
-    return struct_;
+    return type;
 }
 
 ObjStmtFieldDeclaration* newStmtFieldDeclaration(const char* name, int nameLength, int line) {
@@ -329,6 +329,26 @@ void printExprBuiltin(ObjExprBuiltin* fn) {
     }
 }
 
+static void printExprTypeBuiltin(ObjExprTypeBuiltin* expr) {
+    switch (expr->type) {
+        case EXPR_TYPE_MUINT32: printf("muint32"); break;
+        default: printf("unk#builtin"); break;
+    }
+}
+
+static void printExprTypeStruct(ObjExprTypeStruct* struct_) {
+    printf("struct {\n");
+    for (int i = 0; i < struct_->fields.count; i++) {
+        Entry x = struct_->fields.entries[i];
+        if (x.key) {
+            Obj* val = AS_OBJ(x.value);
+            printStmts((ObjStmt*) val);
+        }
+    }
+
+    printf("}");
+}
+
 void printExpr(ObjExpr* expr) {
     ObjExpr* cursor = expr;
     while (cursor) {
@@ -410,6 +430,8 @@ void printExpr(ObjExpr* expr) {
             case OBJ_EXPR_BUILTIN: printExprBuiltin((ObjExprBuiltin*)cursor); break;
             case OBJ_EXPR_DOT: printExprDot((ObjExprDot*)cursor); break;
             case OBJ_EXPR_SUPER: printExprSuper((ObjExprSuper*)cursor); break;
+            case OBJ_EXPR_TYPE_BUILTIN: printExprTypeBuiltin((ObjExprTypeBuiltin*)cursor); break;
+            case OBJ_EXPR_TYPE_STRUCT: printExprTypeStruct((ObjExprTypeStruct*)cursor); break;
             default: printf("<unknown>"); break;
         }
         cursor = cursor->nextExpr;
@@ -517,6 +539,7 @@ void printStmtVarDeclaration(ObjStmtVarDeclaration* decl) {
 void printStmtMapDeclaration(ObjStmtMapDeclaration* decl) {
     printf("map ");
     printExpr(decl->type);
+    printf(" ");
     printObject(OBJ_VAL(decl->name));
     printf("@");
     printExpr(decl->address);
@@ -546,6 +569,7 @@ void printStmts(ObjStmt* stmts) {
             case OBJ_STMT_CLASSDECLARATION: printStmtClassDeclaration((ObjStmtClassDeclaration*)cursor); break;
             case OBJ_STMT_TYPEDECLARATION: printStmtTypeDeclaration((ObjStmtTypeDeclaration*)cursor); break;
             case OBJ_STMT_MAPDECLARATION: printStmtMapDeclaration((ObjStmtMapDeclaration*)cursor); break;
+            case OBJ_STMT_FIELDDECLARATION: printFieldDeclaration((ObjStmtFieldDeclaration*)cursor); break;
             default: printf("Unknown stmt;"); break;
         }
         printf("\n");
