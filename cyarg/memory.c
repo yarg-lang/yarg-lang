@@ -251,6 +251,8 @@ static void blackenObject(Obj* object) {
             markStmt(object);
             markObject((Obj*)field->name);
             markObject((Obj*)field->offset);
+            markObject((Obj*)field->array_cardinality);
+            markObject((Obj*)field->type);
             break;
         }
         case OBJ_STMT_MAPDECLARATION: {

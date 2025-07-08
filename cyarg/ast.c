@@ -338,15 +338,18 @@ static void printExprTypeBuiltin(ObjExprTypeBuiltin* expr) {
 
 static void printExprTypeStruct(ObjExprTypeStruct* struct_) {
     printf("struct {\n");
-    for (int i = 0; i < struct_->fields.count; i++) {
+    for (int i = 0; i < struct_->fields.capacity; i++) {
         Entry x = struct_->fields.entries[i];
         if (x.key) {
             Obj* val = AS_OBJ(x.value);
             printStmts((ObjStmt*) val);
         }
     }
-
     printf("}");
+}
+
+static void printExprTypeKnown(ObjExprTypeKnown* type) {
+    printObject(OBJ_VAL(type->name));
 }
 
 void printExpr(ObjExpr* expr) {
@@ -383,6 +386,13 @@ void printExpr(ObjExpr* expr) {
                     printf(" = ");
                     printExpr(var->assignment);
                 }
+                break;
+            }
+            case OBJ_EXPR_NAMEDCONSTANT: {
+                ObjExprNamedConstant* const_ = (ObjExprNamedConstant*)cursor;
+                printObject(OBJ_VAL(const_->name));
+                printf("#");
+                printExpr(const_->value);
                 break;
             }
             case OBJ_EXPR_LITERAL: {
@@ -432,6 +442,7 @@ void printExpr(ObjExpr* expr) {
             case OBJ_EXPR_SUPER: printExprSuper((ObjExprSuper*)cursor); break;
             case OBJ_EXPR_TYPE_BUILTIN: printExprTypeBuiltin((ObjExprTypeBuiltin*)cursor); break;
             case OBJ_EXPR_TYPE_STRUCT: printExprTypeStruct((ObjExprTypeStruct*)cursor); break;
+            case OBJ_EXPR_TYPE_KNOWN: printExprTypeKnown((ObjExprTypeKnown*)cursor); break;
             default: printf("<unknown>"); break;
         }
         cursor = cursor->nextExpr;
@@ -491,7 +502,8 @@ void printStmtClassDeclaration(ObjStmtClassDeclaration* class_) {
 }
 
 void printFieldDeclaration(ObjStmtFieldDeclaration* field) {
-    printf("muint32 ");
+    printExpr(field->type);
+    printf(" ");
     switch (field->access) {
         case ACCESS_RW: printf("rw"); break;
         case ACCESS_RO: printf("ro"); break;
@@ -499,6 +511,12 @@ void printFieldDeclaration(ObjStmtFieldDeclaration* field) {
     }
     printf(" ");
     printObject(OBJ_VAL(field->name));
+    if (field->array_cardinality) {
+        printf("[");
+        printExpr(field->array_cardinality);
+        printf("]");
+    }
+
     if (field->offset) {
         printf("@");
         printExpr(field->offset);

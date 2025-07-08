@@ -214,6 +214,8 @@ typedef struct {
     ObjString* name;
     AccessRule access;
     ObjExpr* offset;
+    ObjExpr* array_cardinality;
+    ObjExpr* type;
 } ObjStmtFieldDeclaration;
 
 typedef struct {

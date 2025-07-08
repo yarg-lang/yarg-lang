@@ -836,11 +836,11 @@ static ObjStmtFieldDeclaration* fieldDeclaration() {
     consume(TOKEN_IDENTIFIER, "Expect field name.");
     ObjStmtFieldDeclaration* field = newStmtFieldDeclaration(parser.previous.start, parser.previous.length, parser.previous.line);
     pushWorkingNode((Obj*)field);
-
+    field->type = type;
     field->access = rule;
 
     if (match(TOKEN_LEFT_SQUARE_BRACKET)) {
-        ObjExpr* array_dimension = expression();
+        field->array_cardinality = expression();
         consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' after array dimension.");
     }
 
