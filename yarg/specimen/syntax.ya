@@ -17,13 +17,13 @@ print rpeek(coreNum);
 
 map struct {
     io_bank0_status_ctrl rw io[30];
-    muint32 rw intr[4];
+    muint32 rw intr[4]@0d4;
     io_bank0_irq_ctrl rw proc_irq_ctrl[2];
     io_bank0_irq_ctrl rw dormant_wake_irq_ctrl;
 } rw io_bank0_hw@0x40014000;
 
 fun gpio_acknowledge_irq(gpio, events) {
-    rpoke(io_bank0_hw.intr[gpio / 8], events << (4 * (gpio % 8)));
+    rpoke(io_bank0_hw.intr[gpio / 0d8], events << (0d4 * (gpio % 0d8)));
 }
 
-gpio_acknowledge_irq(1, 2);
+gpio_acknowledge_irq(0d1, 0d2);
