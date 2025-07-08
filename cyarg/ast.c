@@ -514,6 +514,15 @@ void printStmtVarDeclaration(ObjStmtVarDeclaration* decl) {
     printf(";");
 }
 
+void printStmtMapDeclaration(ObjStmtMapDeclaration* decl) {
+    printf("map ");
+    printExpr(decl->type);
+    printObject(OBJ_VAL(decl->name));
+    printf("@");
+    printExpr(decl->address);
+    printf(";");
+}
+
 void printStmtBlock(ObjStmtBlock* block) {
     printf("{\n");
     printStmts(block->statements);
@@ -536,6 +545,7 @@ void printStmts(ObjStmt* stmts) {
             case OBJ_STMT_FOR: printStmtFor((ObjStmtFor*)cursor); break;
             case OBJ_STMT_CLASSDECLARATION: printStmtClassDeclaration((ObjStmtClassDeclaration*)cursor); break;
             case OBJ_STMT_TYPEDECLARATION: printStmtTypeDeclaration((ObjStmtTypeDeclaration*)cursor); break;
+            case OBJ_STMT_MAPDECLARATION: printStmtMapDeclaration((ObjStmtMapDeclaration*)cursor); break;
             default: printf("Unknown stmt;"); break;
         }
         printf("\n");
