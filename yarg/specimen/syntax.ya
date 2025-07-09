@@ -1,4 +1,5 @@
 import("machine");
+import("gpio");
 
 var IO_BANK0_BASE = 0x40014000;
 

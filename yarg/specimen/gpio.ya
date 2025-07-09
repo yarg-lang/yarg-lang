@@ -12,10 +12,10 @@ var PADS_BANK0_GPIO0_IE_BITS = 0x00000040;
 var PADS_BANK0_GPIO0_OD_BITS = 0x00000080;
 var PADS_BANK0_GPIO0_ISO_BITS = 0x00000100;
 
-struct sio_hw@0xd0000000 {
+map struct {
     muint32 rw gpio_out@0x10;
     muint32 rw gpio_oe@0x20;
-}
+} rw sio_hw@0xd0000000;
 
 var REG_ALIAS_RW_BITS  = 0x0 << 0d12;
 var REG_ALIAS_XOR_BITS = 0x1 << 0d12;
