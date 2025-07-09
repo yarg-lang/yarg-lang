@@ -228,9 +228,13 @@ static void defineMethod(ObjRoutine* routine, ObjString* name) {
 
 static bool derefElement(ObjRoutine* routine) {
     if (is_positive_integer(peek(routine, 0)) && is_positive_integer(peek(routine, 1))) {
-        pop(routine);
-        Value result = pop(routine);
-        push(routine, result);
+        // struct address elements
+        Value element = pop(routine);
+        Value base = pop(routine);
+
+        uint32_t address = as_positive_integer(element) + as_positive_integer(base);
+
+        push(routine, UINTEGER_VAL(address));
         return true;
     }
 
