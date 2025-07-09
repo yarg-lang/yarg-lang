@@ -829,7 +829,40 @@ static AccessRule consumeAccessToken() {
     return ACCESS_RW;
 }
 
-static ObjStmtFieldDeclaration* fieldDeclaration() {
+static Value expressionResult(ObjExpr* expr) {
+    switch (expr->obj.type) {
+        case OBJ_EXPR_NUMBER: {
+            ObjExprNumber* num = (ObjExprNumber*)expr;
+            switch (num->type) {
+                case NUMBER_UINTEGER32: return UINTEGER_VAL(num->val.uinteger32);
+                case NUMBER_INTEGER: return INTEGER_VAL(num->val.integer);
+                case NUMBER_DOUBLE: return DOUBLE_VAL(num->val.dbl);
+            }
+            break;
+        }
+        default: return NIL_VAL;
+    }
+}
+
+static size_t typeExpressionSize(ObjExpr* expr) {
+    switch (expr->obj.type) {
+        case OBJ_EXPR_TYPE_BUILTIN: return 4;
+        case OBJ_EXPR_TYPE_KNOWN: {
+            ObjExprTypeKnown* type = (ObjExprTypeKnown*) expr;
+            Value s;
+            tableGet(&parser.ast->constants, type->name, &s);
+            ObjStmtTypeDeclaration* typedecl = (ObjStmtTypeDeclaration*) AS_OBJ(s);
+            return typeExpressionSize(typedecl->type);
+        }
+        case OBJ_EXPR_TYPE_STRUCT: {
+            ObjExprTypeStruct* struct_ = (ObjExprTypeStruct*) expr;
+            return struct_->size;
+        }
+        default: return 0;
+    }
+}
+
+static ObjStmtFieldDeclaration* fieldDeclaration(size_t* offset_cursor) {
     ObjExpr* type = typeExpression();
     pushWorkingNode((Obj*) type);
     AccessRule rule = consumeAccessToken();
@@ -846,7 +879,23 @@ static ObjStmtFieldDeclaration* fieldDeclaration() {
 
     if (match(TOKEN_AT)) {
         field->offset = expression();
+    } else {
+        field->offset = (ObjExpr*) newExprNumberUInteger32(*offset_cursor);
     }
+
+    Value offset = expressionResult(field->offset);
+    *offset_cursor = AS_UINTEGER(offset);
+
+    size_t size = typeExpressionSize(field->type);
+
+    if (field->array_cardinality) {
+        Value array_size = expressionResult(field->array_cardinality);
+        *offset_cursor = *offset_cursor + AS_UINTEGER(array_size) * size;
+    } else {
+        *offset_cursor += size;
+    }
+
+
     consume(TOKEN_SEMICOLON, "Expect ';' after field declaration.");
     popWorkingNode();
     popWorkingNode();
@@ -884,13 +933,15 @@ ObjExpr* typeStructExpression() {
     pushWorkingNode((Obj*)struct_);
 
     consume(TOKEN_LEFT_BRACE, "Expect '{' before struct body.");
+    size_t offset_cursor = 0;
     while (!check(TOKEN_RIGHT_BRACE)) {
-        ObjStmtFieldDeclaration* field = fieldDeclaration();
+        ObjStmtFieldDeclaration* field = fieldDeclaration(&offset_cursor);
         pushWorkingNode((Obj*)field);
         tableSet(&struct_->fields, field->name, OBJ_VAL(field));
         popWorkingNode();
     }
     consume(TOKEN_RIGHT_BRACE, "Expect '}' after field declarations.");
+    struct_->size = offset_cursor;
 
     popWorkingNode();
     return (ObjExpr*) struct_;

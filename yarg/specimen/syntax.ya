@@ -1,14 +1,14 @@
 var IO_BANK0_BASE = 0x40014000;
 
 type io_bank0_status_ctrl struct {
-    muint32 ro status[0]@0x0;
-    muint32 rw ctrl@0d4;
+    muint32 ro status;
+    muint32 rw ctrl;
 }
 
 type io_bank0_irq_ctrl struct {
-    muint32 rw inte[4]@0d0;
-    muint32 rw intf[4]@0d10;
-    muint32 ro ints[4]@0d20;
+    muint32 rw inte[4];
+    muint32 rw intf[4];
+    muint32 ro ints[4];
 }
 
 map muint32 ro coreNum@0xd0000000;
@@ -17,7 +17,7 @@ print rpeek(coreNum);
 
 map struct {
     io_bank0_status_ctrl rw io[30];
-    muint32 rw intr[4]@0d4;
+    muint32 rw intr[4];
     io_bank0_irq_ctrl rw proc_irq_ctrl[2];
     io_bank0_irq_ctrl rw dormant_wake_irq_ctrl;
 } rw io_bank0_hw@0x40014000;
