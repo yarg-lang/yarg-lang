@@ -1,3 +1,5 @@
+import("machine");
+
 var IO_BANK0_BASE = 0x40014000;
 
 type io_bank0_status_ctrl struct {
