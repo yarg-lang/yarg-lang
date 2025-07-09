@@ -513,6 +513,7 @@ static void markRoots() {
     markRoutine(&vm.core0);
     
     markObject((Obj*)vm.core1);
+    markObject((Obj*)vm.sharedISR);
 
     for (Value* slot = vm.tempRoots; slot < vm.tempRootsTop; slot++) {
         markValue(*slot);

@@ -10,7 +10,64 @@
 
 #ifdef CYARG_PICO_TARGET
 #include <hardware/gpio.h>
+#include <hardware/irq.h>
 #endif
+
+void vm_irq_handler(void) {
+
+    ObjRoutine* routine = vm.sharedISR;
+
+    run(routine);
+
+    if (routine->state != EXEC_ERROR) {
+        routine->state = EXEC_CLOSED;
+    }
+
+    return;
+}
+
+bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* args, Value* result) {
+    *result = NIL_VAL;
+    Value numVal = args[0];
+    unsigned int num = as_positive_integer(numVal);
+
+    Value prioVal = args[2];
+    unsigned int prio = as_positive_integer(prioVal);
+
+    ObjRoutine* isrRoutine = AS_ROUTINE(args[1]);
+
+    if (isrRoutine->type != ROUTINE_ISR) {
+        runtimeError(routine, "Argument must be an ISR routine.");
+        return false;
+    }
+
+    prepareRoutineStack(isrRoutine);
+    isrRoutine->state = EXEC_RUNNING;
+    vm.sharedISR = isrRoutine;
+
+#ifdef CYARG_PICO_TARGET
+    irq_add_shared_handler(num, vm_irq_handler, prio);
+    return true;
+#else
+    return true;
+#endif
+}
+
+bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, Value* args, Value* result) {
+    *result = NIL_VAL;
+    Value numVal = args[0];
+    unsigned int num = as_positive_integer(numVal);
+
+#ifdef CYARG_PICO_TARGET
+
+    irq_remove_handler(num, vm_irq_handler);
+
+#endif
+
+    vm.sharedISR = NULL;
+    return true;
+}
+
 
 bool clockNative(ObjRoutine* routine, int argCount, Value* args, Value* result) {
     if (argCount != 0) {

@@ -10,4 +10,8 @@ bool alarmAddInMSNative(ObjRoutine* routine, int argCount, Value* args, Value* r
 bool alarmAddRepeatingMSNative(ObjRoutine* routine, int argCount, Value* args, Value* result);
 bool alarmCancelRepeatingMSNative(ObjRoutine* routine, int argCount, Value* args, Value* result);
 
+bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* args, Value* result);
+bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, Value* args, Value* result);
+
+
 #endif
