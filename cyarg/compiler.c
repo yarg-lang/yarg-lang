@@ -930,7 +930,7 @@ static ObjFunction* endCompiler() {
     return function;
 }
 
-ObjFunction* compile(const char* source) {
+ObjFunction* compile(const char* source, InterpretContext* ctx) {
     hadCompilerError = false;
 
     initScanner(source);
@@ -942,7 +942,7 @@ ObjFunction* compile(const char* source) {
     size_t bytesAllocated = vm.bytesAllocated;
 #endif
 
-    bool parseError = parse(current->ast);
+    bool parseError = parse(current->ast, ctx);
 
 #ifdef DEBUG_AST_PARSE
     collectGarbage();

@@ -21,7 +21,6 @@ typedef struct ObjExpr {
 typedef struct ObjAst {
     Obj obj;
     ObjStmt* statements;
-    Table constants;
 } ObjAst;
 
 typedef enum {

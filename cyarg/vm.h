@@ -8,6 +8,7 @@
 #include "memory.h"
 #include "routine.h"
 #include "platform_hal.h"
+#include "interpret_context.h"
 
 typedef struct {
     ObjRoutine core0;
@@ -42,7 +43,7 @@ extern VM vm;
 
 void initVM();
 void freeVM();
-InterpretResult interpret(const char* source);
+InterpretResult interpret(const char* source, InterpretContext* ctx);
 
 InterpretResult run(ObjRoutine* routine);
 bool callfn(ObjRoutine* routine, ObjClosure* closure, int argCount);

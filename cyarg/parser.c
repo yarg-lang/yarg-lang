@@ -5,6 +5,7 @@
 #include "parser.h"
 #include "ast.h"
 #include "memory.h"
+#include "interpret_context.h"
 
 #include "scanner.h"
 #include <stdbool.h>
@@ -32,26 +33,32 @@ typedef struct {
     DynamicObjArray workingNodes;
     ObjExpr* prevExpr;
     ObjAst* ast;
+    InterpretContext* ctx;
 } Parser;
 
 Parser parser;
 
-void initParser(ObjAst* ast) {
+void initParser(ObjAst* ast, InterpretContext* ctx) {
     parser.hadError = false;
     parser.panicMode = false;
     parser.ast = ast;
     parser.prevExpr = NULL;
+    parser.ctx = ctx;
     initDynamicObjArray(&parser.workingNodes);
 }
 
 void endParser() {
     parser.ast = NULL;
+    parser.ctx = NULL;
     freeDynamicObjArray(&parser.workingNodes);
 }
 
 void markParserRoots() {
     markObject((Obj*)parser.ast);
     markObject((Obj*)parser.prevExpr);
+    if (parser.ctx) {
+        markTable(&parser.ctx->constants);
+    }
     markDynamicObjArray(&parser.workingNodes);
 }
 
@@ -198,7 +205,7 @@ static ObjExpr* namedVariable(Token name, bool canAssign) {
     tempRootPush(OBJ_VAL(nameString));
 
     Value constant = NIL_VAL;
-    if (tableGet(&parser.ast->constants, nameString, &constant)) {
+    if (tableGet(&parser.ctx->constants, nameString, &constant)) {
         ObjExprNamedConstant* expr = newExprNamedConstant(name.start, name.length);
         ObjStmtMapDeclaration* map = (ObjStmtMapDeclaration*)AS_OBJ(constant);
         expr->value = map->address;
@@ -271,7 +278,7 @@ static ObjExpr* dot(bool canAssign) {
     if (parser.prevExpr->obj.type == OBJ_EXPR_NAMEDCONSTANT) { // hack, this is a struct...
         ObjExprNamedConstant* const_ = (ObjExprNamedConstant*) parser.prevExpr;
         Value val;
-        tableGet(&parser.ast->constants, const_->name, &val);
+        tableGet(&parser.ctx->constants, const_->name, &val);
         ObjStmtMapDeclaration* map = (ObjStmtMapDeclaration*) AS_OBJ(val);
 
         
@@ -850,7 +857,7 @@ static size_t typeExpressionSize(ObjExpr* expr) {
         case OBJ_EXPR_TYPE_KNOWN: {
             ObjExprTypeKnown* type = (ObjExprTypeKnown*) expr;
             Value s;
-            tableGet(&parser.ast->constants, type->name, &s);
+            tableGet(&parser.ctx->constants, type->name, &s);
             ObjStmtTypeDeclaration* typedecl = (ObjStmtTypeDeclaration*) AS_OBJ(s);
             return typeExpressionSize(typedecl->type);
         }
@@ -920,7 +927,7 @@ static ObjStmtMapDeclaration* mapDeclaration() {
 
     consume(TOKEN_SEMICOLON, "Expect ';' after map declaration.");
 
-    tableSet(&parser.ast->constants, map->name, OBJ_VAL(map));
+    tableSet(&parser.ctx->constants, map->name, OBJ_VAL(map));
 
     popWorkingNode();
     popWorkingNode();
@@ -952,7 +959,7 @@ static bool matchKnownType() {
         ObjString* name = copyString(parser.current.start, parser.current.length);
         pushWorkingNode((Obj*)name);
         Value val;
-        bool known = tableGet(&parser.ast->constants, name, &val);
+        bool known = tableGet(&parser.ctx->constants, name, &val);
         popWorkingNode();
         if (known) {
             advance();
@@ -981,7 +988,7 @@ static ObjStmtTypeDeclaration* typeDeclaration() {
     pushWorkingNode((Obj*)type);
     type->type = typeExpression();
 
-    tableSet(&parser.ast->constants, type->name, OBJ_VAL(type));
+    tableSet(&parser.ctx->constants, type->name, OBJ_VAL(type));
 
     popWorkingNode();
     return type;
@@ -1008,8 +1015,8 @@ ObjStmt* declaration() {
     return stmt;
 }
 
-bool parse(ObjAst* ast_root) {
-    initParser(ast_root);
+bool parse(ObjAst* ast_root, InterpretContext* ctx) {
+    initParser(ast_root, ctx);
     advance();
 
     ObjStmt** cursor = &ast_root->statements;

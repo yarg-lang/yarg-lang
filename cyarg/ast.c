@@ -6,7 +6,6 @@
 
 ObjAst* newObjAst() {
     ObjAst* ast = ALLOCATE_OBJ(ObjAst, OBJ_AST);
-    initTable(&ast->constants);
     return ast;
 }
 

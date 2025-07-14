@@ -15,6 +15,8 @@ const char* defaultScript = "main.ya";
 
 static void repl() {
     char line[1024];
+    InterpretContext context;
+    initContext(&context);
     for (;;) {
         printf("> ");
 
@@ -23,15 +25,19 @@ static void repl() {
             break;
         }
 
-        interpret(line);
+        interpret(line, &context);
     }
 }
 
 static void runFile(const char* path) {
     char* source = readFile(path);
     if (source) {
-        InterpretResult result = interpret(source);
+        InterpretContext context;
+        initContext(&context);
+        
+        InterpretResult result = interpret(source, &context);
         free(source);
+        freeContext(&context);
 
         if (result == INTERPRET_COMPILE_ERROR) exit(65);
         if (result == INTERPRET_RUNTIME_ERROR) exit(70);
@@ -44,7 +50,12 @@ static void disassembleFile(const char* path) {
         return;
     }
 
-    ObjFunction* result = compile(source);
+    InterpretContext context;
+    initContext(&context);
+
+    ObjFunction* result = compile(source, &context);
+    freeContext(&context);
+    
     if (!result) {
         return;
     }
