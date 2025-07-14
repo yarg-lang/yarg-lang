@@ -1,24 +1,3 @@
-import("machine");
-import("gpio");
-
-var gpio_watch = 0d2;
-var GPIO_IRQ_EDGE_FALL = 0x4;
-var GPIO_IRQ_EDGE_RISE = 0x8;
-var GPIO_IRQ_CALLBACK_ORDER_PRIORITY = 0d0;
-var NUM_BANK0_GPIOS = 0d30;
-var raw_irq_mask = make_array(0d2);
-raw_irq_mask[0] = 0d0;
-raw_irq_mask[1] = 0d0;
-
-var IO_IRQ_BANK0 = 0d13;
-
-var callbacks = make_array(0d2);
-
-fun gpio_callback() {
-    print "hello 2";
-}
-
-var IO_BANK0_BASE = 0x40014000;
 
 type io_bank0_status_ctrl struct {
     muint32 ro status;
@@ -38,98 +17,12 @@ map struct {
     io_bank0_irq_ctrl rw dormant_wake_irq_ctrl;
 } rw io_bank0_hw@0x40014000;
 
-fun gpio_acknowledge_irq(gpio, events) {
-    rpoke(io_bank0_hw.intr[gpio / 0d8], events << (0d4 * (gpio % 0d8)));
+var NUM_BANK0_GPIOS = 0d30;
+var core = 0d1;
+
+// .ints[gpio >> 0d3]
+
+for (var gpio = 0d0; gpio < NUM_BANK0_GPIOS; gpio= gpio + 0d8) {
+    rpeek(io_bank0_hw.io[1]);
+    rpeek(io_bank0_hw.proc_irq_ctrl[core]);
 }
-
-fun gpio_default_irq_handler() {
-    var core = coreNum();
-    var callback = callbacks[core];
-    
-    for (var gpio = 0d0; gpio < NUM_BANK0_GPIOS; gpio= gpio + 0d8) {
-        var events8 = rpeek(io_bank0_hw.proc_irq_ctrl[core].ints[gpio >> 0d3]);
-      
-        for(var i = gpio; events8 and i < gpio + 0d8 ;i = i + 0d1) {
-            var events = events8 & 0xf;
-            if (events and !(raw_irq_mask[core] & (0d1 << i))) {
-                gpio_acknowledge_irq(i, events);
-                if (callback) {
-                    callback(i, events);
-                }
-            }
-            events8 = events8 >> 0d4;
-        }
-    }
-}
-
-gpio_default_irq_handler();
-
-var gpio_handler_routine = make_routine(gpio_default_irq_handler, true);
-
-fun gpio_set_irq_callback(callback) {
-    var core = coreNum();
-    if (callbacks[core]) {
-        if (!callback) {
-            irq_remove_handler(IO_IRQ_BANK0, gpio_handler_routine);
-        }
-        callbacks[core] = callback;
-    } else if (callback) {
-        callbacks[core] = callback;
-        irq_add_shared_handler(IO_IRQ_BANK0, gpio_handler_routine, GPIO_IRQ_CALLBACK_ORDER_PRIORITY);
-    }
-}
-
-map struct {
-    muint32 rw register;
-    muint32 wo xor@0x1000;
-    muint32 wo set@0x2000;
-    muint32 wo clr@0x3000;
-} rw ctrl@0x40014100;
-
-fun gpio_set_irq_enabled(gpio, events, enabled) {
-    gpio_acknowledge_irq(gpio, events);
-
-    events = events << 0d4 * (gpio % 0d8);
-    if (enabled) {
-        rpoke(ctrl.set, events);
-    }
-    else {
-        rpoke(ctrl.clr, events);
-    }
-}
-
-
-var PPB_BASE = 0xe0000000;
-var M0PLUS_NVIC_ISER_OFFSET = 0x0000e100;
-
-map struct {
-    muint32 rw iser@0x0;
-    muint32 rw icer@0x80;
-    muint32 rw ispr@0x100;
-    muint32 rw icpr@0x180;
-} rw nvic_hw@0xe000e100;
-
-fun irq_set_mask_n_enabled(n, mask, enabled) {
-    if (enabled) {
-        rpoke(nvic_hw.icpr, mask);
-        rpoke(nvic_hw.iser, mask);
-    } else {
-        rpoke(nvic_hw.icer, mask);
-    }
-}
-
-fun irq_set_enabled(bank, enabled) {
-    irq_set_mask_n_enabled(bank / 0d32, 0d1 << (bank % 0d32), enabled);
-}
-
-fun gpio_set_irq_enabled_with_callback(gpio, events, enabled, callback) {
-    gpio_set_irq_callback(callback);
-    gpio_set_irq_enabled(gpio, events, enabled);
-    if (enabled) {
-        irq_set_enabled(IO_IRQ_BANK0, true);
-    }
-}
-
-gpio_init(gpio_watch);
-
-gpio_set_irq_enabled_with_callback(gpio_watch, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, gpio_callback);
