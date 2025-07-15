@@ -280,16 +280,33 @@ static ObjExpr* dot(bool canAssign) {
         Value val;
         tableGet(&parser.ctx->constants, const_->name, &val);
         ObjStmtMapDeclaration* map = (ObjStmtMapDeclaration*) AS_OBJ(val);
+        if (map->type->obj.type == OBJ_EXPR_TYPE_STRUCT) {
+            ObjExprTypeStruct* struct_ = (ObjExprTypeStruct*) map->type;
 
-        
-        ObjExprTypeStruct* struct_ = (ObjExprTypeStruct*) map->type;
+            Value field;
+            tableGet(&struct_->fields, expr->name, &field);
 
-        Value field;
-        tableGet(&struct_->fields, expr->name, &field);
+            ObjStmtFieldDeclaration* f = (ObjStmtFieldDeclaration*) AS_OBJ(field);
 
-        ObjStmtFieldDeclaration* f = (ObjStmtFieldDeclaration*) AS_OBJ(field);
+            expr->offset = f->offset;
+        } else if (map->type->obj.type == OBJ_EXPR_TYPE_KNOWN) {
+            ObjExprTypeKnown* known = (ObjExprTypeKnown*) map->type;
 
-        expr->offset = f->offset;
+            Value val;
+            tableGet(&parser.ctx->constants, known->name, &val);
+            ObjStmtTypeDeclaration* typeDecl = (ObjStmtTypeDeclaration*) AS_OBJ(val);
+
+
+            ObjExprTypeStruct* struct_ = (ObjExprTypeStruct*) typeDecl->type;
+
+            Value field;
+            tableGet(&struct_->fields, expr->name, &field);
+            ObjStmtFieldDeclaration* f = (ObjStmtFieldDeclaration*) AS_OBJ(field);
+
+            expr->offset = f->offset;
+        } else {
+            error("Expecting a struct or known type.");
+        }
     }
     
     if (canAssign && match(TOKEN_EQUAL)) {
