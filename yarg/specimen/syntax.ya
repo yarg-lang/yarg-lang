@@ -10,6 +10,8 @@ type io_bank0_irq_ctrl struct {
     muint32 ro ints[4];
 }
 
+map io_bank0_irq_ctrl rw irq_ctrl@0x40014000;
+
 map struct {
     io_bank0_status_ctrl rw io[30];
     muint32 rw intr[4];
@@ -23,6 +25,7 @@ var core = 0d1;
 // .ints[gpio >> 0d3]
 
 for (var gpio = 0d0; gpio < NUM_BANK0_GPIOS; gpio= gpio + 0d8) {
+    rpeek(irq_ctrl.intf[2]);
     rpeek(io_bank0_hw.io[1]);
     rpeek(io_bank0_hw.proc_irq_ctrl[core]);
 }
