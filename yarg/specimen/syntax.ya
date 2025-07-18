@@ -22,10 +22,13 @@ map struct {
 var NUM_BANK0_GPIOS = 0d30;
 var core = 0d1;
 
-// .ints[gpio >> 0d3]
+rpeek(irq_ctrl.intf[2]);    // expect: 0x40014018
+rpeek(io_bank0_hw.io[1]);   // expect: 0x40014008
+rpeek(io_bank0_hw.proc_irq_ctrl[core]); // expect: core:0, 0x40014100
 
-for (var gpio = 0d0; gpio < NUM_BANK0_GPIOS; gpio= gpio + 0d8) {
-    rpeek(irq_ctrl.intf[2]);
-    rpeek(io_bank0_hw.io[1]);
-    rpeek(io_bank0_hw.proc_irq_ctrl[core]);
-}
+//for (var gpio = 0d0; gpio < NUM_BANK0_GPIOS; gpio= gpio + 0d8) {
+//    rpeek(irq_ctrl.intf[2]);    // expect: 0x40014018
+//    rpeek(io_bank0_hw.io[1]);   // expect: 0x40014008
+//    rpeek(io_bank0_hw.proc_irq_ctrl[core]); // expect: core:0, 0x40014100
+//    rpeek(io_bank0_hw.proc_irq_ctrl[core].ints[0]); // expect: core:0, 0x40014120
+//}
