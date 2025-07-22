@@ -232,6 +232,14 @@ ObjExprType* newExprType(ExprTypeType type) {
     return expr;
 }
 
+static int indendation = 0;
+
+void printIndentation() {
+    for (int i = 0; i < indendation; i++) {
+        printf("  ");
+    }
+}
+
 static void printExprOperation(ObjExprOperation* opexpr) {
     switch (opexpr->operation) {
         case EXPR_OP_EQUAL: printf("=="); break;
@@ -411,8 +419,13 @@ void printFunDeclaration(ObjStmtFunDeclaration* decl) {
     printf("fun ");
     printObject(OBJ_VAL(decl->name));
     printCallArgs(&decl->parameters);
-    printf("\n{\n");
+    printf("\n");
+    printIndentation();
+    printf("{\n");
+    indendation++;
     printStmts(decl->body);
+    indendation--;
+    printIndentation();
     printf("}");
 }
 
@@ -441,10 +454,14 @@ void printStmtClassDeclaration(ObjStmtClassDeclaration* class_) {
         printExpr(class_->superclass);
     }
     printf("\n{\n");
+    indendation++;
     for (int i = 0; i < class_->methods.objectCount; i++) {
+        printf("  ");
         printFunDeclaration((ObjStmtFunDeclaration*)class_->methods.objects[i]);
         printf("\n");
     }
+    indendation--;
+    printIndentation();
     printf("}");
 }
 
@@ -507,13 +524,16 @@ void printStmtVarDeclaration(ObjStmtVarDeclaration* decl) {
 
 void printStmtBlock(ObjStmtBlock* block) {
     printf("{\n");
+    indendation++;
     printStmts(block->statements);
+    indendation--;
     printf("}\n");
 }
 
 void printStmts(ObjStmt* stmts) {
     ObjStmt* cursor = stmts;
     while (cursor) {
+        printIndentation();
         switch (cursor->obj.type) {
             case OBJ_STMT_RETURN: // fall through
             case OBJ_STMT_YIELD:
