@@ -249,6 +249,9 @@ bool rpeekBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* 
 #ifdef CYARG_PICO_TARGET
     uint32_t res = *reg;
     *result = UINTEGER_VAL(res);
+    printf("rpeek(%08x):", nominal_address);
+    printValue(*result);
+    printf("\n");
 #else
     printf("rpeek(%08x)\n", nominal_address);
     *result = UINTEGER_VAL(0);

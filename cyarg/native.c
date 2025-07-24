@@ -19,9 +19,9 @@ void vm_irq_handler(void) {
 
     run(routine);
 
-    if (routine->state != EXEC_ERROR) {
-        routine->state = EXEC_CLOSED;
-    }
+    Value result = pop(routine); // unused.
+
+    prepareRoutineStack(routine);
 
     return;
 }
@@ -31,10 +31,18 @@ bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* args
     Value numVal = args[0];
     unsigned int num = as_positive_integer(numVal);
 
+    ObjRoutine* isrRoutine = AS_ROUTINE(args[1]);
+
     Value prioVal = args[2];
     unsigned int prio = as_positive_integer(prioVal);
 
-    ObjRoutine* isrRoutine = AS_ROUTINE(args[1]);
+    printf("adding shared IRQh: ");
+    printValue(args[1]);
+    printf(" num:");
+    printValue(numVal);
+    printf(" prio: ");
+    printValue(prioVal);
+    printf("\n");
 
     if (isrRoutine->type != ROUTINE_ISR) {
         runtimeError(routine, "Argument must be an ISR routine.");
@@ -57,6 +65,10 @@ bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, Value* args, Va
     *result = NIL_VAL;
     Value numVal = args[0];
     unsigned int num = as_positive_integer(numVal);
+
+    printf("removing shared IRQh for ");
+    printValue(numVal);
+    printf("\n");
 
 #ifdef CYARG_PICO_TARGET
 
