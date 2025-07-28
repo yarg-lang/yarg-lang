@@ -5,12 +5,16 @@ var pico_led = 0d25;
 var GPIO_OUT = true;
 var GPIO_IN = false;
 var GPIO_FUNC_SIO = 0d5;
-
-var RP2040 = true;
+var GPIO_IRQ_EDGE_FALL = 0x4;
+var GPIO_IRQ_EDGE_RISE = 0x8;
+var GPIO_IRQ_CALLBACK_ORDER_PRIORITY = 0d0;
+var NUM_BANK0_GPIOS = 0d30;
 
 var PADS_BANK0_GPIO0_IE_BITS = 0x00000040;
 var PADS_BANK0_GPIO0_OD_BITS = 0x00000080;
 var PADS_BANK0_GPIO0_ISO_BITS = 0x00000100;
+
+var callbacks = make_array(0d2);
 
 struct sio_hw@0xd0000000 {
     muint32 rw gpio_out@0x10;
@@ -74,9 +78,6 @@ fun gpio_init(pin) {
     gpio_set_function(pin, GPIO_FUNC_SIO);
 }
 
-var PADS_BANK0_BASE = 0x4001c000;
-var IO_BANK0_BASE   = 0x40014000;
-
 fun gpio_set_function(pin, function) {
 
     var pads_bank_0_pin_offset = 0d4 + 0d4 * pin;
@@ -90,10 +91,84 @@ fun gpio_set_function(pin, function) {
     var ctrl_offset = (0d8 * pin) + 0d4;
     var hw_ctrl = alias_reg(IO_BANK0_BASE + ctrl_offset);
     hw_ctrl.write(function);
+}
 
-    if (!RP2040) {
-        // Remove pad isolation now that the correct peripheral is in control of the pad
-        pinctrl.clr(PADS_BANK0_GPIO0_ISO_BITS);
+fun gpio_acknowledge_irq(gpio, events) {
+    var register_base = IO_BANK0_BASE;
+    register_base = register_base + 0d30 * 0d8;
+    var offset = (gpio / 0d8) * 0d4;
+
+    rpoke(register_base + offset, events << (0d4 * (gpio % 0d8)));
+}
+
+fun gpio_default_irq_handler() {
+    var core = coreNum();
+    var callback = callbacks[core];
+
+    var register_base = IO_BANK0_BASE;
+    register_base = register_base + 0d30 * 0d8;
+    register_base = register_base + 0d4 * 0d4;
+    register_base = register_base + core * 0d4 * 0d3 *0d4;
+    register_base = register_base + 0d2 * 0d4 * 0d4;
+
+    for (var gpio = 0d0; gpio < NUM_BANK0_GPIOS; gpio= gpio + 0d8) {
+        var gpio_bank = gpio >> 0d3;
+
+        var register_location = register_base + gpio_bank * 0d4;
+
+        var events8 = rpeek(register_location);
+      
+        for(var i = gpio; (events8 != 0d0) and (i < (gpio + 0d8)); i = i + 0d1) {
+            var events = events8 & 0xf;
+            if (events != 0d0) {
+                gpio_acknowledge_irq(i, events);
+                if (callback) {
+                    callback(i, events);
+                }
+            }
+            events8 = events8 >> 0d4;
+        }
     }
 }
 
+var gpio_handler_routine;
+
+fun gpio_set_irq_callback(callback) {
+    var core = coreNum();
+
+    if (!gpio_handler_routine) {
+        gpio_handler_routine = make_routine(gpio_default_irq_handler, true);
+    }
+    
+    if (callbacks[core]) {
+        if (!callback) {
+            irq_remove_handler(IO_IRQ_BANK0, gpio_handler_routine);
+        }
+        callbacks[core] = callback;
+    } else if (callback) {
+        callbacks[core] = callback;
+        irq_add_shared_handler(IO_IRQ_BANK0, gpio_handler_routine, GPIO_IRQ_CALLBACK_ORDER_PRIORITY);
+    }
+}
+
+fun gpio_set_irq_enabled(gpio, events, enabled) {
+    gpio_acknowledge_irq(gpio, events);
+
+    events = events << (0d4 * (gpio % 0d8));
+    var ctrl = alias_reg(0x40014100);
+
+    if (enabled) {
+        ctrl.set(events);
+    }
+    else {
+        ctrl.clr(events);
+    }
+}
+
+fun gpio_set_irq_enabled_with_callback(gpio, events, enabled, callback) {
+    gpio_set_irq_callback(callback);
+    gpio_set_irq_enabled(gpio, events, enabled);
+    if (enabled) {
+        irq_set_enabled(IO_IRQ_BANK0, true);
+    }
+}

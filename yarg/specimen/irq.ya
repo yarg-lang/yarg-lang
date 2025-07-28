@@ -1,0 +1,22 @@
+var PPB_BASE = 0xe0000000;
+var M0PLUS_NVIC_ISER_OFFSET = 0x0000e100;
+var NVIC_ISER_OFFSET = 0x0;
+var NVIC_ICER_OFFSET = 0x80;
+var NVIC_ISPR_OFFSET = 0x100;
+var NVIC_ICPR_OFFSET = 0x180;
+var NVIC_HW_BASE = PPB_BASE + M0PLUS_NVIC_ISER_OFFSET;
+
+var IO_IRQ_BANK0 = 0d13;
+
+fun irq_set_mask_n_enabled(n, mask, enabled) {
+    if (enabled) {
+        rpoke(NVIC_HW_BASE + NVIC_ICPR_OFFSET, mask);
+        rpoke(NVIC_HW_BASE + NVIC_ISER_OFFSET, mask);
+    } else {
+        rpoke(NVIC_HW_BASE + NVIC_ICER_OFFSET, mask);
+    }
+}
+
+fun irq_set_enabled(bank, enabled) {
+    irq_set_mask_n_enabled(bank / 0d32, 0d1 << (bank % 0d32), enabled);
+}
