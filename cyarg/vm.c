@@ -45,7 +45,6 @@ void initVM() {
     initRoutine(&vm.core0, ROUTINE_THREAD);
 
     vm.core1 = NULL;
-    vm.sharedISR = NULL;
 
     platform_mutex_init(&vm.heap);
 
@@ -75,9 +74,6 @@ void initVM() {
 #endif
     defineNative("ws2812_init", ws2812initNative);
     defineNative("ws2812_write_pixel", ws2812writepixelNative);
-
-    defineNative("irq_remove_handler", irq_remove_handlerNative);
-    defineNative("irq_add_shared_handler", irq_add_shared_handlerNative);
 
 }
 
@@ -231,17 +227,6 @@ static void defineMethod(ObjRoutine* routine, ObjString* name) {
 }
 
 static bool derefElement(ObjRoutine* routine) {
-    if (is_positive_integer(peek(routine, 0)) && is_positive_integer(peek(routine, 1))) {
-        // struct address elements
-        Value element = pop(routine);
-        Value base = pop(routine);
-
-        uint32_t address = as_positive_integer(element) + as_positive_integer(base);
-
-        push(routine, UINTEGER_VAL(address));
-        return true;
-    }
-
     if (!isArray(peek(routine, 1)) || !is_positive_integer(peek(routine, 0))) {
         runtimeError(routine, "Expected an array and a positive or unsigned integer.");
         return false;
