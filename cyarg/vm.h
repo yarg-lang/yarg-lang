@@ -13,6 +13,8 @@ typedef struct {
     ObjRoutine core0;
     ObjRoutine* core1;
 
+    ObjRoutine* sharedISR;
+
     Table globals;
     Table strings;
     ObjString* initString;

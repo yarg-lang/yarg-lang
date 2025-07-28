@@ -745,8 +745,8 @@ InterpretResult run(ObjRoutine* routine) {
 #undef BINARY_OP
 }
 
-InterpretResult interpret(const char* source, InterpretContext* ctx) {
-    ObjFunction* function = compile(source, ctx);
+InterpretResult interpret(const char* source) {
+    ObjFunction* function = compile(source);
     if (function == NULL) return INTERPRET_COMPILE_ERROR;
 
     tempRootPush(OBJ_VAL(function));

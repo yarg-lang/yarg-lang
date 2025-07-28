@@ -175,7 +175,6 @@ static void blackenObject(Obj* object) {
         case OBJ_AST: {
             ObjAst* ast = (ObjAst*)object;
             markObject((Obj*)ast->statements);
-            markTable(&ast->constants);
             break;
         }
         case OBJ_STMT_YIELD: // fall through
@@ -237,14 +236,6 @@ static void blackenObject(Obj* object) {
             markObject((Obj*)decl->name);
             markObject((Obj*)decl->superclass);
             markDynamicObjArray(&decl->methods);
-            break;
-        }
-        case OBJ_STMT_STRUCTDECLARATION: { 
-            ObjStmtStructDeclaration* struct_ = (ObjStmtStructDeclaration*)object;
-            markStmt(object);
-            markObject((Obj*)struct_->name);
-            markObject((Obj*)struct_->address);
-            markTable(&struct_->fields);
             break;
         }
         case OBJ_STMT_FIELDDECLARATION: {
@@ -336,10 +327,6 @@ static void blackenObject(Obj* object) {
             markObject((Obj*)expr->call);
             break;
         }
-        case OBJ_EXPR_TYPE: {
-            markExpr(object);
-            break;
-        }
         case OBJ_NATIVE:
         case OBJ_BLOB:
         case OBJ_CHANNEL:
@@ -424,7 +411,6 @@ static void freeObject(Obj* object) {
         }
         case OBJ_AST: {
             ObjAst* ast = (ObjAst*)object;
-            freeTable(&ast->constants);
             break;
         }
         case OBJ_STMT_RETURN: // fall through
@@ -446,12 +432,6 @@ static void freeObject(Obj* object) {
             ObjStmtClassDeclaration* decl = (ObjStmtClassDeclaration*)object;
             freeDynamicObjArray(&decl->methods);
             FREE(ObjStmtClassDeclaration, object);
-            break;
-        }
-        case OBJ_STMT_STRUCTDECLARATION: {
-            ObjStmtStructDeclaration* struct_ = (ObjStmtStructDeclaration*)object;
-            freeTable(&struct_->fields);
-            FREE(ObjStmtStructDeclaration, object); 
             break;
         }
         case OBJ_STMT_FIELDDECLARATION: FREE(ObjStmtFieldDeclaration, object); break;
@@ -478,7 +458,6 @@ static void freeObject(Obj* object) {
         case OBJ_EXPR_BUILTIN: FREE(ObjExprBuiltin, object); break;
         case OBJ_EXPR_DOT: FREE(ObjExprDot, object); break;
         case OBJ_EXPR_SUPER: FREE(OBJ_EXPR_SUPER, object); break;
-        case OBJ_EXPR_TYPE: FREE(ObjExprType, object); break;
     }
 }
 
@@ -488,6 +467,7 @@ static void markRoots() {
     markRoutine(&vm.core0);
     
     markObject((Obj*)vm.core1);
+    markObject((Obj*)vm.sharedISR);
 
     for (Value* slot = vm.tempRoots; slot < vm.tempRootsTop; slot++) {
         markValue(*slot);
