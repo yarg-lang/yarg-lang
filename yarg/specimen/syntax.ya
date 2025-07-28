@@ -12,24 +12,6 @@ var callbacks = make_array(0d2);
 
 var IO_BANK0_BASE = 0x40014000;
 
-type io_bank0_status_ctrl struct {
-    muint32 ro status;
-    muint32 rw ctrl;
-}
-
-type io_bank0_irq_ctrl struct {
-    muint32 rw inte[4];
-    muint32 rw intf[4];
-    muint32 ro ints[4];
-}
-
-map struct {
-    io_bank0_status_ctrl rw io[30];
-    muint32 rw intr[4];
-    io_bank0_irq_ctrl rw proc_irq_ctrl[2];
-    io_bank0_irq_ctrl rw dormant_wake_irq_ctrl;
-} rw io_bank0_hw@0x40014000;
-
 fun gpio_acknowledge_irq(gpio, events) {
     var register_base = IO_BANK0_BASE;
     register_base = register_base + 0d30 * 0d8;
