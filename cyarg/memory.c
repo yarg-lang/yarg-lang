@@ -175,7 +175,6 @@ static void blackenObject(Obj* object) {
         case OBJ_AST: {
             ObjAst* ast = (ObjAst*)object;
             markObject((Obj*)ast->statements);
-            markTable(&ast->constants);
             break;
         }
         case OBJ_STMT_YIELD: // fall through
@@ -424,7 +423,6 @@ static void freeObject(Obj* object) {
         }
         case OBJ_AST: {
             ObjAst* ast = (ObjAst*)object;
-            freeTable(&ast->constants);
             break;
         }
         case OBJ_STMT_RETURN: // fall through
@@ -488,6 +486,7 @@ static void markRoots() {
     markRoutine(&vm.core0);
     
     markObject((Obj*)vm.core1);
+    markObject((Obj*)vm.sharedISR);
 
     for (Value* slot = vm.tempRoots; slot < vm.tempRootsTop; slot++) {
         markValue(*slot);

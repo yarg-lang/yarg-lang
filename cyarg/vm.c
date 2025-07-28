@@ -764,11 +764,3 @@ InterpretResult interpret(const char* source) {
 
     return result;
 }
-
-void initContext(InterpretContext* ctx) {
-    initTable(&ctx->constants);
-}
-
-void freeContext(InterpretContext* ctx) {
-    freeTable(&ctx->constants);
-}
