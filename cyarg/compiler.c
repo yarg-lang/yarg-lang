@@ -528,7 +528,7 @@ static void generateExprSuper(ObjExprSuper* super) {
     tempRootPop();
 }
 
-static void generateExprType(ObjExprTypeBuiltin* type) {
+static void generateExprType(ObjExprType* type) {
     switch (type->type) {
         case EXPR_TYPE_MUINT32: emitByte(OP_TYPE_LITERAL); return;
         default: return; // unreachable.
@@ -603,8 +603,8 @@ static void generateExprElt(ObjExpr* expr) {
             generateExprSuper(super);
             break;
         }
-        case OBJ_EXPR_TYPE_BUILTIN: {
-            ObjExprTypeBuiltin* t = (ObjExprTypeBuiltin*)expr;
+        case OBJ_EXPR_TYPE: {
+            ObjExprType* t = (ObjExprType*)expr;
             generateExprType(t);
             break;
         }
@@ -930,7 +930,7 @@ static ObjFunction* endCompiler() {
     return function;
 }
 
-ObjFunction* compile(const char* source, InterpretContext* ctx) {
+ObjFunction* compile(const char* source) {
     hadCompilerError = false;
 
     initScanner(source);
@@ -942,7 +942,7 @@ ObjFunction* compile(const char* source, InterpretContext* ctx) {
     size_t bytesAllocated = vm.bytesAllocated;
 #endif
 
-    bool parseError = parse(current->ast, ctx);
+    bool parseError = parse(current->ast);
 
 #ifdef DEBUG_AST_PARSE
     collectGarbage();

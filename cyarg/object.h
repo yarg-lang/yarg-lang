@@ -67,9 +67,8 @@ typedef enum {
     OBJ_STMT_YIELD,
     OBJ_STMT_FOR,
     OBJ_STMT_CLASSDECLARATION,
-    OBJ_STMT_TYPEDECLARATION,
+    OBJ_STMT_STRUCTDECLARATION,
     OBJ_STMT_FIELDDECLARATION,
-    OBJ_STMT_MAPDECLARATION,
     OBJ_EXPR_NUMBER,
     OBJ_EXPR_OPERATION,
     OBJ_EXPR_GROUPING,
@@ -83,9 +82,7 @@ typedef enum {
     OBJ_EXPR_BUILTIN,
     OBJ_EXPR_DOT,
     OBJ_EXPR_SUPER,
-    OBJ_EXPR_TYPE_BUILTIN,
-    OBJ_EXPR_TYPE_STRUCT,
-    OBJ_EXPR_TYPE_KNOWN
+    OBJ_EXPR_TYPE
 } ObjType;
 
 struct Obj {
@@ -180,13 +177,6 @@ typedef struct ObjUniformArray {
     void* array;
 } ObjUniformArray;
 
-typedef struct ObjStructArray {
-    Obj obj;
-    size_t count;
-    size_t element_size;
-    uintptr_t base_address;
-} ObjStructArray;
-
 #define ALLOCATE_OBJ(type, objectType) \
     (type*)allocateObject(sizeof(type), objectType)
 
@@ -207,7 +197,6 @@ ObjNative* newNative(NativeFn function);
 ObjBlob* newBlob(size_t size);
 ObjValArray* newValArray(size_t capacity);
 ObjUniformArray* newUniformArray(ObjYargType* element_type, size_t capacity);
-ObjStructArray* newStructArray(size_t element_size, size_t capacity, uintptr_t base_address);
 ObjString* takeString(char* chars, int length);
 ObjString* copyString(const char* chars, int length);
 ObjUpvalue* newUpvalue(Value* slot);
