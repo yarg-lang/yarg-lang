@@ -21,6 +21,7 @@ typedef struct ObjExpr {
 typedef struct ObjAst {
     Obj obj;
     ObjStmt* statements;
+    Table constants;
 } ObjAst;
 
 typedef enum {
@@ -160,18 +161,7 @@ typedef enum {
 typedef struct {
     ObjExpr expr;
     ExprTypeType type;
-} ObjExprTypeBuiltin;
-
-typedef struct {
-    ObjExpr expr;
-    Table fields;
-    size_t size;
-} ObjExprTypeStruct;
-
-typedef struct {
-    ObjExpr expr;
-    ObjString* name;
-} ObjExprTypeKnown;
+} ObjExprType;
 
 typedef struct {
     ObjStmt stmt;
@@ -214,23 +204,14 @@ typedef struct {
     ObjString* name;
     AccessRule access;
     ObjExpr* offset;
-    ObjExpr* array_cardinality;
-    ObjExpr* type;
 } ObjStmtFieldDeclaration;
 
 typedef struct {
     ObjStmt stmt;
     ObjString* name;
-    AccessRule access;
     ObjExpr* address;
-    ObjExpr* type;
-} ObjStmtMapDeclaration;
-
-typedef struct {
-    ObjStmt stmt;
-    ObjString* name;
-    ObjExpr* type;
-} ObjStmtTypeDeclaration;
+    Table fields;
+} ObjStmtStructDeclaration;
 
 typedef struct {
     ObjStmt stmt;
@@ -270,9 +251,7 @@ ObjExprArrayElement* newExprArrayElement();
 ObjExprBuiltin* newExprBuiltin(ExprBuiltin fn, int arity);
 ObjExprDot* newExprDot(const char* name, int nameLength);
 ObjExprSuper* newExprSuper(const char* name, int nameLength);
-ObjExprTypeBuiltin* newExprTypeBuiltin(ExprTypeType type);
-ObjExprTypeStruct* newExprTypeStruct();
-ObjExprTypeKnown* newExprTypeKnown(const char* name, int nameLength);
+ObjExprType* newExprType(ExprTypeType type);
 
 ObjStmtExpression* newStmtExpression(ObjExpr* expr, ObjType statement, int line);
 ObjStmtBlock* newStmtBlock(int line);
@@ -280,10 +259,9 @@ ObjStmtBlock* newStmtBlock(int line);
 ObjStmtVarDeclaration* newStmtVarDeclaration(const char* name, int nameLength, ObjExpr* expr, int line);
 ObjStmtFunDeclaration* newStmtFunDeclaration(const char* name, int nameLength, int line);
 ObjStmtClassDeclaration* newStmtClassDeclaration(const char* name, int nameLength, int line);
-ObjStmtTypeDeclaration* newStmtTypeDeclaration(const char* name, int nameLength, int line);
+ObjStmtStructDeclaration* newStmtStructDeclaration(const char* name, int nameLength, int line);
 ObjStmtFieldDeclaration* newStmtFieldDeclaration(const char* name, int nameLength, int line);
-ObjStmtMapDeclaration* newStmtMapDeclaration(const char* name, int nameLength, int line);
- 
+
 ObjStmtIf* newStmtIf(int line);
 ObjStmtWhile* newStmtWhile(int line);
 ObjStmtFor* newStmtFor(int line);

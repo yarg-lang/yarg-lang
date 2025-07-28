@@ -1,6 +1,6 @@
-map struct {
-    muint32 ro cpuid;
-} rw sio_hw@0xd0000000;
+struct sio_hw@0xd0000000 {
+    muint32 ro cpuid@0x0;
+}
 
 fun coreNum() {
     return rpeek(sio_hw.cpuid);
