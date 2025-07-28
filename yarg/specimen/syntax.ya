@@ -31,14 +31,18 @@ map struct {
 } rw io_bank0_hw@0x40014000;
 
 fun gpio_acknowledge_irq(gpio, events) {
-    rpoke(io_bank0_hw.intr[gpio / 0d8], events << (0d4 * (gpio % 0d8)));
+    var register_base = IO_BANK0_BASE;
+    register_base = register_base + 0d30 * 0d8;
+    var offset = (gpio / 0d8) * 0d4;
+
+    rpoke(register_base + offset, events << (0d4 * (gpio % 0d8)));
 }
 
 fun gpio_default_irq_handler() {
     var core = coreNum();
     var callback = callbacks[core];
 
-    var register_base = io_bank0_hw;
+    var register_base = IO_BANK0_BASE;
     register_base = register_base + 0d30 * 0d8;
     register_base = register_base + 0d4 * 0d4;
     register_base = register_base + core * 0d4 * 0d3 *0d4;
@@ -79,42 +83,34 @@ fun gpio_set_irq_callback(callback) {
     }
 }
 
-map struct {
-    muint32 rw register;
-    muint32 wo xor@0x1000;
-    muint32 wo set@0x2000;
-    muint32 wo clr@0x3000;
-} rw ctrl@0x40014100;
-
 fun gpio_set_irq_enabled(gpio, events, enabled) {
     gpio_acknowledge_irq(gpio, events);
 
     events = events << (0d4 * (gpio % 0d8));
+    var ctrl = alias_reg(0x40014100);
+
     if (enabled) {
-        rpoke(ctrl.set, events);
+        ctrl.set(events);
     }
     else {
-        rpoke(ctrl.clr, events);
+        ctrl.clr(events);
     }
 }
 
-
 var PPB_BASE = 0xe0000000;
 var M0PLUS_NVIC_ISER_OFFSET = 0x0000e100;
-
-map struct {
-    muint32 rw iser@0x0;
-    muint32 rw icer@0x80;
-    muint32 rw ispr@0x100;
-    muint32 rw icpr@0x180;
-} rw nvic_hw@0xe000e100;
+var NVIC_ISER_OFFSET = 0x0;
+var NVIC_ICER_OFFSET = 0x80;
+var NVIC_ISPR_OFFSET = 0x100;
+var NVIC_ICPR_OFFSET = 0x180;
+var NVIC_HW_BASE = PPB_BASE + M0PLUS_NVIC_ISER_OFFSET;
 
 fun irq_set_mask_n_enabled(n, mask, enabled) {
     if (enabled) {
-        rpoke(nvic_hw.icpr, mask);
-        rpoke(nvic_hw.iser, mask);
+        rpoke(NVIC_HW_BASE + NVIC_ICPR_OFFSET, mask);
+        rpoke(NVIC_HW_BASE + NVIC_ISER_OFFSET, mask);
     } else {
-        rpoke(nvic_hw.icer, mask);
+        rpoke(NVIC_HW_BASE + NVIC_ICER_OFFSET, mask);
     }
 }
 
