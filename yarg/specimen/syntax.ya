@@ -1,25 +1,14 @@
 import("machine");
 import("gpio");
 
-var gpio_watch = 0d2;
 var GPIO_IRQ_EDGE_FALL = 0x4;
 var GPIO_IRQ_EDGE_RISE = 0x8;
 var GPIO_IRQ_CALLBACK_ORDER_PRIORITY = 0d0;
 var NUM_BANK0_GPIOS = 0d30;
-var raw_irq_mask = make_array(0d2);
-raw_irq_mask[0] = 0d0;
-raw_irq_mask[1] = 0d0;
 
 var IO_IRQ_BANK0 = 0d13;
 
 var callbacks = make_array(0d2);
-
-fun gpio_callback(num, events) {
-    print "hello";
-    print num;
-    print " events: ";
-    print events;
-}
 
 var IO_BANK0_BASE = 0x40014000;
 
@@ -64,7 +53,7 @@ fun gpio_default_irq_handler() {
       
         for(var i = gpio; (events8 != 0d0) and (i < (gpio + 0d8)); i = i + 0d1) {
             var events = events8 & 0xf;
-            if (events != 0d0 and (raw_irq_mask[core] & (0d1 << i) == 0d0)) {
+            if (events != 0d0) {
                 gpio_acknowledge_irq(i, events);
                 if (callback) {
                     callback(i, events);
@@ -141,6 +130,18 @@ fun gpio_set_irq_enabled_with_callback(gpio, events, enabled, callback) {
     }
 }
 
-gpio_init(gpio_watch);
+var state1 = false;
+var gpio_button1 = 0d2;
+var gpio_led1 = 0d3;
 
-gpio_set_irq_enabled_with_callback(gpio_watch, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, gpio_callback);
+fun gpio_callback(num, events) {
+    state1 = !state1;
+    gpio_put(gpio_led1, state1);
+}
+
+gpio_init(gpio_led1);
+gpio_set_direction(gpio_led1, GPIO_OUT);
+
+gpio_init(gpio_button1);
+
+gpio_set_irq_enabled_with_callback(gpio_button1, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, gpio_callback);
