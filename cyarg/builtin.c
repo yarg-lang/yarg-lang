@@ -17,16 +17,10 @@
 #include "compiler.h"
 #include "channel.h"
 #include "yargtype.h"
-#include "interpret_context.h"
 
 InterpretResult interpretImport(const char* source) {
 
-    InterpretContext context;
-    initContext(&context);
-
-    ObjFunction* function = compile(source, &context);
-    freeContext(&context);
-
+    ObjFunction* function = compile(source);
     if (function == NULL) return INTERPRET_COMPILE_ERROR;
     tempRootPush(OBJ_VAL(function));
 
@@ -249,9 +243,6 @@ bool rpeekBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* 
 #ifdef CYARG_PICO_TARGET
     uint32_t res = *reg;
     *result = UINTEGER_VAL(res);
-    printf("rpeek(%08x):", nominal_address);
-    printValue(*result);
-    printf("\n");
 #else
     printf("rpeek(%08x)\n", nominal_address);
     *result = UINTEGER_VAL(0);
@@ -266,7 +257,6 @@ bool rpokeBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* 
 
     uint32_t val = AS_UINTEGER(args[1]);
 #ifdef CYARG_PICO_TARGET
-    printf("rpoke(%08x, %08x)\n", nominal_address, val);
     *reg = val;
 #else
     printf("rpoke(%08x, %08x)\n", nominal_address, val);
