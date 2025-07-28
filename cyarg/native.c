@@ -36,14 +36,6 @@ bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* args
     Value prioVal = args[2];
     unsigned int prio = as_positive_integer(prioVal);
 
-    printf("adding shared IRQh: ");
-    printValue(args[1]);
-    printf(" num:");
-    printValue(numVal);
-    printf(" prio: ");
-    printValue(prioVal);
-    printf("\n");
-
     if (isrRoutine->type != ROUTINE_ISR) {
         runtimeError(routine, "Argument must be an ISR routine.");
         return false;
