@@ -1,4 +1,5 @@
 import("machine");
+import("irq");
 
 var pico_led = 0d25;
 
@@ -50,37 +51,37 @@ class alias_reg2 {
     xor(mask) { rpoke(this.base + 0x12, mask); }
 }
 
-fun gpio_set_direction(pin, dir) {
+fun gpio_set_direction(gpio, dir) {
     var ctrl = alias_reg2(sio_hw.gpio_oe);
 
     if (dir) {
-        ctrl.set(0x1 << pin);
+        ctrl.set(0x1 << gpio);
     }
     else {
-        ctrl.clr(0x1 << pin);
+        ctrl.clr(0x1 << gpio);
     }
 }
 
-fun gpio_put(pin, value) {
+fun gpio_put(gpio, value) {
     var ctrl = alias_reg2(sio_hw.gpio_out);
 
     if (value) {
-        ctrl.set(0x1 << pin);
+        ctrl.set(0x1 << gpio);
     }
     else {
-        ctrl.clr(0x1 << pin);
+        ctrl.clr(0x1 << gpio);
     }
 }
 
-fun gpio_init(pin) {
-    gpio_set_direction(pin, GPIO_IN);
-    gpio_put(pin, false);
-    gpio_set_function(pin, GPIO_FUNC_SIO);
+fun gpio_init(gpio) {
+    gpio_set_direction(gpio, GPIO_IN);
+    gpio_put(gpio, false);
+    gpio_set_function(gpio, GPIO_FUNC_SIO);
 }
 
-fun gpio_set_function(pin, function) {
+fun gpio_set_function(gpio, function) {
 
-    var pads_bank_0_pin_offset = 0d4 + 0d4 * pin;
+    var pads_bank_0_pin_offset = 0d4 + 0d4 * gpio;
     var pinctrl = alias_reg(PADS_BANK0_BASE + pads_bank_0_pin_offset);
 
     // Set input enable on, output disable off
@@ -88,7 +89,7 @@ fun gpio_set_function(pin, function) {
 
     // Zero all fields apart from fsel; we want this IO to do what the peripheral tells it.
     // This doesn't affect e.g. pullup/pulldown, as these are in pad controls.
-    var ctrl_offset = (0d8 * pin) + 0d4;
+    var ctrl_offset = (0d8 * gpio) + 0d4;
     var hw_ctrl = alias_reg(IO_BANK0_BASE + ctrl_offset);
     hw_ctrl.write(function);
 }
@@ -132,22 +133,24 @@ fun gpio_default_irq_handler() {
 }
 
 var gpio_handler_routine;
+var pinned_gpio_handler_routine;
 
 fun gpio_set_irq_callback(callback) {
     var core = coreNum();
 
     if (!gpio_handler_routine) {
         gpio_handler_routine = make_routine(gpio_default_irq_handler, true);
+        pinned_gpio_handler_routine = pin(gpio_handler_routine);
     }
     
     if (callbacks[core]) {
         if (!callback) {
-            irq_remove_handler(IO_IRQ_BANK0, gpio_handler_routine);
+            irq_remove_handler(IO_IRQ_BANK0, pinned_gpio_handler_routine);
         }
         callbacks[core] = callback;
     } else if (callback) {
         callbacks[core] = callback;
-        irq_add_shared_handler(IO_IRQ_BANK0, gpio_handler_routine, GPIO_IRQ_CALLBACK_ORDER_PRIORITY);
+        irq_add_shared_handler(IO_IRQ_BANK0, pinned_gpio_handler_routine, GPIO_IRQ_CALLBACK_ORDER_PRIORITY);
     }
 }
 
