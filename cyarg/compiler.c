@@ -649,6 +649,10 @@ static void generateVarDeclaration(ObjStmtVarDeclaration* decl) {
         emitByte(OP_NIL);
     }
 
+    emitByte(OP_NIL);
+
+    emitByte(OP_SET_TYPE);
+
     defineVariable(global);
 }
 

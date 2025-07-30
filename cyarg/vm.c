@@ -778,6 +778,10 @@ InterpretResult run(ObjRoutine* routine) {
                 push(routine, OBJ_VAL(typeObj));
                 break;
             }
+            case OP_SET_TYPE: {
+                Value type = pop(routine);
+                break;
+            }
         }
     }
 

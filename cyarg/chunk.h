@@ -53,7 +53,8 @@ typedef enum {
     OP_ELEMENT,
     OP_SET_ELEMENT,
     OP_IMMEDIATE,
-    OP_TYPE_LITERAL
+    OP_TYPE_LITERAL,
+    OP_SET_TYPE
 } OpCode;
 
 typedef struct {
