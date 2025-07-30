@@ -18,7 +18,11 @@ bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* args
     Value numVal = args[0];
     unsigned int num = as_positive_integer(numVal);
 
+#ifdef CYARG_PICO_TARGET
     uintptr_t isrRoutine = AS_UINTEGER(args[1]);
+#else
+    uintptr_t isrRoutine = (uintptr_t) vm.pinnedRoutineHandlers[AS_UINTEGER(args[1])];
+#endif
 
     Value prioVal = args[2];
     unsigned int prio = as_positive_integer(prioVal);
@@ -40,7 +44,11 @@ bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, Value* args, Va
     Value numVal = args[0];
     unsigned int num = as_positive_integer(numVal);
 
+#ifdef CYARG_PICO_TARGET
     uintptr_t isrRoutine = AS_UINTEGER(args[1]);
+#else
+    uintptr_t isrRoutine = (uintptr_t) vm.pinnedRoutineHandlers[AS_UINTEGER(args[1])];
+#endif
 
 #ifdef CYARG_PICO_TARGET
     irq_remove_handler(num, (irq_handler_t) isrRoutine);

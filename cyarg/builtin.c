@@ -343,7 +343,11 @@ bool pinBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* re
     for (size_t i = 0; i < MAX_PINNED_ROUTINES; i++) {
         if (vm.pinnedRoutines[i] == NULL) {
             vm.pinnedRoutines[i] = AS_ROUTINE(args[0]);
+#ifdef CYARG_PICO_TARGET
             *result = UINTEGER_VAL(vm.pinnedRoutineHandlers[i]);
+#else
+            *result = UINTEGER_VAL(i);
+#endif
             return true;
         }
     }
