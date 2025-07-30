@@ -783,6 +783,16 @@ InterpretResult interpret(const char* source) {
     ObjFunction* function = compile(source);
     if (function == NULL) return INTERPRET_COMPILE_ERROR;
 
+#ifdef DEBUG_TRACE_EXECUTION
+    disassembleChunk(&function->chunk, "<script>");
+    for (int i = 0; i < function->chunk.constants.count; i++) {
+        if (IS_FUNCTION(function->chunk.constants.values[i])) {
+            ObjFunction* fun = AS_FUNCTION(function->chunk.constants.values[i]);
+            disassembleChunk(&fun->chunk, fun->name->chars);
+        }
+    }
+#endif
+
     tempRootPush(OBJ_VAL(function));
     ObjClosure* closure = newClosure(function);
     tempRootPop();
