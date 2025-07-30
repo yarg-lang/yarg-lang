@@ -78,6 +78,12 @@ void markValue(Value value) {
     if (IS_OBJ(value)) markObject(AS_OBJ(value));
 }
 
+void markValueCell(ValueCell* cell) {
+    if (cell == NULL) return;
+    markValue(cell->value);
+    markValue(cell->type);
+}
+
 static void markArray(ValueArray* array) {
     for (int i = 0; i < array->count; i++) {
         markValue(array->values[i]);
@@ -140,7 +146,7 @@ static void blackenObject(Obj* object) {
             break;
         }
         case OBJ_UPVALUE:
-            markValue(((ObjUpvalue*)object)->closed);
+            markValueCell(&((ObjUpvalue*)object)->closed);
             break;
         case OBJ_ROUTINE: {
             ObjRoutine* stack = (ObjRoutine*)object;
@@ -492,7 +498,7 @@ static void markRoots() {
         markValue(*slot);
     }
 
-    markTable(&vm.globals);
+    markCellTable(&vm.globals);
     markCompilerRoots();
     markObject((Obj*)vm.initString);
 }

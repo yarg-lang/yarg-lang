@@ -55,18 +55,18 @@ static char* libraryNameFor(const char* importname) {
     return filename;
 }
 
-bool importBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* result) {
+bool importBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
     if (argCount != 1) {
         runtimeError(routineContext, "Expected 1 arguments but got %d.", argCount);
         return false;
     }
-    if (!IS_STRING(args[0])) {
+    if (!IS_STRING(args[0].value)) {
         runtimeError(routineContext, "Argument to import must be string.");
         return false;
     }
 
     char* source = NULL;
-    char* library = libraryNameFor(AS_CSTRING(args[0]));
+    char* library = libraryNameFor(AS_CSTRING(args[0].value));
     if (library) {
         source = readFile(library);
         free(library);
@@ -94,18 +94,18 @@ bool importBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value*
 
 }
 
-bool makeRoutineBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* result) {
+bool makeRoutineBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
     if (argCount != 2) {
         runtimeError(routineContext, "Expected 2 arguments but got %d.", argCount);
         return false;
     }
-    if (!IS_CLOSURE(args[0]) || !IS_BOOL(args[1])) {
+    if (!IS_CLOSURE(args[0].value) || !IS_BOOL(args[1].value)) {
         runtimeError(routineContext, "Argument to make_routine must be a function and a boolean.");
         return false;
     }
 
-    ObjClosure* closure = AS_CLOSURE(args[0]);
-    bool isISR = AS_BOOL(args[1]);
+    ObjClosure* closure = AS_CLOSURE(args[0].value);
+    bool isISR = AS_BOOL(args[1].value);
 
     ObjRoutine* routine = newRoutine(isISR ? ROUTINE_ISR : ROUTINE_THREAD);
 
@@ -119,18 +119,18 @@ bool makeRoutineBuiltin(ObjRoutine* routineContext, int argCount, Value* args, V
     }
 }
 
-bool resumeBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* result) {
+bool resumeBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
     if (argCount < 1 || argCount > 2) {
         runtimeError(routineContext, "Expected one or two arguments to resume.");
         return false;
     }
 
-    if (!IS_ROUTINE(args[0])) {
+    if (!IS_ROUTINE(args[0].value)) {
         runtimeError(routineContext, "Argument to resume must be a routine.");
         return false;
     }
 
-    ObjRoutine* target = AS_ROUTINE(args[0]);
+    ObjRoutine* target = AS_ROUTINE(args[0].value);
 
     if (target->state != EXEC_SUSPENDED && target->state != EXEC_UNBOUND) {
         runtimeError(routineContext, "routine must be suspended or unbound to resume.");
@@ -138,7 +138,7 @@ bool resumeBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value*
     }
 
     if (argCount > 1) {
-        bindEntryArgs(target, args[1]);
+        bindEntryArgs(target, args[1].value);
     }
 
     if (target->state == EXEC_UNBOUND) {
@@ -184,19 +184,19 @@ void nativeCore1Entry() {
 }
 #endif
 
-bool startBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* result) {
+bool startBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
 #ifdef CYARG_PICO_TARGET
     if (argCount < 1 || argCount > 2) {
         runtimeError(routineContext, "Expected one or two arguments to start.");
         return false;
     }
 
-    if (!IS_ROUTINE(args[0])) {
+    if (!IS_ROUTINE(args[0].value)) {
         runtimeError(routineContext, "Argument to start must be a routine.");
         return false;
     }
 
-    ObjRoutine* target = AS_ROUTINE(args[0]);
+    ObjRoutine* target = AS_ROUTINE(args[0].value);
 
     if (target->state != EXEC_UNBOUND) {
         runtimeError(routineContext, "routine must be unbound to start.");
@@ -209,7 +209,7 @@ bool startBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* 
     }
 
     if (argCount > 1) {
-        bindEntryArgs(target, args[1]);
+        bindEntryArgs(target, args[1].value);
     }
 
     prepareRoutineStack(target);
@@ -235,9 +235,9 @@ bool startBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* 
 
 typedef volatile uint32_t Register;
 
-bool rpeekBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* result) {
+bool rpeekBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
     
-    uint32_t nominal_address = AS_UINTEGER(args[0]);
+    uint32_t nominal_address = AS_UINTEGER(args[0].value);
     Register* reg = (Register*) (uintptr_t)nominal_address;
 
 #ifdef CYARG_PICO_TARGET
@@ -250,12 +250,12 @@ bool rpeekBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* 
     return true;
 }
 
-bool rpokeBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* result) {
+bool rpokeBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
 
-    uint32_t nominal_address = AS_UINTEGER(args[0]);
+    uint32_t nominal_address = AS_UINTEGER(args[0].value);
     Register* reg = (Register*) (uintptr_t)nominal_address;
 
-    uint32_t val = AS_UINTEGER(args[1]);
+    uint32_t val = AS_UINTEGER(args[1].value);
 #ifdef CYARG_PICO_TARGET
     *reg = val;
 #else
@@ -264,7 +264,7 @@ bool rpokeBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* 
     return true;
 }
 
-bool makeArrayBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* result) {
+bool makeArrayBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
 
     if (argCount < 1 || argCount > 2) {
         runtimeError(routineContext, "Expected 1 or two arguments, but got %d.", argCount);
@@ -272,19 +272,19 @@ bool makeArrayBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Val
     }
 
     int index_arg = 0;
-    if ((IS_YARGTYPE(args[0]) || IS_NIL(args[0])) && argCount == 2) {
+    if ((IS_YARGTYPE(args[0].value) || IS_NIL(args[0].value)) && argCount == 2) {
         index_arg = 1;
     }
 
-    if (!IS_UINTEGER(args[index_arg]) && !IS_INTEGER(args[index_arg])) {
+    if (!IS_UINTEGER(args[index_arg].value) && !IS_INTEGER(args[index_arg].value)) {
         runtimeError(routineContext, "Size argument must be integer or unsigned integer.");
         return false;
     }
     uint32_t capacity = 0;
-    if (IS_UINTEGER(args[index_arg])) {
-        capacity = AS_UINTEGER(args[index_arg]);
-    } else if (IS_INTEGER(args[index_arg]) && AS_INTEGER(args[index_arg]) >= 0) {
-        capacity = AS_INTEGER(args[index_arg]);
+    if (IS_UINTEGER(args[index_arg].value)) {
+        capacity = AS_UINTEGER(args[index_arg].value);
+    } else if (IS_INTEGER(args[index_arg].value) && AS_INTEGER(args[index_arg].value) >= 0) {
+        capacity = AS_INTEGER(args[index_arg].value);
     } else {
         runtimeError(routineContext, "Argument must be positive.");
         return false;
@@ -296,8 +296,8 @@ bool makeArrayBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Val
     }
 
    
-    if (IS_YARGTYPE(args[0])) {
-        ObjYargType* type = AS_YARGTYPE(args[0]);
+    if (IS_YARGTYPE(args[0].value)) {
+        ObjYargType* type = AS_YARGTYPE(args[0].value);
         ObjUniformArray* array = newUniformArray(type, capacity);
         *result = OBJ_VAL(array);
     } else {
@@ -308,18 +308,18 @@ bool makeArrayBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Val
     return true;
 }
 
-bool lenBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* result) {
+bool lenBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
     if (argCount != 1) {
         runtimeError(routineContext, "Expected 1 argument, but got %d.", argCount);
         return false;
     }
 
-    if (IS_STRING(args[0])) {
-        ObjString* string = AS_STRING(args[0]);
+    if (IS_STRING(args[0].value)) {
+        ObjString* string = AS_STRING(args[0].value);
         *result = UINTEGER_VAL(string->length);
         return true;
-    } else if (IS_VALARRAY(args[0])) {
-        ObjValArray* array = AS_VALARRAY(args[0]);
+    } else if (IS_VALARRAY(args[0].value)) {
+        ObjValArray* array = AS_VALARRAY(args[0].value);
         *result = UINTEGER_VAL(array->array.count);
         return true;
     } else {
@@ -328,20 +328,20 @@ bool lenBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* re
     }
 }
 
-bool pinBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* result) {
+bool pinBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
     if (argCount != 1) {
         runtimeError(routineContext, "Expected 1 argument, but got %d.", argCount);
         return false;
     }
 
-    if (!IS_ROUTINE(args[0])) {
+    if (!IS_ROUTINE(args[0].value)) {
         runtimeError(routineContext, "Argument to pin must be a routine.");
         return false;
     }
 
     for (size_t i = 0; i < MAX_PINNED_ROUTINES; i++) {
         if (vm.pinnedRoutines[i] == NULL) {
-            vm.pinnedRoutines[i] = AS_ROUTINE(args[0]);
+            vm.pinnedRoutines[i] = AS_ROUTINE(args[0].value);
 #ifdef CYARG_PICO_TARGET
             *result = UINTEGER_VAL((uintptr_t)vm.pinnedRoutineHandlers[i]);
 #else

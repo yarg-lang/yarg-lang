@@ -5,6 +5,7 @@
 #include "chunk.h"
 #include "table.h"
 #include "value.h"
+#include "value_cell.h"
 
 typedef struct ObjYargType ObjYargType;
 
@@ -106,7 +107,7 @@ typedef struct {
     ObjString* name;
 } ObjFunction;
 
-typedef bool (*NativeFn)(ObjRoutine* routine, int argCount, Value* args, Value* result);
+typedef bool (*NativeFn)(ObjRoutine* routine, int argCount, ValueCell* args, Value* result);
 
 typedef struct {
     Obj obj;
@@ -127,8 +128,8 @@ struct ObjString {
 
 typedef struct ObjUpvalue {
     Obj obj;
-    Value* location;
-    Value closed;
+    ValueCell* location;
+    ValueCell closed;
     struct ObjUpvalue* next;
 } ObjUpvalue;
 
@@ -199,7 +200,7 @@ ObjValArray* newValArray(size_t capacity);
 ObjUniformArray* newUniformArray(ObjYargType* element_type, size_t capacity);
 ObjString* takeString(char* chars, int length);
 ObjString* copyString(const char* chars, int length);
-ObjUpvalue* newUpvalue(Value* slot);
+ObjUpvalue* newUpvalue(ValueCell* slot);
 
 void printObject(Value value);
 void fprintObject(FILE* op, Value value);

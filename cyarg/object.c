@@ -210,9 +210,10 @@ ObjString* copyString(const char* chars, int length) {
     return allocateString(heapChars, length, hash);
 }
 
-ObjUpvalue* newUpvalue(Value* slot) {
+ObjUpvalue* newUpvalue(ValueCell* slot) {
     ObjUpvalue* upvalue = ALLOCATE_OBJ(ObjUpvalue, OBJ_UPVALUE);
-    upvalue->closed = NIL_VAL;
+    upvalue->closed.value = NIL_VAL;
+    upvalue->closed.type = NIL_VAL;
     upvalue->location = slot;
     upvalue->next = NULL;
     return upvalue;

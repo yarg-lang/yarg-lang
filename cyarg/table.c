@@ -148,3 +148,148 @@ void markTable(ValueTable* table) {
         markValue(entry->value);
     }
 }
+
+void initCellTable(ValueCellTable* table) {
+    table->count = 0;
+    table->capacity = 0;
+    table->entries = NULL;
+}
+
+void freeCellTable(ValueCellTable* table) {
+    FREE_ARRAY(EntryCell, table->entries, table->capacity);
+    initCellTable(table);
+}
+
+static EntryCell* findCellEntry(EntryCell* entries, int capacity, ObjString* key) {
+    uint32_t index = key->hash & (capacity - 1);
+    EntryCell* tombstone = NULL;
+
+    for (;;) {
+        EntryCell* entry = &entries[index];
+        if (entry->key == NULL) {
+            if (IS_NIL(entry->cell.value)) {
+                // Empty entry.
+                return tombstone != NULL ? tombstone : entry;
+            } else {
+                // We found a tombstone.
+                if (tombstone == NULL) tombstone = entry;
+            }
+        } else if (entry->key == key) {
+            // We found the key.
+            return entry;
+        }
+
+        index = (index + 1) & (capacity - 1);
+    }
+}
+
+bool tableCellGet(ValueCellTable* table, ObjString* key, ValueCell* value) {
+    if (table->count == 0) return false;
+
+    EntryCell* entry = findCellEntry(table->entries, table->capacity, key);
+    if (entry->key == NULL) return false;
+
+    *value = entry->cell;
+    return true;
+}
+
+static void adjustCellCapacity(ValueCellTable* table, int capacity) {
+    EntryCell* entries = ALLOCATE(EntryCell, capacity);
+    for (int i = 0; i < capacity; i++) {
+        entries[i].key = NULL;
+        entries[i].cell.value = NIL_VAL;
+        entries[i].cell.type = NIL_VAL;
+    }
+
+    table->count = 0;
+    for (int i = 0; i < table->capacity; i++) {
+        EntryCell* entry = &table->entries[i];
+        if (entry->key == NULL) continue;
+
+        EntryCell* dest = findCellEntry(entries, capacity, entry->key);
+        dest->key = entry->key;
+        dest->cell.value = entry->cell.value;
+        dest->cell.type = entry->cell.type;
+        table->count++;
+    }
+
+    FREE_ARRAY(EntryCell, table->entries, table->capacity);
+    table->entries = entries;
+    table->capacity = capacity;
+}
+
+bool tableCellSet(ValueCellTable* table, ObjString* key, ValueCell cell) {
+    if (table->count + 1 > table->capacity * TABLE_MAX_LOAD) {
+        int capacity = GROW_CAPACITY(table->capacity);
+        adjustCellCapacity(table, capacity);
+    }
+
+    EntryCell* entry = findCellEntry(table->entries, table->capacity, key);
+    bool isNewKey = entry->key == NULL;
+    if (isNewKey && IS_NIL(entry->cell.value)) table->count++;
+
+    entry->key = key;
+    entry->cell.value = cell.value;
+    entry->cell.type = cell.type;
+    return isNewKey;
+}
+
+bool tableCellDelete(ValueCellTable* table, ObjString* key) {
+    if (table->count == 0) return false;
+
+    // Find the entry.
+    EntryCell* entry = findCellEntry(table->entries, table->capacity, key);
+    if (entry->key == NULL) return false;
+
+    // Place a tombstone in the entry.
+    entry->key = NULL;
+    entry->cell.value = BOOL_VAL(true);
+    entry->cell.type = NIL_VAL;
+    return true;
+}
+
+void tableCellAddAll(ValueCellTable* from, ValueCellTable* to) {
+    for (int i = 0; i < from->capacity; i++) {
+        EntryCell* entry = &from->entries[i];
+        if (entry->key != NULL) {
+            tableCellSet(to, entry->key, entry->cell);
+        }
+    }
+}
+
+ObjString* tableCellFindString(ValueCellTable* table, const char* chars, int length, uint32_t hash) {
+    if (table->count == 0) return NULL;
+
+    uint32_t index = hash & (table->capacity - 1);
+    for (;;) {
+        EntryCell* entry = &table->entries[index];
+        if (entry->key == NULL) {
+            // Stop if we find an empty non-tombstone entry.
+            if (IS_NIL(entry->cell.value)) return NULL;
+        } else if (entry->key->length == length &&
+                   entry->key->hash == hash &&
+                   memcmp(entry->key->chars, chars, length) == 0) {
+            // We found it.
+            return entry->key;
+        }
+
+        index = (index + 1) & (table->capacity - 1);
+    }
+}
+
+void tableCellRemoveWhite(ValueCellTable* table) {
+    for (int i = 0; i < table->capacity; i++) {
+        EntryCell* entry = &table->entries[i];
+        if (entry->key != NULL && !entry->key->obj.isMarked) {
+            tableCellDelete(table, entry->key);
+        }
+    }
+}
+
+void markCellTable(ValueCellTable* table) {
+    for (int i = 0; i < table->capacity; i++) {
+        EntryCell* entry = &table->entries[i];
+        markObject((Obj*)entry->key);
+        markValueCell(&entry->cell);
+    }
+}

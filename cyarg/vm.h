@@ -20,7 +20,7 @@ typedef struct {
     ObjRoutine*   pinnedRoutines[MAX_PINNED_ROUTINES];
     PinnedRoutineHandler pinnedRoutineHandlers[MAX_PINNED_ROUTINES];
     
-    ValueTable globals;
+    ValueCellTable globals;
     ValueTable strings;
     ObjString* initString;
 

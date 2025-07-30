@@ -220,9 +220,11 @@ int disassembleInstruction(Chunk* chunk, int offset) {
 
 void printValueStack(ObjRoutine* routine, const char* message) {
     printf("%8s", message);
-    for (Value* slot = routine->stack; slot < routine->stackTop; slot++) {
+    for (ValueCell* slot = routine->stack; slot < routine->stackTop; slot++) {
         printf("[ ");
-        printValue(*slot);
+        printValue(slot->value);
+        printf(":");
+        printValue(slot->type);
         printf(" ]");
     }
     printf("\n");

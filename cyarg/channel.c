@@ -15,7 +15,7 @@ ObjChannel* newChannel() {
     return channel;
 }
 
-bool makeChannelBuiltin(ObjRoutine* routine, int argCount, Value* args, Value* result) {
+bool makeChannelBuiltin(ObjRoutine* routine, int argCount, ValueCell* args, Value* result) {
     if (argCount != 0) {
         runtimeError(routine, "Expected 0 arguments but got %d.", argCount);
         return false;
@@ -27,17 +27,17 @@ bool makeChannelBuiltin(ObjRoutine* routine, int argCount, Value* args, Value* r
     return true;
 }
 
-bool sendChannelBuiltin(ObjRoutine* routine, int argCount, Value* args, Value* result) {
+bool sendChannelBuiltin(ObjRoutine* routine, int argCount, ValueCell* args, Value* result) {
     if (argCount != 2) {
         runtimeError(routine, "Expected 2 arguments, got %d.", argCount);
         return false;
     }
-    if (!IS_CHANNEL(args[0])) {
+    if (!IS_CHANNEL(args[0].value)) {
         runtimeError(routine, "Argument must be a channel.");
         return false;
     }
 
-    ObjChannel* channel = AS_CHANNEL(args[0]);
+    ObjChannel* channel = AS_CHANNEL(args[0].value);
 #ifdef CYARG_PICO_TARGET
     while (channel->present) {
         // stall/block until space
@@ -45,7 +45,7 @@ bool sendChannelBuiltin(ObjRoutine* routine, int argCount, Value* args, Value* r
     }
 #endif
 
-    channel->data = args[1];
+    channel->data = args[1].value;
     channel->present = true;
     channel->overflow = false;
     *result = BOOL_VAL(channel->overflow);
@@ -53,18 +53,18 @@ bool sendChannelBuiltin(ObjRoutine* routine, int argCount, Value* args, Value* r
     return true;
 }
 
-bool receiveChannelBuiltin(ObjRoutine* routine, int argCount, Value* args, Value* result) {
+bool receiveChannelBuiltin(ObjRoutine* routine, int argCount, ValueCell* args, Value* result) {
     if (argCount != 1) {
         runtimeError(routine, "Expected 1 arguments, got %d.", argCount);
         return false;
     }
-    if (!IS_CHANNEL(args[0]) && !IS_ROUTINE(args[0])) {
+    if (!IS_CHANNEL(args[0].value) && !IS_ROUTINE(args[0].value)) {
         runtimeError(routine, "Argument must be a channel or a routine.");
         return false;
     }
 
-    if (IS_CHANNEL(args[0])) {
-        ObjChannel* channel = AS_CHANNEL(args[0]);
+    if (IS_CHANNEL(args[0].value)) {
+        ObjChannel* channel = AS_CHANNEL(args[0].value);
 #ifdef CYARG_PICO_TARGET
         while (!channel->present) {
             // stall/block until space
@@ -76,8 +76,8 @@ bool receiveChannelBuiltin(ObjRoutine* routine, int argCount, Value* args, Value
         channel->overflow = false;
 
     } 
-    else if (IS_ROUTINE(args[0])) {
-        ObjRoutine* routine = AS_ROUTINE(args[0]);
+    else if (IS_ROUTINE(args[0].value)) {
+        ObjRoutine* routine = AS_ROUTINE(args[0].value);
 
 #ifdef CYARG_PICO_TARGET
         while (routine->state == EXEC_RUNNING) {
@@ -86,7 +86,7 @@ bool receiveChannelBuiltin(ObjRoutine* routine, int argCount, Value* args, Value
 #endif    
         
         if (routine->state == EXEC_CLOSED || routine->state == EXEC_SUSPENDED) {
-            *result = *routine->stackTop;
+            *result = routine->stackTop->value;
         } 
         else {
             *result = NIL_VAL;
@@ -95,38 +95,38 @@ bool receiveChannelBuiltin(ObjRoutine* routine, int argCount, Value* args, Value
     return true;
 }
 
-bool shareChannelBuiltin(ObjRoutine* routine, int argCount, Value* args, Value* result) {
+bool shareChannelBuiltin(ObjRoutine* routine, int argCount, ValueCell* args, Value* result) {
     if (argCount != 2) {
         runtimeError(routine, "Expected 2 arguments, got %d.", argCount);
         return false;
     }
-    if (!IS_CHANNEL(args[0])) {
+    if (!IS_CHANNEL(args[0].value)) {
         runtimeError(routine, "Argument must be a channel.");
         return false;
     }
 
-    ObjChannel* channel = AS_CHANNEL(args[0]);
+    ObjChannel* channel = AS_CHANNEL(args[0].value);
     if (channel->present) {
         channel->overflow = true;
     }
-    channel->data = args[1];
+    channel->data = args[1].value;
     channel->present = true;
     *result = BOOL_VAL(channel->overflow);
 
     return true;
 }
 
-bool peekChannelBuiltin(ObjRoutine* routine, int argCount, Value* args, Value* result) {
+bool peekChannelBuiltin(ObjRoutine* routine, int argCount, ValueCell* args, Value* result) {
     if (argCount != 1) {
         runtimeError(routine, "Expected 1 arguments, got %d.", argCount);
         return false;
     }
-    if (!IS_CHANNEL(args[0])) {
+    if (!IS_CHANNEL(args[0].value)) {
         runtimeError(routine, "Argument must be a channel.");
         return false;
     }
 
-    ObjChannel* channel = AS_CHANNEL(args[0]);
+    ObjChannel* channel = AS_CHANNEL(args[0].value);
     if (channel->present) {
         *result = channel->data;
     }

@@ -64,7 +64,10 @@ void fatalVMError(const char* format, ...) {
 static void defineNative(const char* name, NativeFn function) {
     tempRootPush(OBJ_VAL(copyString(name, (int)strlen(name))));
     tempRootPush(OBJ_VAL(newNative(function)));
-    tableSet(&vm.globals, AS_STRING(vm.tempRoots[0]), vm.tempRoots[1]);
+    ValueCell cell;
+    cell.value = vm.tempRoots[1];
+    cell.type = NIL_VAL;
+    tableCellSet(&vm.globals, AS_STRING(vm.tempRoots[0]), cell);
     tempRootPop();
     tempRootPop();
 }
@@ -104,7 +107,7 @@ void initVM() {
     vm.grayCapacity = 0;
     vm.grayStack = NULL;
 
-    initTable(&vm.globals);
+    initCellTable(&vm.globals);
     initTable(&vm.strings);
 
     vm.initString = NULL;
@@ -127,7 +130,7 @@ void initVM() {
 }
 
 void freeVM() {
-    freeTable(&vm.globals);
+    freeCellTable(&vm.globals);
     freeTable(&vm.strings);
     vm.initString = NULL;
     freeObjects();
@@ -157,12 +160,14 @@ static bool callValue(ObjRoutine* routine, Value callee, int argCount) {
         switch (OBJ_TYPE(callee)) {
             case OBJ_BOUND_METHOD: {
                 ObjBoundMethod* bound = AS_BOUND_METHOD(callee);
-                routine->stackTop[-argCount - 1] = bound->reciever;
+                routine->stackTop[-argCount - 1].value = bound->reciever;
+                routine->stackTop[-argCount - 1].type = NIL_VAL;
                 return callfn(routine, bound->method, argCount);
             }
             case OBJ_CLASS: {
                 ObjClass* klass = AS_CLASS(callee);
-                routine->stackTop[-argCount - 1] = OBJ_VAL(newInstance(klass));
+                routine->stackTop[-argCount  - 1].value = OBJ_VAL(newInstance(klass));
+                routine->stackTop[-argCount  - 1].type = NIL_VAL;
                 Value initializer;
                 if (tableGet(&klass->methods, vm.initString, &initializer)) {
                     return callfn(routine, AS_CLOSURE(initializer), argCount);
@@ -177,7 +182,7 @@ static bool callValue(ObjRoutine* routine, Value callee, int argCount) {
             case OBJ_NATIVE: {
                 NativeFn native = AS_NATIVE(callee);
                 Value result = NIL_VAL; 
-                if (native(routine, argCount, routine->stackTop - argCount, &result)) {
+                if (native(routine, argCount, (routine->stackTop - argCount), &result)) {
                     routine->stackTop -= argCount + 1;
                     push(routine, result);
                     return true;
@@ -215,7 +220,8 @@ static bool invoke(ObjRoutine* routine, ObjString* name, int argCount) {
 
     Value value;
     if (tableGet(&instance->fields, name, &value)) {
-        routine->stackTop[-argCount - 1] = value;
+        routine->stackTop[-argCount - 1].value = value;
+        routine->stackTop[-argCount - 1].type = NIL_VAL;
         return callValue(routine, value, argCount);
     }
 
@@ -235,7 +241,7 @@ static bool bindMethod(ObjRoutine* routine, ObjClass* klass, ObjString* name) {
     return true;
 }
 
-static ObjUpvalue* captureUpvalue(ObjRoutine* routine, Value* local) {
+static ObjUpvalue* captureUpvalue(ObjRoutine* routine, ValueCell* local) {
     ObjUpvalue* prevUpvalue = NULL;
     ObjUpvalue* upvalue = routine->openUpvalues;
     while (upvalue != NULL && upvalue->location > local) {
@@ -259,7 +265,7 @@ static ObjUpvalue* captureUpvalue(ObjRoutine* routine, Value* local) {
     return createdUpvalue;
 }
 
-static void closeUpvalues(ObjRoutine* routine, Value* last) {
+static void closeUpvalues(ObjRoutine* routine, ValueCell* last) {
     while (routine->openUpvalues != NULL && routine->openUpvalues->location >= last) {
         ObjUpvalue* upvalue = routine->openUpvalues;
         upvalue->closed = *upvalue->location;
@@ -455,34 +461,35 @@ InterpretResult run(ObjRoutine* routine) {
             }
             case OP_SET_LOCAL: {
                 uint8_t slot = READ_BYTE();
-                frame->slots[slot] = peek(routine, 0);
+                frame->slots[slot].value = peek(routine, 0);
+                frame->slots[slot].type = NIL_VAL; // type info not used for now.
                 break;
             }
             case OP_GET_LOCAL: {
                 uint8_t slot = READ_BYTE();
-                push(routine, frame->slots[slot]);
+                push(routine, frame->slots[slot].value);
                 break;
             }
             case OP_GET_GLOBAL: {
                 ObjString* name = READ_STRING();
-                Value value;
-                if (!tableGet(&vm.globals, name, &value)) {
+                ValueCell cell;
+                if (!tableCellGet(&vm.globals, name, &cell)) {
                     runtimeError(routine, "Undefined variable (OP_GET_GLOBAL) '%s'.", name->chars);
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                push(routine, value);
+                push(routine, cell.value);
                 break;
             }
             case OP_DEFINE_GLOBAL: {
                 ObjString* name = READ_STRING();
-                tableSet(&vm.globals, name, peek(routine, 0));
+                tableCellSet(&vm.globals, name, *peekCell(routine, 0));
                 pop(routine);
                 break;
             }
             case OP_SET_GLOBAL: {
                 ObjString* name = READ_STRING();
-                if (tableSet(&vm.globals, name, peek(routine, 0))) {
-                    tableDelete(&vm.globals, name);
+                if (tableCellSet(&vm.globals, name, *peekCell(routine, 0))) {
+                    tableCellDelete(&vm.globals, name);
                     runtimeError(routine, "Undefined variable (OP_SET_GLOBAL) '%s'.", name->chars);
                     return INTERPRET_RUNTIME_ERROR;
                 }
@@ -490,12 +497,13 @@ InterpretResult run(ObjRoutine* routine) {
             }
             case OP_GET_UPVALUE: {
                 uint8_t slot = READ_BYTE();
-                push(routine, *frame->closure->upvalues[slot]->location);
+                push(routine, frame->closure->upvalues[slot]->location->value);
                 break;
             }
             case OP_SET_UPVALUE: {
                 uint8_t slot = READ_BYTE();
-                *frame->closure->upvalues[slot]->location = peek(routine, 0);
+                frame->closure->upvalues[slot]->location->value = peek(routine, 0);
+                frame->closure->upvalues[slot]->location->type = NIL_VAL;
                 break;
             }
             case OP_GET_PROPERTY: {

@@ -61,8 +61,8 @@ void prepareRoutineStack(ObjRoutine* routine) {
 }
 
 void markRoutine(ObjRoutine* routine) {
-    for (Value* slot = routine->stack; slot < routine->stackTop; slot++) {
-        markValue(*slot);
+    for (ValueCell* slot = routine->stack; slot < routine->stackTop; slot++) {
+        markValueCell(slot);
     }
 
     for (int i = 0; i < routine->frameCount; i++) {
@@ -108,7 +108,8 @@ void runtimeError(ObjRoutine* routine, const char* format, ...) {
 }
 
 void push(ObjRoutine* routine, Value value) {
-    *routine->stackTop = value;
+    routine->stackTop->value = value;
+    routine->stackTop->type = NIL_VAL;
     routine->stackTop++;
 
     if (routine->stackTop - &routine->stack[0] > STACK_MAX) {
@@ -118,9 +119,13 @@ void push(ObjRoutine* routine, Value value) {
 
 Value pop(ObjRoutine* routine) {
     routine->stackTop--;
-    return *routine->stackTop;
+    return routine->stackTop->value;
 }
 
 Value peek(ObjRoutine* routine, int distance) {
-    return routine->stackTop[-1 - distance];
+    return routine->stackTop[-1 - distance].value;
+}
+
+ValueCell* peekCell(ObjRoutine* routine, int distance) {
+    return &routine->stackTop[-1 - distance];
 }

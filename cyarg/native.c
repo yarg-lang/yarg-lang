@@ -13,18 +13,18 @@
 #include <hardware/irq.h>
 #endif
 
-bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* args, Value* result) {
+bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, ValueCell* args, Value* result) {
     *result = NIL_VAL;
-    Value numVal = args[0];
+    Value numVal = args[0].value;
     unsigned int num = as_positive_integer(numVal);
 
 #ifdef CYARG_PICO_TARGET
-    uintptr_t isrRoutine = AS_UINTEGER(args[1]);
+    uintptr_t isrRoutine = AS_UINTEGER(args[1].value);
 #else
-    uintptr_t isrRoutine = (uintptr_t) vm.pinnedRoutineHandlers[AS_UINTEGER(args[1])];
+    uintptr_t isrRoutine = (uintptr_t) vm.pinnedRoutineHandlers[AS_UINTEGER(args[1].value)];
 #endif
 
-    Value prioVal = args[2];
+    Value prioVal = args[2].value;
     unsigned int prio = as_positive_integer(prioVal);
 
     size_t handlerIndex = pinnedRoutineIndex(isrRoutine);
@@ -39,15 +39,15 @@ bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* args
     return true;
 }
 
-bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, Value* args, Value* result) {
+bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, ValueCell* args, Value* result) {
     *result = NIL_VAL;
-    Value numVal = args[0];
+    Value numVal = args[0].value;
     unsigned int num = as_positive_integer(numVal);
 
 #ifdef CYARG_PICO_TARGET
-    uintptr_t isrRoutine = AS_UINTEGER(args[1]);
+    uintptr_t isrRoutine = AS_UINTEGER(args[1].value);
 #else
-    uintptr_t isrRoutine = (uintptr_t) vm.pinnedRoutineHandlers[AS_UINTEGER(args[1])];
+    uintptr_t isrRoutine = (uintptr_t) vm.pinnedRoutineHandlers[AS_UINTEGER(args[1].value)];
 #endif
 
 #ifdef CYARG_PICO_TARGET
@@ -58,7 +58,7 @@ bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, Value* args, Va
 }
 
 
-bool clockNative(ObjRoutine* routine, int argCount, Value* args, Value* result) {
+bool clockNative(ObjRoutine* routine, int argCount, ValueCell* args, Value* result) {
     if (argCount != 0) {
         runtimeError(routine, "Expected 0 arguments but got %d.", argCount);
         return false;
@@ -69,17 +69,17 @@ bool clockNative(ObjRoutine* routine, int argCount, Value* args, Value* result) 
 }
 
 #ifdef CYARG_PICO_TARGET
-bool sleepNative(ObjRoutine* routine, int argCount, Value* args, Value* result) {
+bool sleepNative(ObjRoutine* routine, int argCount, ValueCell* args, Value* result) {
     if (argCount != 1) {
         runtimeError(routine, "Expected 1 arguments but got %d.", argCount);
         return false;
     }
-    if (!IS_UINTEGER(args[0])) {
+    if (!IS_UINTEGER(args[0].value)) {
         runtimeError(routine, "Argument must be an unsigned integer");
         return false;
     }
 
-    sleep_ms(AS_UINTEGER(args[0]));
+    sleep_ms(AS_UINTEGER(args[0].value));
 
     *result = NIL_VAL;
     return true;
@@ -113,18 +113,18 @@ static bool nativeRecurringCallback(struct repeating_timer* t) {
     return true;
 }
 
-bool alarmAddInMSNative(ObjRoutine* routine, int argCount, Value* args, Value* result) {
+bool alarmAddInMSNative(ObjRoutine* routine, int argCount, ValueCell* args, Value* result) {
     if (argCount < 2 || argCount > 3) {
         runtimeError(routine, "Unexpected argument count adding alarm");
         return false;
     }
 
-    if (!IS_ROUTINE(args[1])) {
+    if (!IS_ROUTINE(args[1].value)) {
         runtimeError(routine, "Second argument must be a routine.");
         return false;
     }
 
-    ObjRoutine* isrRoutine = AS_ROUTINE(args[1]);
+    ObjRoutine* isrRoutine = AS_ROUTINE(args[1].value);
 
     int isrArity = 2 + isrRoutine->entryFunction->function->arity;
     if (argCount != isrArity) {
@@ -132,7 +132,7 @@ bool alarmAddInMSNative(ObjRoutine* routine, int argCount, Value* args, Value* r
         return false;
     }
 
-    if (!IS_UINTEGER(args[0])) {
+    if (!IS_UINTEGER(args[0].value)) {
         runtimeError(routine, "First argument must be an unsigned integer.");
         return false;
     }
@@ -143,29 +143,29 @@ bool alarmAddInMSNative(ObjRoutine* routine, int argCount, Value* args, Value* r
     }
 
     if (argCount > 2) {
-        bindEntryArgs(isrRoutine, args[2]);
+        bindEntryArgs(isrRoutine, args[2].value);
     }
     prepareRoutineStack(isrRoutine);
 
     isrRoutine->state = EXEC_RUNNING;
-    add_alarm_in_ms(AS_UINTEGER(args[0]), nativeOneShotCallback, isrRoutine, false);
+    add_alarm_in_ms(AS_UINTEGER(args[0].value), nativeOneShotCallback, isrRoutine, false);
 
     *result = NIL_VAL;
     return true;
 }
 
-bool alarmAddRepeatingMSNative(ObjRoutine* routine, int argCount, Value* args, Value* result) {
+bool alarmAddRepeatingMSNative(ObjRoutine* routine, int argCount, ValueCell* args, Value* result) {
     if (argCount < 2 || argCount > 3) {
         runtimeError(routine, "Unexpected argument count adding alarm");
         return false;
     }
 
-    if (!IS_ROUTINE(args[1])) {
+    if (!IS_ROUTINE(args[1].value)) {
         runtimeError(routine, "Second argument must be a routine.");
         return false;
     }
 
-    ObjRoutine* isrRoutine = AS_ROUTINE(args[1]);
+    ObjRoutine* isrRoutine = AS_ROUTINE(args[1].value);
 
     int isrArity = 2 + isrRoutine->entryFunction->function->arity;
     if (argCount != isrArity) {
@@ -173,7 +173,7 @@ bool alarmAddRepeatingMSNative(ObjRoutine* routine, int argCount, Value* args, V
         return false;
     }
 
-    if (!IS_INTEGER(args[0])) {
+    if (!IS_INTEGER(args[0].value)) {
         runtimeError(routine, "First argument must be an unsigned integer.");
         return false;
     }
@@ -186,28 +186,28 @@ bool alarmAddRepeatingMSNative(ObjRoutine* routine, int argCount, Value* args, V
     ObjBlob* handle = newBlob(sizeof(repeating_timer_t));
 
     if (argCount > 2) {
-        bindEntryArgs(isrRoutine, args[2]);
+        bindEntryArgs(isrRoutine, args[2].value);
     }
     prepareRoutineStack(isrRoutine);
 
     isrRoutine->state = EXEC_RUNNING;
-    add_repeating_timer_ms(AS_INTEGER(args[0]), nativeRecurringCallback, isrRoutine, (repeating_timer_t*)handle->blob);
+    add_repeating_timer_ms(AS_INTEGER(args[0].value), nativeRecurringCallback, isrRoutine, (repeating_timer_t*)handle->blob);
 
     *result = OBJ_VAL(handle);
     return true;
 }
 
-bool alarmCancelRepeatingMSNative(ObjRoutine* routine, int argCount, Value* args, Value* result) {
+bool alarmCancelRepeatingMSNative(ObjRoutine* routine, int argCount, ValueCell* args, Value* result) {
     if (argCount != 1) {
         runtimeError(routine, "Expected 1 arguments but got %d.", argCount);
         return false;
     }
-    if (!IS_BLOB(args[0])) {
+    if (!IS_BLOB(args[0].value)) {
         runtimeError(routine, "Argument must be a native blob.");
         return false;
     }
 
-    ObjBlob* blob = AS_BLOB(args[0]);
+    ObjBlob* blob = AS_BLOB(args[0].value);
 
     bool cancelled = cancel_repeating_timer((repeating_timer_t*)blob->blob);
 

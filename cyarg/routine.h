@@ -2,6 +2,7 @@
 #define cyarg_routine_h
 
 #include "value.h"
+#include "value_cell.h"
 #include "object.h"
 
 #define FRAMES_MAX 48
@@ -10,7 +11,7 @@
 typedef struct {
     ObjClosure* closure;
     uint8_t* ip;
-    Value* slots;
+    ValueCell* slots;
 } CallFrame;
 
 typedef enum {
@@ -32,8 +33,8 @@ typedef struct ObjRoutine {
     CallFrame frames[FRAMES_MAX];
     int frameCount;
 
-    Value stack[STACK_MAX];
-    Value* stackTop;
+    ValueCell stack[STACK_MAX];
+    ValueCell* stackTop;
 
     ObjClosure* entryFunction;
     Value entryArg;
@@ -56,6 +57,7 @@ void markRoutine(ObjRoutine* routine);
 void push(ObjRoutine* routine, Value value);
 Value pop(ObjRoutine* routine);
 Value peek(ObjRoutine* routine, int distance);
+ValueCell* peekCell(ObjRoutine* routine, int distance);
 
 void runtimeError(ObjRoutine* routine, const char* format, ...);
 

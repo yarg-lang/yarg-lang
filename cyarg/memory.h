@@ -35,6 +35,7 @@ Value tempRootPop();
 void markObject(Obj* object);
 void markDynamicObjArray(DynamicObjArray* array);
 void markValue(Value value);
+void markValueCell(ValueCell* value);
 void collectGarbage();
 void freeObjects();
 

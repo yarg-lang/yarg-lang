@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "value.h"
+#include "value_cell.h"
 
 typedef struct {
     ObjString* key;
@@ -24,5 +25,26 @@ void tableAddAll(ValueTable* from, ValueTable* to);
 ObjString* tableFindString(ValueTable* table, const char* chars, int length, uint32_t hash);
 void tableRemoveWhite(ValueTable* table);
 void markTable(ValueTable* table);
+
+typedef struct {
+    ObjString* key;
+    ValueCell cell;
+} EntryCell;
+
+typedef struct {
+    int count;
+    int capacity;
+    EntryCell* entries;
+} ValueCellTable;
+
+void initCellTable(ValueCellTable* table);
+void freeCellTable(ValueCellTable* table);
+bool tableCellGet(ValueCellTable* table, ObjString* key, ValueCell* value);
+bool tableCellSet(ValueCellTable* table, ObjString* key, ValueCell value);
+bool tableCellDelete(ValueCellTable* table, ObjString* key);
+void tableCellAddAll(ValueCellTable* from, ValueCellTable* to);
+ObjString* tableCellFindString(ValueCellTable* table, const char* chars, int length, uint32_t hash);
+void tableCellRemoveWhite(ValueCellTable* table);
+void markCellTable(ValueCellTable* table);
 
 #endif
