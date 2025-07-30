@@ -788,6 +788,8 @@ InterpretResult run(ObjRoutine* routine) {
             }
             case OP_SET_TYPE: {
                 Value type = pop(routine);
+                ValueCell* last = routine->stackTop - 1;
+                last->type = type;
                 break;
             }
         }
