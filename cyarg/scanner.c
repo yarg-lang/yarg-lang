@@ -203,6 +203,7 @@ static TokenType identifierType() {
         case 'p': 
             if (scanner.current - scanner.start > 1) {
                 switch (scanner.start[1]) {
+                    case 'i': return checkKeyword(2, 1, "n", TOKEN_PIN);
                     case 'e': return checkKeyword(2, 2, "ek", TOKEN_PEEK);
                     case 'r': return checkKeyword(2, 3, "int", TOKEN_PRINT); 
                 }

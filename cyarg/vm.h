@@ -9,11 +9,16 @@
 #include "routine.h"
 #include "platform_hal.h"
 
+#define MAX_PINNED_ROUTINES 10
+
+typedef void (*PinnedRoutineHandler)(void);
+
 typedef struct {
     ObjRoutine core0;
     ObjRoutine* core1;
 
-    ObjRoutine* sharedISR;
+    ObjRoutine*   pinnedRoutines[MAX_PINNED_ROUTINES];
+    PinnedRoutineHandler pinnedRoutineHandlers[MAX_PINNED_ROUTINES];
 
     Table globals;
     Table strings;
@@ -47,5 +52,7 @@ InterpretResult interpret(const char* source);
 InterpretResult run(ObjRoutine* routine);
 bool callfn(ObjRoutine* routine, ObjClosure* closure, int argCount);
 void fatalVMError(const char* format, ...);
+
+size_t pinnedRoutineIndex(uintptr_t handler);
 
 #endif

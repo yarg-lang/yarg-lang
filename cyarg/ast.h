@@ -66,7 +66,8 @@ typedef enum {
     EXPR_BUILTIN_SHARE,
     EXPR_BUILTIN_RPEEK,
     EXPR_BUILTIN_RPOKE,
-    EXPR_BUILTIN_LEN
+    EXPR_BUILTIN_LEN,
+    EXPR_BUILTIN_PIN
 } ExprBuiltin;
 
 typedef struct {

@@ -329,6 +329,30 @@ bool lenBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* re
     }
 }
 
+bool pinBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Value* result) {
+    if (argCount != 1) {
+        runtimeError(routineContext, "Expected 1 argument, but got %d.", argCount);
+        return false;
+    }
+
+    if (!IS_ROUTINE(args[0])) {
+        runtimeError(routineContext, "Argument to pin must be a routine.");
+        return false;
+    }
+
+    for (size_t i = 0; i < MAX_PINNED_ROUTINES; i++) {
+        if (vm.pinnedRoutines[i] == NULL) {
+            vm.pinnedRoutines[i] = AS_ROUTINE(args[0]);
+            *result = UINTEGER_VAL(vm.pinnedRoutineHandlers[i]);
+            return true;
+        }
+    }
+
+    runtimeError(routineContext, "No more pinned routines available.");
+    *result = NIL_VAL;
+    return false;
+}
+
 Value getBuiltin(uint8_t builtin) {
     switch (builtin) {
         case BUILTIN_RPEEK: return OBJ_VAL(newNative(rpeekBuiltin));
@@ -344,6 +368,7 @@ Value getBuiltin(uint8_t builtin) {
         case BUILTIN_SHARE: return OBJ_VAL(newNative(shareChannelBuiltin));
         case BUILTIN_PEEK: return OBJ_VAL(newNative(peekChannelBuiltin));
         case BUILTIN_LEN: return OBJ_VAL(newNative(lenBuiltin));
+        case BUILTIN_PIN: return OBJ_VAL(newNative(pinBuiltin));
         default: return NIL_VAL;
     }
 }

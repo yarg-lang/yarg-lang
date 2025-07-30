@@ -305,6 +305,7 @@ void printExprBuiltin(ObjExprBuiltin* fn) {
         case EXPR_BUILTIN_SHARE: printf("share"); break;
         case EXPR_BUILTIN_RPEEK: printf("rpeek"); break;
         case EXPR_BUILTIN_LEN: printf("len"); break;
+        case EXPR_BUILTIN_PIN: printf("pin"); break;
     }
 }
 

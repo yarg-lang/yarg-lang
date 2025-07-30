@@ -477,7 +477,7 @@ static void freeObject(Obj* object) {
         case OBJ_EXPR_ARRAYELEMENT: FREE(ObjExprArrayElement, object); break;
         case OBJ_EXPR_BUILTIN: FREE(ObjExprBuiltin, object); break;
         case OBJ_EXPR_DOT: FREE(ObjExprDot, object); break;
-        case OBJ_EXPR_SUPER: FREE(OBJ_EXPR_SUPER, object); break;
+        case OBJ_EXPR_SUPER: FREE(ObjExprSuper, object); break;
         case OBJ_EXPR_TYPE: FREE(ObjExprType, object); break;
     }
 }
@@ -488,7 +488,9 @@ static void markRoots() {
     markRoutine(&vm.core0);
     
     markObject((Obj*)vm.core1);
-    markObject((Obj*)vm.sharedISR);
+    for (int i = 0; i < MAX_PINNED_ROUTINES; i++) {
+        markObject((Obj*)vm.pinnedRoutines[i]);
+    }
 
     for (Value* slot = vm.tempRoots; slot < vm.tempRootsTop; slot++) {
         markValue(*slot);

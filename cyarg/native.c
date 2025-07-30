@@ -13,44 +13,26 @@
 #include <hardware/irq.h>
 #endif
 
-void vm_irq_handler(void) {
-
-    ObjRoutine* routine = vm.sharedISR;
-
-    run(routine);
-
-    Value result = pop(routine); // unused.
-
-    prepareRoutineStack(routine);
-
-    return;
-}
-
 bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* args, Value* result) {
     *result = NIL_VAL;
     Value numVal = args[0];
     unsigned int num = as_positive_integer(numVal);
 
-    ObjRoutine* isrRoutine = AS_ROUTINE(args[1]);
+    uintptr_t isrRoutine = AS_UINTEGER(args[1]);
 
     Value prioVal = args[2];
     unsigned int prio = as_positive_integer(prioVal);
 
-    if (isrRoutine->type != ROUTINE_ISR) {
-        runtimeError(routine, "Argument must be an ISR routine.");
-        return false;
-    }
+    size_t handlerIndex = pinnedRoutineIndex(isrRoutine);
 
-    prepareRoutineStack(isrRoutine);
-    isrRoutine->state = EXEC_RUNNING;
-    vm.sharedISR = isrRoutine;
+    prepareRoutineStack(vm.pinnedRoutines[handlerIndex]);
+    vm.pinnedRoutines[handlerIndex]->state = EXEC_RUNNING;
 
 #ifdef CYARG_PICO_TARGET
-    irq_add_shared_handler(num, vm_irq_handler, prio);
-    return true;
-#else
-    return true;
+    irq_add_shared_handler(num, (irq_handler_t) isrRoutine, prio);
 #endif
+
+    return true;
 }
 
 bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, Value* args, Value* result) {
@@ -58,17 +40,12 @@ bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, Value* args, Va
     Value numVal = args[0];
     unsigned int num = as_positive_integer(numVal);
 
-    printf("removing shared IRQh for ");
-    printValue(numVal);
-    printf("\n");
+    uintptr_t isrRoutine = AS_UINTEGER(args[1]);
 
 #ifdef CYARG_PICO_TARGET
-
-    irq_remove_handler(num, vm_irq_handler);
-
+    irq_remove_handler(num, (irq_handler_t) isrRoutine);
 #endif
 
-    vm.sharedISR = NULL;
     return true;
 }
 

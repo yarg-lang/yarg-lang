@@ -18,6 +18,39 @@
 
 VM vm;
 
+void vmPinnedRoutineHandler(size_t handler) {
+
+    ObjRoutine* routine = vm.pinnedRoutines[handler];
+
+    run(routine);
+
+    Value result = pop(routine); // unused.
+
+    prepareRoutineStack(routine);
+
+    return;
+}
+
+void pinnedRoutine0(void) { vmPinnedRoutineHandler(0); }
+void pinnedRoutine1(void) { vmPinnedRoutineHandler(1); }
+void pinnedRoutine2(void) { vmPinnedRoutineHandler(2); }
+void pinnedRoutine3(void) { vmPinnedRoutineHandler(3); }
+void pinnedRoutine4(void) { vmPinnedRoutineHandler(4); }
+void pinnedRoutine5(void) { vmPinnedRoutineHandler(5); }
+void pinnedRoutine6(void) { vmPinnedRoutineHandler(6); }
+void pinnedRoutine7(void) { vmPinnedRoutineHandler(7); }
+void pinnedRoutine8(void) { vmPinnedRoutineHandler(8); }
+void pinnedRoutine9(void) { vmPinnedRoutineHandler(9); }
+
+size_t pinnedRoutineIndex(uintptr_t handler) {
+    for (size_t i = 0; i < MAX_PINNED_ROUTINES; i++) {
+        if (vm.pinnedRoutineHandlers[i] == (PinnedRoutineHandler)handler) {
+            return i;
+        }
+    }
+    return MAX_PINNED_ROUTINES;
+}
+
 void fatalVMError(const char* format, ...) {
     va_list args;
     va_start(args, format);
@@ -45,7 +78,19 @@ void initVM() {
     initRoutine(&vm.core0, ROUTINE_THREAD);
 
     vm.core1 = NULL;
-    vm.sharedISR = NULL;
+    for (int i = 0; i < MAX_PINNED_ROUTINES; i++) {
+        vm.pinnedRoutines[i] = NULL;
+    }
+    vm.pinnedRoutineHandlers[0] = pinnedRoutine0;
+    vm.pinnedRoutineHandlers[1] = pinnedRoutine1;
+    vm.pinnedRoutineHandlers[2] = pinnedRoutine2;
+    vm.pinnedRoutineHandlers[3] = pinnedRoutine3;
+    vm.pinnedRoutineHandlers[4] = pinnedRoutine4;
+    vm.pinnedRoutineHandlers[5] = pinnedRoutine5;
+    vm.pinnedRoutineHandlers[6] = pinnedRoutine6;
+    vm.pinnedRoutineHandlers[7] = pinnedRoutine7;
+    vm.pinnedRoutineHandlers[8] = pinnedRoutine8;
+    vm.pinnedRoutineHandlers[9] = pinnedRoutine9;
 
     platform_mutex_init(&vm.heap);
 

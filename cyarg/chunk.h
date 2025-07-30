@@ -77,7 +77,8 @@ typedef enum {
     BUILTIN_SHARE,
     BUILTIN_RPEEK,
     BUILTIN_RPOKE,
-    BUILTIN_LEN
+    BUILTIN_LEN,
+    BUILTIN_PIN
 } BuiltinFn;
 
 void initChunk(Chunk* chunk);

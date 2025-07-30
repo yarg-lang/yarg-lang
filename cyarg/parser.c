@@ -355,6 +355,7 @@ static ObjExpr* builtin(bool canAssign) {
         case TOKEN_START: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_START, 1);
         case TOKEN_PEEK: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_PEEK, 1);
         case TOKEN_LEN: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_LEN, 1);
+        case TOKEN_PIN: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_PIN, 1);
         default: return NULL; // Unreachable.
     } 
 }
@@ -540,6 +541,7 @@ static AstParseRule rules[] = {
     [TOKEN_NIL]                  = {literal,   NULL,   PREC_NONE},
     [TOKEN_OR]                   = {NULL,      or_,    PREC_OR},
     [TOKEN_PEEK]                 = {builtin,   NULL,   PREC_NONE},
+    [TOKEN_PIN]                  = {builtin,   NULL,   PREC_NONE},
     [TOKEN_PRINT]                = {NULL,      NULL,   PREC_NONE},
     [TOKEN_RECEIVE]              = {builtin,   NULL,   PREC_NONE},
     [TOKEN_RESUME]               = {builtin,   NULL,   PREC_NONE},
