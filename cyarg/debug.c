@@ -71,6 +71,21 @@ static int builtinInstruction(const char* name, Chunk* chunk, int offset) {
     return offset + 2;
 }
 
+static int typeLiteralInstruction(const char* name, Chunk* chunk, int offset) {
+    uint8_t type = chunk->code[offset + 1];
+    printf("%-16s ", name);
+    switch (type) {
+        case TYPE_BUILTIN_BOOL: printf("bool"); break;
+        case TYPE_BUILTIN_INTEGER: printf("integer"); break;
+        case TYPE_BUILTIN_MACHINE_UINT32: printf("muint32"); break;
+        case TYPE_BUILTIN_MACHINE_FLOAT64: printf("mfloat64"); break;
+        case TYPE_BUILTIN_STRING: printf("string"); break;
+        default: printf("<unknown %4d>", type); break;
+    }
+    printf("\n");
+    return offset + 2;
+}
+
 int disassembleInstruction(Chunk* chunk, int offset) {
     printf("%04d ", offset);
     if (offset > 0 && chunk->lines[offset] == chunk->lines[offset - 1]) {
@@ -193,6 +208,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             return simpleInstruction("OP_SET_ELEMENT", offset);
         case OP_IMMEDIATE:
             return byteInstruction("OP_IMMEDIATE", chunk, offset);
+        case OP_TYPE_LITERAL:
+            return typeLiteralInstruction("OP_TYPE_LITERAL", chunk, offset);
         default:
             printf("Unknown opcode %d\n", instruction);
             return offset + 1;

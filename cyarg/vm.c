@@ -764,8 +764,18 @@ InterpretResult run(ObjRoutine* routine) {
                 break;
             }
             case OP_TYPE_LITERAL: {
-                ObjYargType* type = newYargTypeFromType(TypeMachineUint32);
-                push(routine, OBJ_VAL(type));
+                uint8_t typeCode = READ_BYTE();
+                YargType type;
+                switch (typeCode) {
+                    case TYPE_BUILTIN_BOOL: type = TypeBool; break;
+                    case TYPE_BUILTIN_INTEGER: type = TypeInteger; break;
+                    case TYPE_BUILTIN_MACHINE_UINT32: type = TypeMachineUint32; break;
+                    case TYPE_BUILTIN_MACHINE_FLOAT64: type = TypeDouble; break;
+                    case TYPE_BUILTIN_STRING: type = TypeString; break;
+                    default: return INTERPRET_RUNTIME_ERROR;
+                }
+                ObjYargType* typeObj = newYargTypeFromType(type);
+                push(routine, OBJ_VAL(typeObj));
                 break;
             }
         }

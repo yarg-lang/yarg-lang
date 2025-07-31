@@ -156,7 +156,11 @@ typedef struct {
 } ObjExprSuper;
 
 typedef enum {
-    EXPR_TYPE_MUINT32
+    EXPR_TYPE_BOOL,
+    EXPR_TYPE_INTEGER,
+    EXPR_TYPE_MUINT32,
+    EXPR_TYPE_MFLOAT64,
+    EXPR_TYPE_STRING
 } ExprTypeType;
 
 typedef struct {

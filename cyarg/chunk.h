@@ -81,6 +81,14 @@ typedef enum {
     BUILTIN_PIN
 } BuiltinFn;
 
+typedef enum {
+    TYPE_BUILTIN_BOOL,
+    TYPE_BUILTIN_INTEGER,
+    TYPE_BUILTIN_MACHINE_UINT32,
+    TYPE_BUILTIN_MACHINE_FLOAT64,
+    TYPE_BUILTIN_STRING
+} BuiltinType;
+
 void initChunk(Chunk* chunk);
 void freeChunk(Chunk* chunk);
 void writeChunk(Chunk* chunk, uint8_t byte, int line);

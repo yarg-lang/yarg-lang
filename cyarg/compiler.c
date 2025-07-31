@@ -531,7 +531,11 @@ static void generateExprSuper(ObjExprSuper* super) {
 
 static void generateExprType(ObjExprType* type) {
     switch (type->type) {
-        case EXPR_TYPE_MUINT32: emitByte(OP_TYPE_LITERAL); return;
+        case EXPR_TYPE_BOOL: emitBytes(OP_TYPE_LITERAL, TYPE_BUILTIN_BOOL); return;
+        case EXPR_TYPE_INTEGER: emitBytes(OP_TYPE_LITERAL, TYPE_BUILTIN_INTEGER); return;
+        case EXPR_TYPE_MFLOAT64: emitBytes(OP_TYPE_LITERAL, TYPE_BUILTIN_MACHINE_FLOAT64); return;
+        case EXPR_TYPE_MUINT32: emitBytes(OP_TYPE_LITERAL, TYPE_BUILTIN_MACHINE_UINT32); return;
+        case EXPR_TYPE_STRING: emitBytes(OP_TYPE_LITERAL, TYPE_BUILTIN_STRING); return;
         default: return; // unreachable.
     }
 }
