@@ -21,7 +21,7 @@ typedef struct ObjExpr {
 typedef struct ObjAst {
     Obj obj;
     ObjStmt* statements;
-    Table constants;
+    ValueTable constants;
 } ObjAst;
 
 typedef enum {
@@ -216,7 +216,7 @@ typedef struct {
     ObjStmt stmt;
     ObjString* name;
     ObjExpr* address;
-    Table fields;
+    ValueTable fields;
 } ObjStmtStructDeclaration;
 
 typedef struct {

@@ -19,9 +19,9 @@ typedef struct {
 
     ObjRoutine*   pinnedRoutines[MAX_PINNED_ROUTINES];
     PinnedRoutineHandler pinnedRoutineHandlers[MAX_PINNED_ROUTINES];
-
-    Table globals;
-    Table strings;
+    
+    ValueTable globals;
+    ValueTable strings;
     ObjString* initString;
 
     platform_mutex heap;
