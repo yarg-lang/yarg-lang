@@ -1,21 +1,22 @@
-import("machine");
-import("gpio");
+var test;
+var integer counter = 6;
+var bool isTrue = true;
+var mfloat64 aFloat = 0.0;
+var muint32 aUint = 0xFFFFFFFF;
+var string aString = "Hello, World!";
 
-var state1 = false;
-var gpio_button1 = 0d2;
-var gpio_led1 = 0d3;
+{
+    var localTest;
+    var integer localCounter = 7;
+    var bool localBool = false;
+    var mfloat64 LocalFloat = 1.2;
+    var muint32 LocalUint = 0xdede;
+    var string LocalString = "Hello, Scope!";
 
-fun gpio_callback(num, events) {
-    state1 = !state1;
-    gpio_put(gpio_led1, state1);
+    print counter;
+    print localCounter;
 }
-
-gpio_init(gpio_led1);
-gpio_set_direction(gpio_led1, GPIO_OUT);
-
-gpio_init(gpio_button1);
-
-gpio_handler_routine = make_routine(gpio_default_irq_handler, true);
-pinned_gpio_handler_routine = pin(gpio_handler_routine);
-
-gpio_set_irq_enabled_with_callback(gpio_button1, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, gpio_callback);
+print isTrue;
+print aFloat;
+print aUint;
+print aString;
