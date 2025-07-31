@@ -4,9 +4,7 @@
 #include "object.h"
 
 typedef enum {
-   TypeAny,
    TypeBool,
-   TypeNilVal,
    TypeDouble,
    TypeMachineUint32,
    TypeInteger,
@@ -24,10 +22,9 @@ typedef enum {
 typedef struct ObjYargType {
     Obj obj;
     YargType yt;
-    ObjClass* instanceKlass;
 } ObjYargType;
 
-ObjYargType* newYargType(Value a);
+ObjYargType* newYargTypeFromType(YargType yt);
 
 YargType yt_typeof(Value a);
 bool is_obj_type(ObjYargType* type);

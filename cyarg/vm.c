@@ -764,8 +764,7 @@ InterpretResult run(ObjRoutine* routine) {
                 break;
             }
             case OP_TYPE_LITERAL: {
-                Value dummy = UINTEGER_VAL(0);
-                ObjYargType* type = newYargType(dummy);
+                ObjYargType* type = newYargTypeFromType(TypeMachineUint32);
                 push(routine, OBJ_VAL(type));
                 break;
             }

@@ -253,15 +253,13 @@ static void printArray(FILE* op, Value a) {
 
 static void printType(FILE* op, ObjYargType* type) {
     switch (type->yt) {
-        case TypeAny: fprintf(op, "Type:Any"); break;
         case TypeBool: fprintf(op, "Type:Bool"); break;
-        case TypeNilVal: fprintf(op, "Type:NilVal"); break;
         case TypeDouble: fprintf(op, "Type:Double"); break;
-        case TypeMachineUint32: fprintf(op, "Type:TypeMachineUint32"); break;
+        case TypeMachineUint32: fprintf(op, "Type:MachineUint32"); break;
         case TypeInteger: fprintf(op, "Type:Integer"); break;
         case TypeString: fprintf(op, "Type:String"); break;
         case TypeClass: fprintf(op, "Type:Class"); break;
-        case TypeInstance: fprintf(op, "Type:%s", type->instanceKlass->name->chars); break;
+        case TypeInstance: fprintf(op, "Type:Instance"); break;
         case TypeFunction: fprintf(op, "Type:Function"); break;
         case TypeNativeBlob: fprintf(op, "Type:NativeBlob"); break;
         case TypeRoutine: fprintf(op, "Type:Routine"); break;

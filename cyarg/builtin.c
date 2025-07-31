@@ -272,10 +272,8 @@ bool makeArrayBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Val
     }
 
     int index_arg = 0;
-    bool is_uniform = false;
-    if (IS_YARGTYPE(args[0]) && argCount == 2) {
+    if ((IS_YARGTYPE(args[0]) || IS_NIL(args[0])) && argCount == 2) {
         index_arg = 1;
-        is_uniform = true;
     }
 
     if (!IS_UINTEGER(args[index_arg]) && !IS_INTEGER(args[index_arg])) {
@@ -297,8 +295,9 @@ bool makeArrayBuiltin(ObjRoutine* routineContext, int argCount, Value* args, Val
         return false;
     }
 
-    ObjYargType* type = AS_YARGTYPE(args[0]);
-    if (is_uniform && type->yt != TypeAny) {
+   
+    if (IS_YARGTYPE(args[0])) {
+        ObjYargType* type = AS_YARGTYPE(args[0]);
         ObjUniformArray* array = newUniformArray(type, capacity);
         *result = OBJ_VAL(array);
     } else {
