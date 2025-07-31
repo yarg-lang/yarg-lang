@@ -156,6 +156,21 @@ void consume(TokenType type, const char* message) {
     errorAtCurrent(message);
 }
 
+static bool checkTypeToken() {
+    switch (parser.current.type) {
+        case TOKEN_MACHINE_FLOAT64:
+        case TOKEN_MACHINE_UINT32:
+        case TOKEN_INTEGER:
+        case TOKEN_BOOL:
+        case TOKEN_TYPE_STRING:
+        case TOKEN_ANY:
+            return true;
+        default:
+            return false;
+    }
+}
+
+
 static uint32_t strtoNum(const char* literal, int length, int radix) {
     uint32_t val = 0;
     for (int i = length - 1 ; i >= 0; i--) {
@@ -620,15 +635,38 @@ static ObjStmtExpression* expressionStatement() {
 }
 
 static ObjStmt* varDeclaration() {
+
+    ObjExpr* typeExpr = NULL;;
+    if (checkTypeToken()) {
+        advance();
+        switch (parser.previous.type) {
+            case TOKEN_MACHINE_FLOAT64: typeExpr = (ObjExpr*) newExprType(EXPR_TYPE_MFLOAT64); break;
+            case TOKEN_MACHINE_UINT32: typeExpr = (ObjExpr*) newExprType(EXPR_TYPE_MUINT32); break;
+            case TOKEN_INTEGER: typeExpr = (ObjExpr*) newExprType(EXPR_TYPE_INTEGER); break;
+            case TOKEN_BOOL: typeExpr = (ObjExpr*) newExprType(EXPR_TYPE_BOOL); break;
+            case TOKEN_TYPE_STRING: typeExpr =(ObjExpr*) newExprType(EXPR_TYPE_STRING); break;
+            case TOKEN_ANY: typeExpr = (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL); break;
+            default: 
+                error("Invalid type for variable declaration.");
+                break;
+        }
+        pushWorkingNode((Obj*)typeExpr);
+    }
+
     consume(TOKEN_IDENTIFIER, "Expect variable name.");
-    ObjStmtVarDeclaration* decl = newStmtVarDeclaration((char*)parser.previous.start, parser.previous.length, NULL, parser.previous.line);
+    ObjStmtVarDeclaration* decl = newStmtVarDeclaration((char*)parser.previous.start, parser.previous.length, parser.previous.line);
     pushWorkingNode((Obj*)decl);
+
+    decl->type = typeExpr;
 
     if (match(TOKEN_EQUAL)) {
         decl->initialiser = expression();
     }
     consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration");
 
+    if (typeExpr) {
+        popWorkingNode();
+    }
     popWorkingNode();
 
     return (ObjStmt*) decl;

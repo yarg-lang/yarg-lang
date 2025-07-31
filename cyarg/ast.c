@@ -18,13 +18,11 @@ ObjStmtExpression* newStmtExpression(ObjExpr* expr, ObjType type, int line) {
     return stmt;
 }
 
-ObjStmtVarDeclaration* newStmtVarDeclaration(const char* name, int nameLength, ObjExpr* expr, int line) {
+ObjStmtVarDeclaration* newStmtVarDeclaration(const char* name, int nameLength, int line) {
     ObjStmtVarDeclaration* stmt = ALLOCATE_OBJ(ObjStmtVarDeclaration, OBJ_STMT_VARDECLARATION);
     tempRootPush(OBJ_VAL(stmt));
-    stmt->stmt.nextStmt = NULL;
     stmt->stmt.line = line;
     stmt->name = copyString(name, nameLength);
-    stmt->initialiser = expr;
     tempRootPop();
     return stmt;
 }
@@ -514,6 +512,24 @@ void printStmtExpression(ObjStmtExpression* stmt) {
 
 void printStmtVarDeclaration(ObjStmtVarDeclaration* decl) {
     printf("var ");
+    if (decl->type
+        && decl->type->obj.type == OBJ_EXPR_LITERAL) {
+        ObjExprLiteral* literal = (ObjExprLiteral*)decl->type;
+        if (literal->literal == EXPR_LITERAL_NIL) {
+            printf("any ");
+        }
+    } else if (decl->type
+               && decl->type->obj.type == OBJ_EXPR_TYPE) {
+        ObjExprType* type = (ObjExprType*)decl->type;
+        switch (type->type) {
+            case EXPR_TYPE_MFLOAT64: printf("mfloat64 "); break;
+            case EXPR_TYPE_MUINT32: printf("muint32 "); break;
+            case EXPR_TYPE_INTEGER: printf("integer "); break;
+            case EXPR_TYPE_BOOL: printf("bool "); break;
+            case EXPR_TYPE_STRING: printf("string "); break;
+            default: break;
+        }
+    }
     printObject(OBJ_VAL(decl->name));
     if (decl->initialiser) {
         printf(" = ");

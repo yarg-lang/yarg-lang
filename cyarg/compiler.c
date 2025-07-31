@@ -649,7 +649,12 @@ static void generateVarDeclaration(ObjStmtVarDeclaration* decl) {
         emitByte(OP_NIL);
     }
 
-    emitByte(OP_NIL);
+    if (decl->type) {
+        generateExpr(decl->type);
+    }
+    else {
+        emitByte(OP_NIL);
+    }
 
     emitByte(OP_SET_TYPE);
 

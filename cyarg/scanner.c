@@ -159,7 +159,27 @@ static TokenType checkKeyword(int start, int length, const char* rest, TokenType
 
 static TokenType identifierType() {
     switch (scanner.start[0]) {
-        case 'a': return checkKeyword(1, 2, "nd", TOKEN_AND);
+        case 'a': 
+            if (scanner.current - scanner.start > 1) {
+                switch (scanner.start[1]) {
+                    case 'n': 
+                        if (scanner.current - scanner.start > 2) {
+                                switch (scanner.start[2]) {
+                                case 'd': return TOKEN_AND;                                
+                                case 'y': return TOKEN_ANY;
+                            }
+                        }
+                        break;
+                }
+            }
+            break; 
+        case 'b':
+            if (scanner.current - scanner.start > 1) {
+                switch (scanner.start[1]) {
+                    case 'o': return checkKeyword(2, 2, "ol", TOKEN_BOOL);
+                }
+            }
+            break;
         case 'c': return checkKeyword(1, 4, "lass", TOKEN_CLASS);
         case 'e': return checkKeyword(1, 3, "lse", TOKEN_ELSE);
         case 'f':
@@ -176,6 +196,7 @@ static TokenType identifierType() {
                 switch (scanner.start[1]) {
                     case 'f': return TOKEN_IF;
                     case 'm': return checkKeyword(2, 4, "port", TOKEN_IMPORT);
+                    case 'n': return checkKeyword(2, 5, "teger", TOKEN_INTEGER);
                 }
             }
             break;
@@ -195,6 +216,7 @@ static TokenType identifierType() {
                         break;
                     }
                     case 'u': return checkKeyword(2, 5, "int32", TOKEN_MACHINE_UINT32);
+                    case 'f': return checkKeyword(2, 6, "loat64", TOKEN_MACHINE_FLOAT64);
                 }
             }
             break;
@@ -249,7 +271,14 @@ static TokenType identifierType() {
                         if (scanner.current - scanner.start > 2) {
                             switch (scanner.start[2]) {
                                 case 'a': return checkKeyword(3, 2, "rt", TOKEN_START);                                
-                                case 'r': return checkKeyword(3, 3, "uct", TOKEN_STRUCT);
+                                case 'r': 
+                                    if (scanner.current - scanner.start > 3) {
+                                        switch (scanner.start[3]) {
+                                            case 'u': return checkKeyword(4, 2, "ct", TOKEN_STRUCT);
+                                            case 'i': return checkKeyword(4, 2, "ng", TOKEN_TYPE_STRING);
+                                        }
+                                    }
+                                    break;
                             }
                         }
                         break;

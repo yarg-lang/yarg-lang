@@ -1,17 +1,19 @@
-var test;
+var any test;
 var integer counter = 6;
 var bool isTrue = true;
 var mfloat64 aFloat = 0.0;
 var muint32 aUint = 0xFFFFFFFF;
 var string aString = "Hello, World!";
+var asBefore;
 
 {
-    var localTest;
+    var any localTest;
     var integer localCounter = 7;
     var bool localBool = false;
     var mfloat64 LocalFloat = 1.2;
     var muint32 LocalUint = 0xdede;
     var string LocalString = "Hello, Scope!";
+    var localAsBefore;
 
     print counter;
     print localCounter;
@@ -20,3 +22,5 @@ print isTrue;
 print aFloat;
 print aUint;
 print aString;
+print asBefore;
+print test;

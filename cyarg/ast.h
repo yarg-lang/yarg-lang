@@ -181,6 +181,7 @@ typedef struct  {
 typedef struct {
     ObjStmt stmt;
     ObjString* name;
+    ObjExpr* type;
     ObjExpr* initialiser;
 } ObjStmtVarDeclaration;
 
@@ -261,7 +262,7 @@ ObjExprType* newExprType(ExprTypeType type);
 ObjStmtExpression* newStmtExpression(ObjExpr* expr, ObjType statement, int line);
 ObjStmtBlock* newStmtBlock(int line);
 
-ObjStmtVarDeclaration* newStmtVarDeclaration(const char* name, int nameLength, ObjExpr* expr, int line);
+ObjStmtVarDeclaration* newStmtVarDeclaration(const char* name, int nameLength, int line);
 ObjStmtFunDeclaration* newStmtFunDeclaration(const char* name, int nameLength, int line);
 ObjStmtClassDeclaration* newStmtClassDeclaration(const char* name, int nameLength, int line);
 ObjStmtStructDeclaration* newStmtStructDeclaration(const char* name, int nameLength, int line);
