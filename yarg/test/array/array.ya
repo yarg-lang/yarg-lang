@@ -1,5 +1,5 @@
 var test = make_array(0d10);
-print test;      // expect: [array 10]
+print test;      // expect: any[10]
 print test[0];   // expect: nil
 test[1] = 10;
 print test[1];   // expect: 10

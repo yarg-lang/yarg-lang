@@ -246,26 +246,34 @@ static void printChannel(FILE* op, ObjChannel* channel) {
 
 static void printArray(FILE* op, Value a) {
     if (IS_VALARRAY(a)) {
-        FPRINTMSG(op, "[array %d]", AS_VALARRAY(a)->array.count);
+        FPRINTMSG(op, "any[%d]", AS_VALARRAY(a)->array.count);
     } else if (IS_UNIFORMARRAY(a)) {
-        FPRINTMSG(op, "[array %.zd]", AS_UNIFORMARRAY(a)->count);
+        FPRINTMSG(op, "muint32[%.zd]", AS_UNIFORMARRAY(a)->count);
     }
 }
 
 static void printType(FILE* op, ObjYargType* type) {
     switch (type->yt) {
-        case TypeBool: fprintf(op, "Type:Bool"); break;
-        case TypeDouble: fprintf(op, "Type:Double"); break;
-        case TypeMachineUint32: fprintf(op, "Type:MachineUint32"); break;
-        case TypeInteger: fprintf(op, "Type:Integer"); break;
-        case TypeString: fprintf(op, "Type:String"); break;
+        case TypeBool: fprintf(op, "bool"); break;
+        case TypeDouble: fprintf(op, "mfloat64"); break;
+        case TypeMachineUint32: fprintf(op, "muint32"); break;
+        case TypeInteger: fprintf(op, "integer"); break;
+        case TypeString: fprintf(op, "string"); break;
         case TypeClass: fprintf(op, "Type:Class"); break;
         case TypeInstance: fprintf(op, "Type:Instance"); break;
         case TypeFunction: fprintf(op, "Type:Function"); break;
         case TypeNativeBlob: fprintf(op, "Type:NativeBlob"); break;
         case TypeRoutine: fprintf(op, "Type:Routine"); break;
         case TypeChannel: fprintf(op, "Type:Channel"); break;
-        case TypeArray: fprintf(op, "Type:Array"); break;
+        case TypeArray: {
+            if (type->element_type == NULL) {
+                fprintf(op, "any");
+            } else {
+                printType(op, type->element_type);
+            }
+            fprintf(op, "[]");
+            break;
+        }
         case TypeYargType: fprintf(op, "Type:Type"); break;
         default: fprintf(op, "Type:Unknown"); break;
     }
