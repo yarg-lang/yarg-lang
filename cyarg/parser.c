@@ -651,6 +651,13 @@ static ObjStmt* varDeclaration() {
                 break;
         }
         pushWorkingNode((Obj*)typeExpr);
+
+        if (match(TOKEN_LEFT_SQUARE_BRACKET)) {
+            consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' after array type.");
+            typeExpr = (ObjExpr*) newExprArrayType(typeExpr);
+            popWorkingNode();
+            pushWorkingNode((Obj*)typeExpr);
+        }
     }
 
     consume(TOKEN_IDENTIFIER, "Expect variable name.");
