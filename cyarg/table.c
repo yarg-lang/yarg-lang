@@ -193,6 +193,16 @@ bool tableCellGet(ValueCellTable* table, ObjString* key, ValueCell* value) {
     return true;
 }
 
+bool tableCellGetPlace(ValueCellTable* table, ObjString* key, ValueCell** place) {
+    if (table->count == 0) return false;
+
+    EntryCell* entry = findCellEntry(table->entries, table->capacity, key);
+    if (entry->key == NULL) return false;
+
+    *place = &entry->cell;
+    return true;
+}
+
 static void adjustCellCapacity(ValueCellTable* table, int capacity) {
     EntryCell* entries = ALLOCATE(EntryCell, capacity);
     for (int i = 0; i < capacity; i++) {

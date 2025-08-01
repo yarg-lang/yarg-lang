@@ -40,6 +40,7 @@ typedef struct {
 void initCellTable(ValueCellTable* table);
 void freeCellTable(ValueCellTable* table);
 bool tableCellGet(ValueCellTable* table, ObjString* key, ValueCell* value);
+bool tableCellGetPlace(ValueCellTable* table, ObjString* key, ValueCell** place);
 bool tableCellSet(ValueCellTable* table, ObjString* key, ValueCell value);
 bool tableCellDelete(ValueCellTable* table, ObjString* key);
 void tableCellAddAll(ValueCellTable* from, ValueCellTable* to);
