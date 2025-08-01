@@ -1,0 +1,4 @@
+var string test = "hello world";
+print test; // expect: hello world
+
+test = 0xff; // expect runtime error: Cannot set global variable to incompatible type.

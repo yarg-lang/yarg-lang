@@ -1,0 +1,37 @@
+var any test;
+var integer counter = 6;
+var bool isTrue = true;
+var mfloat64 aFloat = 0.0;
+var muint32 aUint = 0xFFFFFFFF;
+var string aString = "Hello, World!";
+var asBefore;
+{
+    var any test = false;
+    var integer counter = 7;
+    var bool isTrue = false;
+    var mfloat64 aFloat = 1.2;
+    var muint32 aUint = 0xdede;
+    var string aString = "Hello, Scope!";
+    var asBefore = 10;
+
+    print counter;      // expect: 7
+    print isTrue;       // expect: false
+    print aFloat;       // expect: 1.20000
+    print aUint;        // expect: 57054
+    print aString;      // expect: Hello, Scope!
+    print asBefore;     // expect: 10
+    print test;         // expect: false
+}
+
+print isTrue; // expect: true
+print aFloat; // expect: 0.00000
+print aUint;  // expect: 4294967295
+print aString; // expect: Hello, World!
+print asBefore; // expect: nil
+print test;     // expect: nil
+
+test = 10;
+asBefore = test;
+print asBefore; // expect: 10
+asBefore = "test";
+print asBefore; // expect: test

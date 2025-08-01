@@ -1,0 +1,3 @@
+var muint32 test = 0d5;
+print test; // expect: 5
+test = 10; // expect runtime error: Cannot set global variable to incompatible type.

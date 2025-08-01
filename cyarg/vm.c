@@ -370,6 +370,29 @@ static void concatenate(ObjRoutine* routine) {
     push(routine, OBJ_VAL(result));
 }
 
+static bool isCompatibleType(ObjYargType* lhsType, Value rhsValue) {
+    if (is_obj_type(lhsType)) {
+        return IS_NIL(rhsValue) || lhsType->yt == yt_typeof(rhsValue);
+    } else {
+        return !IS_NIL(rhsValue) && lhsType->yt == yt_typeof(rhsValue);
+    }
+}
+
+static bool assignTo(ValueCell* lhs, Value rhsValue) {
+    if (IS_NIL(lhs->type)) {
+        lhs->value = rhsValue;
+        return true;
+    } else {
+        ObjYargType* lhsType = (ObjYargType*) AS_OBJ(lhs->type);
+        if (isCompatibleType(lhsType, rhsValue)) {
+            lhs->value = rhsValue;
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
 InterpretResult run(ObjRoutine* routine) {
     CallFrame* frame = &routine->frames[routine->frameCount - 1];
     routine->state = EXEC_RUNNING;
@@ -461,8 +484,13 @@ InterpretResult run(ObjRoutine* routine) {
             }
             case OP_SET_LOCAL: {
                 uint8_t slot = READ_BYTE();
-                frame->slots[slot].value = peek(routine, 0);
-                frame->slots[slot].type = NIL_VAL; // type info not used for now.
+                ValueCell* rhs = peekCell(routine, 0);
+                ValueCell* lhs = &frame->slots[slot];
+
+                if (!assignTo(lhs, rhs->value)) {
+                    runtimeError(routine, "Cannot set local variable to incompatible type.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
                 break;
             }
             case OP_GET_LOCAL: {
@@ -488,8 +516,15 @@ InterpretResult run(ObjRoutine* routine) {
             }
             case OP_SET_GLOBAL: {
                 ObjString* name = READ_STRING();
-                if (tableCellSet(&vm.globals, name, *peekCell(routine, 0))) {
-                    tableCellDelete(&vm.globals, name);
+                ValueCell* lhs = NULL;
+                if (tableCellGetPlace(&vm.globals, name, &lhs)) {
+                    ValueCell* rhs = peekCell(routine, 0);
+
+                    if (!assignTo(lhs, rhs->value)) {
+                        runtimeError(routine, "Cannot set global variable to incompatible type.");
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                } else {
                     runtimeError(routine, "Undefined variable (OP_SET_GLOBAL) '%s'.", name->chars);
                     return INTERPRET_RUNTIME_ERROR;
                 }
@@ -502,8 +537,13 @@ InterpretResult run(ObjRoutine* routine) {
             }
             case OP_SET_UPVALUE: {
                 uint8_t slot = READ_BYTE();
-                frame->closure->upvalues[slot]->location->value = peek(routine, 0);
-                frame->closure->upvalues[slot]->location->type = NIL_VAL;
+                ValueCell* rhs = peekCell(routine, 0);
+                ValueCell* lhs = frame->closure->upvalues[slot]->location;
+
+                if (!assignTo(lhs, rhs->value)) {
+                    runtimeError(routine, "Cannot set local variable to incompatible type.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
                 break;
             }
             case OP_GET_PROPERTY: {

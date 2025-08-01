@@ -1,0 +1,4 @@
+var bool test = true;
+print test; // expect: true
+
+test = nil; // expect runtime error: Cannot set global variable to incompatible type.

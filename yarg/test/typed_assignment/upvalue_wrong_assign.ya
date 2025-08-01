@@ -12,7 +12,7 @@ var g;
 
   fun g_() {
     print local;
-    local = 10;
+    local = 10; // expect runtime error: Cannot set local variable to incompatible type.
     print local;
   }
   g = g_;
@@ -24,4 +24,3 @@ f();
 
 g();
 // expect: after f
-// expect: after g

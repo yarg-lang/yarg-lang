@@ -1,0 +1,20 @@
+var any test;
+var integer counter = 6;
+var bool isTrue = true;
+var mfloat64 aFloat = 0.0;
+var muint32 aUint = 0xFFFFFFFF;
+var string aString = "Hello, World!";
+var asBefore;
+
+print isTrue; // expect: true
+print aFloat; // expect: 0.00000
+print aUint;  // expect: 4294967295
+print aString; // expect: Hello, World!
+print asBefore; // expect: nil
+print test;     // expect: nil
+
+test = 10;
+asBefore = test;
+print asBefore; // expect: 10
+asBefore = "test";
+print asBefore; // expect: test

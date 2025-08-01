@@ -1,0 +1,3 @@
+var integer test = 5;
+print test; // expect: 5
+test = "hello"; // expect runtime error: Cannot set global variable to incompatible type.
