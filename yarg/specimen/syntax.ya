@@ -1,27 +1,6 @@
-var f;
-var g;
-
-{
-  var string local = "local";
-  fun f_() {
-    print local;
-    local = "after f";
-    print local;
-  }
-  f = f_;
-
-  fun g_() {
-    print local;
-    local = 10;
-    print local;
-  }
-  g = g_;
-}
-
-f();
-// expect: local
-// expect: after f
-
-g();
-// expect: after f
-// expect: after g
+var any[] test = make_array(0d10);
+var any[] test2;
+test2 = test;
+print test2;      // expect: any[10]
+var bool[] test3;
+test3 = test2;

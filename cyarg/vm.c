@@ -371,8 +371,23 @@ static void concatenate(ObjRoutine* routine) {
 }
 
 static bool isCompatibleType(ObjYargType* lhsType, Value rhsValue) {
-    if (is_obj_type(lhsType)) {
-        return IS_NIL(rhsValue) || lhsType->yt == yt_typeof(rhsValue);
+    if (is_obj_type(lhsType) && IS_NIL(rhsValue)) {
+        return true;
+    } else if (is_obj_type(lhsType) && lhsType->yt == TypeArray) {        
+        if (yt_typeof(rhsValue) == TypeArray) {
+            if (lhsType->element_type == NULL) {
+                return true;
+            }
+            ObjYargType* rhsElementType = AS_YARGTYPE(rhsValue)->element_type;
+            if (rhsElementType == NULL) {
+                return false;
+            }
+            return lhsType->element_type->yt == rhsElementType->yt;
+        } else {
+            return false;
+        }
+    } else if (is_obj_type(lhsType)) {
+        return lhsType->yt == yt_typeof(rhsValue);
     } else {
         return !IS_NIL(rhsValue) && lhsType->yt == yt_typeof(rhsValue);
     }

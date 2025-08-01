@@ -4,6 +4,8 @@ var bool isTrue = true;
 var mfloat64 aFloat = 0.0;
 var muint32 aUint = 0xFFFFFFFF;
 var string aString = "Hello, World!";
+var any[] aArray = make_array(0d10);
+
 var asBefore;
 {
     var any test = false;
@@ -12,6 +14,7 @@ var asBefore;
     var mfloat64 aFloat = 1.2;
     var muint32 aUint = 0xdede;
     var string aString = "Hello, Scope!";
+    var any[] aArray = make_array(0d11);
     var asBefore = 10;
 
     print counter;      // expect: 7
@@ -21,6 +24,7 @@ var asBefore;
     print aString;      // expect: Hello, Scope!
     print asBefore;     // expect: 10
     print test;         // expect: false
+    print aArray;       // expect: any[11]
 }
 
 print isTrue; // expect: true
@@ -29,6 +33,7 @@ print aUint;  // expect: 4294967295
 print aString; // expect: Hello, World!
 print asBefore; // expect: nil
 print test;     // expect: nil
+print aArray; // expect: any[10]
 
 test = 10;
 asBefore = test;
