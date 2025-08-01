@@ -11,6 +11,15 @@ ObjYargType* newYargTypeFromType(YargType yt) {
     return t;
 }
 
+ObjYargType* newYargArrayTypeFromType(Value elementType) {
+    ObjYargType* t = ALLOCATE_OBJ(ObjYargType, OBJ_YARGTYPE);
+    if (IS_YARGTYPE(elementType)) {
+        t->element_type = AS_YARGTYPE(elementType);
+    }
+    t->yt = TypeArray;
+    return t;
+}
+
 YargType yt_typeof(Value a) {
     if (IS_BOOL(a)) {
         return TypeBool;

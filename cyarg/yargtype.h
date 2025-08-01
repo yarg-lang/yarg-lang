@@ -22,9 +22,11 @@ typedef enum {
 typedef struct ObjYargType {
     Obj obj;
     YargType yt;
+    ObjYargType* element_type;
 } ObjYargType;
 
 ObjYargType* newYargTypeFromType(YargType yt);
+ObjYargType* newYargArrayTypeFromType(Value elementType);
 
 YargType yt_typeof(Value a);
 bool is_obj_type(ObjYargType* type);
