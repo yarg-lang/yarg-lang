@@ -230,6 +230,12 @@ ObjExprType* newExprType(ExprTypeType type) {
     return expr;
 }
 
+ObjExprArrayType* newExprArrayType(ObjExpr* typeExpr) {
+    ObjExprArrayType* expr = ALLOCATE_OBJ(ObjExprArrayType, OBJ_EXPR_ARRAYTYPE);
+    expr->typeExpr = typeExpr;
+    return expr;
+}
+
 static int indendation = 0;
 
 void printIndentation() {
@@ -510,26 +516,40 @@ void printStmtExpression(ObjStmtExpression* stmt) {
     printf(";");
 }
 
+void printType(ObjExpr* type) {
+    if (type->obj.type == OBJ_EXPR_LITERAL) {
+        ObjExprLiteral* literal = (ObjExprLiteral*)type;
+        if (literal->literal == EXPR_LITERAL_NIL) {
+            printf("any");
+        }
+        return;
+    }
+    else if (type->obj.type == OBJ_EXPR_TYPE) {
+        ObjExprType* typeObject = (ObjExprType*)type;
+
+        switch (typeObject->type) {
+            case EXPR_TYPE_MFLOAT64: printf("mfloat64"); break;
+            case EXPR_TYPE_MUINT32: printf("muint32"); break;
+            case EXPR_TYPE_INTEGER: printf("integer"); break;
+            case EXPR_TYPE_BOOL: printf("bool"); break;
+            case EXPR_TYPE_STRING: printf("string"); break;
+            default: printf("<unknown>"); break;
+        }
+    } else if (type->obj.type == OBJ_EXPR_ARRAYTYPE) {
+        ObjExprArrayType* arrayType = (ObjExprArrayType*)type;
+        printType((ObjExpr*)arrayType->typeExpr);
+        printf("[]");
+    } else {
+        printf("<unexpected type>");
+    }
+}
+
 void printStmtVarDeclaration(ObjStmtVarDeclaration* decl) {
     printf("var ");
-    if (decl->type
-        && decl->type->obj.type == OBJ_EXPR_LITERAL) {
-        ObjExprLiteral* literal = (ObjExprLiteral*)decl->type;
-        if (literal->literal == EXPR_LITERAL_NIL) {
-            printf("any ");
-        }
-    } else if (decl->type
-               && decl->type->obj.type == OBJ_EXPR_TYPE) {
-        ObjExprType* type = (ObjExprType*)decl->type;
-        switch (type->type) {
-            case EXPR_TYPE_MFLOAT64: printf("mfloat64 "); break;
-            case EXPR_TYPE_MUINT32: printf("muint32 "); break;
-            case EXPR_TYPE_INTEGER: printf("integer "); break;
-            case EXPR_TYPE_BOOL: printf("bool "); break;
-            case EXPR_TYPE_STRING: printf("string "); break;
-            default: break;
-        }
+    if (decl->type) {
+        printType((ObjExpr*)decl->type);
     }
+    printf(" ");
     printObject(OBJ_VAL(decl->name));
     if (decl->initialiser) {
         printf(" = ");

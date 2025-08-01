@@ -169,6 +169,11 @@ typedef struct {
 } ObjExprType;
 
 typedef struct {
+    ObjExpr expr;
+    ObjExpr* typeExpr;
+} ObjExprArrayType;
+
+typedef struct {
     ObjStmt stmt;
     ObjStmt* statements;
 } ObjStmtBlock;
@@ -258,6 +263,7 @@ ObjExprBuiltin* newExprBuiltin(ExprBuiltin fn, int arity);
 ObjExprDot* newExprDot(const char* name, int nameLength);
 ObjExprSuper* newExprSuper(const char* name, int nameLength);
 ObjExprType* newExprType(ExprTypeType type);
+ObjExprArrayType* newExprArrayType(ObjExpr* typeExpr);
 
 ObjStmtExpression* newStmtExpression(ObjExpr* expr, ObjType statement, int line);
 ObjStmtBlock* newStmtBlock(int line);

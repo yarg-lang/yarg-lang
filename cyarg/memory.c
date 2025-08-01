@@ -342,6 +342,12 @@ static void blackenObject(Obj* object) {
             markExpr(object);
             break;
         }
+        case OBJ_EXPR_ARRAYTYPE: {
+            markExpr(object);
+            ObjExprArrayType* expr = (ObjExprArrayType*)object;
+            markObject((Obj*)expr->typeExpr);
+            break;
+        }
         case OBJ_NATIVE:
         case OBJ_BLOB:
         case OBJ_CHANNEL:
@@ -481,6 +487,7 @@ static void freeObject(Obj* object) {
         case OBJ_EXPR_DOT: FREE(ObjExprDot, object); break;
         case OBJ_EXPR_SUPER: FREE(ObjExprSuper, object); break;
         case OBJ_EXPR_TYPE: FREE(ObjExprType, object); break;
+        case OBJ_EXPR_ARRAYTYPE: FREE(ObjExprArrayType, object); break;
     }
 }
 
