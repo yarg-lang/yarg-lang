@@ -613,6 +613,12 @@ static void generateExprElt(ObjExpr* expr) {
             generateExprType(t);
             break;
         }
+        case OBJ_EXPR_ARRAYTYPE: {
+            ObjExprArrayType* arrayType = (ObjExprArrayType*)expr;
+            generateExpr((ObjExpr*)arrayType->typeExpr);
+            emitByte(OP_ARRAY_TYPE);
+            break;
+        }
         default:
             return; // unexpected
     }

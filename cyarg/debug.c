@@ -210,6 +210,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             return byteInstruction("OP_IMMEDIATE", chunk, offset);
         case OP_TYPE_LITERAL:
             return typeLiteralInstruction("OP_TYPE_LITERAL", chunk, offset);
+        case OP_ARRAY_TYPE:
+            return simpleInstruction("OP_ARRAY_TYPE", offset);
         case OP_SET_TYPE:
             return simpleInstruction("OP_SET_TYPE", offset);
         default:

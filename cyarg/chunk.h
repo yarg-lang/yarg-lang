@@ -54,6 +54,7 @@ typedef enum {
     OP_SET_ELEMENT,
     OP_IMMEDIATE,
     OP_TYPE_LITERAL,
+    OP_ARRAY_TYPE,
     OP_SET_TYPE
 } OpCode;
 

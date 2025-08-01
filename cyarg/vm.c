@@ -826,6 +826,13 @@ InterpretResult run(ObjRoutine* routine) {
                 push(routine, OBJ_VAL(typeObj));
                 break;
             }
+            case OP_ARRAY_TYPE: {
+                Value elementType = peek(routine, 0);
+                ObjYargType* typeObj = newYargArrayTypeFromType(elementType);
+                pop(routine);
+                push(routine, OBJ_VAL(typeObj));
+                break;
+            }
             case OP_SET_TYPE: {
                 Value type = pop(routine);
                 ValueCell* last = routine->stackTop - 1;
