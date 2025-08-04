@@ -652,6 +652,11 @@ static ObjExpr* typeExpression() {
                 error("Invalid type in expression.");
         }
     }
+    
+    if (isConst && expression == NULL) {
+        expression = (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL);
+    }
+
     if (expression) {
         ObjExpr* cursor = expression;
         pushWorkingNode((Obj*)expression);
@@ -932,7 +937,7 @@ ObjStmt* declaration() {
         stmt = (ObjStmt*) structDeclaration();
     } else if (match(TOKEN_FUN)) {
         stmt = (ObjStmt*) funDeclaration("Expect function name.");
-    } else if (match(TOKEN_VAR)) {
+    } else if (match(TOKEN_VAR) || check(TOKEN_CONST) || checkTypeToken()) {
         stmt = varDeclaration();
     } else {
         stmt = statement();

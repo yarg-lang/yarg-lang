@@ -1,11 +1,7 @@
-{
-    var const bool unhappy = false;
-    var const integer ten = 0d10;
-    print unhappy;
-    print ten;
-    var const muint32 flag;
-    print flag;
-    flag = 0x7;
-    unhappy = true;
-    ten = 11;
-}
+const test = 5;
+const muint32 mask = 0xf;
+muint32 variable = 0x4;
+print test;
+print mask;
+variable = 0x5;
+print variable;
