@@ -1,0 +1,23 @@
+var f;
+var g;
+
+{
+  var const string local = "local";
+  fun f_() {
+    print local;
+  }
+  f = f_;
+
+  fun g_() {
+    print local;
+    local = "test"; // expect runtime error: Cannot set local variable to incompatible type.
+    print local;
+  }
+  g = g_;
+}
+
+f();
+// expect: local
+
+g();
+// expect: local

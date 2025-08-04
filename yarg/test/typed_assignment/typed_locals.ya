@@ -40,3 +40,9 @@ asBefore = test;
 print asBefore; // expect: 10
 asBefore = "test";
 print asBefore; // expect: test
+
+{
+    var integer counter = 8;
+    print counter; // expect: 8
+    counter = true;    // expect runtime error: Cannot set local variable to incompatible type.
+}

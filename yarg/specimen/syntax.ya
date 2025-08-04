@@ -1,4 +1,11 @@
-var const integer counter = 6;
-var const bool isTrue = true;
-var const any test;
-test = 10; // expect compilation error: Cannot assign to a constant variable.
+{
+    var const bool unhappy = false;
+    var const integer ten = 0d10;
+    print unhappy;
+    print ten;
+    var const muint32 flag;
+    print flag;
+    flag = 0x7;
+    unhappy = true;
+    ten = 11;
+}

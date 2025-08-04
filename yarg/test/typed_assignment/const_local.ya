@@ -1,0 +1,35 @@
+var const any test;
+var const integer counter = 6;
+var const bool isTrue = true;
+var const mfloat64 aFloat = 0.0;
+var muint32 aUint = 0xFFFFFFFF;
+var const string aString = "Hello, World!";
+var const any[] aArray = make_array(0d10);
+
+var asBefore;
+
+{
+    var const any test = false;
+    var const integer counter = 0d7;
+    
+    print counter;      // expect: 7
+    print test;         // expect: false
+    
+    var const bool isTrue = false;
+    var const mfloat64 aFloat = 1.2;
+    var const muint32 aUint = 0xdede;
+    
+    print isTrue;       // expect: false
+    print aFloat;       // expect: 1.20000
+    print aUint;        // expect: 57054
+    
+    var const string aString = "Hello, Scope!";
+    var const any[] aArray = make_array(0d11);
+    var const asBefore = 10;
+
+    print aString;      // expect: Hello, Scope!
+    print asBefore;     // expect: 10
+    print aArray;       // expect: any[11]
+
+    counter = 0d7; // expect runtime error: Cannot set local variable to incompatible type.
+}

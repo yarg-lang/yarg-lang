@@ -371,7 +371,9 @@ static void concatenate(ObjRoutine* routine) {
 }
 
 static bool isCompatibleType(ObjConcreteYargType* lhsType, Value rhsValue) {
-    if (is_obj_type(lhsType) && IS_NIL(rhsValue)) {
+    if (lhsType->isConst) {
+        return false;
+    } else if (is_obj_type(lhsType) && IS_NIL(rhsValue)) {
         return true;
     } else if (is_obj_type(lhsType) && lhsType->yt == TypeArray) {        
         if (yt_typeof(rhsValue) == TypeArray) {

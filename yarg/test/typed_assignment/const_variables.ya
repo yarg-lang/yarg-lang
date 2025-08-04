@@ -1,0 +1,38 @@
+var const any test;
+var const integer counter = 6;
+var const bool isTrue = true;
+var const mfloat64 aFloat = 0.0;
+var const muint32 aUint = 0xFFFFFFFF;
+var const string aString = "Hello, World!";
+var const any[] aArray = make_array(0d10);
+
+var asBefore;
+{
+    var const any test = false;
+    var const integer counter = 7;
+    var const bool isTrue = false;
+    var const mfloat64 aFloat = 1.2;
+    var const muint32 aUint = 0xdede;
+    var const string aString = "Hello, Scope!";
+    var const any[] aArray = make_array(0d11);
+    var const asBefore = 10;
+
+    print counter;      // expect: 7
+    print isTrue;       // expect: false
+    print aFloat;       // expect: 1.20000
+    print aUint;        // expect: 57054
+    print aString;      // expect: Hello, Scope!
+    print asBefore;     // expect: 10
+    print test;         // expect: false
+    print aArray;       // expect: any[11]
+}
+
+print isTrue; // expect: true
+print aFloat; // expect: 0.00000
+print aUint;  // expect: 4294967295
+print aString; // expect: Hello, World!
+print asBefore; // expect: nil
+print test;     // expect: nil
+print aArray; // expect: any[10]
+
+test = 10; // expect runtime error: Cannot set global variable to incompatible type.
