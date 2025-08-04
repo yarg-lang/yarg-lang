@@ -1,6 +1,4 @@
-var any[] test = make_array(0d10);
-var any[] test2;
-test2 = test;
-print test2;      // expect: any[10]
-var bool[] test3;
-test3 = test2;
+var const integer counter = 6;
+var const bool isTrue = true;
+var const any test;
+test = 10; // expect compilation error: Cannot assign to a constant variable.
