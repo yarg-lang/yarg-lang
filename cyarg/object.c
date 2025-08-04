@@ -254,6 +254,7 @@ static void printArray(FILE* op, Value a) {
 
 static void printType(FILE* op, ObjConcreteYargType* type) {
     switch (type->yt) {
+        case TypeAny: fprintf(op, "any"); break;
         case TypeBool: fprintf(op, "bool"); break;
         case TypeDouble: fprintf(op, "mfloat64"); break;
         case TypeMachineUint32: fprintf(op, "muint32"); break;

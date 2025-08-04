@@ -4,6 +4,7 @@
 #include "object.h"
 
 typedef enum {
+   TypeAny,
    TypeBool,
    TypeDouble,
    TypeMachineUint32,

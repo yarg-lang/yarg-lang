@@ -21,7 +21,9 @@ ObjConcreteYargType* newYargArrayTypeFromType(Value elementType) {
 }
 
 ConcreteYargType yt_typeof(Value a) {
-    if (IS_BOOL(a)) {
+    if (IS_NIL(a)) {
+        return TypeAny;
+    } else if (IS_BOOL(a)) {
         return TypeBool;
     } else if (IS_DOUBLE(a)) {
         return TypeDouble;
@@ -62,6 +64,7 @@ ConcreteYargType yt_typeof(Value a) {
 
 bool is_obj_type(ObjConcreteYargType* type) {
     switch (type->yt) {
+        case TypeAny:
         case TypeBool:
         case TypeDouble:
         case TypeMachineUint32:
