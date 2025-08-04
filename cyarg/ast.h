@@ -161,6 +161,7 @@ typedef enum {
     EXPR_TYPE_LITERAL_MUINT32,
     EXPR_TYPE_LITERAL_MFLOAT64,
     EXPR_TYPE_LITERAL_STRING,
+    EXPR_TYPE_LITERAL_CONST
 } ExprTypeLiteral;
 
 typedef struct {

@@ -634,31 +634,45 @@ static ObjStmtExpression* expressionStatement() {
     return expressionStatement;
 }
 
-static ObjStmt* varDeclaration() {
+static ObjExpr* typeExpression() {
+    ObjExpr* expression = NULL;
 
-    ObjExpr* typeExpr = NULL;;
+    bool isConst = match(TOKEN_CONST);
+
     if (checkTypeToken()) {
         advance();
         switch (parser.previous.type) {
-            case TOKEN_MACHINE_FLOAT64: typeExpr = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MFLOAT64); break;
-            case TOKEN_MACHINE_UINT32: typeExpr = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MUINT32); break;
-            case TOKEN_INTEGER: typeExpr = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INTEGER); break;
-            case TOKEN_BOOL: typeExpr = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_BOOL); break;
-            case TOKEN_TYPE_STRING: typeExpr =(ObjExpr*) newExprType(EXPR_TYPE_LITERAL_STRING); break;
-            case TOKEN_ANY: typeExpr = (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL); break;
-            default: 
-                error("Invalid type for variable declaration.");
-                break;
+            case TOKEN_MACHINE_FLOAT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MFLOAT64); break;
+            case TOKEN_MACHINE_UINT32: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MUINT32); break;
+            case TOKEN_INTEGER: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INTEGER); break;
+            case TOKEN_BOOL: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_BOOL); break;
+            case TOKEN_TYPE_STRING: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_STRING); break;
+            case TOKEN_ANY: expression = (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL); break;
+            default:
+                error("Invalid type in expression.");
         }
-        pushWorkingNode((Obj*)typeExpr);
+    }
+    if (expression) {
+        pushWorkingNode((Obj*)expression);
 
         if (match(TOKEN_LEFT_SQUARE_BRACKET)) {
             consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' after array type.");
-            typeExpr = (ObjExpr*) newExprArrayType(typeExpr);
+            expression = (ObjExpr*) newExprArrayType(expression);
             popWorkingNode();
-            pushWorkingNode((Obj*)typeExpr);
+            pushWorkingNode((Obj*)expression);
+        }
+
+        if (isConst) {
+            expression->nextExpr = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_CONST);
         }
     }
+
+    return expression;
+}
+
+static ObjStmt* varDeclaration() {
+
+    ObjExpr* typeExpr = typeExpression();
 
     consume(TOKEN_IDENTIFIER, "Expect variable name.");
     ObjStmtVarDeclaration* decl = newStmtVarDeclaration((char*)parser.previous.start, parser.previous.length, parser.previous.line);

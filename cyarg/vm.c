@@ -408,6 +408,25 @@ static bool assignTo(ValueCell* lhs, Value rhsValue) {
     }
 }
 
+static void createConcreteType(ObjRoutine* routine, ConcreteYargType type) {
+    ObjConcreteYargType* typeObj = newYargTypeFromType(type);
+    push(routine, OBJ_VAL(typeObj));
+}
+
+static void makeConcreteTypeConst(ObjRoutine* routine) {
+    if (IS_NIL(peek(routine, 0))) {
+        pop(routine);
+        ObjConcreteYargType* typeObject = newYargTypeFromType(TypeAny);
+        typeObject->isConst = true;
+        push(routine, OBJ_VAL(typeObject));
+        return;
+    } else {
+        ObjConcreteYargType* typeObj = (ObjConcreteYargType*) AS_OBJ(peek(routine, 0));
+        typeObj->isConst = true;
+        return;
+    }
+}
+
 InterpretResult run(ObjRoutine* routine) {
     CallFrame* frame = &routine->frames[routine->frameCount - 1];
     routine->state = EXEC_RUNNING;
@@ -828,17 +847,14 @@ InterpretResult run(ObjRoutine* routine) {
             }
             case OP_TYPE_LITERAL: {
                 uint8_t typeCode = READ_BYTE();
-                ConcreteYargType type;
                 switch (typeCode) {
-                    case TYPE_LITERAL_BOOL: type = TypeBool; break;
-                    case TYPE_LITERAL_INTEGER: type = TypeInteger; break;
-                    case TYPE_LITERAL_MACHINE_UINT32: type = TypeMachineUint32; break;
-                    case TYPE_LITERAL_MACHINE_FLOAT64: type = TypeDouble; break;
-                    case TYPE_LITERAL_STRING: type = TypeString; break;
-                    default: return INTERPRET_RUNTIME_ERROR;
+                    case TYPE_LITERAL_BOOL: createConcreteType(routine, TypeBool); break;
+                    case TYPE_LITERAL_INTEGER: createConcreteType(routine, TypeInteger); break;
+                    case TYPE_LITERAL_MACHINE_UINT32: createConcreteType(routine, TypeMachineUint32); break;
+                    case TYPE_LITERAL_MACHINE_FLOAT64: createConcreteType(routine, TypeDouble); break;
+                    case TYPE_LITERAL_STRING: createConcreteType(routine, TypeString); break;
+                    case TYPE_LITERAL_CONST: makeConcreteTypeConst(routine); break;
                 }
-                ObjConcreteYargType* typeObj = newYargTypeFromType(type);
-                push(routine, OBJ_VAL(typeObj));
                 break;
             }
             case OP_ARRAY_TYPE: {

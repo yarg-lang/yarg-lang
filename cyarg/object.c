@@ -253,6 +253,9 @@ static void printArray(FILE* op, Value a) {
 }
 
 static void printType(FILE* op, ObjConcreteYargType* type) {
+    if (type->isConst) {
+        fprintf(op, "const ");
+    }
     switch (type->yt) {
         case TypeAny: fprintf(op, "any"); break;
         case TypeBool: fprintf(op, "bool"); break;

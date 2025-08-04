@@ -536,6 +536,7 @@ static void generateExprType(ObjExprTypeLiteral* type) {
         case EXPR_TYPE_LITERAL_MFLOAT64: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_MACHINE_FLOAT64); return;
         case EXPR_TYPE_LITERAL_MUINT32: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_MACHINE_UINT32); return;
         case EXPR_TYPE_LITERAL_STRING: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_STRING); return;
+        case EXPR_TYPE_LITERAL_CONST: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_CONST); return;
         default: return; // unreachable.
     }
 }

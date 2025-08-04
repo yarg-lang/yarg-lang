@@ -23,6 +23,7 @@ typedef enum {
 typedef struct ObjConcreteYargType {
     Obj obj;
     ConcreteYargType yt;
+    bool isConst;
     ObjConcreteYargType* element_type;
 } ObjConcreteYargType;
 
