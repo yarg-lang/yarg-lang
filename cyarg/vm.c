@@ -370,7 +370,7 @@ static void concatenate(ObjRoutine* routine) {
     push(routine, OBJ_VAL(result));
 }
 
-static bool isCompatibleType(ObjYargType* lhsType, Value rhsValue) {
+static bool isCompatibleType(ObjConcreteYargType* lhsType, Value rhsValue) {
     if (is_obj_type(lhsType) && IS_NIL(rhsValue)) {
         return true;
     } else if (is_obj_type(lhsType) && lhsType->yt == TypeArray) {        
@@ -378,7 +378,7 @@ static bool isCompatibleType(ObjYargType* lhsType, Value rhsValue) {
             if (lhsType->element_type == NULL) {
                 return true;
             }
-            ObjYargType* rhsElementType = AS_YARGTYPE(rhsValue)->element_type;
+            ObjConcreteYargType* rhsElementType = AS_YARGTYPE(rhsValue)->element_type;
             if (rhsElementType == NULL) {
                 return false;
             }
@@ -398,7 +398,7 @@ static bool assignTo(ValueCell* lhs, Value rhsValue) {
         lhs->value = rhsValue;
         return true;
     } else {
-        ObjYargType* lhsType = (ObjYargType*) AS_OBJ(lhs->type);
+        ObjConcreteYargType* lhsType = (ObjConcreteYargType*) AS_OBJ(lhs->type);
         if (isCompatibleType(lhsType, rhsValue)) {
             lhs->value = rhsValue;
             return true;
@@ -828,7 +828,7 @@ InterpretResult run(ObjRoutine* routine) {
             }
             case OP_TYPE_LITERAL: {
                 uint8_t typeCode = READ_BYTE();
-                YargType type;
+                ConcreteYargType type;
                 switch (typeCode) {
                     case TYPE_BUILTIN_BOOL: type = TypeBool; break;
                     case TYPE_BUILTIN_INTEGER: type = TypeInteger; break;
@@ -837,13 +837,13 @@ InterpretResult run(ObjRoutine* routine) {
                     case TYPE_BUILTIN_STRING: type = TypeString; break;
                     default: return INTERPRET_RUNTIME_ERROR;
                 }
-                ObjYargType* typeObj = newYargTypeFromType(type);
+                ObjConcreteYargType* typeObj = newYargTypeFromType(type);
                 push(routine, OBJ_VAL(typeObj));
                 break;
             }
             case OP_ARRAY_TYPE: {
                 Value elementType = peek(routine, 0);
-                ObjYargType* typeObj = newYargArrayTypeFromType(elementType);
+                ObjConcreteYargType* typeObj = newYargArrayTypeFromType(elementType);
                 pop(routine);
                 push(routine, OBJ_VAL(typeObj));
                 break;

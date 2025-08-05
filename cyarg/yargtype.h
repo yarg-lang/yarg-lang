@@ -17,18 +17,18 @@ typedef enum {
    TypeChannel,
    TypeArray,
    TypeYargType
-} YargType;
+} ConcreteYargType;
 
-typedef struct ObjYargType {
+typedef struct ObjConcreteYargType {
     Obj obj;
-    YargType yt;
-    ObjYargType* element_type;
-} ObjYargType;
+    ConcreteYargType yt;
+    ObjConcreteYargType* element_type;
+} ObjConcreteYargType;
 
-ObjYargType* newYargTypeFromType(YargType yt);
-ObjYargType* newYargArrayTypeFromType(Value elementType);
+ObjConcreteYargType* newYargTypeFromType(ConcreteYargType yt);
+ObjConcreteYargType* newYargArrayTypeFromType(Value elementType);
 
-YargType yt_typeof(Value a);
-bool is_obj_type(ObjYargType* type);
+ConcreteYargType yt_typeof(Value a);
+bool is_obj_type(ObjConcreteYargType* type);
 
 #endif

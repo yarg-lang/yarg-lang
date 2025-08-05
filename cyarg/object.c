@@ -135,7 +135,7 @@ ObjValArray* newValArray(size_t capacity) {
     return array;
 }
 
-ObjUniformArray* newUniformArray(ObjYargType* element_type, size_t capacity) {
+ObjUniformArray* newUniformArray(ObjConcreteYargType* element_type, size_t capacity) {
     ObjUniformArray* array = ALLOCATE_OBJ(ObjUniformArray, OBJ_UNIFORMARRAY);
     array->array = NULL;
     array->element_size = 0;
@@ -252,7 +252,7 @@ static void printArray(FILE* op, Value a) {
     }
 }
 
-static void printType(FILE* op, ObjYargType* type) {
+static void printType(FILE* op, ObjConcreteYargType* type) {
     switch (type->yt) {
         case TypeBool: fprintf(op, "bool"); break;
         case TypeDouble: fprintf(op, "mfloat64"); break;

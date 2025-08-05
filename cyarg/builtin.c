@@ -297,7 +297,7 @@ bool makeArrayBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args,
 
    
     if (IS_YARGTYPE(args[0].value)) {
-        ObjYargType* type = AS_YARGTYPE(args[0].value);
+        ObjConcreteYargType* type = AS_YARGTYPE(args[0].value);
         ObjUniformArray* array = newUniformArray(type, capacity);
         *result = OBJ_VAL(array);
     } else {

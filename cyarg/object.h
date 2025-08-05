@@ -7,7 +7,7 @@
 #include "value.h"
 #include "value_cell.h"
 
-typedef struct ObjYargType ObjYargType;
+typedef struct ObjConcreteYargType ObjConcreteYargType;
 
 #define OBJ_TYPE(value)     (AS_OBJ(value)->type)
 
@@ -39,7 +39,7 @@ typedef struct ObjYargType ObjYargType;
 #define AS_CSTRING(value)      (((ObjString*)AS_OBJ(value))->chars)
 #define AS_VALARRAY(value)     ((ObjValArray*)AS_OBJ(value))
 #define AS_UNIFORMARRAY(value) ((ObjUniformArray*)AS_OBJ(value))
-#define AS_YARGTYPE(value)     ((ObjYargType*)AS_OBJ(value))
+#define AS_YARGTYPE(value)     ((ObjConcreteYargType*)AS_OBJ(value))
 
 typedef enum {
     OBJ_BOUND_METHOD,
@@ -173,7 +173,7 @@ typedef struct ObjValArray {
 
 typedef struct ObjUniformArray {
     Obj obj;
-    ObjYargType* element_type;
+    ObjConcreteYargType* element_type;
     size_t count;
     size_t element_size;
     void* array;
@@ -198,7 +198,7 @@ ObjInstance* newInstance(ObjClass* klass);
 ObjNative* newNative(NativeFn function);
 ObjBlob* newBlob(size_t size);
 ObjValArray* newValArray(size_t capacity);
-ObjUniformArray* newUniformArray(ObjYargType* element_type, size_t capacity);
+ObjUniformArray* newUniformArray(ObjConcreteYargType* element_type, size_t capacity);
 ObjString* takeString(char* chars, int length);
 ObjString* copyString(const char* chars, int length);
 ObjUpvalue* newUpvalue(ValueCell* slot);

@@ -427,7 +427,7 @@ static void freeObject(Obj* object) {
             break;
         }
         case OBJ_YARGTYPE: {
-            FREE(ObjYargType, object);
+            FREE(ObjConcreteYargType, object);
             break;
         }
         case OBJ_AST: {

@@ -5,14 +5,14 @@
 #include "memory.h"
 #include "vm.h"
 
-ObjYargType* newYargTypeFromType(YargType yt) {
-    ObjYargType* t = ALLOCATE_OBJ(ObjYargType, OBJ_YARGTYPE);
+ObjConcreteYargType* newYargTypeFromType(ConcreteYargType yt) {
+    ObjConcreteYargType* t = ALLOCATE_OBJ(ObjConcreteYargType, OBJ_YARGTYPE);
     t->yt = yt;
     return t;
 }
 
-ObjYargType* newYargArrayTypeFromType(Value elementType) {
-    ObjYargType* t = ALLOCATE_OBJ(ObjYargType, OBJ_YARGTYPE);
+ObjConcreteYargType* newYargArrayTypeFromType(Value elementType) {
+    ObjConcreteYargType* t = ALLOCATE_OBJ(ObjConcreteYargType, OBJ_YARGTYPE);
     if (IS_YARGTYPE(elementType)) {
         t->element_type = AS_YARGTYPE(elementType);
     }
@@ -20,7 +20,7 @@ ObjYargType* newYargArrayTypeFromType(Value elementType) {
     return t;
 }
 
-YargType yt_typeof(Value a) {
+ConcreteYargType yt_typeof(Value a) {
     if (IS_BOOL(a)) {
         return TypeBool;
     } else if (IS_DOUBLE(a)) {
@@ -60,7 +60,7 @@ YargType yt_typeof(Value a) {
     return TypeYargType; // This should never happen.
 }
 
-bool is_obj_type(ObjYargType* type) {
+bool is_obj_type(ObjConcreteYargType* type) {
     switch (type->yt) {
         case TypeBool:
         case TypeDouble:
