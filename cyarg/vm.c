@@ -830,11 +830,11 @@ InterpretResult run(ObjRoutine* routine) {
                 uint8_t typeCode = READ_BYTE();
                 ConcreteYargType type;
                 switch (typeCode) {
-                    case TYPE_BUILTIN_BOOL: type = TypeBool; break;
-                    case TYPE_BUILTIN_INTEGER: type = TypeInteger; break;
-                    case TYPE_BUILTIN_MACHINE_UINT32: type = TypeMachineUint32; break;
-                    case TYPE_BUILTIN_MACHINE_FLOAT64: type = TypeDouble; break;
-                    case TYPE_BUILTIN_STRING: type = TypeString; break;
+                    case TYPE_LITERAL_BOOL: type = TypeBool; break;
+                    case TYPE_LITERAL_INTEGER: type = TypeInteger; break;
+                    case TYPE_LITERAL_MACHINE_UINT32: type = TypeMachineUint32; break;
+                    case TYPE_LITERAL_MACHINE_FLOAT64: type = TypeDouble; break;
+                    case TYPE_LITERAL_STRING: type = TypeString; break;
                     default: return INTERPRET_RUNTIME_ERROR;
                 }
                 ObjConcreteYargType* typeObj = newYargTypeFromType(type);

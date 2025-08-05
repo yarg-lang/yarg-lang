@@ -377,7 +377,7 @@ static ObjExpr* builtin(bool canAssign) {
 
 static ObjExpr* type(bool canAssign) {
     switch (parser.previous.type) {
-        case TOKEN_MACHINE_UINT32: return (ObjExpr*) newExprType(EXPR_TYPE_MUINT32);
+        case TOKEN_MACHINE_UINT32: return (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MUINT32);
         default: return NULL; // Unreachable
     }
 }
@@ -640,11 +640,11 @@ static ObjStmt* varDeclaration() {
     if (checkTypeToken()) {
         advance();
         switch (parser.previous.type) {
-            case TOKEN_MACHINE_FLOAT64: typeExpr = (ObjExpr*) newExprType(EXPR_TYPE_MFLOAT64); break;
-            case TOKEN_MACHINE_UINT32: typeExpr = (ObjExpr*) newExprType(EXPR_TYPE_MUINT32); break;
-            case TOKEN_INTEGER: typeExpr = (ObjExpr*) newExprType(EXPR_TYPE_INTEGER); break;
-            case TOKEN_BOOL: typeExpr = (ObjExpr*) newExprType(EXPR_TYPE_BOOL); break;
-            case TOKEN_TYPE_STRING: typeExpr =(ObjExpr*) newExprType(EXPR_TYPE_STRING); break;
+            case TOKEN_MACHINE_FLOAT64: typeExpr = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MFLOAT64); break;
+            case TOKEN_MACHINE_UINT32: typeExpr = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MUINT32); break;
+            case TOKEN_INTEGER: typeExpr = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INTEGER); break;
+            case TOKEN_BOOL: typeExpr = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_BOOL); break;
+            case TOKEN_TYPE_STRING: typeExpr =(ObjExpr*) newExprType(EXPR_TYPE_LITERAL_STRING); break;
             case TOKEN_ANY: typeExpr = (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL); break;
             default: 
                 error("Invalid type for variable declaration.");

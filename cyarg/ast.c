@@ -223,8 +223,8 @@ ObjExprSuper* newExprSuper(const char* name, int nameLength) {
     return expr;
 }
 
-ObjExprType* newExprType(ExprTypeType type) {
-    ObjExprType* expr = ALLOCATE_OBJ(ObjExprType, OBJ_EXPR_TYPE);
+ObjExprTypeLiteral* newExprType(ExprTypeLiteral type) {
+    ObjExprTypeLiteral* expr = ALLOCATE_OBJ(ObjExprTypeLiteral, OBJ_EXPR_TYPE);
     expr->expr.nextExpr = NULL;
     expr->type = type;
     return expr;
@@ -525,14 +525,14 @@ void printType(ObjExpr* type) {
         return;
     }
     else if (type->obj.type == OBJ_EXPR_TYPE) {
-        ObjExprType* typeObject = (ObjExprType*)type;
+        ObjExprTypeLiteral* typeObject = (ObjExprTypeLiteral*)type;
 
         switch (typeObject->type) {
-            case EXPR_TYPE_MFLOAT64: printf("mfloat64"); break;
-            case EXPR_TYPE_MUINT32: printf("muint32"); break;
-            case EXPR_TYPE_INTEGER: printf("integer"); break;
-            case EXPR_TYPE_BOOL: printf("bool"); break;
-            case EXPR_TYPE_STRING: printf("string"); break;
+            case EXPR_TYPE_LITERAL_MFLOAT64: printf("mfloat64"); break;
+            case EXPR_TYPE_LITERAL_MUINT32: printf("muint32"); break;
+            case EXPR_TYPE_LITERAL_INTEGER: printf("integer"); break;
+            case EXPR_TYPE_LITERAL_BOOL: printf("bool"); break;
+            case EXPR_TYPE_LITERAL_STRING: printf("string"); break;
             default: printf("<unknown>"); break;
         }
     } else if (type->obj.type == OBJ_EXPR_ARRAYTYPE) {

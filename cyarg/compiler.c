@@ -529,13 +529,13 @@ static void generateExprSuper(ObjExprSuper* super) {
     tempRootPop();
 }
 
-static void generateExprType(ObjExprType* type) {
+static void generateExprType(ObjExprTypeLiteral* type) {
     switch (type->type) {
-        case EXPR_TYPE_BOOL: emitBytes(OP_TYPE_LITERAL, TYPE_BUILTIN_BOOL); return;
-        case EXPR_TYPE_INTEGER: emitBytes(OP_TYPE_LITERAL, TYPE_BUILTIN_INTEGER); return;
-        case EXPR_TYPE_MFLOAT64: emitBytes(OP_TYPE_LITERAL, TYPE_BUILTIN_MACHINE_FLOAT64); return;
-        case EXPR_TYPE_MUINT32: emitBytes(OP_TYPE_LITERAL, TYPE_BUILTIN_MACHINE_UINT32); return;
-        case EXPR_TYPE_STRING: emitBytes(OP_TYPE_LITERAL, TYPE_BUILTIN_STRING); return;
+        case EXPR_TYPE_LITERAL_BOOL: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_BOOL); return;
+        case EXPR_TYPE_LITERAL_INTEGER: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_INTEGER); return;
+        case EXPR_TYPE_LITERAL_MFLOAT64: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_MACHINE_FLOAT64); return;
+        case EXPR_TYPE_LITERAL_MUINT32: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_MACHINE_UINT32); return;
+        case EXPR_TYPE_LITERAL_STRING: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_STRING); return;
         default: return; // unreachable.
     }
 }
@@ -609,7 +609,7 @@ static void generateExprElt(ObjExpr* expr) {
             break;
         }
         case OBJ_EXPR_TYPE: {
-            ObjExprType* t = (ObjExprType*)expr;
+            ObjExprTypeLiteral* t = (ObjExprTypeLiteral*)expr;
             generateExprType(t);
             break;
         }
