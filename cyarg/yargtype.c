@@ -82,3 +82,30 @@ bool is_obj_type(ObjConcreteYargType* type) {
             return true;
     }
 }
+
+size_t yt_sizeof_type(Value type) {
+    if (IS_NIL(type)) {
+        return 8;
+    } else {
+        ObjConcreteYargType* t = AS_YARGTYPE(type);
+        switch (t->yt) {
+        case TypeAny:
+        case TypeBool:
+        case TypeDouble:
+        case TypeInteger:
+            return 8;
+        case TypeMachineUint32:
+            return 4;
+        case TypeString:
+        case TypeClass:
+        case TypeInstance:
+        case TypeFunction:
+        case TypeNativeBlob:
+        case TypeRoutine:
+        case TypeChannel:
+        case TypeArray:
+        case TypeYargType:
+            return 4;            
+        }
+    }
+}
