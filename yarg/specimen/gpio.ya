@@ -1,19 +1,19 @@
 import("machine");
 import("irq");
 
-var pico_led = 0d25;
+const pico_led = 0d25;
 
-var GPIO_OUT = true;
-var GPIO_IN = false;
-var GPIO_FUNC_SIO = 0d5;
-var GPIO_IRQ_EDGE_FALL = 0x4;
-var GPIO_IRQ_EDGE_RISE = 0x8;
-var GPIO_IRQ_CALLBACK_ORDER_PRIORITY = 0d0;
-var NUM_BANK0_GPIOS = 0d30;
+const GPIO_OUT = true;
+const GPIO_IN = false;
+const GPIO_FUNC_SIO = 0d5;
+const GPIO_IRQ_EDGE_FALL = 0x4;
+const GPIO_IRQ_EDGE_RISE = 0x8;
+const GPIO_IRQ_CALLBACK_ORDER_PRIORITY = 0d0;
+const NUM_BANK0_GPIOS = 0d30;
 
-var PADS_BANK0_GPIO0_IE_BITS = 0x00000040;
-var PADS_BANK0_GPIO0_OD_BITS = 0x00000080;
-var PADS_BANK0_GPIO0_ISO_BITS = 0x00000100;
+const PADS_BANK0_GPIO0_IE_BITS = 0x00000040;
+const PADS_BANK0_GPIO0_OD_BITS = 0x00000080;
+const PADS_BANK0_GPIO0_ISO_BITS = 0x00000100;
 
 var callbacks = make_array(0d2);
 
@@ -22,10 +22,10 @@ struct sio_hw@0xd0000000 {
     muint32 rw gpio_oe@0x20;
 }
 
-var REG_ALIAS_RW_BITS  = 0x0 << 0d12;
-var REG_ALIAS_XOR_BITS = 0x1 << 0d12;
-var REG_ALIAS_SET_BITS = 0x2 << 0d12;
-var REG_ALIAS_CLR_BITS = 0x3 << 0d12;
+const REG_ALIAS_RW_BITS  = 0x0 << 0d12;
+const REG_ALIAS_XOR_BITS = 0x1 << 0d12;
+const REG_ALIAS_SET_BITS = 0x2 << 0d12;
+const REG_ALIAS_CLR_BITS = 0x3 << 0d12;
 
 class alias_reg {
     init(addr) {
@@ -81,7 +81,7 @@ fun gpio_init(gpio) {
 
 fun gpio_set_function(gpio, function) {
 
-    var pads_bank_0_pin_offset = 0d4 + 0d4 * gpio;
+    const pads_bank_0_pin_offset = 0d4 + 0d4 * gpio;
     var pinctrl = alias_reg(PADS_BANK0_BASE + pads_bank_0_pin_offset);
 
     // Set input enable on, output disable off
@@ -89,7 +89,7 @@ fun gpio_set_function(gpio, function) {
 
     // Zero all fields apart from fsel; we want this IO to do what the peripheral tells it.
     // This doesn't affect e.g. pullup/pulldown, as these are in pad controls.
-    var ctrl_offset = (0d8 * gpio) + 0d4;
+    const ctrl_offset = (0d8 * gpio) + 0d4;
     var hw_ctrl = alias_reg(IO_BANK0_BASE + ctrl_offset);
     hw_ctrl.write(function);
 }
@@ -97,14 +97,14 @@ fun gpio_set_function(gpio, function) {
 fun gpio_acknowledge_irq(gpio, events) {
     var register_base = IO_BANK0_BASE;
     register_base = register_base + 0d30 * 0d8;
-    var offset = (gpio / 0d8) * 0d4;
+    const offset = (gpio / 0d8) * 0d4;
 
     rpoke(register_base + offset, events << (0d4 * (gpio % 0d8)));
 }
 
 fun gpio_default_irq_handler() {
-    var core = coreNum();
-    var callback = callbacks[core];
+    const core = coreNum();
+    const callback = callbacks[core];
 
     var register_base = IO_BANK0_BASE;
     register_base = register_base + 0d30 * 0d8;
@@ -113,9 +113,9 @@ fun gpio_default_irq_handler() {
     register_base = register_base + 0d2 * 0d4 * 0d4;
 
     for (var gpio = 0d0; gpio < NUM_BANK0_GPIOS; gpio= gpio + 0d8) {
-        var gpio_bank = gpio >> 0d3;
+        const gpio_bank = gpio >> 0d3;
 
-        var register_location = register_base + gpio_bank * 0d4;
+        const register_location = register_base + gpio_bank * 0d4;
 
         var events8 = rpeek(register_location);
       
@@ -136,7 +136,7 @@ var gpio_handler_routine;
 var pinned_gpio_handler_routine;
 
 fun gpio_set_irq_callback(callback) {
-    var core = coreNum();
+    const core = coreNum();
 
     if (!gpio_handler_routine) {
         gpio_handler_routine = make_routine(gpio_default_irq_handler, true);

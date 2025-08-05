@@ -47,7 +47,7 @@ gpio_init(pico_led);
 gpio_set_direction(pico_led, GPIO_OUT);
 
 var n = 5;
-var state = false;
+bool state = false;
 
 while (n > 0) {
     state = !state;
@@ -65,8 +65,8 @@ There's some work to be done here - constants should not need the '0d' decorator
 import("gpio");
 
 var state1 = false;
-var gpio_button1 = 0d2;
-var gpio_led1 = 0d3;
+const gpio_button1 = 0d2;
+const gpio_led1 = 0d3;
 
 fun gpio_callback(num, events) {
     state1 = !state1;

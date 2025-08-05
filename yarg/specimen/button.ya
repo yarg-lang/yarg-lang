@@ -1,8 +1,8 @@
 import("gpio");
 
-var state1 = false;
-var gpio_button1 = 0d2;
-var gpio_led1 = 0d3;
+bool state1 = false;
+const gpio_button1 = 0d2;
+const gpio_led1 = 0d3;
 
 fun gpio_callback(num, events) {
     state1 = !state1;

@@ -1,5 +1,5 @@
-var PADS_BANK0_BASE = 0x4001c000;
-var IO_BANK0_BASE   = 0x40014000;
+const PADS_BANK0_BASE = 0x4001c000;
+const IO_BANK0_BASE   = 0x40014000;
 
 struct sio_hw@0xd0000000 {
     muint32 ro cpuid@0x0;
