@@ -20,7 +20,7 @@ fun display_on_surface(world, leds) {
 }
 
 fun surface_neighbour_of(cell, neighbour) {
-    var led = surface_neighbourhoods[cell][neighbour];
+    const led = surface_neighbourhoods[cell][neighbour];
     for (var i = 0d0; i < len(surface_neighbourhoods); i = i + 0d1) {
         if (surface_leds[i] == led) {
             return i;

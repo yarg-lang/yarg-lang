@@ -12,11 +12,8 @@
 // nnn
 
 // characters handing for ascii state reports
-var live = 1;
-var dead = 0;
-
-var columns = 0;
-var rows = 0;
+const live = 1;
+const dead = 0;
 
 var seed = 0d4;
 
@@ -89,7 +86,7 @@ fun next_state(state, alive_neighbours) {
 fun next_generation(world, neighbour_of) {
     var next_gen = make_array(len(world));
     for (var cell = 0d0; cell < len(world); cell = cell + 0d1) {
-        var nw = neighbour_weight(world, cell, neighbour_of);
+        const nw = neighbour_weight(world, cell, neighbour_of);
         next_gen[cell] = next_state(world[cell], nw);
     }
 
