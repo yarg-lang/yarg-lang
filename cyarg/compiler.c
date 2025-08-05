@@ -351,6 +351,7 @@ static void generateArithOperation(ObjExprOperation* op) {
         case EXPR_OP_LESS_EQUAL: emitBytes(OP_GREATER, OP_NOT); return;
         case EXPR_OP_NOT: emitByte(OP_NOT); return;
         case EXPR_OP_NEGATE: emitByte(OP_NEGATE); return;
+        case EXPR_OP_DEREF_PTR: emitByte(OP_DEREF_PTR); return;
         default: return; // unreachable
     }
 }

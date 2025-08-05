@@ -55,7 +55,8 @@ typedef enum {
     OP_IMMEDIATE,
     OP_TYPE_LITERAL,
     OP_TYPE_MODIFIER,
-    OP_SET_CELL_TYPE
+    OP_SET_CELL_TYPE,
+    OP_DEREF_PTR
 } OpCode;
 
 typedef struct {

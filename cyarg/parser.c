@@ -406,6 +406,7 @@ static ObjExpr* unary(bool canAssign) {
     switch (operatorType) {
         case TOKEN_BANG: op = EXPR_OP_NOT; break;
         case TOKEN_MINUS: op = EXPR_OP_NEGATE; break;
+        case TOKEN_STAR: op = EXPR_OP_DEREF_PTR; break;
         default: break; // Unreachable.
     }
 
@@ -528,7 +529,7 @@ static AstParseRule rules[] = {
     [TOKEN_PLUS]                 = {NULL,      binary, PREC_TERM},
     [TOKEN_SEMICOLON]            = {NULL,      NULL,   PREC_NONE},
     [TOKEN_SLASH]                = {NULL,      binary, PREC_FACTOR},
-    [TOKEN_STAR]                 = {NULL,      binary, PREC_FACTOR},
+    [TOKEN_STAR]                 = {unary,     binary, PREC_FACTOR},
     [TOKEN_BAR]                  = {NULL,      binary, PREC_TERM},
     [TOKEN_AMP]                  = {NULL,      binary, PREC_TERM},
     [TOKEN_CARET]                = {NULL,      binary, PREC_TERM},

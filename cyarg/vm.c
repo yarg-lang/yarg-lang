@@ -350,6 +350,36 @@ static bool setArrayElement(ObjRoutine* routine) {
     return true;
 }
 
+static bool derefPtr(ObjRoutine* routine) {
+    Value ptr = peek(routine, 0);
+    ObjPointer* pointer = AS_POINTER(ptr);
+    ObjConcreteYargType* target = AS_YARGTYPE(pointer->type);
+
+    Value result = NIL_VAL;
+
+    if (IS_NIL(pointer->type)
+        || target->yt == TypeAny
+        || target->yt == TypeBool
+        || target->yt == TypeInteger
+        || target->yt == TypeDouble) {
+        Value* remote = (Value*)pointer->destination;
+        result = *remote;
+    } else if (target->yt == TypeMachineUint32) {
+        uint32_t* remote = (uint32_t*)pointer->destination;
+        result = UINTEGER_VAL(*remote);
+    } else {
+        Obj** remote = (Obj**)pointer->destination;
+        if (*remote == NULL) {
+            result = NIL_VAL;
+        } else {
+            result = OBJ_VAL(*remote);
+        }
+    }
+    pop(routine);
+    push(routine, result);
+    return true;
+}
+
 static bool isFalsey(Value value) {
     return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
 }
@@ -887,6 +917,10 @@ InterpretResult run(ObjRoutine* routine) {
                 Value type = pop(routine);
                 ValueCell* last = routine->stackTop - 1;
                 last->type = type;
+                break;
+            }
+            case OP_DEREF_PTR: {
+                derefPtr(routine);
                 break;
             }
         }
