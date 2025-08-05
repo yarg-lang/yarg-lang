@@ -230,12 +230,6 @@ ObjExprTypeLiteral* newExprType(ExprTypeLiteral type) {
     return expr;
 }
 
-ObjExprArrayType* newExprArrayType(ObjExpr* typeExpr) {
-    ObjExprArrayType* expr = ALLOCATE_OBJ(ObjExprArrayType, OBJ_EXPR_ARRAYTYPE);
-    expr->typeExpr = typeExpr;
-    return expr;
-}
-
 static int indendation = 0;
 
 void printIndentation() {
@@ -321,6 +315,32 @@ void printExprBuiltin(ObjExprBuiltin* fn) {
     }
 }
 
+void printType(ObjExpr* type) {
+    if (type->obj.type == OBJ_EXPR_LITERAL) {
+        ObjExprLiteral* literal = (ObjExprLiteral*)type;
+        if (literal->literal == EXPR_LITERAL_NIL) {
+            printf("any");
+        }
+        return;
+    }
+    else if (type->obj.type == OBJ_EXPR_TYPE) {
+        ObjExprTypeLiteral* typeObject = (ObjExprTypeLiteral*)type;
+
+        switch (typeObject->type) {
+            case EXPR_TYPE_LITERAL_MFLOAT64: printf("mfloat64"); break;
+            case EXPR_TYPE_LITERAL_MUINT32: printf("muint32"); break;
+            case EXPR_TYPE_LITERAL_INTEGER: printf("integer"); break;
+            case EXPR_TYPE_LITERAL_BOOL: printf("bool"); break;
+            case EXPR_TYPE_LITERAL_STRING: printf("string"); break;
+            case EXPR_TYPE_MODIFIER_ARRAY: printf("[]"); break;
+            case EXPR_TYPE_MODIFIER_CONST: printf("<const>"); break;
+            default: printf("<unknown>"); break;
+        }
+    } else {
+        printf("<unexpected type>");
+    }
+}
+
 void printExpr(ObjExpr* expr) {
     ObjExpr* cursor = expr;
     while (cursor) {
@@ -402,6 +422,7 @@ void printExpr(ObjExpr* expr) {
             case OBJ_EXPR_BUILTIN: printExprBuiltin((ObjExprBuiltin*)cursor); break;
             case OBJ_EXPR_DOT: printExprDot((ObjExprDot*)cursor); break;
             case OBJ_EXPR_SUPER: printExprSuper((ObjExprSuper*)cursor); break;
+            case OBJ_EXPR_TYPE: printType(cursor); break;
             default: printf("<unknown>"); break;
         }
         cursor = cursor->nextExpr;
@@ -516,38 +537,10 @@ void printStmtExpression(ObjStmtExpression* stmt) {
     printf(";");
 }
 
-void printType(ObjExpr* type) {
-    if (type->obj.type == OBJ_EXPR_LITERAL) {
-        ObjExprLiteral* literal = (ObjExprLiteral*)type;
-        if (literal->literal == EXPR_LITERAL_NIL) {
-            printf("any");
-        }
-        return;
-    }
-    else if (type->obj.type == OBJ_EXPR_TYPE) {
-        ObjExprTypeLiteral* typeObject = (ObjExprTypeLiteral*)type;
-
-        switch (typeObject->type) {
-            case EXPR_TYPE_LITERAL_MFLOAT64: printf("mfloat64"); break;
-            case EXPR_TYPE_LITERAL_MUINT32: printf("muint32"); break;
-            case EXPR_TYPE_LITERAL_INTEGER: printf("integer"); break;
-            case EXPR_TYPE_LITERAL_BOOL: printf("bool"); break;
-            case EXPR_TYPE_LITERAL_STRING: printf("string"); break;
-            default: printf("<unknown>"); break;
-        }
-    } else if (type->obj.type == OBJ_EXPR_ARRAYTYPE) {
-        ObjExprArrayType* arrayType = (ObjExprArrayType*)type;
-        printType((ObjExpr*)arrayType->typeExpr);
-        printf("[]");
-    } else {
-        printf("<unexpected type>");
-    }
-}
-
 void printStmtVarDeclaration(ObjStmtVarDeclaration* decl) {
     printf("var ");
     if (decl->type) {
-        printType((ObjExpr*)decl->type);
+        printExpr((ObjExpr*)decl->type);
     }
     printf(" ");
     printObject(OBJ_VAL(decl->name));

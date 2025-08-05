@@ -653,17 +653,17 @@ static ObjExpr* typeExpression() {
         }
     }
     if (expression) {
+        ObjExpr* cursor = expression;
         pushWorkingNode((Obj*)expression);
 
         if (match(TOKEN_LEFT_SQUARE_BRACKET)) {
             consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' after array type.");
-            expression = (ObjExpr*) newExprArrayType(expression);
-            popWorkingNode();
-            pushWorkingNode((Obj*)expression);
+            cursor->nextExpr = (ObjExpr*) newExprType(EXPR_TYPE_MODIFIER_ARRAY);
+            cursor = cursor->nextExpr;
         }
 
         if (isConst) {
-            expression->nextExpr = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_CONST);
+            cursor->nextExpr = (ObjExpr*) newExprType(EXPR_TYPE_MODIFIER_CONST);
         }
     }
 

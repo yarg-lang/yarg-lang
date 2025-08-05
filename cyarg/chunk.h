@@ -54,7 +54,7 @@ typedef enum {
     OP_SET_ELEMENT,
     OP_IMMEDIATE,
     OP_TYPE_LITERAL,
-    OP_ARRAY_TYPE,
+    OP_TYPE_MODIFIER,
     OP_SET_CELL_TYPE
 } OpCode;
 
@@ -89,7 +89,8 @@ typedef enum {
     TYPE_LITERAL_MACHINE_UINT32,
     TYPE_LITERAL_MACHINE_FLOAT64,
     TYPE_LITERAL_STRING,
-    TYPE_LITERAL_CONST
+    TYPE_MODIFIER_ARRAY,
+    TYPE_MODIFIER_CONST
 } BuiltinType;
 
 void initChunk(Chunk* chunk);

@@ -161,18 +161,14 @@ typedef enum {
     EXPR_TYPE_LITERAL_MUINT32,
     EXPR_TYPE_LITERAL_MFLOAT64,
     EXPR_TYPE_LITERAL_STRING,
-    EXPR_TYPE_LITERAL_CONST
+    EXPR_TYPE_MODIFIER_ARRAY,
+    EXPR_TYPE_MODIFIER_CONST
 } ExprTypeLiteral;
 
 typedef struct {
     ObjExpr expr;
     ExprTypeLiteral type;
 } ObjExprTypeLiteral;
-
-typedef struct {
-    ObjExpr expr;
-    ObjExpr* typeExpr;
-} ObjExprArrayType;
 
 typedef struct {
     ObjStmt stmt;
@@ -264,7 +260,6 @@ ObjExprBuiltin* newExprBuiltin(ExprBuiltin fn, int arity);
 ObjExprDot* newExprDot(const char* name, int nameLength);
 ObjExprSuper* newExprSuper(const char* name, int nameLength);
 ObjExprTypeLiteral* newExprType(ExprTypeLiteral type);
-ObjExprArrayType* newExprArrayType(ObjExpr* typeExpr);
 
 ObjStmtExpression* newStmtExpression(ObjExpr* expr, ObjType statement, int line);
 ObjStmtBlock* newStmtBlock(int line);

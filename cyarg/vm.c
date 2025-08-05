@@ -427,6 +427,23 @@ static void makeConcreteTypeConst(ObjRoutine* routine) {
     }
 }
 
+static void makeConcreteTypeArray(ObjRoutine* routine) {
+    Value elementType = pop(routine);
+    tempRootPush(elementType);
+
+    ObjConcreteYargType* typeObject = newYargTypeFromType(TypeArray);
+    push(routine, OBJ_VAL(typeObject));
+
+    if (IS_NIL(elementType)) {
+        typeObject->element_type = newYargTypeFromType(TypeAny);
+    } else {
+        ObjConcreteYargType* elementTypeObj = (ObjConcreteYargType*) AS_OBJ(elementType);
+        typeObject->element_type = elementTypeObj;
+    }
+
+    tempRootPop();
+}
+
 InterpretResult run(ObjRoutine* routine) {
     CallFrame* frame = &routine->frames[routine->frameCount - 1];
     routine->state = EXEC_RUNNING;
@@ -853,15 +870,15 @@ InterpretResult run(ObjRoutine* routine) {
                     case TYPE_LITERAL_MACHINE_UINT32: createConcreteType(routine, TypeMachineUint32); break;
                     case TYPE_LITERAL_MACHINE_FLOAT64: createConcreteType(routine, TypeDouble); break;
                     case TYPE_LITERAL_STRING: createConcreteType(routine, TypeString); break;
-                    case TYPE_LITERAL_CONST: makeConcreteTypeConst(routine); break;
                 }
                 break;
             }
-            case OP_ARRAY_TYPE: {
-                Value elementType = peek(routine, 0);
-                ObjConcreteYargType* typeObj = newYargArrayTypeFromType(elementType);
-                pop(routine);
-                push(routine, OBJ_VAL(typeObj));
+            case OP_TYPE_MODIFIER: {
+                uint8_t typeCode = READ_BYTE();
+                switch (typeCode) {
+                    case TYPE_MODIFIER_ARRAY: makeConcreteTypeArray(routine); break;
+                    case TYPE_MODIFIER_CONST: makeConcreteTypeConst(routine); break;
+                }
                 break;
             }
             case OP_SET_CELL_TYPE: {

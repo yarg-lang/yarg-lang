@@ -84,7 +84,6 @@ typedef enum {
     OBJ_EXPR_DOT,
     OBJ_EXPR_SUPER,
     OBJ_EXPR_TYPE,
-    OBJ_EXPR_ARRAYTYPE
 } ObjType;
 
 struct Obj {

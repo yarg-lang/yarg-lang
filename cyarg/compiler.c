@@ -536,7 +536,8 @@ static void generateExprType(ObjExprTypeLiteral* type) {
         case EXPR_TYPE_LITERAL_MFLOAT64: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_MACHINE_FLOAT64); return;
         case EXPR_TYPE_LITERAL_MUINT32: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_MACHINE_UINT32); return;
         case EXPR_TYPE_LITERAL_STRING: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_STRING); return;
-        case EXPR_TYPE_LITERAL_CONST: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_CONST); return;
+        case EXPR_TYPE_MODIFIER_CONST: emitBytes(OP_TYPE_MODIFIER, TYPE_MODIFIER_CONST); return;
+        case EXPR_TYPE_MODIFIER_ARRAY: emitBytes(OP_TYPE_MODIFIER, TYPE_MODIFIER_ARRAY); return;
         default: return; // unreachable.
     }
 }
@@ -612,12 +613,6 @@ static void generateExprElt(ObjExpr* expr) {
         case OBJ_EXPR_TYPE: {
             ObjExprTypeLiteral* t = (ObjExprTypeLiteral*)expr;
             generateExprType(t);
-            break;
-        }
-        case OBJ_EXPR_ARRAYTYPE: {
-            ObjExprArrayType* arrayType = (ObjExprArrayType*)expr;
-            generateExpr((ObjExpr*)arrayType->typeExpr);
-            emitByte(OP_ARRAY_TYPE);
             break;
         }
         default:
