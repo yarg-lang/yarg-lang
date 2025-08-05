@@ -848,7 +848,7 @@ InterpretResult run(ObjRoutine* routine) {
                 push(routine, OBJ_VAL(typeObj));
                 break;
             }
-            case OP_SET_TYPE: {
+            case OP_SET_CELL_TYPE: {
                 Value type = pop(routine);
                 ValueCell* last = routine->stackTop - 1;
                 last->type = type;

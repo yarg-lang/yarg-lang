@@ -662,7 +662,7 @@ static void generateVarDeclaration(ObjStmtVarDeclaration* decl) {
         emitByte(OP_NIL);
     }
 
-    emitByte(OP_SET_TYPE);
+    emitByte(OP_SET_CELL_TYPE);
 
     defineVariable(global);
 }

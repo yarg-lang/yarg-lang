@@ -212,8 +212,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             return typeLiteralInstruction("OP_TYPE_LITERAL", chunk, offset);
         case OP_ARRAY_TYPE:
             return simpleInstruction("OP_ARRAY_TYPE", offset);
-        case OP_SET_TYPE:
-            return simpleInstruction("OP_SET_TYPE", offset);
+        case OP_SET_CELL_TYPE:
+            return simpleInstruction("OP_SET_CELL_TYPE", offset);
         default:
             printf("Unknown opcode %d\n", instruction);
             return offset + 1;
