@@ -106,7 +106,6 @@ ObjStmtFieldDeclaration* newStmtFieldDeclaration(const char* name, int nameLengt
 
 ObjExprOperation* newExprOperation(ObjExpr* rhs, ExprOp op) {
     ObjExprOperation* operation = ALLOCATE_OBJ(ObjExprOperation, OBJ_EXPR_OPERATION);
-    operation->expr.nextExpr = NULL;
     operation->rhs = rhs;
     operation->operation = op;
 
@@ -265,6 +264,10 @@ static void printExprOperation(ObjExprOperation* opexpr) {
     printf("(");
     printExpr(opexpr->rhs);
     printf(")");
+    if (opexpr->assignment) {
+        printf(" = ");
+        printExpr(opexpr->assignment);
+    }
 }
 
 void printCallArgs(DynamicObjArray* args) {

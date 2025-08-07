@@ -262,9 +262,10 @@ static void blackenObject(Obj* object) {
             break;
         }       
         case OBJ_EXPR_OPERATION: {
+            markExpr(object);
             ObjExprOperation* expr = (ObjExprOperation*)object;
-            markObject((Obj*)expr->expr.nextExpr);
             markObject((Obj*)expr->rhs);
+            markObject((Obj*)expr->assignment);
             break;
 
         }

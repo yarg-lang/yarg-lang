@@ -76,6 +76,7 @@ typedef struct {
     ObjExpr expr;
     ExprOp operation;
     ObjExpr* rhs;
+    ObjExpr* assignment;
 } ObjExprOperation;
 
 typedef struct {
