@@ -168,6 +168,71 @@ ObjUniformArray* newUniformArray(ObjConcreteYargType* element_type, size_t capac
     return array;
 }
 
+ObjPointer* newPointer(Value type) {
+    if (IS_NIL(type)) {
+        void* dest = reallocate(NULL, 0, yt_sizeof_type(type));
+        Value* remote = (Value*)dest;
+        *remote = NIL_VAL;
+
+        ObjPointer* ptr = ALLOCATE_OBJ(ObjPointer, OBJ_POINTER);
+        ptr->type = type;
+        ptr->destination = dest;
+
+        return ptr;
+    }
+    else {
+        ObjConcreteYargType* objTypeRequest = AS_YARGTYPE(type);
+        void* dest = reallocate(NULL, 0, yt_sizeof_type(type));
+
+        switch (objTypeRequest->yt) {
+            case TypeAny: {
+                Value* target = (Value*)dest;
+                *target = NIL_VAL;
+                break;
+            }
+            case TypeBool: {
+                Value* target = (Value*)dest;
+                *target = FALSE_VAL;
+                break;
+            }
+            case TypeInteger: {
+                Value* target = (Value*)dest;
+                *target = INTEGER_VAL(0);
+                break;
+            }
+            case TypeDouble: {
+                Value* target = (Value*)dest;
+                *target = DOUBLE_VAL(0);
+                break;
+            }
+            case TypeMachineUint32: {
+                uint32_t* target = (uint32_t*)dest;
+                *target = 0;
+                break;
+            }
+            case TypeString:
+            case TypeClass:
+            case TypeInstance:
+            case TypeFunction:
+            case TypeNativeBlob:
+            case TypeRoutine:
+            case TypeChannel:
+            case TypeArray:
+            case TypeYargType:
+                {
+                    Obj** target = (Obj**)dest;
+                    *target = NULL;
+                    break;
+                }
+        }
+        ObjPointer* ptr = ALLOCATE_OBJ(ObjPointer, OBJ_POINTER);
+        ptr->type = type;
+        ptr->destination = dest;
+
+        return ptr;
+    }
+}
+
 static ObjString* allocateString(char* chars, int length, uint32_t hash) {
     ObjString* string = ALLOCATE_OBJ(ObjString, OBJ_STRING);
     string->length = length;
@@ -283,6 +348,12 @@ static void printType(FILE* op, ObjConcreteYargType* type) {
     }
 }
 
+static void printPointer(FILE* op, ObjPointer* ptr) {
+    fprintf(op, "<*");
+    fprintValue(op, ptr->type);
+    fprintf(op, ":%p>", (void*) ptr->destination);
+}
+
 void fprintObject(FILE* op, Value value) {
     switch (OBJ_TYPE(value)) {
         case OBJ_BOUND_METHOD:
@@ -326,6 +397,9 @@ void fprintObject(FILE* op, Value value) {
             break;
         case OBJ_YARGTYPE:
             printType(op, AS_YARGTYPE(value));
+            break;
+        case OBJ_POINTER:
+            printPointer(op, AS_POINTER(value));
             break;
         default:
             FPRINTMSG(op, "<implementation object %d>", OBJ_TYPE(value));

@@ -24,6 +24,7 @@ typedef struct ObjConcreteYargType ObjConcreteYargType;
 #define IS_VALARRAY(value)     isObjType(value, OBJ_VALARRAY)
 #define IS_UNIFORMARRAY(value) isObjType(value, OBJ_UNIFORMARRAY)
 #define IS_YARGTYPE(value)     isObjType(value, OBJ_YARGTYPE)
+#define IS_POINTER(value)      isObjType(value, OBJ_POINTER)
 
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
 #define AS_CLASS(value)        ((ObjClass*)AS_OBJ(value))
@@ -40,6 +41,7 @@ typedef struct ObjConcreteYargType ObjConcreteYargType;
 #define AS_VALARRAY(value)     ((ObjValArray*)AS_OBJ(value))
 #define AS_UNIFORMARRAY(value) ((ObjUniformArray*)AS_OBJ(value))
 #define AS_YARGTYPE(value)     ((ObjConcreteYargType*)AS_OBJ(value))
+#define AS_POINTER(value)      ((ObjPointer*)AS_OBJ(value))
 
 typedef enum {
     OBJ_BOUND_METHOD,
@@ -56,6 +58,7 @@ typedef enum {
     OBJ_VALARRAY,
     OBJ_UNIFORMARRAY,
     OBJ_YARGTYPE,
+    OBJ_POINTER,
     OBJ_AST,
     OBJ_STMT_EXPRESSION,
     OBJ_STMT_PRINT,
@@ -178,6 +181,12 @@ typedef struct ObjUniformArray {
     void* array;
 } ObjUniformArray;
 
+typedef struct {
+    Obj obj;
+    Value type;
+    void* destination;
+} ObjPointer;
+
 #define ALLOCATE_OBJ(type, objectType) \
     (type*)allocateObject(sizeof(type), objectType)
 
@@ -201,6 +210,7 @@ ObjUniformArray* newUniformArray(ObjConcreteYargType* element_type, size_t capac
 ObjString* takeString(char* chars, int length);
 ObjString* copyString(const char* chars, int length);
 ObjUpvalue* newUpvalue(ValueCell* slot);
+ObjPointer* newPointer(Value type);
 
 void printObject(Value value);
 void fprintObject(FILE* op, Value value);

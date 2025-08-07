@@ -342,6 +342,18 @@ static void blackenObject(Obj* object) {
             markExpr(object);
             break;
         }
+        case OBJ_POINTER: {
+            ObjPointer* ptr = (ObjPointer*)object;
+            markValue(ptr->type);
+            if (IS_NIL(ptr->type)) {
+                Value* target = (Value*)ptr->destination;
+                markValue(*target);
+            } else if (is_obj_type(AS_YARGTYPE(ptr->type))) {
+                Obj* payload = (Obj*) ptr->destination;
+                markObject(payload);
+            }
+            break;
+        }
         case OBJ_NATIVE:
         case OBJ_BLOB:
         case OBJ_CHANNEL:
@@ -481,6 +493,12 @@ static void freeObject(Obj* object) {
         case OBJ_EXPR_DOT: FREE(ObjExprDot, object); break;
         case OBJ_EXPR_SUPER: FREE(ObjExprSuper, object); break;
         case OBJ_EXPR_TYPE: FREE(ObjExprTypeLiteral, object); break;
+        case OBJ_POINTER: {
+            ObjPointer* ptr = (ObjPointer*) object;
+            ptr->destination = reallocate(ptr->destination, yt_sizeof_type(ptr->type), 0);
+            FREE(ObjPointer, object); 
+            break;
+        }
     }
 }
 
