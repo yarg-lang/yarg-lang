@@ -425,20 +425,21 @@ static bool isCompatibleType(ObjConcreteYargType* lhsType, Value rhsValue) {
     }
 }
 
-static bool assignTo(ValueCell* lhs, Value rhsValue) {
-    if (IS_NIL(lhs->type)) {
-        lhs->value = rhsValue;
+static bool assignTo(ValueCellTarget lhs, Value rhsValue) {
+    if (IS_NIL(*lhs.type)) {
+        *lhs.value = rhsValue;
         return true;
     } else {
-        ObjConcreteYargType* lhsType = (ObjConcreteYargType*) AS_OBJ(lhs->type);
+        ObjConcreteYargType* lhsType = (ObjConcreteYargType*) AS_OBJ(*lhs.type);
         if (isCompatibleType(lhsType, rhsValue)) {
-            lhs->value = rhsValue;
+            *(lhs.value) = rhsValue;
             return true;
         } else {
             return false;
         }
     }
 }
+
 
 static void createConcreteType(ObjRoutine* routine, ConcreteYargType type) {
     ObjConcreteYargType* typeObj = newYargTypeFromType(type);
@@ -569,8 +570,9 @@ InterpretResult run(ObjRoutine* routine) {
                 uint8_t slot = READ_BYTE();
                 ValueCell* rhs = peekCell(routine, 0);
                 ValueCell* lhs = &frame->slots[slot];
+                ValueCellTarget trg = { .type = &lhs->type, .value = &lhs->value };
 
-                if (!assignTo(lhs, rhs->value)) {
+                if (!assignTo(trg, rhs->value)) {
                     runtimeError(routine, "Cannot set local variable to incompatible type.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
@@ -602,8 +604,9 @@ InterpretResult run(ObjRoutine* routine) {
                 ValueCell* lhs = NULL;
                 if (tableCellGetPlace(&vm.globals, name, &lhs)) {
                     ValueCell* rhs = peekCell(routine, 0);
+                    ValueCellTarget trg = { .type = &lhs->type, .value = &lhs->value };
 
-                    if (!assignTo(lhs, rhs->value)) {
+                    if (!assignTo(trg, rhs->value)) {
                         runtimeError(routine, "Cannot set global variable to incompatible type.");
                         return INTERPRET_RUNTIME_ERROR;
                     }
@@ -621,9 +624,12 @@ InterpretResult run(ObjRoutine* routine) {
             case OP_SET_UPVALUE: {
                 uint8_t slot = READ_BYTE();
                 ValueCell* rhs = peekCell(routine, 0);
-                ValueCell* lhs = frame->closure->upvalues[slot]->location;
+                ValueCellTarget trg = { 
+                    .type = &frame->closure->upvalues[slot]->location->type, 
+                    .value = &frame->closure->upvalues[slot]->location->value 
+                };
 
-                if (!assignTo(lhs, rhs->value)) {
+                if (!assignTo(trg, rhs->value)) {
                     runtimeError(routine, "Cannot set local variable to incompatible type.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
@@ -921,6 +927,22 @@ InterpretResult run(ObjRoutine* routine) {
             }
             case OP_DEREF_PTR: {
                 derefPtr(routine);
+                break;
+            }
+            case OP_SET_PTR_TARGET: {
+                Value rhs = peek(routine, 0);
+                ValueCell* lhs = peekCell(routine, 1);
+                ObjPointer* pLhs = AS_POINTER(lhs->value);
+                Value* remote = (Value*)pLhs->destination;
+                ValueCellTarget trg = { .type = &pLhs->type, .value = remote };
+                if (assignTo(trg, rhs)) {
+                    pop(routine);
+                    pop(routine);
+                    push(routine, rhs);
+                } else {
+                    runtimeError(routine, "Cannot set pointer target to incompatible type.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
                 break;
             }
         }

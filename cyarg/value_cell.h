@@ -8,4 +8,9 @@ typedef struct {
     Value type;
 } ValueCell;
 
+typedef struct {
+    Value* value;
+    Value* type;
+} ValueCellTarget;
+
 #endif

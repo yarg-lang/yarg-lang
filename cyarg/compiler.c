@@ -329,6 +329,18 @@ static void generateExprLogicalOr(ObjExprOperation* bin) {
     patchJump(endJump);
 }
 
+static void generateExprAssignable(ObjExprOperation* op) {
+    generateExpr(op->rhs);
+    if (  op->operation == EXPR_OP_DEREF_PTR
+        && op->assignment == NULL) {
+        emitByte(OP_DEREF_PTR);
+    }
+    else if (op->operation == EXPR_OP_DEREF_PTR) {
+        generateExpr(op->assignment);
+        emitByte(OP_SET_PTR_TARGET);
+    }
+}
+
 static void generateArithOperation(ObjExprOperation* op) {    
     generateExpr(op->rhs);
 
@@ -351,7 +363,6 @@ static void generateArithOperation(ObjExprOperation* op) {
         case EXPR_OP_LESS_EQUAL: emitBytes(OP_GREATER, OP_NOT); return;
         case EXPR_OP_NOT: emitByte(OP_NOT); return;
         case EXPR_OP_NEGATE: emitByte(OP_NEGATE); return;
-        case EXPR_OP_DEREF_PTR: emitByte(OP_DEREF_PTR); return;
         default: return; // unreachable
     }
 }
@@ -361,6 +372,7 @@ static void generateExprOperation(ObjExprOperation* op) {
     switch (op->operation) {
         case EXPR_OP_LOGICAL_AND: generateExprLogicalAnd(op); return;
         case EXPR_OP_LOGICAL_OR: generateExprLogicalOr(op); return;
+        case EXPR_OP_DEREF_PTR: generateExprAssignable(op); return;
         default: generateArithOperation(op); return;
     }
 }

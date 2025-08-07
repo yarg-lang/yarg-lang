@@ -219,6 +219,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             return simpleInstruction("OP_SET_CELL_TYPE", offset);
         case OP_DEREF_PTR:
             return simpleInstruction("OP_DEREF_PTR", offset);
+        case OP_SET_PTR_TARGET:
+            return simpleInstruction("OP_SET_PTR_TARGET", offset);
         default:
             printf("Unknown opcode %d\n", instruction);
             return offset + 1;

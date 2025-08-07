@@ -1,0 +1,30 @@
+var test = new(bool);
+print *test; // expect: false
+*test = true;
+print *test; // expect: true
+test = new(any);
+print *test; // expect: nil
+*test = 78;
+print *test; // expect: 78
+*test = false;
+print *test; // expect: false
+*test = 0xff;
+print *test; // expect: 255
+var test1 = new();
+*test1 = *test;
+print *test1; // expect: 255
+*test1 = true;
+print *test1; // expect: true
+test = new(integer);
+print *test; // expect: 0
+*test = 42;
+print *test; // expect: 42
+test = new(mfloat64);
+print *test; // expect: 0.00000
+*test = 3.14;
+print *test; // expect: 3.14000
+test = new(muint32);
+print *test; // expect: 0
+*test = 0xffffffff;
+print *test; // expect: 4294967295
+*test = false; // expect runtime error: Cannot set pointer target to incompatible type.

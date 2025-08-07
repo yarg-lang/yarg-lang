@@ -406,11 +406,35 @@ static ObjExpr* unary(bool canAssign) {
     switch (operatorType) {
         case TOKEN_BANG: op = EXPR_OP_NOT; break;
         case TOKEN_MINUS: op = EXPR_OP_NEGATE; break;
+        default: break; // Unreachable.
+    }
+
+    ObjExprOperation* expr = newExprOperation(rhs, op);
+    popWorkingNode();
+    return (ObjExpr*) expr; 
+}
+
+static ObjExpr* unaryPlace(bool canAssign) {
+    TokenType operatorType = parser.previous.type;
+
+    ObjExpr* rhs = parsePrecedence(PREC_UNARY);
+    pushWorkingNode((Obj*)rhs);
+
+    ExprOp op;
+    switch (operatorType) {
         case TOKEN_STAR: op = EXPR_OP_DEREF_PTR; break;
         default: break; // Unreachable.
     }
 
     ObjExprOperation* expr = newExprOperation(rhs, op);
+    popWorkingNode();
+    pushWorkingNode((Obj*)expr);
+    if (op == EXPR_OP_DEREF_PTR) {
+
+        if (canAssign && match(TOKEN_EQUAL)) {
+            expr->assignment = expression();
+        }
+    }
     popWorkingNode();
     return (ObjExpr*) expr; 
 }
@@ -529,7 +553,7 @@ static AstParseRule rules[] = {
     [TOKEN_PLUS]                 = {NULL,      binary, PREC_TERM},
     [TOKEN_SEMICOLON]            = {NULL,      NULL,   PREC_NONE},
     [TOKEN_SLASH]                = {NULL,      binary, PREC_FACTOR},
-    [TOKEN_STAR]                 = {unary,     binary, PREC_FACTOR},
+    [TOKEN_STAR]                 = {unaryPlace,binary, PREC_FACTOR},
     [TOKEN_BAR]                  = {NULL,      binary, PREC_TERM},
     [TOKEN_AMP]                  = {NULL,      binary, PREC_TERM},
     [TOKEN_CARET]                = {NULL,      binary, PREC_TERM},
