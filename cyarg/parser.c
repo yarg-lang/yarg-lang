@@ -377,7 +377,11 @@ static ObjExpr* builtin(bool canAssign) {
 
 static ObjExpr* type(bool canAssign) {
     switch (parser.previous.type) {
+        case TOKEN_ANY: return (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL);
+        case TOKEN_BOOL: return (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_BOOL);
         case TOKEN_MACHINE_UINT32: return (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MUINT32);
+        case TOKEN_INTEGER: return (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INTEGER);
+        case TOKEN_MACHINE_FLOAT64: return (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MFLOAT64);
         default: return NULL; // Unreachable
     }
 }
@@ -543,8 +547,8 @@ static AstParseRule rules[] = {
     [TOKEN_NUMBER]               = {number,    NULL,   PREC_NONE},
     [TOKEN_ACCESS]               = {NULL,      NULL,   PREC_NONE},
     [TOKEN_AND]                  = {NULL,      and_,   PREC_AND},
-    [TOKEN_ANY]                  = {NULL,      NULL,   PREC_NONE},
-    [TOKEN_BOOL]                 = {NULL,      NULL,   PREC_NONE},
+    [TOKEN_ANY]                  = {type,      NULL,   PREC_NONE},
+    [TOKEN_BOOL]                 = {type,      NULL,   PREC_NONE},
     [TOKEN_CLASS]                = {NULL,      NULL,   PREC_NONE},
     [TOKEN_CONST]                = {NULL,      NULL,   PREC_NONE},
     [TOKEN_ELSE]                 = {NULL,      NULL,   PREC_NONE},
@@ -553,9 +557,9 @@ static AstParseRule rules[] = {
     [TOKEN_FUN]                  = {NULL,      NULL,   PREC_NONE},
     [TOKEN_IF]                   = {NULL,      NULL,   PREC_NONE},
     [TOKEN_IMPORT]               = {builtin,   NULL,   PREC_NONE},
-    [TOKEN_INTEGER]              = {NULL,      NULL,   PREC_NONE},
+    [TOKEN_INTEGER]              = {type,      NULL,   PREC_NONE},
     [TOKEN_LEN]                  = {builtin,   NULL,   PREC_NONE},
-    [TOKEN_MACHINE_FLOAT64]      = {NULL,      NULL,   PREC_NONE},
+    [TOKEN_MACHINE_FLOAT64]      = {type,      NULL,   PREC_NONE},
     [TOKEN_MACHINE_UINT32]       = {type,      NULL,   PREC_NONE},
     [TOKEN_MAKE_ARRAY]           = {builtin,   NULL,   PREC_NONE},
     [TOKEN_MAKE_CHANNEL]         = {builtin,   NULL,   PREC_NONE},
