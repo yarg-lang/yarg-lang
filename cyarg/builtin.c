@@ -356,6 +356,21 @@ bool pinBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
     return false;
 }
 
+bool newBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+
+    if (argCount == 0) {
+        ObjPointer* ptr = newPointer(NIL_VAL);
+
+        *result = OBJ_VAL(ptr);
+    } else if (argCount >= 1) {
+        Value type = args[0].value;
+        ObjPointer* ptr = newPointer(args[0].value);
+        *result = OBJ_VAL(ptr);
+    }
+
+    return true;
+}
+
 Value getBuiltin(uint8_t builtin) {
     switch (builtin) {
         case BUILTIN_RPEEK: return OBJ_VAL(newNative(rpeekBuiltin));
@@ -372,6 +387,7 @@ Value getBuiltin(uint8_t builtin) {
         case BUILTIN_PEEK: return OBJ_VAL(newNative(peekChannelBuiltin));
         case BUILTIN_LEN: return OBJ_VAL(newNative(lenBuiltin));
         case BUILTIN_PIN: return OBJ_VAL(newNative(pinBuiltin));
+        case BUILTIN_NEW: return OBJ_VAL(newNative(newBuiltin));
         default: return NIL_VAL;
     }
 }

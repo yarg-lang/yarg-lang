@@ -65,6 +65,7 @@ static int builtinInstruction(const char* name, Chunk* chunk, int offset) {
         case BUILTIN_PEEK: printf("peek"); break;
         case BUILTIN_LEN: printf("len"); break;
         case BUILTIN_PIN: printf("pin"); break;
+        case BUILTIN_NEW: printf("new"); break;
         default: printf("<unknown %4d>", slot); break;
     }
     printf("\n");

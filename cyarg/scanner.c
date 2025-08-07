@@ -227,7 +227,14 @@ static TokenType identifierType() {
                 }
             }
             break;
-        case 'n': return checkKeyword(1, 2, "il", TOKEN_NIL);
+        case 'n': 
+            if (scanner.current - scanner.start > 1) {
+                switch (scanner.start[1]) {
+                    case 'e': return checkKeyword(2, 1, "w", TOKEN_NEW);
+                    case 'i': return checkKeyword(2, 1, "l", TOKEN_NIL);
+                }
+            }
+            break;       
         case 'o': return checkKeyword(1, 1, "r", TOKEN_OR);
         case 'p': 
             if (scanner.current - scanner.start > 1) {

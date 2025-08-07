@@ -1,7 +1,2 @@
-const test = 5;
-const muint32 mask = 0xf;
-muint32 variable = 0x4;
+var test = new();
 print test;
-print mask;
-variable = 0x5;
-print variable;

@@ -80,7 +80,8 @@ typedef enum {
     BUILTIN_RPEEK,
     BUILTIN_RPOKE,
     BUILTIN_LEN,
-    BUILTIN_PIN
+    BUILTIN_PIN,
+    BUILTIN_NEW
 } BuiltinFn;
 
 typedef enum {
