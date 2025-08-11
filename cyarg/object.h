@@ -213,6 +213,7 @@ ObjString* takeString(char* chars, int length);
 ObjString* copyString(const char* chars, int length);
 ObjUpvalue* newUpvalue(ValueCell* slot);
 ObjPointer* newPointer(Value type);
+ObjPointer* newPointerAt(Value type, Value location);
 
 void printObject(Value value);
 void fprintObject(FILE* op, Value value);

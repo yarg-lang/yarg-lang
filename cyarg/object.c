@@ -233,6 +233,21 @@ ObjPointer* newPointer(Value type) {
     }
 }
 
+ObjPointer* newPointerAt(Value type, Value location) {
+    if (IS_NIL(type)) {
+        return NULL;
+    } else if (   AS_YARGTYPE(type)->yt == TypeMachineUint32
+               && IS_UINTEGER(location)) {
+        ObjPointer* ptr = ALLOCATE_OBJ(ObjPointer, OBJ_UNOWNED_POINTER);
+        ptr->type = type;
+        ptr->destination = (void*)(uintptr_t) AS_UINTEGER(location);
+        return ptr;
+
+    } else {
+        return NULL;
+    }
+}
+
 static ObjString* allocateString(char* chars, int length, uint32_t hash) {
     ObjString* string = ALLOCATE_OBJ(ObjString, OBJ_STRING);
     string->length = length;

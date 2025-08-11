@@ -945,6 +945,15 @@ InterpretResult run(ObjRoutine* routine) {
                 }
                 break;
             }
+            case OP_PLACE: {
+                Value location = peek(routine, 0);
+                Value type = peek(routine, 1);
+                ObjPointer* pointer = newPointerAt(type, location);
+                pop(routine);
+                pop(routine);
+                push(routine, OBJ_VAL(pointer));
+                break;
+            }
         }
     }
 
