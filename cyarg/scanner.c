@@ -241,6 +241,7 @@ static TokenType identifierType() {
                 switch (scanner.start[1]) {
                     case 'i': return checkKeyword(2, 1, "n", TOKEN_PIN);
                     case 'e': return checkKeyword(2, 2, "ek", TOKEN_PEEK);
+                    case 'l': return checkKeyword(2, 3, "ace", TOKEN_PLACE);
                     case 'r': return checkKeyword(2, 3, "int", TOKEN_PRINT); 
                 }
             }
