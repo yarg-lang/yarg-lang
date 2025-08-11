@@ -218,6 +218,24 @@ ObjExprTypeLiteral* newExprType(ExprTypeLiteral type) {
     return expr;
 }
 
+ObjExprTypeStruct* newExprTypeStruct() {
+    ObjExprTypeStruct* expr = ALLOCATE_OBJ(ObjExprTypeStruct, OBJ_EXPR_TYPE_STRUCT);
+    tempRootPush(OBJ_VAL(expr));
+    initTable(&expr->fieldsByName);
+    initValueArray(&expr->fieldsByIndex);
+    tempRootPop();
+    return expr;
+}
+
+ObjStmtFieldDeclaration* newStmtFieldDeclaration(const char* name, int nameLength, int line) {
+    ObjStmtFieldDeclaration* decl = ALLOCATE_OBJ(ObjStmtFieldDeclaration, OBJ_STMT_FIELDDECLARATION);
+    decl->stmt.line = line;
+    tempRootPush(OBJ_VAL(decl));
+    decl->name = copyString(name, nameLength);
+    tempRootPop();
+    return decl;
+}
+
 static int indendation = 0;
 
 void printIndentation() {
@@ -335,6 +353,16 @@ void printType(ObjExpr* type) {
     }
 }
 
+void printStruct(ObjExprTypeStruct* struct_) {
+    printf("struct {\n");
+    for (int i = 0; i < struct_->fieldsByIndex.count; i++) {
+        Value x = struct_->fieldsByIndex.values[i];
+        Obj* val = AS_OBJ(x);
+        printStmts((ObjStmt*) val);
+    }
+    printf("}");
+}
+
 void printExpr(ObjExpr* expr) {
     ObjExpr* cursor = expr;
     while (cursor) {
@@ -417,6 +445,7 @@ void printExpr(ObjExpr* expr) {
             case OBJ_EXPR_DOT: printExprDot((ObjExprDot*)cursor); break;
             case OBJ_EXPR_SUPER: printExprSuper((ObjExprSuper*)cursor); break;
             case OBJ_EXPR_TYPE: printType(cursor); break;
+            case OBJ_EXPR_TYPE_STRUCT: printStruct((ObjExprTypeStruct*)cursor); break;
             default: printf("<unknown>"); break;
         }
         cursor = cursor->nextExpr;
@@ -520,6 +549,17 @@ static void printStmtPlaceDeclaration(ObjStmtPlaceDeclaration* decl) {
     printf(";");
 }
 
+static void printStmtFieldDeclaration(ObjStmtFieldDeclaration* decl) {
+    if (   decl->type->obj.type != OBJ_EXPR_LITERAL
+        && ((ObjExprLiteral*)decl->type)->literal != EXPR_LITERAL_NIL) {
+        printExpr(decl->type);
+        printf(" ");
+    }
+
+    printObject(OBJ_VAL(decl->name));
+    printf(";");
+}
+
 void printStmtBlock(ObjStmtBlock* block) {
     printf("{\n");
     indendation++;
@@ -545,6 +585,7 @@ void printStmts(ObjStmt* stmts) {
             case OBJ_STMT_WHILE: printStmtWhile((ObjStmtWhile*)cursor); break;
             case OBJ_STMT_FOR: printStmtFor((ObjStmtFor*)cursor); break;
             case OBJ_STMT_CLASSDECLARATION: printStmtClassDeclaration((ObjStmtClassDeclaration*)cursor); break;
+            case OBJ_STMT_FIELDDECLARATION: printStmtFieldDeclaration((ObjStmtFieldDeclaration*)cursor); break;
             default: printf("Unknown stmt;"); break;
         }
         printf("\n");

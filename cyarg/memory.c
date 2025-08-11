@@ -200,6 +200,13 @@ static void blackenObject(Obj* object) {
             markObject((Obj*)stmt->initialiser);
             break;
         }
+        case OBJ_STMT_FIELDDECLARATION: {
+            markStmt(object);
+            ObjStmtFieldDeclaration* stmt = (ObjStmtFieldDeclaration*)object;
+            markObject((Obj*)stmt->name);
+            markObject((Obj*)stmt->type);
+            break;
+        }
         case OBJ_STMT_PLACEDECLARATION: {
             markStmt(object);
             ObjStmtPlaceDeclaration* stmt = (ObjStmtPlaceDeclaration*)object;
@@ -341,6 +348,12 @@ static void blackenObject(Obj* object) {
             markExpr(object);
             break;
         }
+        case OBJ_EXPR_TYPE_STRUCT: {
+            markExpr(object);
+            ObjExprTypeStruct* expr = (ObjExprTypeStruct*)object;
+            markTable(&expr->fieldsByName);
+            break;
+        }
         case OBJ_UNOWNED_POINTER:
             // fall through
         case OBJ_POINTER: {
@@ -451,6 +464,7 @@ static void freeObject(Obj* object) {
         case OBJ_STMT_PRINT:
         case OBJ_STMT_EXPRESSION: FREE(ObjStmtExpression, object); break;
         case OBJ_STMT_VARDECLARATION: FREE(ObjStmtVarDeclaration, object); break;
+        case OBJ_STMT_FIELDDECLARATION: FREE(ObjStmtFieldDeclaration, object); break;
         case OBJ_STMT_PLACEDECLARATION: FREE(ObjStmtPlaceDeclaration, object); break;
         case OBJ_STMT_BLOCK: FREE(ObjStmtBlock, object); break;
         case OBJ_STMT_IF: FREE(ObjStmtIf, object); break;
@@ -492,6 +506,13 @@ static void freeObject(Obj* object) {
         case OBJ_EXPR_DOT: FREE(ObjExprDot, object); break;
         case OBJ_EXPR_SUPER: FREE(ObjExprSuper, object); break;
         case OBJ_EXPR_TYPE: FREE(ObjExprTypeLiteral, object); break;
+        case OBJ_EXPR_TYPE_STRUCT: {
+            ObjExprTypeStruct* expr = (ObjExprTypeStruct*)object;
+            freeTable(&expr->fieldsByName);
+            freeValueArray(&expr->fieldsByIndex);
+            FREE(ObjExprTypeStruct, object);
+            break;
+        }
         case OBJ_UNOWNED_POINTER: FREE(ObjPointer, object); break;
         case OBJ_POINTER: {
             ObjPointer* ptr = (ObjPointer*) object;

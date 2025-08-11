@@ -174,6 +174,18 @@ typedef struct {
 } ObjExprTypeLiteral;
 
 typedef struct {
+    ObjExpr expr;
+    ValueTable fieldsByName;
+    ValueArray fieldsByIndex;
+} ObjExprTypeStruct;
+
+typedef struct {
+    ObjStmt stmt;
+    ObjString* name;
+    ObjExpr* type;
+} ObjStmtFieldDeclaration;
+
+typedef struct {
     ObjStmt stmt;
     ObjStmt* statements;
 } ObjStmtBlock;
@@ -250,6 +262,7 @@ ObjExprBuiltin* newExprBuiltin(ExprBuiltin fn, int arity);
 ObjExprDot* newExprDot(const char* name, int nameLength);
 ObjExprSuper* newExprSuper(const char* name, int nameLength);
 ObjExprTypeLiteral* newExprType(ExprTypeLiteral type);
+ObjExprTypeStruct* newExprTypeStruct();
 
 ObjStmtExpression* newStmtExpression(ObjExpr* expr, ObjType statement, int line);
 ObjStmtBlock* newStmtBlock(int line);
@@ -258,6 +271,7 @@ ObjStmtVarDeclaration* newStmtVarDeclaration(const char* name, int nameLength, i
 ObjStmtPlaceDeclaration* newStmtPlaceDeclaration(const char* name, int nameLength, int line);
 ObjStmtFunDeclaration* newStmtFunDeclaration(const char* name, int nameLength, int line);
 ObjStmtClassDeclaration* newStmtClassDeclaration(const char* name, int nameLength, int line);
+ObjStmtFieldDeclaration* newStmtFieldDeclaration(const char* name, int nameLength, int line);
 
 ObjStmtIf* newStmtIf(int line);
 ObjStmtWhile* newStmtWhile(int line);
