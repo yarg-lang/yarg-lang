@@ -351,6 +351,8 @@ static void blackenObject(Obj* object) {
             markExpr(object);
             break;
         }
+        case OBJ_UNOWNED_POINTER:
+            // fall through
         case OBJ_POINTER: {
             ObjPointer* ptr = (ObjPointer*)object;
             markValue(ptr->type);
@@ -503,6 +505,7 @@ static void freeObject(Obj* object) {
         case OBJ_EXPR_DOT: FREE(ObjExprDot, object); break;
         case OBJ_EXPR_SUPER: FREE(ObjExprSuper, object); break;
         case OBJ_EXPR_TYPE: FREE(ObjExprTypeLiteral, object); break;
+        case OBJ_UNOWNED_POINTER: FREE(ObjPointer, object); break;
         case OBJ_POINTER: {
             ObjPointer* ptr = (ObjPointer*) object;
             ptr->destination = reallocate(ptr->destination, yt_sizeof_type(ptr->type), 0);
