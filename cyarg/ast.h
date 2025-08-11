@@ -193,6 +193,13 @@ typedef struct {
 typedef struct {
     ObjStmt stmt;
     ObjString* name;
+    ObjExpr* location;
+    ObjExpr* type;
+} ObjStmtPlaceDeclaration;
+
+typedef struct {
+    ObjStmt stmt;
+    ObjString* name;
     DynamicObjArray parameters;
     ObjStmt* body;
 } ObjStmtFunDeclaration;
@@ -268,6 +275,7 @@ ObjStmtExpression* newStmtExpression(ObjExpr* expr, ObjType statement, int line)
 ObjStmtBlock* newStmtBlock(int line);
 
 ObjStmtVarDeclaration* newStmtVarDeclaration(const char* name, int nameLength, int line);
+ObjStmtPlaceDeclaration* newStmtPlaceDeclaration(const char* name, int nameLength, int line);
 ObjStmtFunDeclaration* newStmtFunDeclaration(const char* name, int nameLength, int line);
 ObjStmtClassDeclaration* newStmtClassDeclaration(const char* name, int nameLength, int line);
 ObjStmtStructDeclaration* newStmtStructDeclaration(const char* name, int nameLength, int line);

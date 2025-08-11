@@ -27,6 +27,15 @@ ObjStmtVarDeclaration* newStmtVarDeclaration(const char* name, int nameLength, i
     return stmt;
 }
 
+ObjStmtPlaceDeclaration* newStmtPlaceDeclaration(const char* name, int nameLength, int line) {
+    ObjStmtPlaceDeclaration* stmt = ALLOCATE_OBJ(ObjStmtPlaceDeclaration, OBJ_STMT_PLACEDECLARATION);
+    tempRootPush(OBJ_VAL(stmt));
+    stmt->stmt.line = line;
+    stmt->name = copyString(name, nameLength);
+    tempRootPop();
+    return stmt;
+}
+
 ObjStmtBlock* newStmtBlock(int line) {
     ObjStmtBlock* block = ALLOCATE_OBJ(ObjStmtBlock, OBJ_STMT_BLOCK);
     block->stmt.nextStmt = NULL;

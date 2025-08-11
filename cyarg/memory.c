@@ -195,6 +195,14 @@ static void blackenObject(Obj* object) {
             markObject((Obj*)stmt->initialiser);
             break;
         }
+        case OBJ_STMT_PLACEDECLARATION: {
+            markStmt(object);
+            ObjStmtPlaceDeclaration* stmt = (ObjStmtPlaceDeclaration*)object;
+            markObject((Obj*)stmt->name);
+            markObject((Obj*)stmt->location);
+            markObject((Obj*)stmt->type);
+            break;
+        }
         case OBJ_STMT_BLOCK: {
             ObjStmtBlock* block = (ObjStmtBlock*)object;
             markObject((Obj*)block->stmt.nextStmt);
@@ -447,6 +455,7 @@ static void freeObject(Obj* object) {
         case OBJ_STMT_PRINT:
         case OBJ_STMT_EXPRESSION: FREE(ObjStmtExpression, object); break;
         case OBJ_STMT_VARDECLARATION: FREE(ObjStmtVarDeclaration, object); break;
+        case OBJ_STMT_PLACEDECLARATION: FREE(ObjStmtPlaceDeclaration, object); break;
         case OBJ_STMT_BLOCK: FREE(ObjStmtBlock, object); break;
         case OBJ_STMT_IF: FREE(ObjStmtIf, object); break;
         case OBJ_STMT_FUNDECLARATION: {
