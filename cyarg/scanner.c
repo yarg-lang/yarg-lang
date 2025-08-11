@@ -284,7 +284,14 @@ static TokenType identifierType() {
                         if (scanner.current - scanner.start > 2) {
                             switch (scanner.start[2]) {
                                 case 'a': return checkKeyword(3, 2, "rt", TOKEN_START);                                
-                                case 'r': return checkKeyword(3, 3, "ing", TOKEN_TYPE_STRING); 
+                                case 'r': 
+                                    if (scanner.current - scanner.start > 3) {
+                                        switch (scanner.start[3]) {
+                                            case 'i': return checkKeyword(4, 2, "ng", TOKEN_TYPE_STRING);
+                                            case 'u': return checkKeyword(4, 2, "ct", TOKEN_STRUCT);
+                                        }
+                                    }
+                                    break;
                             }
                         }
                         break;
