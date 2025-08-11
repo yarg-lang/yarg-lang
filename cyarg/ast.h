@@ -211,26 +211,6 @@ typedef struct {
     DynamicObjArray methods;
 } ObjStmtClassDeclaration;
 
-typedef enum {
-    ACCESS_RW,
-    ACCESS_RO,
-    ACCESS_WO,
-} AccessRule;
-
-typedef struct {
-    ObjStmt stmt;
-    ObjString* name;
-    AccessRule access;
-    ObjExpr* offset;
-} ObjStmtFieldDeclaration;
-
-typedef struct {
-    ObjStmt stmt;
-    ObjString* name;
-    ObjExpr* address;
-    ValueTable fields;
-} ObjStmtStructDeclaration;
-
 typedef struct {
     ObjStmt stmt;
     ObjExpr* test;
@@ -278,8 +258,6 @@ ObjStmtVarDeclaration* newStmtVarDeclaration(const char* name, int nameLength, i
 ObjStmtPlaceDeclaration* newStmtPlaceDeclaration(const char* name, int nameLength, int line);
 ObjStmtFunDeclaration* newStmtFunDeclaration(const char* name, int nameLength, int line);
 ObjStmtClassDeclaration* newStmtClassDeclaration(const char* name, int nameLength, int line);
-ObjStmtStructDeclaration* newStmtStructDeclaration(const char* name, int nameLength, int line);
-ObjStmtFieldDeclaration* newStmtFieldDeclaration(const char* name, int nameLength, int line);
 
 ObjStmtIf* newStmtIf(int line);
 ObjStmtWhile* newStmtWhile(int line);

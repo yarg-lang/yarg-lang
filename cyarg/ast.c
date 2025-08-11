@@ -94,25 +94,6 @@ ObjStmtClassDeclaration* newStmtClassDeclaration(const char* name, int nameLengt
     return decl;
 }
 
-ObjStmtStructDeclaration* newStmtStructDeclaration(const char* name, int nameLength, int line) {
-    ObjStmtStructDeclaration* struct_ = ALLOCATE_OBJ(ObjStmtStructDeclaration, OBJ_STMT_STRUCTDECLARATION);
-    struct_->stmt.line = line;
-    initTable(&struct_->fields);
-    tempRootPush(OBJ_VAL(struct_));
-    struct_->name = copyString(name, nameLength);
-    tempRootPop();
-    return struct_;
-}
-
-ObjStmtFieldDeclaration* newStmtFieldDeclaration(const char* name, int nameLength, int line) {
-    ObjStmtFieldDeclaration* field = ALLOCATE_OBJ(ObjStmtFieldDeclaration, OBJ_STMT_FIELDDECLARATION);
-    field->stmt.line = line;
-    tempRootPush(OBJ_VAL(field));
-    field->name = copyString(name, nameLength);
-    tempRootPop();
-    return field;
-}
-
 ObjExprOperation* newExprOperation(ObjExpr* rhs, ExprOp op) {
     ObjExprOperation* operation = ALLOCATE_OBJ(ObjExprOperation, OBJ_EXPR_OPERATION);
     operation->rhs = rhs;
@@ -504,41 +485,6 @@ void printStmtClassDeclaration(ObjStmtClassDeclaration* class_) {
     printf("}");
 }
 
-void printFieldDeclaration(ObjStmtFieldDeclaration* field) {
-    printf("muint32 ");
-    switch (field->access) {
-        case ACCESS_RW: printf("rw"); break;
-        case ACCESS_RO: printf("ro"); break;
-        case ACCESS_WO: printf("wo"); break;
-    }
-    printf(" ");
-    printObject(OBJ_VAL(field->name));
-    if (field->offset) {
-        printf("@");
-        printExpr(field->offset);
-    }
-}
-
-void printStmtStructDeclaration(ObjStmtStructDeclaration* struct_) {
-    printf("struct ");
-    printObject(OBJ_VAL(struct_->name));
-    if (struct_->address) {
-        printf("@");
-        printExpr(struct_->address);
-    }
-    printf("\n{\n");
-
-    for (int i = 0; i < struct_->fields.count; i++) {
-        Entry* entry = &struct_->fields.entries[i];
-        if (entry->key) {
-            Obj* field = AS_OBJ(entry->value);
-            printFieldDeclaration((ObjStmtFieldDeclaration*)field);
-            printf("\n");
-        }
-    }
-    printf("}");
-}
-
 void printStmtExpression(ObjStmtExpression* stmt) {
     switch (stmt->stmt.obj.type) {
         case OBJ_STMT_RETURN: printf("return "); break;
@@ -600,7 +546,6 @@ void printStmts(ObjStmt* stmts) {
             case OBJ_STMT_WHILE: printStmtWhile((ObjStmtWhile*)cursor); break;
             case OBJ_STMT_FOR: printStmtFor((ObjStmtFor*)cursor); break;
             case OBJ_STMT_CLASSDECLARATION: printStmtClassDeclaration((ObjStmtClassDeclaration*)cursor); break;
-            case OBJ_STMT_STRUCTDECLARATION: printStmtStructDeclaration((ObjStmtStructDeclaration*)cursor); break;
             default: printf("Unknown stmt;"); break;
         }
         printf("\n");

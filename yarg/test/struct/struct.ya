@@ -1,9 +1,0 @@
-struct peripheral@0xd0000000 {
-    muint32 rw config@0x0;
-    muint32 ro data_in@0x20;
-    muint32 wo data_out@0x30;
-}
-
-print peripheral.config; // expect: 3489660928
-print peripheral.data_in; // expect: 3489660960
-print peripheral.data_out; // expect: 3489660976

@@ -212,27 +212,16 @@ static ObjExpr* namedVariable(Token name, bool canAssign) {
     ObjString* nameString = copyString(name.start, name.length);
     tempRootPush(OBJ_VAL(nameString));
 
-    Value constant = NIL_VAL;
-    if (tableGet(&parser.ast->constants, nameString, &constant)) {
-        ObjExprNamedConstant* expr = newExprNamedConstant(name.start, name.length);
-        ObjStmtStructDeclaration* struct_ = (ObjStmtStructDeclaration*)AS_OBJ(constant);
-        expr->value = struct_->address;
+    ObjExprNamedVariable* expr = newExprNamedVariable(name.start, name.length);
 
-        tempRootPop();
-        return (ObjExpr*)expr;
-
-    } else {
-        ObjExprNamedVariable* expr = newExprNamedVariable(name.start, name.length);
-
-        if (canAssign && match(TOKEN_EQUAL)) {
-            pushWorkingNode((Obj*)expr);
-            expr->assignment = expression();
-            popWorkingNode();
-        }
-
-        tempRootPop();
-        return (ObjExpr*)expr;
+    if (canAssign && match(TOKEN_EQUAL)) {
+        pushWorkingNode((Obj*)expr);
+        expr->assignment = expression();
+        popWorkingNode();
     }
+
+    tempRootPop();
+    return (ObjExpr*)expr;
 }
 
 static void expressionList(DynamicObjArray* items) {
@@ -282,19 +271,6 @@ static ObjExpr* dot(bool canAssign) {
     consume(TOKEN_IDENTIFIER, "Expect property name after '.'.");
     ObjExprDot* expr = newExprDot(parser.previous.start, parser.previous.length);
     pushWorkingNode((Obj*)expr);
-
-    if (parser.prevExpr->obj.type == OBJ_EXPR_NAMEDCONSTANT) { // hack, this is a struct...
-        ObjExprNamedConstant* const_ = (ObjExprNamedConstant*) parser.prevExpr;
-        Value val;
-        tableGet(&parser.ast->constants, const_->name, &val);
-        ObjStmtStructDeclaration* struct_ = (ObjStmtStructDeclaration*) AS_OBJ(val);
-        Value field;
-        tableGet(&struct_->fields, expr->name, &field);
-
-        ObjStmtFieldDeclaration* f = (ObjStmtFieldDeclaration*) AS_OBJ(field);
-
-        expr->offset = f->offset;
-    }
     
     if (canAssign && match(TOKEN_EQUAL)) {
         expr->assignment = expression();
@@ -546,7 +522,6 @@ static AstParseRule rules[] = {
     [TOKEN_RIGHT_BRACE]          = {NULL,      NULL,   PREC_NONE},
     [TOKEN_LEFT_SQUARE_BRACKET]  = {arrayinit, deref,  PREC_DEREF},
     [TOKEN_RIGHT_SQUARE_BRACKET] = {NULL,      NULL,   PREC_NONE},
-    [TOKEN_AT]                   = {NULL,      NULL,   PREC_NONE},
     [TOKEN_COMMA]                = {NULL,      NULL,   PREC_NONE},
     [TOKEN_DOT]                  = {NULL,      dot,    PREC_CALL},
     [TOKEN_MINUS]                = {unary,     binary, PREC_TERM},
@@ -571,7 +546,6 @@ static AstParseRule rules[] = {
     [TOKEN_IDENTIFIER]           = {variable,  NULL,   PREC_NONE},
     [TOKEN_STRING]               = {string,    NULL,   PREC_NONE},
     [TOKEN_NUMBER]               = {number,    NULL,   PREC_NONE},
-    [TOKEN_ACCESS]               = {NULL,      NULL,   PREC_NONE},
     [TOKEN_AND]                  = {NULL,      and_,   PREC_AND},
     [TOKEN_ANY]                  = {type,      NULL,   PREC_NONE},
     [TOKEN_BOOL]                 = {type,      NULL,   PREC_NONE},
@@ -606,7 +580,6 @@ static AstParseRule rules[] = {
     [TOKEN_SHARE]                = {builtin,   NULL,   PREC_NONE},
     [TOKEN_START]                = {builtin,   NULL,   PREC_NONE},
     [TOKEN_TYPE_STRING]          = {NULL,      NULL,   PREC_NONE},
-    [TOKEN_STRUCT]               = {NULL,      NULL,   PREC_NONE},
     [TOKEN_SUPER]                = {super_,    NULL,   PREC_NONE},
     [TOKEN_THIS]                 = {this_,     NULL,   PREC_NONE},
     [TOKEN_TRUE]                 = {literal,   NULL,   PREC_NONE},
@@ -913,62 +886,6 @@ static ObjStmtClassDeclaration* classDeclaration() {
     return decl;
 }
 
-static AccessRule consumeAccessToken() {
-
-    if (parser.current.type == TOKEN_ACCESS) {
-        advance();
-
-        if (memcmp(parser.previous.start, "ro", 2) == 0) {
-            return ACCESS_RO;
-        } else if (memcmp(parser.previous.start, "wo", 2) == 0) {
-            return ACCESS_WO;
-        } else if (memcmp(parser.previous.start, "rw", 2) == 0) {
-            return ACCESS_RW;
-        }
-    }
-
-    error("Expected access rule ro, rw or wo.");
-    return ACCESS_RW;
-}
-
-static ObjStmtFieldDeclaration* fieldDeclaration() {
-    consume(TOKEN_MACHINE_UINT32, "Expect type.");
-    AccessRule rule = consumeAccessToken();
-    consume(TOKEN_IDENTIFIER, "Expect field name.");
-    ObjStmtFieldDeclaration* field = newStmtFieldDeclaration(parser.previous.start, parser.previous.length, parser.previous.line);
-    pushWorkingNode((Obj*)field);
-
-    field->access = rule;
-
-    if (match(TOKEN_AT)) {
-        field->offset = expression();
-    }
-    consume(TOKEN_SEMICOLON, "Expect ';' after field declaration.");
-    popWorkingNode();
-    return field;
-}
-
-static ObjStmtStructDeclaration* structDeclaration() {
-    consume(TOKEN_IDENTIFIER, "Expect struct name.");
-    Token structName = parser.previous;
-    consume(TOKEN_AT, "Expect struct address declaration.");
-    ObjStmtStructDeclaration* struct_ = newStmtStructDeclaration(structName.start, structName.length, parser.previous.line);
-    pushWorkingNode((Obj*)struct_);
-
-    struct_->address = expression();
-    consume(TOKEN_LEFT_BRACE, "Expect '{' before struct body.");
-    while (!check(TOKEN_RIGHT_BRACE)) {
-        ObjStmtFieldDeclaration* field = fieldDeclaration();
-        pushWorkingNode((Obj*)field);
-        tableSet(&struct_->fields, field->name, OBJ_VAL(field));
-        popWorkingNode();
-    }
-    consume(TOKEN_RIGHT_BRACE, "Expect '}' after field declarations.");
-    tableSet(&parser.ast->constants, struct_->name, OBJ_VAL(struct_));
-    popWorkingNode();
-    return struct_;
-}
-
 static ObjStmtPlaceDeclaration* placeDeclaration() {
     ObjExpr* type = expression();
     pushWorkingNode((Obj*)type);
@@ -993,8 +910,6 @@ ObjStmt* declaration() {
 
     if (match(TOKEN_CLASS)) {
         stmt = (ObjStmt*) classDeclaration();
-    } else if (match(TOKEN_STRUCT)) {
-        stmt = (ObjStmt*) structDeclaration();
     } else if (match(TOKEN_FUN)) {
         stmt = (ObjStmt*) funDeclaration("Expect function name.");
     } else if (match(TOKEN_VAR) || check(TOKEN_CONST) || checkTypeToken()) {

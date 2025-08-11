@@ -17,10 +17,8 @@ const PADS_BANK0_GPIO0_ISO_BITS = 0x00000100;
 
 var callbacks = make_array(0d2);
 
-struct sio_hw@0xd0000000 {
-    muint32 rw gpio_out@0x10;
-    muint32 rw gpio_oe@0x20;
-}
+const sio_hw_gpio_out = sio_hw_base + 0x10;
+const sio_hw_gpio_oe  = sio_hw_base + 0x20;
 
 const REG_ALIAS_RW_BITS  = 0x0 << 0d12;
 const REG_ALIAS_XOR_BITS = 0x1 << 0d12;
@@ -63,7 +61,7 @@ class alias_reg4 < alias_reg {
 }
 
 fun gpio_set_direction(gpio, dir) {
-    var ctrl = alias_reg4(sio_hw.gpio_oe);
+    var ctrl = alias_reg4(sio_hw_gpio_oe);
 
     if (dir) {
         ctrl.set(0x1 << gpio);
@@ -74,7 +72,7 @@ fun gpio_set_direction(gpio, dir) {
 }
 
 fun gpio_put(gpio, value) {
-    var ctrl = alias_reg4(sio_hw.gpio_out);
+    var ctrl = alias_reg4(sio_hw_gpio_out);
 
     if (value) {
         ctrl.set(0x1 << gpio);

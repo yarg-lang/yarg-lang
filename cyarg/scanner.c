@@ -258,7 +258,6 @@ static TokenType identifierType() {
                             }
                         }
                         break;
-                    case 'o': return checkKeyword(2, 0, "", TOKEN_ACCESS);
                     case 'p':
                         if (scanner.current - scanner.start > 2) {
                             switch (scanner.start[2]) {
@@ -267,7 +266,6 @@ static TokenType identifierType() {
                             }
                         }
                         break;
-                    case 'w': return checkKeyword(2, 0, "", TOKEN_ACCESS);
                 }
             }
             break;
@@ -286,14 +284,7 @@ static TokenType identifierType() {
                         if (scanner.current - scanner.start > 2) {
                             switch (scanner.start[2]) {
                                 case 'a': return checkKeyword(3, 2, "rt", TOKEN_START);                                
-                                case 'r': 
-                                    if (scanner.current - scanner.start > 3) {
-                                        switch (scanner.start[3]) {
-                                            case 'u': return checkKeyword(4, 2, "ct", TOKEN_STRUCT);
-                                            case 'i': return checkKeyword(4, 2, "ng", TOKEN_TYPE_STRING);
-                                        }
-                                    }
-                                    break;
+                                case 'r': return checkKeyword(3, 3, "ing", TOKEN_TYPE_STRING); 
                             }
                         }
                         break;
@@ -310,14 +301,7 @@ static TokenType identifierType() {
             }
             break;
         case 'v': return checkKeyword(1, 2, "ar", TOKEN_VAR);
-        case 'w': 
-            if (scanner.current - scanner.start > 1) {
-                switch (scanner.start[1]) {
-                    case 'h': return checkKeyword(2, 3, "ile", TOKEN_WHILE);
-                    case 'o': return checkKeyword(2, 0, "", TOKEN_ACCESS);
-                }
-            }
-        return checkKeyword(1, 4, "hile", TOKEN_WHILE);
+        case 'w': return checkKeyword(1, 4, "hile", TOKEN_WHILE);
         case 'y': return checkKeyword(1, 4, "ield", TOKEN_YIELD);
     }
 
@@ -383,7 +367,6 @@ Token scanToken() {
         case '}': return makeToken(TOKEN_RIGHT_BRACE);
         case '[': return makeToken(TOKEN_LEFT_SQUARE_BRACKET);
         case ']': return makeToken(TOKEN_RIGHT_SQUARE_BRACKET);
-        case '@': return makeToken(TOKEN_AT);
         case ';': return makeToken(TOKEN_SEMICOLON);
         case ',': return makeToken(TOKEN_COMMA);
         case '.': return makeToken(TOKEN_DOT);
