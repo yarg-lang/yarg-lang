@@ -1,4 +1,5 @@
-place muint32 0x40000000 id;
-print rpeek(id);
-rpoke(id, 10);
-
+var struct {
+    x;
+    y;
+    } pair;
+print pair.x;
