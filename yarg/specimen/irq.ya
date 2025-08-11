@@ -8,12 +8,16 @@ const NVIC_HW_BASE = PPB_BASE + M0PLUS_NVIC_ISER_OFFSET;
 
 const IO_IRQ_BANK0 = 0d13;
 
+place muint32 NVIC_HW_BASE + NVIC_ICPR_OFFSET nvic_icpr;
+place muint32 NVIC_HW_BASE + NVIC_ISER_OFFSET nvic_iser;
+place muint32 NVIC_HW_BASE + NVIC_ICER_OFFSET nvic_icer;
+
 fun irq_set_mask_n_enabled(n, mask, enabled) {
     if (enabled) {
-        rpoke(NVIC_HW_BASE + NVIC_ICPR_OFFSET, mask);
-        rpoke(NVIC_HW_BASE + NVIC_ISER_OFFSET, mask);
+        rpoke(nvic_icpr, mask);
+        rpoke(nvic_iser, mask);
     } else {
-        rpoke(NVIC_HW_BASE + NVIC_ICER_OFFSET, mask);
+        rpoke(nvic_icer, mask);
     }
 }
 

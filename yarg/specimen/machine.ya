@@ -1,10 +1,9 @@
 const PADS_BANK0_BASE = 0x4001c000;
 const IO_BANK0_BASE   = 0x40014000;
+const sio_hw_base     = 0xd0000000;
 
-struct sio_hw@0xd0000000 {
-    muint32 ro cpuid@0x0;
-}
+place muint32 sio_hw_base sio_hw_cpuid;
 
 fun coreNum() {
-    return rpeek(sio_hw.cpuid);
+    return rpeek(sio_hw_cpuid);
 }

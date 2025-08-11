@@ -677,6 +677,16 @@ static void generateVarDeclaration(ObjStmtVarDeclaration* decl) {
     defineVariable(global);
 }
 
+static void generatePlaceDeclaration(ObjStmtPlaceDeclaration* decl) {
+    
+    generateExpr(decl->type);
+    generateExpr(decl->location);
+    emitByte(OP_PLACE);
+    
+    uint8_t global = parseVariable(decl->name);
+    defineVariable(global);
+}
+
 static void beginScope() {
     current->scopeDepth++;
 }
@@ -910,6 +920,9 @@ static void generateStmt(ObjStmt* stmt) {
             break;
         case OBJ_STMT_VARDECLARATION:
             generateVarDeclaration((ObjStmtVarDeclaration*)stmt);
+            break;
+        case OBJ_STMT_PLACEDECLARATION:
+            generatePlaceDeclaration((ObjStmtPlaceDeclaration*)stmt);
             break;
         case OBJ_STMT_BLOCK:
             generateStmtBlock((ObjStmtBlock*)stmt);

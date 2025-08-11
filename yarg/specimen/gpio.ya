@@ -28,31 +28,42 @@ const REG_ALIAS_SET_BITS = 0x2 << 0d12;
 const REG_ALIAS_CLR_BITS = 0x3 << 0d12;
 
 class alias_reg {
-    init(addr) {
-        this.base = addr;
-    }
-    read() { return rpeek(this.base); }
-    write(val) { rpoke(this.base + REG_ALIAS_RW_BITS, val); }
+    read() { return rpeek(this.rw_reg); }
+    write(val) { rpoke(this.rw_reg, val); }
     write_masked(val, mask) { this.xor((this.read() ^ val) & mask); }
-    set(mask) { rpoke(this.base + REG_ALIAS_SET_BITS, mask); }
-    clr(mask) { rpoke(this.base + REG_ALIAS_CLR_BITS, mask); }
-    xor(mask) { rpoke(this.base + REG_ALIAS_XOR_BITS, mask); }
+    set(mask) { rpoke(this.set_reg, mask); }
+    clr(mask) { rpoke(this.clr_reg, mask); }
+    xor(mask) { rpoke(this.xor_reg, mask); }
 }
 
-class alias_reg2 {
+class alias_reg4K < alias_reg {
     init(addr) {
-        this.base = addr;
+        place muint32 addr + REG_ALIAS_RW_BITS read_write;
+        this.rw_reg = read_write;
+        place muint32 addr + REG_ALIAS_SET_BITS set;
+        this.set_reg = set;
+        place muint32 addr + REG_ALIAS_CLR_BITS clr;
+        this.clr_reg = clr;
+        place muint32 addr + REG_ALIAS_XOR_BITS xor;
+        this.xor_reg = xor;
     }
-    read() { return rpeek(this.base); }
-    write(val) { rpoke(this.base, val); }
-    write_masked(val, mask) { this.xor((this.read() ^ val) & mask); }
-    set(mask) { rpoke(this.base + 0x4, mask); }
-    clr(mask) { rpoke(this.base + 0x8, mask); }
-    xor(mask) { rpoke(this.base + 0x12, mask); }
+}
+
+class alias_reg4 < alias_reg {
+    init(addr) {
+        place muint32 addr read_write;
+        this.rw_reg = read_write;
+        place muint32 addr + 0x4 set;
+        this.set_reg = set;
+        place muint32 addr + 0x8 clr;
+        this.clr_reg = clr;
+        place muint32 addr + 0x12 xor;
+        this.xor_reg = xor;
+    }
 }
 
 fun gpio_set_direction(gpio, dir) {
-    var ctrl = alias_reg2(sio_hw.gpio_oe);
+    var ctrl = alias_reg4(sio_hw.gpio_oe);
 
     if (dir) {
         ctrl.set(0x1 << gpio);
@@ -63,7 +74,7 @@ fun gpio_set_direction(gpio, dir) {
 }
 
 fun gpio_put(gpio, value) {
-    var ctrl = alias_reg2(sio_hw.gpio_out);
+    var ctrl = alias_reg4(sio_hw.gpio_out);
 
     if (value) {
         ctrl.set(0x1 << gpio);
@@ -82,7 +93,7 @@ fun gpio_init(gpio) {
 fun gpio_set_function(gpio, function) {
 
     const pads_bank_0_pin_offset = 0d4 + 0d4 * gpio;
-    var pinctrl = alias_reg(PADS_BANK0_BASE + pads_bank_0_pin_offset);
+    var pinctrl = alias_reg4K(PADS_BANK0_BASE + pads_bank_0_pin_offset);
 
     // Set input enable on, output disable off
     pinctrl.write_masked(PADS_BANK0_GPIO0_IE_BITS, PADS_BANK0_GPIO0_IE_BITS | PADS_BANK0_GPIO0_OD_BITS);
@@ -90,7 +101,7 @@ fun gpio_set_function(gpio, function) {
     // Zero all fields apart from fsel; we want this IO to do what the peripheral tells it.
     // This doesn't affect e.g. pullup/pulldown, as these are in pad controls.
     const ctrl_offset = (0d8 * gpio) + 0d4;
-    var hw_ctrl = alias_reg(IO_BANK0_BASE + ctrl_offset);
+    var hw_ctrl = alias_reg4K(IO_BANK0_BASE + ctrl_offset);
     hw_ctrl.write(function);
 }
 
@@ -98,8 +109,9 @@ fun gpio_acknowledge_irq(gpio, events) {
     var register_base = IO_BANK0_BASE;
     register_base = register_base + 0d30 * 0d8;
     const offset = (gpio / 0d8) * 0d4;
+    place muint32 register_base + offset reg;
 
-    rpoke(register_base + offset, events << (0d4 * (gpio % 0d8)));
+    rpoke(reg, events << (0d4 * (gpio % 0d8)));
 }
 
 fun gpio_default_irq_handler() {
@@ -114,8 +126,7 @@ fun gpio_default_irq_handler() {
 
     for (var gpio = 0d0; gpio < NUM_BANK0_GPIOS; gpio= gpio + 0d8) {
         const gpio_bank = gpio >> 0d3;
-
-        const register_location = register_base + gpio_bank * 0d4;
+        place muint32 register_base + gpio_bank * 0d4 register_location;
 
         var events8 = rpeek(register_location);
       
@@ -158,7 +169,7 @@ fun gpio_set_irq_enabled(gpio, events, enabled) {
     gpio_acknowledge_irq(gpio, events);
 
     events = events << (0d4 * (gpio % 0d8));
-    var ctrl = alias_reg(0x40014100);
+    var ctrl = alias_reg4K(0x40014100);
 
     if (enabled) {
         ctrl.set(events);

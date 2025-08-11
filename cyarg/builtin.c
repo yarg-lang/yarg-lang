@@ -236,8 +236,13 @@ bool startBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Val
 typedef volatile uint32_t Register;
 
 bool rpeekBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
-    
-    uint32_t nominal_address = AS_UINTEGER(args[0].value);
+
+    uint32_t nominal_address = 0;
+    if (IS_POINTER(args[0].value)) {
+        nominal_address = (uintptr_t) AS_POINTER(args[0].value)->destination;
+    } else {
+        nominal_address = AS_UINTEGER(args[0].value);
+    }
     Register* reg = (Register*) (uintptr_t)nominal_address;
 
 #ifdef CYARG_PICO_TARGET
@@ -252,7 +257,12 @@ bool rpeekBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Val
 
 bool rpokeBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
 
-    uint32_t nominal_address = AS_UINTEGER(args[0].value);
+    uint32_t nominal_address = 0;
+    if (IS_POINTER(args[0].value)) {
+        nominal_address = (uintptr_t) AS_POINTER(args[0].value)->destination;
+    } else {
+        nominal_address = AS_UINTEGER(args[0].value);
+    }
     Register* reg = (Register*) (uintptr_t)nominal_address;
 
     uint32_t val = AS_UINTEGER(args[1].value);
