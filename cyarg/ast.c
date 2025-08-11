@@ -214,7 +214,6 @@ ObjExprSuper* newExprSuper(const char* name, int nameLength) {
 
 ObjExprTypeLiteral* newExprType(ExprTypeLiteral type) {
     ObjExprTypeLiteral* expr = ALLOCATE_OBJ(ObjExprTypeLiteral, OBJ_EXPR_TYPE);
-    expr->expr.nextExpr = NULL;
     expr->type = type;
     return expr;
 }
