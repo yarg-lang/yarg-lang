@@ -565,6 +565,16 @@ void printStmtVarDeclaration(ObjStmtVarDeclaration* decl) {
     printf(";");
 }
 
+static void printStmtPlaceDeclaration(ObjStmtPlaceDeclaration* decl) {
+    printf("place ");
+    printExpr(decl->type);
+    printf(" ");
+    printExpr(decl->location);
+    printf(" ");
+    printObject(OBJ_VAL(decl->name));
+    printf(";");
+}
+
 void printStmtBlock(ObjStmtBlock* block) {
     printf("{\n");
     indendation++;
@@ -583,6 +593,7 @@ void printStmts(ObjStmt* stmts) {
             case OBJ_STMT_PRINT:
             case OBJ_STMT_EXPRESSION: printStmtExpression((ObjStmtExpression*)cursor); break;
             case OBJ_STMT_VARDECLARATION: printStmtVarDeclaration((ObjStmtVarDeclaration*)cursor); break;
+            case OBJ_STMT_PLACEDECLARATION: printStmtPlaceDeclaration((ObjStmtPlaceDeclaration*)cursor); break;
             case OBJ_STMT_BLOCK: printStmtBlock((ObjStmtBlock*)cursor); break;
             case OBJ_STMT_IF: printStmtIf((ObjStmtIf*)cursor); break;
             case OBJ_STMT_FUNDECLARATION: printFunDeclaration((ObjStmtFunDeclaration*)cursor); break;

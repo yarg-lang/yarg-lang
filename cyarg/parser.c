@@ -595,6 +595,7 @@ static AstParseRule rules[] = {
     [TOKEN_OR]                   = {NULL,      or_,    PREC_OR},
     [TOKEN_PEEK]                 = {builtin,   NULL,   PREC_NONE},
     [TOKEN_PIN]                  = {builtin,   NULL,   PREC_NONE},
+    [TOKEN_PLACE]                = {NULL,      NULL,   PREC_NONE},
     [TOKEN_PRINT]                = {NULL,      NULL,   PREC_NONE},
     [TOKEN_RECEIVE]              = {builtin,   NULL,   PREC_NONE},
     [TOKEN_RESUME]               = {builtin,   NULL,   PREC_NONE},
@@ -968,6 +969,25 @@ static ObjStmtStructDeclaration* structDeclaration() {
     return struct_;
 }
 
+static ObjStmtPlaceDeclaration* placeDeclaration() {
+    ObjExpr* type = expression();
+    pushWorkingNode((Obj*)type);
+
+    ObjExpr* location = expression();
+    pushWorkingNode((Obj*)location);
+
+    consume(TOKEN_IDENTIFIER, "Expect place name.");
+    ObjStmtPlaceDeclaration* decl = newStmtPlaceDeclaration(parser.previous.start, parser.previous.length, parser.previous.line);
+    decl->type = type;
+    decl->location = location;
+    popWorkingNode();
+    popWorkingNode();
+
+    consume(TOKEN_SEMICOLON, "Expect ';' after place declaration.");
+
+    return decl;
+}
+
 ObjStmt* declaration() {
     ObjStmt* stmt = NULL;
 
@@ -979,6 +999,8 @@ ObjStmt* declaration() {
         stmt = (ObjStmt*) funDeclaration("Expect function name.");
     } else if (match(TOKEN_VAR) || check(TOKEN_CONST) || checkTypeToken()) {
         stmt = varDeclaration();
+    } else if (match(TOKEN_PLACE)) {
+        stmt = (ObjStmt*) placeDeclaration();
     } else {
         stmt = statement();
     }
