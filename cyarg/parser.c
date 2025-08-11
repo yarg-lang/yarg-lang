@@ -75,6 +75,7 @@ typedef struct {
 static AstParseRule* getRule(TokenType type);
 static ObjExpr* parsePrecedence(Precedence precedence);
 static ObjExpr* expression();
+static ObjExpr* typeExpression();
 
 void errorAt(Token* token, const char* message) {
     if (parser.panicMode) return;
@@ -164,6 +165,7 @@ static bool checkTypeToken() {
         case TOKEN_BOOL:
         case TOKEN_TYPE_STRING:
         case TOKEN_ANY:
+        case TOKEN_STRUCT:
             return true;
         default:
             return false;
@@ -352,6 +354,42 @@ static ObjExpr* builtin(bool canAssign) {
     } 
 }
 
+static ObjStmtFieldDeclaration* fieldStmt() {
+    ObjExpr* type = NULL; 
+    if (checkTypeToken()) {
+        type = (ObjExpr*) typeExpression();
+    } else {
+        type = (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL);
+    }
+    pushWorkingNode((Obj*)type);
+
+    consume(TOKEN_IDENTIFIER, "Expect name of field.");
+    ObjStmtFieldDeclaration* field = newStmtFieldDeclaration(parser.previous.start, parser.previous.length, parser.previous.line);
+    field->type = type;
+    consume(TOKEN_SEMICOLON, "Expect ';' after field declaration.");
+    popWorkingNode();
+    return field;
+}
+
+static ObjExprTypeStruct* structExpression() {
+    consume(TOKEN_LEFT_BRACE, "Expect '{' to start struct type.");
+
+    ObjExprTypeStruct* struct_declaration = newExprTypeStruct();
+    pushWorkingNode((Obj*)struct_declaration);
+
+    while (!check(TOKEN_RIGHT_BRACE)) {
+        ObjStmtFieldDeclaration* field = fieldStmt();
+        pushWorkingNode((Obj*)field);
+        tableSet(&struct_declaration->fieldsByName, field->name, OBJ_VAL(field));
+        appendToValueArray(&struct_declaration->fieldsByIndex, OBJ_VAL(field));
+        popWorkingNode();
+    }
+    
+    consume(TOKEN_RIGHT_BRACE, "Expect '}' after field declarations.");
+    popWorkingNode();
+    return struct_declaration;
+}
+
 static ObjExpr* type(bool canAssign) {
     switch (parser.previous.type) {
         case TOKEN_ANY: return (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL);
@@ -359,6 +397,7 @@ static ObjExpr* type(bool canAssign) {
         case TOKEN_MACHINE_UINT32: return (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MUINT32);
         case TOKEN_INTEGER: return (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INTEGER);
         case TOKEN_MACHINE_FLOAT64: return (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MFLOAT64);
+        case TOKEN_STRUCT: return (ObjExpr*) structExpression();
         default: return NULL; // Unreachable
     }
 }
@@ -580,6 +619,7 @@ static AstParseRule rules[] = {
     [TOKEN_SHARE]                = {builtin,   NULL,   PREC_NONE},
     [TOKEN_START]                = {builtin,   NULL,   PREC_NONE},
     [TOKEN_TYPE_STRING]          = {NULL,      NULL,   PREC_NONE},
+    [TOKEN_STRUCT]               = {type,      NULL,   PREC_NONE},
     [TOKEN_SUPER]                = {super_,    NULL,   PREC_NONE},
     [TOKEN_THIS]                 = {this_,     NULL,   PREC_NONE},
     [TOKEN_TRUE]                 = {literal,   NULL,   PREC_NONE},
@@ -662,6 +702,7 @@ static ObjExpr* typeExpression() {
             case TOKEN_BOOL: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_BOOL); break;
             case TOKEN_TYPE_STRING: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_STRING); break;
             case TOKEN_ANY: expression = (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL); break;
+            case TOKEN_STRUCT: expression = (ObjExpr*) structExpression(); break;
             default:
                 error("Invalid type in expression.");
         }
