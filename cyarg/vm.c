@@ -403,7 +403,7 @@ static void concatenate(ObjRoutine* routine) {
 static bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue) {
     if (lhsType->yt == TypeAny) {
         return true;
-    } else if (is_obj_type(lhsType) && IS_NIL(rhsValue)) {
+    } else if (is_nil_assignable_type(lhsType) && IS_NIL(rhsValue)) { 
         return true;
     } else if (is_obj_type(lhsType) && lhsType->yt == TypeArray) {        
         if (yt_typeof(rhsValue) == TypeArray) {

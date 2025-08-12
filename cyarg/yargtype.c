@@ -132,6 +132,28 @@ bool is_obj_type(ObjConcreteYargType* type) {
     }
 }
 
+bool is_nil_assignable_type(ObjConcreteYargType* type) {
+    switch (type->yt) {
+        case TypeAny:
+        case TypeBool:
+        case TypeDouble:
+        case TypeMachineUint32:
+        case TypeInteger:
+        case TypeStruct:
+            return false;
+        case TypeString:
+        case TypeClass:
+        case TypeInstance:
+        case TypeFunction:
+        case TypeNativeBlob:
+        case TypeRoutine:
+        case TypeChannel:
+        case TypeArray:
+        case TypeYargType:
+            return true;
+    } 
+}
+
 ObjConcreteYargType* array_element_type(Value val) {
     if (IS_UNIFORMARRAY(val)) {
         ObjUniformArray* array = AS_UNIFORMARRAY(val);
