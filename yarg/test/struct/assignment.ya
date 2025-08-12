@@ -1,0 +1,15 @@
+var struct {
+    integer x;
+    struct { a; bool b; } y;
+    } pair;
+print pair.x;        // expect: 0
+pair.x = 10;
+print pair.x;        // expect: 10
+print pair.y;        // expect: struct{2:nil; false; }
+var test = pair.y;
+test.a = 42;
+test.b = true;
+print test.b;        // expect: true
+print pair.y.b;      // expect: true
+print pair.y.a;      // expect: 42
+pair = nil;          // expect runtime error: Cannot set global variable to incompatible type.

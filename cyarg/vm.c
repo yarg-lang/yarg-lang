@@ -699,15 +699,37 @@ InterpretResult run(ObjRoutine* routine) {
                 break;
             }
             case OP_SET_PROPERTY: {
-                if (!IS_INSTANCE(peek(routine, 1))) {
-                    runtimeError(routine, "Only instances have fields.");
+                if (!IS_INSTANCE(peek(routine, 1)) && !IS_STRUCT(peek(routine, 1))) {
+                    runtimeError(routine, "Only instances and structs have fields.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                ObjInstance* instance = AS_INSTANCE(peek(routine, 1));
-                tableSet(&instance->fields, READ_STRING(), peek(routine, 0));
-                Value value = pop(routine);
-                pop(routine);
-                push(routine, value);
+                if (IS_INSTANCE(peek(routine, 1))) {
+                    ObjInstance* instance = AS_INSTANCE(peek(routine, 1));
+                    tableSet(&instance->fields, READ_STRING(), peek(routine, 0));
+                    Value value = pop(routine);
+                    pop(routine);
+                    push(routine, value);
+                } else if (IS_STRUCT(peek(routine, 1))) {
+                    ObjStruct* object = AS_STRUCT(peek(routine, 1));
+                    ObjConcreteYargTypeStruct* type = (ObjConcreteYargTypeStruct*)object->type;
+                    ObjString* name = READ_STRING();
+                    
+                    Value indexVal;
+                    Value result = peek(routine, 0);
+                    if (tableGet(&type->field_names, name, &indexVal)) {
+                        uint32_t index = AS_UINTEGER(indexVal);
+                        ValueCellTarget trg = { .type = &type->field_types[index], .value = &object->fields[index] };
+                        if (!assignTo(trg, result)) {
+                            runtimeError(routine, "cannot assign to field type.");
+                        }
+                    } else {
+                        runtimeError(routine, "field not present in struct.");
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                    pop(routine);                    
+                    pop(routine);
+                    push(routine, result);
+                }
                 break;
             }
             case OP_GET_SUPER: {
