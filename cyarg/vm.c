@@ -400,9 +400,9 @@ static void concatenate(ObjRoutine* routine) {
     push(routine, OBJ_VAL(result));
 }
 
-static bool isCompatibleType(ObjConcreteYargType* lhsType, Value rhsValue) {
-    if (lhsType->isConst) {
-        return false;
+static bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue) {
+    if (lhsType->yt == TypeAny) {
+        return true;
     } else if (is_obj_type(lhsType) && IS_NIL(rhsValue)) {
         return true;
     } else if (is_obj_type(lhsType) && lhsType->yt == TypeArray) {        
@@ -428,6 +428,14 @@ static bool isCompatibleType(ObjConcreteYargType* lhsType, Value rhsValue) {
     }
 }
 
+static bool isCompatibleType(ObjConcreteYargType* lhsType, Value rhsValue) {
+    if (lhsType->isConst) {
+        return false;
+    } else {
+        return isInitialisableType(lhsType, rhsValue);
+    }
+}
+
 static bool assignTo(ValueCellTarget lhs, Value rhsValue) {
     if (IS_NIL(*lhs.type)) {
         *lhs.value = rhsValue;
@@ -443,6 +451,20 @@ static bool assignTo(ValueCellTarget lhs, Value rhsValue) {
     }
 }
 
+static bool initialiseTo(ValueCellTarget lhs, Value rhsValue) {
+    if (IS_NIL(*lhs.type)) {
+        *lhs.value = rhsValue;
+        return true;
+    } else {
+        ObjConcreteYargType* lhsType = (ObjConcreteYargType*) AS_OBJ(*lhs.type);
+        if (isInitialisableType(lhsType, rhsValue)) {
+            *(lhs.value) = rhsValue;
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
 
 static void createConcreteType(ObjRoutine* routine, ConcreteYargType type) {
     ObjConcreteYargType* typeObj = newYargTypeFromType(type);
@@ -617,6 +639,17 @@ InterpretResult run(ObjRoutine* routine) {
                     runtimeError(routine, "Undefined variable (OP_SET_GLOBAL) '%s'.", name->chars);
                     return INTERPRET_RUNTIME_ERROR;
                 }
+                break;
+            }
+            case OP_INITIALISE: {
+                ValueCell* lhs = peekCell(routine, 1);
+                ValueCell* rhs = peekCell(routine, 0);
+                ValueCellTarget trg = { .type = &lhs->type, .value = &lhs->value };
+                if (!initialiseTo(trg, rhs->value)) {
+                    runtimeError(routine, "Cannot initialise variable with this value.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                pop(routine);
                 break;
             }
             case OP_GET_UPVALUE: {
@@ -923,9 +956,9 @@ InterpretResult run(ObjRoutine* routine) {
                 break;
             }
             case OP_SET_CELL_TYPE: {
-                Value type = pop(routine);
-                ValueCell* last = routine->stackTop - 1;
-                last->type = type;
+                ValueCell* last = peekCell(routine, 0);
+                last->type = peek(routine, 0);
+                last->value = defaultValue(last->type);
                 break;
             }
             case OP_DEREF_PTR: {

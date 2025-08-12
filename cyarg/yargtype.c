@@ -118,3 +118,28 @@ size_t yt_sizeof_type(Value type) {
         }
     }
 }
+
+Value defaultValue(Value type) {
+    if (IS_NIL(type)) {
+        return NIL_VAL;
+    } else {
+        ObjConcreteYargType* ct = AS_YARGTYPE(type);
+        switch (ct->yt) {
+            case TypeBool: return FALSE_VAL;
+            case TypeInteger: return INTEGER_VAL(0);
+            case TypeDouble: return DOUBLE_VAL(0);
+            case TypeMachineUint32: return UINTEGER_VAL(0);
+            case TypeAny:
+            case TypeString:
+            case TypeClass:
+            case TypeInstance:
+            case TypeFunction:
+            case TypeNativeBlob:
+            case TypeRoutine:
+            case TypeChannel:
+            case TypeArray:
+            case TypeYargType:
+                return NIL_VAL;
+        }
+    }
+}

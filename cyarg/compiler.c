@@ -659,20 +659,18 @@ static void defineVariable(uint8_t global) {
 static void generateVarDeclaration(ObjStmtVarDeclaration* decl) {
     uint8_t global = parseVariable(decl->name);
 
-    if (decl->initialiser) {
-        generateExpr(decl->initialiser);
-    } else {
-        emitByte(OP_NIL);
-    }
-
     if (decl->type) {
         generateExpr(decl->type);
     }
     else {
         emitByte(OP_NIL);
     }
-
     emitByte(OP_SET_CELL_TYPE);
+
+    if (decl->initialiser) {
+        generateExpr(decl->initialiser);
+        emitByte(OP_INITIALISE);
+    }
 
     defineVariable(global);
 }

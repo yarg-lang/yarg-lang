@@ -1,0 +1,59 @@
+var any test;
+var integer counter;
+var bool isTrue;
+var mfloat64 aFloat;
+var muint32 aUint;
+var string aString;
+var asBefore;
+
+{
+    var any test;
+    var integer counter;
+    var bool isTrue;
+    var mfloat64 aFloat;
+    var muint32 aUint;
+    var string aString;
+    var asBefore;
+
+    print counter;      // expect: 0
+    print isTrue;       // expect: false
+    print aFloat;       // expect: 0.00000
+    print aUint;        // expect: 0
+    print aString;      // expect: nil
+    print asBefore;     // expect: nil
+    print test;         // expect: nil
+}
+
+print counter;          // expect: 0
+print isTrue;           // expect: false
+print aFloat;           // expect: 0.00000
+print aUint;            // expect: 0
+print aString;          // expect: nil
+print asBefore;         // expect: nil
+print test;             // expect: nil
+
+{
+    var bool test;
+    var any counter;
+    var isTrue;
+    var string aFloat;
+    var mfloat64 aUint;
+    var muint32 aString;
+    var bool asBefore;
+
+    print counter;      // expect: nil
+    print isTrue;       // expect: nil
+    print aFloat;       // expect: nil
+    print aUint;        // expect: 0.00000
+    print aString;      // expect: 0
+    print asBefore;     // expect: false
+    print test;         // expect: false
+}
+
+print counter;          // expect: 0
+print isTrue;           // expect: false
+print aFloat;           // expect: 0.00000
+print aUint;            // expect: 0
+print aString;          // expect: nil
+print asBefore;         // expect: nil
+print test;             // expect: nil
