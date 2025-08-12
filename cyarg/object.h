@@ -23,7 +23,7 @@ typedef struct ObjConcreteYargType ObjConcreteYargType;
 #define IS_STRING(value)       isObjType(value, OBJ_STRING)
 #define IS_VALARRAY(value)     isObjType(value, OBJ_VALARRAY)
 #define IS_UNIFORMARRAY(value) isObjType(value, OBJ_UNIFORMARRAY)
-#define IS_YARGTYPE(value)     isObjType(value, OBJ_YARGTYPE)
+#define IS_YARGTYPE(value)     (isObjType(value, OBJ_YARGTYPE) || isObjType(value, OBJ_YARGTYPE_ARRAY))
 #define IS_POINTER(value)      (isObjType(value, OBJ_POINTER) || isObjType(value, OBJ_UNOWNED_POINTER))
 
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
@@ -58,6 +58,7 @@ typedef enum {
     OBJ_VALARRAY,
     OBJ_UNIFORMARRAY,
     OBJ_YARGTYPE,
+    OBJ_YARGTYPE_ARRAY,
     OBJ_POINTER,
     OBJ_UNOWNED_POINTER,
     OBJ_AST,

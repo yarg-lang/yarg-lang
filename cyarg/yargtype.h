@@ -24,8 +24,12 @@ typedef struct ObjConcreteYargType {
     Obj obj;
     ConcreteYargType yt;
     bool isConst;
-    ObjConcreteYargType* element_type;
 } ObjConcreteYargType;
+
+typedef struct {
+    ObjConcreteYargType core;
+    ObjConcreteYargType* element_type;
+} ObjConcreteYargTypeArray;
 
 ObjConcreteYargType* newYargTypeFromType(ConcreteYargType yt);
 ObjConcreteYargType* newYargArrayTypeFromType(Value elementType);

@@ -350,10 +350,12 @@ static void printType(FILE* op, ObjConcreteYargType* type) {
         case TypeRoutine: fprintf(op, "Type:Routine"); break;
         case TypeChannel: fprintf(op, "Type:Channel"); break;
         case TypeArray: {
-            if (type->element_type == NULL) {
+            ObjConcreteYargTypeArray* array = (ObjConcreteYargTypeArray*) type;
+            fprintf(op, "Type:");
+            if (array->element_type == NULL) {
                 fprintf(op, "any");
             } else {
-                printType(op, type->element_type);
+                printType(op, array->element_type);
             }
             fprintf(op, "[]");
             break;
@@ -411,6 +413,7 @@ void fprintObject(FILE* op, Value value) {
             printArray(op, value);
             break;
         case OBJ_YARGTYPE:
+        case OBJ_YARGTYPE_ARRAY:
             printType(op, AS_YARGTYPE(value));
             break;
         case OBJ_UNOWNED_POINTER:

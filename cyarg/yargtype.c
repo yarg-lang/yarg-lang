@@ -6,18 +6,39 @@
 #include "vm.h"
 
 ObjConcreteYargType* newYargTypeFromType(ConcreteYargType yt) {
-    ObjConcreteYargType* t = ALLOCATE_OBJ(ObjConcreteYargType, OBJ_YARGTYPE);
-    t->yt = yt;
-    return t;
+    switch (yt) {
+        case TypeAny:
+        case TypeBool:
+        case TypeDouble:
+        case TypeMachineUint32:
+        case TypeInteger:
+        case TypeString:
+        case TypeClass:
+        case TypeInstance:
+        case TypeFunction:
+        case TypeNativeBlob:
+        case TypeRoutine:
+        case TypeChannel:
+        case TypeYargType: {
+            ObjConcreteYargType* t = ALLOCATE_OBJ(ObjConcreteYargType, OBJ_YARGTYPE);
+            t->yt = yt;
+            return t;
+        }
+        case TypeArray: {
+            ObjConcreteYargTypeArray* t = ALLOCATE_OBJ(ObjConcreteYargTypeArray, OBJ_YARGTYPE_ARRAY);
+            t->core.yt = yt;
+            return (ObjConcreteYargType*)t;
+        }
+    }
 }
 
 ObjConcreteYargType* newYargArrayTypeFromType(Value elementType) {
-    ObjConcreteYargType* t = ALLOCATE_OBJ(ObjConcreteYargType, OBJ_YARGTYPE);
+    ObjConcreteYargTypeArray* t = ALLOCATE_OBJ(ObjConcreteYargTypeArray, OBJ_YARGTYPE_ARRAY);
     if (IS_YARGTYPE(elementType)) {
         t->element_type = AS_YARGTYPE(elementType);
     }
-    t->yt = TypeArray;
-    return t;
+    t->core.yt = TypeArray;
+    return (ObjConcreteYargType*)t;
 }
 
 ConcreteYargType yt_typeof(Value a) {

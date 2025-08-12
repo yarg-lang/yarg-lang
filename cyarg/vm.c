@@ -407,7 +407,7 @@ static bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue) {
         return true;
     } else if (is_obj_type(lhsType) && lhsType->yt == TypeArray) {        
         if (yt_typeof(rhsValue) == TypeArray) {
-            ObjConcreteYargType* lhsElementType = ((ObjConcreteYargType*)lhsType)->element_type;
+            ObjConcreteYargType* lhsElementType = ((ObjConcreteYargTypeArray*)lhsType)->element_type;
             ObjConcreteYargType* rhsElementType = array_element_type(rhsValue);
             if (lhsElementType == NULL) {
                 return true;
@@ -486,20 +486,9 @@ static void makeConcreteTypeConst(ObjRoutine* routine) {
 }
 
 static void makeConcreteTypeArray(ObjRoutine* routine) {
-    Value elementType = pop(routine);
-    tempRootPush(elementType);
-
-    ObjConcreteYargType* typeObject = newYargTypeFromType(TypeArray);
+    ObjConcreteYargType* typeObject = newYargArrayTypeFromType(peek(routine, 0));
+    pop(routine);
     push(routine, OBJ_VAL(typeObject));
-
-    if (IS_NIL(elementType)) {
-        typeObject->element_type = newYargTypeFromType(TypeAny);
-    } else {
-        ObjConcreteYargType* elementTypeObj = (ObjConcreteYargType*) AS_OBJ(elementType);
-        typeObject->element_type = elementTypeObj;
-    }
-
-    tempRootPop();
 }
 
 InterpretResult run(ObjRoutine* routine) {

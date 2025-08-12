@@ -171,8 +171,10 @@ static void blackenObject(Obj* object) {
             markObject((Obj*)array->element_type);
             break;
         }
-        case OBJ_YARGTYPE: {
-            ObjConcreteYargType* type = (ObjConcreteYargType*)object;
+        case OBJ_YARGTYPE:
+            break;
+        case OBJ_YARGTYPE_ARRAY: {
+            ObjConcreteYargTypeArray* type = (ObjConcreteYargTypeArray*)object;
             markObject((Obj*)type->element_type);
             break;
         }
@@ -433,6 +435,10 @@ static void freeObject(Obj* object) {
         }
         case OBJ_YARGTYPE: {
             FREE(ObjConcreteYargType, object);
+            break;
+        }
+        case OBJ_YARGTYPE_ARRAY: {
+            FREE(ObjConcreteYargTypeArray, object);
             break;
         }
         case OBJ_AST: {
