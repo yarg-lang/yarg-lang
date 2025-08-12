@@ -413,6 +413,7 @@ void fprintObject(FILE* op, Value value) {
         case OBJ_YARGTYPE:
             printType(op, AS_YARGTYPE(value));
             break;
+        case OBJ_UNOWNED_POINTER:
         case OBJ_POINTER:
             printPointer(op, AS_POINTER(value));
             break;
