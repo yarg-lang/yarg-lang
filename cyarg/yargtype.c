@@ -83,6 +83,15 @@ bool is_obj_type(ObjConcreteYargType* type) {
     }
 }
 
+ObjConcreteYargType* array_element_type(Value val) {
+    if (IS_UNIFORMARRAY(val)) {
+        ObjUniformArray* array = AS_UNIFORMARRAY(val);
+        return array->element_type;
+    } else {
+        return NULL;
+    }
+}
+
 size_t yt_sizeof_type(Value type) {
     if (IS_NIL(type)) {
         return 8;

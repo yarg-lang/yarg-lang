@@ -32,6 +32,7 @@ ObjConcreteYargType* newYargArrayTypeFromType(Value elementType);
 
 ConcreteYargType yt_typeof(Value a);
 bool is_obj_type(ObjConcreteYargType* type);
+ObjConcreteYargType* array_element_type(Value val);
 size_t yt_sizeof_type(Value type);
 
 #endif

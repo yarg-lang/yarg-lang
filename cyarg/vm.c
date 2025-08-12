@@ -407,10 +407,11 @@ static bool isCompatibleType(ObjConcreteYargType* lhsType, Value rhsValue) {
         return true;
     } else if (is_obj_type(lhsType) && lhsType->yt == TypeArray) {        
         if (yt_typeof(rhsValue) == TypeArray) {
-            if (lhsType->element_type == NULL) {
+            ObjConcreteYargType* lhsElementType = ((ObjConcreteYargType*)lhsType)->element_type;
+            ObjConcreteYargType* rhsElementType = array_element_type(rhsValue);
+            if (lhsElementType == NULL) {
                 return true;
             }
-            ObjConcreteYargType* rhsElementType = AS_YARGTYPE(rhsValue)->element_type;
             if (rhsElementType == NULL) {
                 return false;
             }
