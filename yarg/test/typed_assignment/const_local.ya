@@ -10,7 +10,7 @@ var asBefore;
 
 {
     var const any test = false;
-    var const integer counter = 0d7;
+    var const integer counter = 7;
     
     print counter;      // expect: 7
     print test;         // expect: false
