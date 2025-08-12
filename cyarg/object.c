@@ -218,6 +218,7 @@ ObjPointer* newPointer(Value type) {
             case TypeRoutine:
             case TypeChannel:
             case TypeArray:
+            case TypeStruct:
             case TypeYargType:
                 {
                     Obj** target = (Obj**)dest;
@@ -246,6 +247,24 @@ ObjPointer* newPointerAt(Value type, Value location) {
     } else {
         return NULL;
     }
+}
+
+ObjStruct* newStruct(ObjConcreteYargType* type) {
+    ObjStruct* object = ALLOCATE_OBJ(ObjStruct, OBJ_STRUCT);
+    tempRootPush(OBJ_VAL(object));
+    object->type = type;
+    ObjConcreteYargTypeStruct* ct = (ObjConcreteYargTypeStruct*)type;
+    object->fields = GROW_ARRAY(Value, object->fields, 0, ct->field_count);
+    for (size_t i = 0; i < ct->field_count; i++) {
+        object->fields[i] = NIL_VAL;
+    }
+    object->field_count = ct->field_count;
+
+    for (size_t i = 0; i < ct->field_count; i++) {
+        object->fields[i] = defaultValue(ct->field_types[i]);
+    }
+    tempRootPop();
+    return object;
 }
 
 static ObjString* allocateString(char* chars, int length, uint32_t hash) {
@@ -360,6 +379,16 @@ static void printType(FILE* op, ObjConcreteYargType* type) {
             fprintf(op, "[]");
             break;
         }
+        case TypeStruct: {
+            ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*) type;
+            fprintf(op, "Type:struct{%zu:", st->field_count);
+            for (size_t i = 0; i < st->field_count; i++) {
+                fprintValue(op, st->field_types[i]);
+                fprintf(op, "; ");
+            }
+            fprintf(op, "}");
+            break;
+        }
         case TypeYargType: fprintf(op, "Type:Type"); break;
         default: fprintf(op, "Type:Unknown"); break;
     }
@@ -369,6 +398,15 @@ static void printPointer(FILE* op, ObjPointer* ptr) {
     fprintf(op, "<*");
     fprintValue(op, ptr->type);
     fprintf(op, ":%p>", (void*) ptr->destination);
+}
+
+static void printStruct(FILE* op, ObjStruct* st) {
+    fprintf(op, "struct{%zu:", st->field_count);
+    for (size_t i = 0; i < st->field_count; i++) {
+        fprintValue(op, st->fields[i]);
+        fprintf(op, "; ");
+    }
+    fprintf(op, "}");
 }
 
 void fprintObject(FILE* op, Value value) {
@@ -414,11 +452,15 @@ void fprintObject(FILE* op, Value value) {
             break;
         case OBJ_YARGTYPE:
         case OBJ_YARGTYPE_ARRAY:
+        case OBJ_YARGTYPE_STRUCT:
             printType(op, AS_YARGTYPE(value));
             break;
         case OBJ_UNOWNED_POINTER:
         case OBJ_POINTER:
             printPointer(op, AS_POINTER(value));
+            break;
+        case OBJ_STRUCT:
+            printStruct(op, AS_STRUCT(value));
             break;
         default:
             FPRINTMSG(op, "<implementation object %d>", OBJ_TYPE(value));

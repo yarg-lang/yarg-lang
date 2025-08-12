@@ -17,6 +17,7 @@ typedef enum {
    TypeRoutine,
    TypeChannel,
    TypeArray,
+   TypeStruct,
    TypeYargType
 } ConcreteYargType;
 
@@ -31,8 +32,18 @@ typedef struct {
     ObjConcreteYargType* element_type;
 } ObjConcreteYargTypeArray;
 
+typedef struct {
+    ObjConcreteYargType core;
+    ValueTable field_names;
+    Value* field_types;
+    size_t field_count;
+} ObjConcreteYargTypeStruct;
+
 ObjConcreteYargType* newYargTypeFromType(ConcreteYargType yt);
 ObjConcreteYargType* newYargArrayTypeFromType(Value elementType);
+ObjConcreteYargType* newYargStructType(size_t fieldCount);
+
+void addFieldType(ObjConcreteYargTypeStruct* st, size_t index, Value type, Value name);
 
 ConcreteYargType yt_typeof(Value a);
 bool is_obj_type(ObjConcreteYargType* type);

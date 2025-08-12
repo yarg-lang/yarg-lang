@@ -29,6 +29,12 @@ ObjConcreteYargType* newYargTypeFromType(ConcreteYargType yt) {
             t->core.yt = yt;
             return (ObjConcreteYargType*)t;
         }
+        case TypeStruct: {
+            ObjConcreteYargTypeStruct* s = ALLOCATE_OBJ(ObjConcreteYargTypeStruct, OBJ_YARGTYPE_STRUCT);
+            s->core.yt = yt;
+            initTable(&s->field_names);
+            return (ObjConcreteYargType*)s;
+        }
     }
 }
 
@@ -39,6 +45,27 @@ ObjConcreteYargType* newYargArrayTypeFromType(Value elementType) {
     }
     t->core.yt = TypeArray;
     return (ObjConcreteYargType*)t;
+}
+
+ObjConcreteYargType* newYargStructType(size_t fieldCount) {
+    ObjConcreteYargTypeStruct* t = ALLOCATE_OBJ(ObjConcreteYargTypeStruct, OBJ_YARGTYPE_STRUCT);
+    tempRootPush(OBJ_VAL(t));
+    t->core.yt = TypeStruct;
+    initTable(&t->field_names);
+
+    t->field_types = GROW_ARRAY(Value, t->field_types, 0, fieldCount);
+    t->field_count = fieldCount;
+    for (size_t i = 0; i < fieldCount; i++) {
+        t->field_types[i] = NIL_VAL;
+    }
+
+    tempRootPop();
+    return (ObjConcreteYargType*)t;
+}
+
+void addFieldType(ObjConcreteYargTypeStruct* st, size_t index, Value type, Value name) {
+    st->field_types[index] = type;
+    tableSet(&st->field_names, AS_STRING(name), UINTEGER_VAL(index));
 }
 
 ConcreteYargType yt_typeof(Value a) {
@@ -99,6 +126,7 @@ bool is_obj_type(ObjConcreteYargType* type) {
         case TypeRoutine:
         case TypeChannel:
         case TypeArray:
+        case TypeStruct:
         case TypeYargType:
             return true;
     }
@@ -134,10 +162,15 @@ size_t yt_sizeof_type(Value type) {
         case TypeRoutine:
         case TypeChannel:
         case TypeArray:
+        case TypeStruct:
         case TypeYargType:
             return 4;            
         }
     }
+}
+
+Value defaultStructValue(ObjConcreteYargTypeStruct* ct) {
+    return OBJ_VAL(newStruct((ObjConcreteYargType*)ct));
 }
 
 Value defaultValue(Value type) {
@@ -150,6 +183,7 @@ Value defaultValue(Value type) {
             case TypeInteger: return INTEGER_VAL(0);
             case TypeDouble: return DOUBLE_VAL(0);
             case TypeMachineUint32: return UINTEGER_VAL(0);
+            case TypeStruct: return defaultStructValue((ObjConcreteYargTypeStruct*)ct);
             case TypeAny:
             case TypeString:
             case TypeClass:

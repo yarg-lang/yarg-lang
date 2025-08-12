@@ -178,6 +178,15 @@ static void blackenObject(Obj* object) {
             markObject((Obj*)type->element_type);
             break;
         }
+        case OBJ_YARGTYPE_STRUCT: {
+            ObjConcreteYargTypeStruct* type = (ObjConcreteYargTypeStruct*)object;
+            markTable(&type->field_names);
+            for (int i = 0; i < type->field_count; i++) {
+                Value field_type = type->field_types[i];
+                markValue(field_type);
+            }
+            break;
+        }
         case OBJ_AST: {
             ObjAst* ast = (ObjAst*)object;
             markObject((Obj*)ast->statements);
@@ -368,6 +377,14 @@ static void blackenObject(Obj* object) {
             }
             break;
         }
+        case OBJ_STRUCT: {
+            ObjStruct* struct_ = (ObjStruct*)object;
+            for (int i = 0; i < struct_->field_count; i++) {
+                markValue(struct_->fields[i]);
+            }
+            markObject((Obj*)struct_->type);
+            break;
+        }
         case OBJ_NATIVE:
         case OBJ_BLOB:
         case OBJ_CHANNEL:
@@ -454,6 +471,12 @@ static void freeObject(Obj* object) {
             FREE(ObjConcreteYargTypeArray, object);
             break;
         }
+        case OBJ_YARGTYPE_STRUCT: {
+            ObjConcreteYargTypeStruct* t = (ObjConcreteYargTypeStruct*)object;
+            FREE_ARRAY(Value, t->field_types, t->field_count);
+            FREE(ObjConcreteYargTypeStruct, object);
+            break;
+        }
         case OBJ_AST: {
             ObjAst* ast = (ObjAst*)object;
             freeTable(&ast->constants);
@@ -519,6 +542,12 @@ static void freeObject(Obj* object) {
             ptr->destination = reallocate(ptr->destination, yt_sizeof_type(ptr->type), 0);
             FREE(ObjPointer, object); 
             break;
+        }
+        case OBJ_STRUCT: {
+            ObjStruct* struct_ = (ObjStruct*) object;
+            FREE_ARRAY(Value, struct_->fields, struct_->field_count);
+            FREE(ObjStruct, object);
+            break;            
         }
     }
 }

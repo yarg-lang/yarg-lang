@@ -23,8 +23,9 @@ typedef struct ObjConcreteYargType ObjConcreteYargType;
 #define IS_STRING(value)       isObjType(value, OBJ_STRING)
 #define IS_VALARRAY(value)     isObjType(value, OBJ_VALARRAY)
 #define IS_UNIFORMARRAY(value) isObjType(value, OBJ_UNIFORMARRAY)
-#define IS_YARGTYPE(value)     (isObjType(value, OBJ_YARGTYPE) || isObjType(value, OBJ_YARGTYPE_ARRAY))
+#define IS_YARGTYPE(value)     (isObjType(value, OBJ_YARGTYPE) || isObjType(value, OBJ_YARGTYPE_ARRAY) || isObjType(value, OBJ_YARGTYPE_STRUCT))
 #define IS_POINTER(value)      (isObjType(value, OBJ_POINTER) || isObjType(value, OBJ_UNOWNED_POINTER))
+#define IS_STRUCT(value)       isObjType(value, OBJ_STRUCT)
 
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
 #define AS_CLASS(value)        ((ObjClass*)AS_OBJ(value))
@@ -42,6 +43,7 @@ typedef struct ObjConcreteYargType ObjConcreteYargType;
 #define AS_UNIFORMARRAY(value) ((ObjUniformArray*)AS_OBJ(value))
 #define AS_YARGTYPE(value)     ((ObjConcreteYargType*)AS_OBJ(value))
 #define AS_POINTER(value)      ((ObjPointer*)AS_OBJ(value))
+#define AS_STRUCT(value)       ((ObjStruct*)AS_OBJ(value))
 
 typedef enum {
     OBJ_BOUND_METHOD,
@@ -59,8 +61,10 @@ typedef enum {
     OBJ_UNIFORMARRAY,
     OBJ_YARGTYPE,
     OBJ_YARGTYPE_ARRAY,
+    OBJ_YARGTYPE_STRUCT,
     OBJ_POINTER,
     OBJ_UNOWNED_POINTER,
+    OBJ_STRUCT,
     OBJ_AST,
     OBJ_STMT_EXPRESSION,
     OBJ_STMT_PRINT,
@@ -190,6 +194,13 @@ typedef struct {
     void* destination;
 } ObjPointer;
 
+typedef struct {
+    Obj obj;
+    ObjConcreteYargType* type;
+    Value* fields;
+    size_t field_count;
+} ObjStruct;
+
 #define ALLOCATE_OBJ(type, objectType) \
     (type*)allocateObject(sizeof(type), objectType)
 
@@ -215,6 +226,7 @@ ObjString* copyString(const char* chars, int length);
 ObjUpvalue* newUpvalue(ValueCell* slot);
 ObjPointer* newPointer(Value type);
 ObjPointer* newPointerAt(Value type, Value location);
+ObjStruct* newStruct(ObjConcreteYargType* type);
 
 void printObject(Value value);
 void fprintObject(FILE* op, Value value);
