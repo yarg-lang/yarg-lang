@@ -944,6 +944,19 @@ InterpretResult run(ObjRoutine* routine) {
                 }
                 break;
             }
+            case OP_TYPE_STRUCT: {
+                uint8_t fieldCount = READ_BYTE();
+                ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*) newYargStructType(fieldCount);
+                tempRootPush(OBJ_VAL(st));
+                for (uint8_t i = 0; i < fieldCount; i++) {
+                    addFieldType(st, i, peek(routine, 1), peek(routine, 0));
+                    pop(routine);
+                    pop(routine);
+                }
+                push(routine, OBJ_VAL(st));
+                tempRootPop();
+                break;
+            }
             case OP_SET_CELL_TYPE: {
                 ValueCell* last = peekCell(routine, 0);
                 last->type = peek(routine, 0);

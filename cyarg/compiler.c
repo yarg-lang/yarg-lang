@@ -295,6 +295,8 @@ static uint8_t parseVariable(ObjString* name) {
     return identifierConstant(name);
 }
 
+static void generateStmt(ObjStmt* stmt);
+
 static void generateNumber(ObjExprNumber* num) {
     switch(num->type) {
         case NUMBER_DOUBLE: emitConstant(DOUBLE_VAL(num->val.dbl)); break;
@@ -556,6 +558,18 @@ static void generateExprType(ObjExprTypeLiteral* type) {
     }
 }
 
+static void generateExprTypeStruct(ObjExprTypeStruct* struct_) {
+    for (int i = struct_->fieldsByIndex.count - 1; i >= 0; i--) {
+        Value field = struct_->fieldsByIndex.values[i];
+        generateStmt((ObjStmt*)AS_OBJ(field));
+    }
+    size_t fieldCount = struct_->fieldsByIndex.count;
+    if (fieldCount > UINT8_MAX) {
+        error("Can't have more than 256 fields.");
+    }
+    emitBytes(OP_TYPE_STRUCT, (uint8_t)fieldCount);
+}
+
 static void generateExprElt(ObjExpr* expr) {
     
     switch (expr->obj.type) {
@@ -627,6 +641,11 @@ static void generateExprElt(ObjExpr* expr) {
         case OBJ_EXPR_TYPE: {
             ObjExprTypeLiteral* t = (ObjExprTypeLiteral*)expr;
             generateExprType(t);
+            break;
+        }
+        case OBJ_EXPR_TYPE_STRUCT: {
+            ObjExprTypeStruct* t = (ObjExprTypeStruct*)expr;
+            generateExprTypeStruct(t);
             break;
         }
         default:
@@ -904,6 +923,11 @@ static void generateStmtClassDeclaration(ObjStmtClassDeclaration* decl) {
     currentClass = currentClass->enclosing;    
 }
 
+static void generateStmtFieldDeclaration(ObjStmtFieldDeclaration* stmt) {
+    generateExpr(stmt->type);
+    emitBytes(OP_CONSTANT, makeConstant(OBJ_VAL(stmt->name)));
+}
+
 static void generateStmt(ObjStmt* stmt) {
     current->panicMode = false;
     current->recent = stmt;
@@ -945,6 +969,9 @@ static void generateStmt(ObjStmt* stmt) {
             break;
         case OBJ_STMT_CLASSDECLARATION:
             generateStmtClassDeclaration((ObjStmtClassDeclaration*)stmt);
+            break;
+        case OBJ_STMT_FIELDDECLARATION:
+            generateStmtFieldDeclaration((ObjStmtFieldDeclaration*)stmt);
             break;
         default:
             return; // Unexpected
