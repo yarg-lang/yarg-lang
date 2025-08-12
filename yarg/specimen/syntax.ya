@@ -1,5 +1,7 @@
 var struct {
-    x;
-    y;
+    integer x;
+    struct { a; bool b; } y;
     } pair;
 print pair.x;
+print pair.y;
+print pair.y.b;

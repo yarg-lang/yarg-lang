@@ -1,0 +1,20 @@
+var struct {
+    integer x;
+    y;
+    muint32 z;
+    } coord;
+print coord.x;  // expect: 0
+print coord.y;  // expect: nil
+print coord.z;  // expect: 0
+
+var struct {
+    struct {
+       integer x;
+       integer y;
+       } loc;
+    string name;
+    } location;
+
+print location.name;  // expect: nil
+print location.loc.x; // expect: 0
+print location.loc.y; // expect: 0

@@ -661,22 +661,40 @@ InterpretResult run(ObjRoutine* routine) {
                 break;
             }
             case OP_GET_PROPERTY: {
-                if (!IS_INSTANCE(peek(routine, 0))) {
-                    runtimeError(routine, "Only instances have properties.");
+                if (!IS_INSTANCE(peek(routine, 0)) && !IS_STRUCT(peek(routine, 0))) {
+                    runtimeError(routine, "Only instances and structs have properties.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                ObjInstance* instance = AS_INSTANCE(peek(routine, 0));
-                ObjString* name = READ_STRING();
+                if (IS_INSTANCE(peek(routine, 0))) {
+                    ObjInstance* instance = AS_INSTANCE(peek(routine, 0));
+                    ObjString* name = READ_STRING();
 
-                Value value;
-                if (tableGet(&instance->fields, name, &value)) {
-                    pop(routine); // Instance
-                    push(routine, value);
-                    break;
-                }
+                    Value value;
+                    if (tableGet(&instance->fields, name, &value)) {
+                        pop(routine); // Instance
+                        push(routine, value);
+                        break;
+                    }
 
-                if (!bindMethod(routine, instance->klass, name)) {
-                    return INTERPRET_RUNTIME_ERROR;
+                    if (!bindMethod(routine, instance->klass, name)) {
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                } else if (IS_STRUCT(peek(routine, 0))) {
+                    ObjStruct* object = AS_STRUCT(peek(routine, 0));
+                    ObjConcreteYargTypeStruct* type = (ObjConcreteYargTypeStruct*)object->type;
+                    ObjString* name = READ_STRING();
+
+                    Value indexVal;
+                    Value result = NIL_VAL;
+                    if (tableGet(&type->field_names, name, &indexVal)) {
+                        uint32_t index = AS_UINTEGER(indexVal);
+                        result = object->fields[index];
+                    } else {
+                        runtimeError(routine, "field not present in struct.");
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                    pop(routine);
+                    push(routine, result);
                 }
                 break;
             }
