@@ -456,8 +456,10 @@ static void generateExprCall(ObjExprCall* call) {
 
 static void generateExprArrayInit(ObjExprArrayInit* array) {
  
-    emitBytes(OP_GET_BUILTIN, BUILTIN_MAKE_ARRAY);
+    emitBytes(OP_GET_BUILTIN, BUILTIN_NEW);
+    emitByte(OP_NIL);
     emitConstant(INTEGER_VAL(array->initializers.objectCount));
+    emitByte(OP_TYPE_ARRAY);
     emitBytes(OP_CALL, 1);
  
     for (int i = 0; i < array->initializers.objectCount; i++) {
