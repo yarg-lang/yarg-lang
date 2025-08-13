@@ -249,7 +249,7 @@ ObjPointer* newPointerAt(Value type, Value location) {
     }
 }
 
-ObjStruct* newStruct(ObjConcreteYargType* type) {
+Value defaultStructValue(ObjConcreteYargType* type) {
     ObjStruct* object = ALLOCATE_OBJ(ObjStruct, OBJ_STRUCT);
     tempRootPush(OBJ_VAL(object));
     object->type = type;
@@ -264,7 +264,7 @@ ObjStruct* newStruct(ObjConcreteYargType* type) {
         object->fields[i] = defaultValue(ct->field_types[i]);
     }
     tempRootPop();
-    return object;
+    return OBJ_VAL(object);
 }
 
 static ObjString* allocateString(char* chars, int length, uint32_t hash) {

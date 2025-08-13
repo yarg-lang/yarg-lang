@@ -191,10 +191,6 @@ size_t yt_sizeof_type(Value type) {
     }
 }
 
-Value defaultStructValue(ObjConcreteYargTypeStruct* ct) {
-    return OBJ_VAL(newStruct((ObjConcreteYargType*)ct));
-}
-
 Value defaultValue(Value type) {
     if (IS_NIL(type)) {
         return NIL_VAL;
@@ -205,7 +201,7 @@ Value defaultValue(Value type) {
             case TypeInteger: return INTEGER_VAL(0);
             case TypeDouble: return DOUBLE_VAL(0);
             case TypeMachineUint32: return UINTEGER_VAL(0);
-            case TypeStruct: return defaultStructValue((ObjConcreteYargTypeStruct*)ct);
+            case TypeStruct: return defaultStructValue(ct);
             case TypeAny:
             case TypeString:
             case TypeClass:
