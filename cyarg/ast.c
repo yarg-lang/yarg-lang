@@ -334,8 +334,7 @@ void printType(ObjExpr* type) {
             printf("any");
         }
         return;
-    }
-    else if (type->obj.type == OBJ_EXPR_TYPE) {
+    } else if (type->obj.type == OBJ_EXPR_TYPE) {
         ObjExprTypeLiteral* typeObject = (ObjExprTypeLiteral*)type;
 
         switch (typeObject->type) {
