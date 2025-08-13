@@ -411,11 +411,13 @@ static bool isCompatibleType(ObjConcreteYargType* lhsType, Value rhsValue) {
             ObjConcreteYargType* rhsElementType = array_element_type(rhsValue);
             if (lhsElementType == NULL) {
                 return true;
-            }
-            if (rhsElementType == NULL) {
+            } else if (lhsElementType->yt == TypeAny && rhsElementType == NULL) {
+                return true;
+            } else if (rhsElementType == NULL) {
                 return false;
+            } else {
+                return lhsElementType->yt == rhsElementType->yt;
             }
-            return lhsType->element_type->yt == rhsElementType->yt;
         } else {
             return false;
         }
