@@ -53,4 +53,7 @@ size_t yt_sizeof_type(Value type);
 
 Value defaultValue(Value type);
 
+bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue);
+bool isCompatibleType(ObjConcreteYargType* lhsType, Value rhsValue);
+
 #endif

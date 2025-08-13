@@ -400,42 +400,6 @@ static void concatenate(ObjRoutine* routine) {
     push(routine, OBJ_VAL(result));
 }
 
-static bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue) {
-    if (lhsType->yt == TypeAny) {
-        return true;
-    } else if (is_nil_assignable_type(lhsType) && IS_NIL(rhsValue)) { 
-        return true;
-    } else if (is_obj_type(lhsType) && lhsType->yt == TypeArray) {        
-        if (yt_typeof(rhsValue) == TypeArray) {
-            ObjConcreteYargType* lhsElementType = ((ObjConcreteYargTypeArray*)lhsType)->element_type;
-            ObjConcreteYargType* rhsElementType = array_element_type(rhsValue);
-            if (lhsElementType == NULL) {
-                return true;
-            } else if (lhsElementType->yt == TypeAny && rhsElementType == NULL) {
-                return true;
-            } else if (rhsElementType == NULL) {
-                return false;
-            } else {
-                return lhsElementType->yt == rhsElementType->yt;
-            }
-        } else {
-            return false;
-        }
-    } else if (is_obj_type(lhsType)) {
-        return lhsType->yt == yt_typeof(rhsValue);
-    } else {
-        return !IS_NIL(rhsValue) && lhsType->yt == yt_typeof(rhsValue);
-    }
-}
-
-static bool isCompatibleType(ObjConcreteYargType* lhsType, Value rhsValue) {
-    if (lhsType->isConst) {
-        return false;
-    } else {
-        return isInitialisableType(lhsType, rhsValue);
-    }
-}
-
 static bool assignTo(ValueCellTarget lhs, Value rhsValue) {
     if (IS_NIL(*lhs.type)) {
         *lhs.value = rhsValue;
