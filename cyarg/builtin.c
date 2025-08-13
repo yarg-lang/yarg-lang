@@ -274,50 +274,6 @@ bool rpokeBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Val
     return true;
 }
 
-bool makeArrayBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
-
-    if (argCount < 1 || argCount > 2) {
-        runtimeError(routineContext, "Expected 1 or two arguments, but got %d.", argCount);
-        return false;
-    }
-
-    int index_arg = 0;
-    if ((IS_YARGTYPE(args[0].value) || IS_NIL(args[0].value)) && argCount == 2) {
-        index_arg = 1;
-    }
-
-    if (!IS_UINTEGER(args[index_arg].value) && !IS_INTEGER(args[index_arg].value)) {
-        runtimeError(routineContext, "Size argument must be integer or unsigned integer.");
-        return false;
-    }
-    uint32_t capacity = 0;
-    if (IS_UINTEGER(args[index_arg].value)) {
-        capacity = AS_UINTEGER(args[index_arg].value);
-    } else if (IS_INTEGER(args[index_arg].value) && AS_INTEGER(args[index_arg].value) >= 0) {
-        capacity = AS_INTEGER(args[index_arg].value);
-    } else {
-        runtimeError(routineContext, "Argument must be positive.");
-        return false;
-    }
-
-    if (capacity == 0) {
-        runtimeError(routineContext, "Argument must be non-zero.");
-        return false;
-    }
-
-   
-    if (IS_YARGTYPE(args[0].value)) {
-        ObjConcreteYargType* type = AS_YARGTYPE(args[0].value);
-        ObjUniformArray* array = newUniformArray(type, capacity);
-        *result = OBJ_VAL(array);
-    } else {
-        ObjValArray* array = newValArray(capacity);
-        *result = OBJ_VAL(array);
-    }
-
-    return true;
-}
-
 bool lenBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
     if (argCount != 1) {
         runtimeError(routineContext, "Expected 1 argument, but got %d.", argCount);
@@ -416,7 +372,6 @@ Value getBuiltin(uint8_t builtin) {
         case BUILTIN_RPEEK: return OBJ_VAL(newNative(rpeekBuiltin));
         case BUILTIN_RPOKE: return OBJ_VAL(newNative(rpokeBuiltin));
         case BUILTIN_IMPORT: return OBJ_VAL(newNative(importBuiltin));
-        case BUILTIN_MAKE_ARRAY: return OBJ_VAL(newNative(makeArrayBuiltin));
         case BUILTIN_MAKE_ROUTINE: return OBJ_VAL(newNative(makeRoutineBuiltin));
         case BUILTIN_RESUME: return OBJ_VAL(newNative(resumeBuiltin));
         case BUILTIN_START: return OBJ_VAL(newNative(startBuiltin));

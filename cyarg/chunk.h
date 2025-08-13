@@ -74,7 +74,6 @@ typedef struct {
 
 typedef enum {
     BUILTIN_IMPORT,
-    BUILTIN_MAKE_ARRAY,
     BUILTIN_MAKE_ROUTINE,
     BUILTIN_MAKE_CHANNEL,
     BUILTIN_RESUME,

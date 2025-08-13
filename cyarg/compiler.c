@@ -484,7 +484,6 @@ static void generateExprArrayElement(ObjExprArrayElement* array) {
 static void generateExprBuiltin(ObjExprBuiltin* fn) {
     switch(fn->builtin) {
         case EXPR_BUILTIN_IMPORT: emitBytes(OP_GET_BUILTIN, BUILTIN_IMPORT); break;
-        case EXPR_BUILTIN_MAKE_ARRAY: emitBytes(OP_GET_BUILTIN, BUILTIN_MAKE_ARRAY); break;
         case EXPR_BUILTIN_MAKE_ROUTINE: emitBytes(OP_GET_BUILTIN, BUILTIN_MAKE_ROUTINE); break;
         case EXPR_BUILTIN_MAKE_CHANNEL: emitBytes(OP_GET_BUILTIN, BUILTIN_MAKE_CHANNEL); break;
         case EXPR_BUILTIN_RESUME: emitBytes(OP_GET_BUILTIN, BUILTIN_RESUME); break;

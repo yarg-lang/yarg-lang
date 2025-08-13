@@ -54,7 +54,6 @@ static int builtinInstruction(const char* name, Chunk* chunk, int offset) {
         case BUILTIN_RPEEK: printf("rpeek"); break;
         case BUILTIN_RPOKE: printf("rpoke"); break;
         case BUILTIN_IMPORT: printf("import"); break;
-        case BUILTIN_MAKE_ARRAY: printf("make_array"); break;
         case BUILTIN_MAKE_ROUTINE: printf("make_routine"); break;
         case BUILTIN_MAKE_CHANNEL: printf("make_channel"); break;
         case BUILTIN_RESUME: printf("resume"); break;
