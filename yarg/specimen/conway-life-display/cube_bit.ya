@@ -4,7 +4,7 @@
 
 const muint32 max_brightness = 0d127;
 
-var cube_display_pixels = make_array(64);
+var any[64] cube_display_pixels;
 for (var i = 0d0; i < len(cube_display_pixels); i = i + 0d1) {
     cube_display_pixels[i] = [0d0, 0d0, 0d0];
 }
@@ -100,10 +100,9 @@ fun clamp_brightness(channel) {
 
 fun set_pixel(k, colour) {
 
-    var clamped = make_array(3);
-    clamped[0] = clamp_brightness(colour[0]);
-    clamped[1] = clamp_brightness(colour[1]);
-    clamped[2] = clamp_brightness(colour[2]);
+    var clamped = [ clamp_brightness(colour[0]),
+                    clamp_brightness(colour[1]),
+                    clamp_brightness(colour[2]) ];
 
     cube_display_pixels[k] = clamped;
 }

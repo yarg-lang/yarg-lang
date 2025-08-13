@@ -1,4 +1,4 @@
-var muint32[] test = make_array(muint32, 0d10);
+var muint32[] test = new(muint32[10]);
 print test; // expect: muint32[10]
 
 test = false; // expect runtime error: Cannot set global variable to incompatible type.

@@ -1,4 +1,4 @@
-var test = make_array(0d10);
+var test = new(any[10]);
 print test;      // expect: any[10]
 print test[0];   // expect: nil
 test[1] = 10;

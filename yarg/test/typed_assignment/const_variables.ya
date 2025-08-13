@@ -4,7 +4,7 @@ var const bool isTrue = true;
 var const mfloat64 aFloat = 0.0;
 var const muint32 aUint = 0xFFFFFFFF;
 var const string aString = "Hello, World!";
-var const any[] aArray = make_array(0d10);
+var const any[] aArray = new(any[10]);
 
 var asBefore;
 {
@@ -14,7 +14,7 @@ var asBefore;
     var const mfloat64 aFloat = 1.2;
     var const muint32 aUint = 0xdede;
     var const string aString = "Hello, Scope!";
-    var const any[] aArray = make_array(0d11);
+    var const any[11] aArray;
     var const asBefore = 10;
 
     print counter;      // expect: 7

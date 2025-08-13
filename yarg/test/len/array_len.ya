@@ -1,5 +1,5 @@
-var x = make_array(3);
+var x = new(any[3]);
 print len(x);   // expect: 3
 
-x = make_array(1);
+x = new(any[1]);
 print len(x);   // expect: 1

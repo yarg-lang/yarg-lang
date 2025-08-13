@@ -4,7 +4,7 @@ const bool isTrue = true;
 const mfloat64 aFloat = 0.0;
 muint32 aUint = 0xFFFFFFFF;
 const string aString = "Hello, World!";
-const any[] aArray = make_array(0d10);
+const any[] aArray = new(any[10]);
 
 var asBefore;
 
@@ -24,7 +24,7 @@ var asBefore;
     print aUint;        // expect: 57054
     
     const string aString = "Hello, Scope!";
-    const any[] aArray = make_array(0d11);
+    const any[11] aArray;
     const asBefore = 10;
 
     print aString;      // expect: Hello, Scope!

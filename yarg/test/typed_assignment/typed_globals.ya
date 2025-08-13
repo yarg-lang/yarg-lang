@@ -4,7 +4,7 @@ var bool isTrue = true;
 var mfloat64 aFloat = 0.0;
 var muint32 aUint = 0xFFFFFFFF;
 var string aString = "Hello, World!";
-var any[] aArray = make_array(0d10);
+var any[] aArray = new(any[10]);
 var asBefore;
 
 print isTrue; // expect: true

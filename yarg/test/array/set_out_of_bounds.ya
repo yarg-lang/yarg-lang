@@ -1,2 +1,2 @@
-var test = make_array(0d10);
+var test = new(any[10]);
 test[10] = 10; // expect runtime error: Array index 10 out of bounds (0:9)

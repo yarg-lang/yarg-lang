@@ -1,7 +1,7 @@
 
 var leds = ws2812_init();
 
-var pixels = make_array(64);
+var any[64] pixels;
 
 for (var i = 0d0; i < len(pixels); i = i + 0d1) {
     pixels[i] = [0x88, 0x00, 0x44];

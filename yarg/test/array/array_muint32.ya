@@ -1,4 +1,4 @@
-var test = make_array(muint32, 0d10);
+var test = new(muint32[10]);
 print test;      // expect: muint32[10]
 print test[0];   // expect: 0
 test[1] = 0d10;
