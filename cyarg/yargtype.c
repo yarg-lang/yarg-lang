@@ -112,6 +112,55 @@ ConcreteYargType yt_typeof(Value a) {
     return TypeYargType; // This should never happen.
 }
 
+Value concrete_typeof(Value a) {
+    if (IS_NIL(a)) {
+        return NIL_VAL;
+    } else if (IS_BOOL(a)) {
+        return OBJ_VAL(newYargTypeFromType(TypeBool));
+    } else if (IS_DOUBLE(a)) {
+        return OBJ_VAL(newYargTypeFromType(TypeDouble));
+    } else if (IS_UINTEGER(a)) {
+        return OBJ_VAL(newYargTypeFromType(TypeMachineUint32));
+    } else if (IS_INTEGER(a)) {
+        return OBJ_VAL(newYargTypeFromType(TypeInteger));
+    } else if (IS_FUNCTION(a)) {
+        return OBJ_VAL(newYargTypeFromType(TypeFunction));
+    } else if (IS_CLOSURE(a)) {
+        return OBJ_VAL(newYargTypeFromType(TypeFunction));
+    } else if (IS_NATIVE(a)) {
+        return OBJ_VAL(newYargTypeFromType(TypeFunction));
+    } else if (IS_BOUND_METHOD(a)) {
+        return OBJ_VAL(newYargTypeFromType(TypeFunction));
+    } else if (IS_CLASS(a)) {
+        return OBJ_VAL(newYargTypeFromType(TypeClass));
+    } else if (IS_INSTANCE(a)) {
+        return OBJ_VAL(newYargTypeFromType(TypeInstance));
+    } else if (IS_BLOB(a)) {
+        return OBJ_VAL(newYargTypeFromType(TypeNativeBlob));
+    } else if (IS_ROUTINE(a)) {
+        return OBJ_VAL(newYargTypeFromType(TypeRoutine));
+    } else if (IS_CHANNEL(a)) {
+        return OBJ_VAL(newYargTypeFromType(TypeChannel));
+    } else if (IS_STRING(a)) {
+        return OBJ_VAL(newYargTypeFromType(TypeString));
+    } else if (IS_VALARRAY(a)) {
+        ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*) newYargTypeFromType(TypeArray);
+        arrayType->cardinality = AS_VALARRAY(a)->array.count;
+        return OBJ_VAL((ObjConcreteYargType*)arrayType);
+    } else if (IS_UNIFORMARRAY(a)) {
+        ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*) newYargTypeFromType(TypeArray);
+        arrayType->cardinality = AS_UNIFORMARRAY(a)->count;
+        arrayType->element_type = AS_UNIFORMARRAY(a)->element_type;
+        return OBJ_VAL((ObjConcreteYargType*)arrayType);
+    } else if (IS_STRUCT(a)) {
+        return OBJ_VAL(AS_STRUCT(a)->type);
+    } else if (IS_YARGTYPE(a)) {
+        return OBJ_VAL(newYargTypeFromType(TypeYargType));
+    }
+    fatalVMError("Unexpected object type");
+    return NIL_VAL;
+}
+
 bool is_obj_type(ObjConcreteYargType* type) {
     switch (type->yt) {
         case TypeAny:
