@@ -1,5 +1,3 @@
-var struct {
-    integer x;
-    y;
-    } pair;
-pair = nil;
+var array = new(any[10]);
+print array;
+print array[1];
