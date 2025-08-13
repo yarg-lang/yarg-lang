@@ -171,8 +171,11 @@ static void blackenObject(Obj* object) {
             markObject((Obj*)array->element_type);
             break;
         }
-        case OBJ_YARGTYPE:
+        case OBJ_YARGTYPE: {
+            ObjConcreteYargType* type = (ObjConcreteYargType*)object;
+            markObject((Obj*)type->element_type);
             break;
+        }
         case OBJ_AST: {
             ObjAst* ast = (ObjAst*)object;
             markObject((Obj*)ast->statements);
