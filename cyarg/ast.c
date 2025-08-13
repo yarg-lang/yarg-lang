@@ -353,7 +353,7 @@ void printType(ObjExpr* type) {
     }
 }
 
-void printStruct(ObjExprTypeStruct* struct_) {
+void printStructType(ObjExprTypeStruct* struct_) {
     printf("struct {\n");
     for (int i = 0; i < struct_->fieldsByIndex.count; i++) {
         Value x = struct_->fieldsByIndex.values[i];
@@ -445,7 +445,7 @@ void printExpr(ObjExpr* expr) {
             case OBJ_EXPR_DOT: printExprDot((ObjExprDot*)cursor); break;
             case OBJ_EXPR_SUPER: printExprSuper((ObjExprSuper*)cursor); break;
             case OBJ_EXPR_TYPE: printType(cursor); break;
-            case OBJ_EXPR_TYPE_STRUCT: printStruct((ObjExprTypeStruct*)cursor); break;
+            case OBJ_EXPR_TYPE_STRUCT: printStructType((ObjExprTypeStruct*)cursor); break;
             default: printf("<unknown>"); break;
         }
         cursor = cursor->nextExpr;
