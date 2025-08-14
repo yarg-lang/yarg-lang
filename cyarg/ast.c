@@ -227,6 +227,11 @@ ObjExprTypeStruct* newExprTypeStruct() {
     return expr;
 }
 
+ObjExprTypeArray* newExprTypeArray() {
+    ObjExprTypeArray* expr = ALLOCATE_OBJ(ObjExprTypeArray, OBJ_EXPR_TYPE_ARRAY);
+    return expr;
+}
+
 ObjStmtFieldDeclaration* newStmtFieldDeclaration(const char* name, int nameLength, int line) {
     ObjStmtFieldDeclaration* decl = ALLOCATE_OBJ(ObjStmtFieldDeclaration, OBJ_STMT_FIELDDECLARATION);
     decl->stmt.line = line;
@@ -343,7 +348,6 @@ void printType(ObjExpr* type) {
             case EXPR_TYPE_LITERAL_INTEGER: printf("integer"); break;
             case EXPR_TYPE_LITERAL_BOOL: printf("bool"); break;
             case EXPR_TYPE_LITERAL_STRING: printf("string"); break;
-            case EXPR_TYPE_MODIFIER_ARRAY: printf("[]"); break;
             case EXPR_TYPE_MODIFIER_CONST: printf("<const>"); break;
             default: printf("<unknown>"); break;
         }
@@ -360,6 +364,14 @@ void printStructType(ObjExprTypeStruct* struct_) {
         printStmts((ObjStmt*) val);
     }
     printf("}");
+}
+
+void printArrayType(ObjExprTypeArray* array) {
+    printf("[");
+    if (array->cardinality) {
+        printExpr(array->cardinality);
+    }
+    printf("]");
 }
 
 void printExpr(ObjExpr* expr) {
@@ -445,6 +457,7 @@ void printExpr(ObjExpr* expr) {
             case OBJ_EXPR_SUPER: printExprSuper((ObjExprSuper*)cursor); break;
             case OBJ_EXPR_TYPE: printType(cursor); break;
             case OBJ_EXPR_TYPE_STRUCT: printStructType((ObjExprTypeStruct*)cursor); break;
+            case OBJ_EXPR_TYPE_ARRAY: printArrayType((ObjExprTypeArray*)cursor); break;
             default: printf("<unknown>"); break;
         }
         cursor = cursor->nextExpr;

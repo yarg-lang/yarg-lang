@@ -363,6 +363,12 @@ static void blackenObject(Obj* object) {
             markTable(&expr->fieldsByName);
             break;
         }
+        case OBJ_EXPR_TYPE_ARRAY: {
+            markExpr(object);
+            ObjExprTypeArray* expr = (ObjExprTypeArray*)object;
+            markObject((Obj*)expr->cardinality);
+            break;
+        }
         case OBJ_UNOWNED_POINTER:
             // fall through
         case OBJ_POINTER: {
@@ -536,6 +542,7 @@ static void freeObject(Obj* object) {
             FREE(ObjExprTypeStruct, object);
             break;
         }
+        case OBJ_EXPR_TYPE_ARRAY: FREE(ObjExprTypeArray, object); break;
         case OBJ_UNOWNED_POINTER: FREE(ObjPointer, object); break;
         case OBJ_POINTER: {
             ObjPointer* ptr = (ObjPointer*) object;

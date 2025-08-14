@@ -82,7 +82,6 @@ static int typeLiteralInstruction(const char* name, Chunk* chunk, int offset) {
         case TYPE_LITERAL_MACHINE_FLOAT64: printf("mfloat64"); break;
         case TYPE_LITERAL_STRING: printf("string"); break;
         case TYPE_MODIFIER_CONST: printf("const"); break;
-        case TYPE_MODIFIER_ARRAY: printf("[]"); break;
         default: printf("<unknown %4d>", type); break;
     }
     printf("\n");

@@ -944,7 +944,6 @@ InterpretResult run(ObjRoutine* routine) {
             case OP_TYPE_MODIFIER: {
                 uint8_t typeCode = READ_BYTE();
                 switch (typeCode) {
-                    case TYPE_MODIFIER_ARRAY: makeConcreteTypeArray(routine); break;
                     case TYPE_MODIFIER_CONST: makeConcreteTypeConst(routine); break;
                 }
                 break;
