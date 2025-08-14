@@ -312,25 +312,17 @@ static bool isAssignableCardinality(size_t lhsCardinality, size_t rhsCardinality
     }
 }
 
-static bool isInitializableArray(ObjConcreteYargType* lhsType, Value rhsValue) {
-    if (IS_NIL(rhsValue)) {
-        return true;
-    }
-    if (yt_typeof(rhsValue) != TypeArray) {
-        return false;
-    }
-    ObjConcreteYargTypeArray* lhsArType = (ObjConcreteYargTypeArray*)lhsType;
-    ObjConcreteYargTypeArray* rhsArType = (ObjConcreteYargTypeArray*)AS_YARGTYPE(concrete_typeof(rhsValue));
+static bool isInitializableArray(ObjConcreteYargTypeArray* lhsConcreteType, ObjConcreteYargTypeArray* rhsConcreteType) {
 
-    if (isAssignableCardinality(lhsArType->cardinality, rhsArType->cardinality)) {
-        if (lhsArType->element_type == NULL) {
+    if (isAssignableCardinality(lhsConcreteType->cardinality, rhsConcreteType->cardinality)) {
+        if (lhsConcreteType->element_type == NULL) {
             return true;
-        } else if (lhsArType->element_type->yt == TypeAny && rhsArType->element_type == NULL) {
+        } else if (lhsConcreteType->element_type->yt == TypeAny && rhsConcreteType->element_type == NULL) {
             return true;
-        } else if (rhsArType->element_type == NULL) {
+        } else if (rhsConcreteType->element_type == NULL) {
             return false;
         } else {
-            return lhsArType->element_type->yt == rhsArType->element_type->yt;
+            return lhsConcreteType->element_type->yt == rhsConcreteType->element_type->yt;
         }
     } else {
         return false;
@@ -340,14 +332,19 @@ static bool isInitializableArray(ObjConcreteYargType* lhsType, Value rhsValue) {
 bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue) {
     if (lhsType->yt == TypeAny) {
         return true;
-    } else if (is_nil_assignable_type(lhsType) && IS_NIL(rhsValue)) { 
-        return true;
-    } else if (is_obj_type(lhsType) && lhsType->yt == TypeArray) {       
-        return isInitializableArray(lhsType, rhsValue); 
-    } else if (is_obj_type(lhsType)) {
-        return lhsType->yt == yt_typeof(rhsValue);
+    }
+    
+    if (IS_NIL(rhsValue)) {
+        return is_nil_assignable_type(lhsType);
+    }
+
+    Value rhsType = concrete_typeof(rhsValue);
+    ObjConcreteYargType* rhsConcreteType = AS_YARGTYPE(rhsType);
+
+    if (is_obj_type(lhsType) && lhsType->yt == TypeArray && rhsConcreteType->yt == TypeArray) {       
+        return isInitializableArray((ObjConcreteYargTypeArray*)lhsType, (ObjConcreteYargTypeArray*)rhsConcreteType); 
     } else {
-        return !IS_NIL(rhsValue) && lhsType->yt == yt_typeof(rhsValue);
+        return lhsType->yt == rhsConcreteType->yt;
     }
 }
 
