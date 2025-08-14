@@ -192,7 +192,7 @@ typedef struct ObjUniformArray {
 
 typedef struct {
     Obj obj;
-    Value type;
+    Value destination_type;
     void* destination;
 } ObjPointer;
 

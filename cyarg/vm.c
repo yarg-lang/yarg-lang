@@ -354,11 +354,11 @@ static bool setArrayElement(ObjRoutine* routine) {
 static bool derefPtr(ObjRoutine* routine) {
     Value ptr = peek(routine, 0);
     ObjPointer* pointer = AS_POINTER(ptr);
-    ObjConcreteYargType* target = AS_YARGTYPE(pointer->type);
+    ObjConcreteYargType* target = AS_YARGTYPE(pointer->destination_type);
 
     Value result = NIL_VAL;
 
-    if (IS_NIL(pointer->type)
+    if (IS_NIL(pointer->destination_type)
         || target->yt == TypeAny
         || target->yt == TypeBool
         || target->yt == TypeInteger
@@ -992,7 +992,7 @@ InterpretResult run(ObjRoutine* routine) {
                 ValueCell* lhs = peekCell(routine, 1);
                 ObjPointer* pLhs = AS_POINTER(lhs->value);
                 Value* remote = (Value*)pLhs->destination;
-                ValueCellTarget trg = { .type = &pLhs->type, .value = remote };
+                ValueCellTarget trg = { .type = &pLhs->destination_type, .value = remote };
                 if (assignTo(trg, rhs)) {
                     pop(routine);
                     pop(routine);

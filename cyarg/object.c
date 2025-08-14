@@ -189,7 +189,7 @@ Value defaultPointerValue(ObjConcreteYargType* type) {
     ObjPointer* ptr = newPointer(pointerType->target_type ? OBJ_VAL(pointerType->target_type) : NIL_VAL);
     tempRootPush(OBJ_VAL(ptr));
 
-    void* target = reallocate(NULL, 0, yt_sizeof_type(ptr->type));
+    void* target = reallocate(NULL, 0, yt_sizeof_type(ptr->destination_type));
 
     ConcreteYargType destination_target = pointerType->target_type ? pointerType->target_type->yt : TypeAny;
 
@@ -210,13 +210,13 @@ Value defaultPointerValue(ObjConcreteYargType* type) {
         case TypePointer:
         case TypeYargType: {
             Value* valueTarget = (Value*)target;
-            *valueTarget = defaultValue(ptr->type);
+            *valueTarget = defaultValue(ptr->destination_type);
             ptr->destination = target;
             break;
         }
         case TypeMachineUint32: {
             uint32_t* uInt32Target = (uint32_t*)target;
-            *uInt32Target = AS_UINTEGER(defaultValue(ptr->type));
+            *uInt32Target = AS_UINTEGER(defaultValue(ptr->destination_type));
             ptr->destination = target;
             break;
         }
@@ -229,20 +229,18 @@ Value defaultPointerValue(ObjConcreteYargType* type) {
 ObjPointer* newPointer(Value target_type) {
 
     ObjPointer* ptr = ALLOCATE_OBJ(ObjPointer, OBJ_POINTER);
-    ptr->type = target_type;
+    ptr->destination_type = target_type;
     return ptr;
 }
 
 ObjPointer* newPointerAt(Value type, Value location) {
-    if (IS_NIL(type)) {
-        return NULL;
-    } else if (   AS_YARGTYPE(type)->yt == TypeMachineUint32
-               && IS_UINTEGER(location)) {
+    if (   IS_YARGTYPE(type)
+        && AS_YARGTYPE(type)->yt == TypeMachineUint32
+        && IS_UINTEGER(location)) {
         ObjPointer* ptr = ALLOCATE_OBJ(ObjPointer, OBJ_UNOWNED_POINTER);
-        ptr->type = type;
+        ptr->destination_type = type;
         ptr->destination = (void*)(uintptr_t) AS_UINTEGER(location);
         return ptr;
-
     } else {
         return NULL;
     }
@@ -399,7 +397,7 @@ static void printType(FILE* op, ObjConcreteYargType* type) {
 
 static void printPointer(FILE* op, ObjPointer* ptr) {
     fprintf(op, "<*");
-    fprintValue(op, ptr->type);
+    fprintValue(op, ptr->destination_type);
     fprintf(op, ":%p>", (void*) ptr->destination);
 }
 

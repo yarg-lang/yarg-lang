@@ -170,7 +170,7 @@ Value concrete_typeof(Value a) {
     } else if (IS_YARGTYPE(a)) {
         return OBJ_VAL(newYargTypeFromType(TypeYargType));
     } else if (IS_POINTER(a)) {
-        return OBJ_VAL(newYargPointerType(AS_POINTER(a)->type));
+        return OBJ_VAL(newYargPointerType(AS_POINTER(a)->destination_type));
     }
     fatalVMError("Unexpected object type");
     return NIL_VAL;

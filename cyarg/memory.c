@@ -378,12 +378,12 @@ static void blackenObject(Obj* object) {
             // fall through
         case OBJ_POINTER: {
             ObjPointer* ptr = (ObjPointer*)object;
-            markValue(ptr->type);
+            markValue(ptr->destination_type);
             if (ptr->destination != NULL) {
-                if (IS_NIL(ptr->type)) {
+                if (IS_NIL(ptr->destination_type)) {
                     Value* target = (Value*)ptr->destination;
                     markValue(*target);
-                } else if (is_obj_type(AS_YARGTYPE(ptr->type))) {
+                } else if (is_obj_type(AS_YARGTYPE(ptr->destination_type))) {
                     Obj** payload = (Obj**) ptr->destination;
                     markObject(*payload);
                 }
@@ -553,7 +553,7 @@ static void freeObject(Obj* object) {
         case OBJ_UNOWNED_POINTER: FREE(ObjPointer, object); break;
         case OBJ_POINTER: {
             ObjPointer* ptr = (ObjPointer*) object;
-            ptr->destination = reallocate(ptr->destination, yt_sizeof_type(ptr->type), 0);
+            ptr->destination = reallocate(ptr->destination, yt_sizeof_type(ptr->destination_type), 0);
             FREE(ObjPointer, object); 
             break;
         }
