@@ -168,6 +168,18 @@ ObjUniformArray* newUniformArray(ObjConcreteYargType* element_type, size_t capac
     return array;
 }
 
+ObjUniformArray* newUniformArrayAt(Value type, Value location) {
+    ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray *)AS_YARGTYPE(type);
+
+    ObjUniformArray* array = ALLOCATE_OBJ(ObjUniformArray, OBJ_UNOWNED_UNIFORMARRAY);
+    array->array = (void*)(uintptr_t)AS_UINTEGER(location);
+    array->element_size = yt_sizeof_type(OBJ_VAL(arrayType->element_type));
+    array->element_type = arrayType->element_type;
+    array->count = arrayType->cardinality;
+
+    return array;
+}
+
 Value defaultArrayValue(ObjConcreteYargType* type) {
 
     ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*)type;

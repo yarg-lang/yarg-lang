@@ -158,6 +158,8 @@ static void blackenObject(Obj* object) {
             markArray(&array->array);
             break;
         }
+        case OBJ_UNOWNED_UNIFORMARRAY:
+            /* fall through */
         case OBJ_UNIFORMARRAY: {
             ObjUniformArray* array = (ObjUniformArray*)object;
             if (is_obj_type(array->element_type)) {
@@ -469,6 +471,7 @@ static void freeObject(Obj* object) {
             FREE(ObjValArray, object);
             break;
         }
+        case OBJ_UNOWNED_UNIFORMARRAY: FREE(ObjUniformArray, object); break;
         case OBJ_UNIFORMARRAY: {
             ObjUniformArray* array = (ObjUniformArray*)object;
             array->array = reallocate(array->array, array->count * array->element_size, 0);  

@@ -22,7 +22,7 @@ typedef struct ObjConcreteYargType ObjConcreteYargType;
 #define IS_CHANNEL(value)      isObjType(value, OBJ_CHANNEL)
 #define IS_STRING(value)       isObjType(value, OBJ_STRING)
 #define IS_VALARRAY(value)     isObjType(value, OBJ_VALARRAY)
-#define IS_UNIFORMARRAY(value) isObjType(value, OBJ_UNIFORMARRAY)
+#define IS_UNIFORMARRAY(value) (isObjType(value, OBJ_UNIFORMARRAY)|| isObjType(value, OBJ_UNOWNED_UNIFORMARRAY))
 #define IS_YARGTYPE(value)     (isObjType(value, OBJ_YARGTYPE) || isObjType(value, OBJ_YARGTYPE_ARRAY) || isObjType(value, OBJ_YARGTYPE_STRUCT) || isObjType(value, OBJ_YARGTYPE_POINTER))
 #define IS_POINTER(value)      (isObjType(value, OBJ_POINTER) || isObjType(value, OBJ_UNOWNED_POINTER))
 #define IS_STRUCT(value)       isObjType(value, OBJ_STRUCT)
@@ -58,6 +58,7 @@ typedef enum {
     OBJ_STRING,
     OBJ_UPVALUE,
     OBJ_VALARRAY,
+    OBJ_UNOWNED_UNIFORMARRAY,
     OBJ_UNIFORMARRAY,
     OBJ_YARGTYPE,
     OBJ_YARGTYPE_ARRAY,
@@ -228,6 +229,7 @@ ObjString* copyString(const char* chars, int length);
 ObjUpvalue* newUpvalue(ValueCell* slot);
 ObjPointer* newPointer(Value target_type);
 ObjPointer* newPointerAt(Value type, Value location);
+ObjUniformArray* newUniformArrayAt(Value type, Value location);
 
 Value defaultArrayValue(ObjConcreteYargType* type);
 Value defaultStructValue(ObjConcreteYargType* type);
