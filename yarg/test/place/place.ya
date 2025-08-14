@@ -1,0 +1,2 @@
+place muint32 0xd0000000 hardware_register;
+rpeek(hardware_register);  // expect: rpeek(d0000000)
