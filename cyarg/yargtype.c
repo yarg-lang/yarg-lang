@@ -201,13 +201,13 @@ bool is_obj_type(ObjConcreteYargType* type) {
 
 bool is_nil_assignable_type(ObjConcreteYargType* type) {
     switch (type->yt) {
-        case TypeAny:
         case TypeBool:
         case TypeDouble:
         case TypeMachineUint32:
         case TypeInteger:
         case TypeStruct:
             return false;
+        case TypeAny:
         case TypeString:
         case TypeClass:
         case TypeInstance:
