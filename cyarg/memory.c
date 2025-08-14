@@ -187,6 +187,11 @@ static void blackenObject(Obj* object) {
             }
             break;
         }
+        case OBJ_YARGTYPE_POINTER: {
+            ObjConcreteYargTypePointer* type = (ObjConcreteYargTypePointer*)object;
+            markObject((Obj*)type->target_type);
+            break;
+        }
         case OBJ_AST: {
             ObjAst* ast = (ObjAst*)object;
             markObject((Obj*)ast->statements);
@@ -485,6 +490,7 @@ static void freeObject(Obj* object) {
             FREE(ObjConcreteYargTypeStruct, object);
             break;
         }
+        case OBJ_YARGTYPE_POINTER: FREE(ObjConcreteYargTypePointer, object); break;
         case OBJ_AST: {
             ObjAst* ast = (ObjAst*)object;
             freeTable(&ast->constants);

@@ -35,6 +35,11 @@ ObjConcreteYargType* newYargTypeFromType(ConcreteYargType yt) {
             initTable(&s->field_names);
             return (ObjConcreteYargType*)s;
         }
+        case TypePointer: {
+            ObjConcreteYargTypePointer* p = ALLOCATE_OBJ(ObjConcreteYargTypePointer, OBJ_YARGTYPE_POINTER);
+            p->core.yt = yt;
+            return (ObjConcreteYargType*)p;
+        }
     }
 }
 
@@ -59,6 +64,14 @@ ObjConcreteYargType* newYargStructType(size_t fieldCount) {
 
     tempRootPop();
     return (ObjConcreteYargType*)t;
+}
+
+ObjConcreteYargType* newYargPointerType(Value targetType) {
+    ObjConcreteYargTypePointer* p = (ObjConcreteYargTypePointer*) newYargTypeFromType(TypePointer);
+    if (IS_YARGTYPE(targetType)) {
+        p->target_type = AS_YARGTYPE(targetType);
+    }
+    return (ObjConcreteYargType*)p;
 }
 
 void addFieldType(ObjConcreteYargTypeStruct* st, size_t index, Value type, Value name) {
@@ -105,6 +118,8 @@ ConcreteYargType yt_typeof(Value a) {
         return TypeStruct;
     } else if (IS_YARGTYPE(a)) {
         return TypeYargType;
+    } else if (IS_POINTER(a)) {
+        return TypePointer;
     }
     fatalVMError("Unexpected object type");
     return TypeYargType; // This should never happen.
@@ -154,6 +169,8 @@ Value concrete_typeof(Value a) {
         return OBJ_VAL(AS_STRUCT(a)->type);
     } else if (IS_YARGTYPE(a)) {
         return OBJ_VAL(newYargTypeFromType(TypeYargType));
+    } else if (IS_POINTER(a)) {
+        return OBJ_VAL(newYargPointerType(AS_POINTER(a)->type));
     }
     fatalVMError("Unexpected object type");
     return NIL_VAL;
@@ -176,6 +193,7 @@ bool is_obj_type(ObjConcreteYargType* type) {
         case TypeChannel:
         case TypeArray:
         case TypeStruct:
+        case TypePointer:
         case TypeYargType:
             return true;
     }
@@ -198,6 +216,7 @@ bool is_nil_assignable_type(ObjConcreteYargType* type) {
         case TypeRoutine:
         case TypeChannel:
         case TypeArray:
+        case TypePointer:
         case TypeYargType:
             return true;
     } 
@@ -234,6 +253,7 @@ size_t yt_sizeof_type(Value type) {
         case TypeChannel:
         case TypeArray:
         case TypeStruct:
+        case TypePointer:
         case TypeYargType:
             return 4;            
         }
@@ -252,6 +272,7 @@ Value defaultValue(Value type) {
             case TypeMachineUint32: return UINTEGER_VAL(0);
             case TypeStruct: return defaultStructValue(ct);
             case TypeArray: return defaultArrayValue(ct);
+            case TypePointer: return defaultPointerValue(ct);
             case TypeAny:
             case TypeString:
             case TypeClass:

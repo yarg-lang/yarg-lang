@@ -182,70 +182,53 @@ Value defaultArrayValue(ObjConcreteYargType* type) {
     }
 }
 
-ObjPointer* newPointer(Value type) {
-    if (IS_NIL(type)) {
-        void* dest = reallocate(NULL, 0, yt_sizeof_type(type));
-        Value* remote = (Value*)dest;
-        *remote = NIL_VAL;
+Value defaultPointerValue(ObjConcreteYargType* type) {
 
-        ObjPointer* ptr = ALLOCATE_OBJ(ObjPointer, OBJ_POINTER);
-        ptr->type = type;
-        ptr->destination = dest;
+    ObjConcreteYargTypePointer* pointerType = (ObjConcreteYargTypePointer*)type;
 
-        return ptr;
+    ObjPointer* ptr = ALLOCATE_OBJ(ObjPointer, OBJ_POINTER);
+    tempRootPush(OBJ_VAL(ptr));
+    if (pointerType->target_type == NULL) {
+        ptr->type = NIL_VAL;
+    } else {
+        ptr->type = OBJ_VAL(pointerType->target_type);
     }
-    else {
-        ObjConcreteYargType* objTypeRequest = AS_YARGTYPE(type);
-        void* dest = reallocate(NULL, 0, yt_sizeof_type(type));
 
-        switch (objTypeRequest->yt) {
-            case TypeAny: {
-                Value* target = (Value*)dest;
-                *target = NIL_VAL;
-                break;
-            }
-            case TypeBool: {
-                Value* target = (Value*)dest;
-                *target = FALSE_VAL;
-                break;
-            }
-            case TypeInteger: {
-                Value* target = (Value*)dest;
-                *target = INTEGER_VAL(0);
-                break;
-            }
-            case TypeDouble: {
-                Value* target = (Value*)dest;
-                *target = DOUBLE_VAL(0);
-                break;
-            }
-            case TypeMachineUint32: {
-                uint32_t* target = (uint32_t*)dest;
-                *target = 0;
-                break;
-            }
-            case TypeString:
-            case TypeClass:
-            case TypeInstance:
-            case TypeFunction:
-            case TypeNativeBlob:
-            case TypeRoutine:
-            case TypeChannel:
-            case TypeArray:
-            case TypeStruct:
-            case TypeYargType:
-                {
-                    Obj** target = (Obj**)dest;
-                    *target = NULL;
-                    break;
-                }
+    void* target = reallocate(NULL, 0, yt_sizeof_type(ptr->type));
+
+    ConcreteYargType destination_target = pointerType->target_type ? pointerType->target_type->yt : TypeAny;
+
+    switch (destination_target) {
+        case TypeAny:
+        case TypeDouble:
+        case TypeInteger:
+        case TypeBool:
+        case TypeString:
+        case TypeClass:
+        case TypeInstance:
+        case TypeFunction:
+        case TypeNativeBlob:
+        case TypeRoutine:
+        case TypeChannel:
+        case TypeArray:
+        case TypeStruct:
+        case TypePointer:
+        case TypeYargType: {
+            Value* valueTarget = (Value*)target;
+            *valueTarget = defaultValue(ptr->type);
+            ptr->destination = target;
+            break;
         }
-        ObjPointer* ptr = ALLOCATE_OBJ(ObjPointer, OBJ_POINTER);
-        ptr->type = type;
-        ptr->destination = dest;
-
-        return ptr;
+        case TypeMachineUint32: {
+            uint32_t* uInt32Target = (uint32_t*)target;
+            *uInt32Target = AS_UINTEGER(defaultValue(ptr->type));
+            ptr->destination = target;
+            break;
+        }
     }
+
+    tempRootPop();
+    return OBJ_VAL(ptr);
 }
 
 ObjPointer* newPointerAt(Value type, Value location) {

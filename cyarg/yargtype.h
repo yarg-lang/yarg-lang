@@ -18,6 +18,7 @@ typedef enum {
    TypeChannel,
    TypeArray,
    TypeStruct,
+   TypePointer,
    TypeYargType
 } ConcreteYargType;
 
@@ -40,9 +41,16 @@ typedef struct {
     size_t field_count;
 } ObjConcreteYargTypeStruct;
 
+typedef struct {
+    ObjConcreteYargType core;
+    ObjConcreteYargType* target_type;
+} ObjConcreteYargTypePointer;
+
 ObjConcreteYargType* newYargTypeFromType(ConcreteYargType yt);
+
 ObjConcreteYargType* newYargArrayTypeFromType(Value elementType);
 ObjConcreteYargType* newYargStructType(size_t fieldCount);
+ObjConcreteYargType* newYargPointerType(Value targetType);
 
 void addFieldType(ObjConcreteYargTypeStruct* st, size_t index, Value type, Value name);
 
