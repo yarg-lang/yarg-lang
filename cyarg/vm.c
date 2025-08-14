@@ -961,6 +961,22 @@ InterpretResult run(ObjRoutine* routine) {
                 tempRootPop();
                 break;
             }
+            case OP_TYPE_ARRAY: {
+                if (!IS_NIL(peek(routine, 0)) && !is_positive_integer(peek(routine, 0))) {
+                    runtimeError(routine, "Array cardinality must be positive integer or nil");
+                }
+                uint32_t cardinality = 0;
+                if (is_positive_integer(peek(routine, 0))) {
+                    cardinality = as_positive_integer(peek(routine, 0));
+                }
+                ObjConcreteYargTypeArray* typeObject = (ObjConcreteYargTypeArray*) newYargArrayTypeFromType(peek(routine, 1));
+                typeObject->cardinality = cardinality;
+
+                pop(routine);
+                pop(routine);
+                push(routine, OBJ_VAL(typeObject));
+                break;
+            }
             case OP_SET_CELL_TYPE: {
                 ValueCell* last = peekCell(routine, 0);
                 last->type = peek(routine, 0);
