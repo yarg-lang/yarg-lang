@@ -79,52 +79,6 @@ void addFieldType(ObjConcreteYargTypeStruct* st, size_t index, Value type, Value
     tableSet(&st->field_names, AS_STRING(name), UINTEGER_VAL(index));
 }
 
-ConcreteYargType yt_typeof(Value a) {
-    if (IS_NIL(a)) {
-        return TypeAny;
-    } else if (IS_BOOL(a)) {
-        return TypeBool;
-    } else if (IS_DOUBLE(a)) {
-        return TypeDouble;
-    } else if (IS_UINTEGER(a)) {
-        return TypeMachineUint32;
-    } else if (IS_INTEGER(a)) {
-        return TypeInteger;
-    } else if (IS_FUNCTION(a)) {
-        return TypeFunction;
-    } else if (IS_CLOSURE(a)) {
-        return TypeFunction;
-    } else if (IS_NATIVE(a)) {
-        return TypeFunction;
-    } else if (IS_BOUND_METHOD(a)) {
-        return TypeFunction;
-    } else if (IS_CLASS(a)) {
-        return TypeClass;
-    } else if (IS_INSTANCE(a)) {
-        return TypeInstance;
-    } else if (IS_BLOB(a)) {
-        return TypeNativeBlob;
-    } else if (IS_ROUTINE(a)) {
-        return TypeRoutine;
-    } else if (IS_CHANNEL(a)) {
-        return TypeChannel;
-    } else if (IS_STRING(a)) {
-        return TypeString;
-    } else if (IS_VALARRAY(a)) {
-        return TypeArray;
-    } else if (IS_UNIFORMARRAY(a)) {
-        return TypeArray;
-    } else if (IS_STRUCT(a)) {
-        return TypeStruct;
-    } else if (IS_YARGTYPE(a)) {
-        return TypeYargType;
-    } else if (IS_POINTER(a)) {
-        return TypePointer;
-    }
-    fatalVMError("Unexpected object type");
-    return TypeYargType; // This should never happen.
-}
-
 Value concrete_typeof(Value a) {
     if (IS_NIL(a)) {
         return NIL_VAL;

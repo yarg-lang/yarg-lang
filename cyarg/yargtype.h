@@ -54,7 +54,6 @@ ObjConcreteYargType* newYargPointerType(Value targetType);
 
 void addFieldType(ObjConcreteYargTypeStruct* st, size_t index, Value type, Value name);
 
-ConcreteYargType yt_typeof(Value a);
 Value concrete_typeof(Value a);
 bool is_obj_type(ObjConcreteYargType* type);
 bool is_nil_assignable_type(ObjConcreteYargType* type);
