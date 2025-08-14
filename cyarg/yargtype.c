@@ -103,6 +103,8 @@ ConcreteYargType yt_typeof(Value a) {
         return TypeArray;
     } else if (IS_UNIFORMARRAY(a)) {
         return TypeArray;
+    } else if (IS_STRUCT(a)) {
+        return TypeStruct;
     } else if (IS_YARGTYPE(a)) {
         return TypeYargType;
     }
