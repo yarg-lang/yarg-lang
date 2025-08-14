@@ -197,7 +197,18 @@ Value defaultPointerValue(ObjConcreteYargType* type) {
         case TypeAny:
         case TypeDouble:
         case TypeInteger:
-        case TypeBool:
+        case TypeBool: {
+            Value* valueTarget = (Value*)target;
+            *valueTarget = defaultValue(ptr->destination_type);
+            ptr->destination = target;
+            break;
+        }
+        case TypeMachineUint32: {
+            uint32_t* uInt32Target = (uint32_t*)target;
+            *uInt32Target = AS_UINTEGER(defaultValue(ptr->destination_type));
+            ptr->destination = target;
+            break;
+        }
         case TypeString:
         case TypeClass:
         case TypeInstance:
@@ -209,14 +220,8 @@ Value defaultPointerValue(ObjConcreteYargType* type) {
         case TypeStruct:
         case TypePointer:
         case TypeYargType: {
-            Value* valueTarget = (Value*)target;
-            *valueTarget = defaultValue(ptr->destination_type);
-            ptr->destination = target;
-            break;
-        }
-        case TypeMachineUint32: {
-            uint32_t* uInt32Target = (uint32_t*)target;
-            *uInt32Target = AS_UINTEGER(defaultValue(ptr->destination_type));
+            Obj** objTarget = (Obj**)target;
+            *objTarget = NULL;
             ptr->destination = target;
             break;
         }
