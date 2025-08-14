@@ -231,9 +231,13 @@ ObjPointer* newPointer(Value target_type);
 ObjPointer* newPointerAt(Value type, Value location);
 ObjUniformArray* newUniformArrayAt(Value type, Value location);
 
+Value createPointerToObj(Obj* target);
+
 Value defaultArrayValue(ObjConcreteYargType* type);
 Value defaultStructValue(ObjConcreteYargType* type);
 Value defaultPointerValue(ObjConcreteYargType* type);
+
+Value placeObjectAt(Value type, Value location);
 
 void printObject(Value value);
 void fprintObject(FILE* op, Value value);

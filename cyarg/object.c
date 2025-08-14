@@ -263,6 +263,43 @@ ObjPointer* newPointerAt(Value type, Value location) {
     }
 }
 
+Value createPointerToObj(Obj* target) {
+    if (target == NULL) {
+        return NIL_VAL;
+    }
+
+    Value target_type = concrete_typeof(OBJ_VAL(target));
+    tempRootPush(target_type);
+
+    ObjPointer* pointer = newPointer(target_type);
+    tempRootPush(OBJ_VAL(pointer));
+    pointer->destination = reallocate(pointer->destination, 0, yt_sizeof_type(target_type));
+    *((Obj**)pointer->destination) = target;
+
+    tempRootPop();
+    tempRootPop();
+    return OBJ_VAL(pointer);
+}
+
+Value placeObjectAt(Value type, Value location) {
+    if (is_placeable_type(type)) {
+        ObjConcreteYargType* placed_type = AS_YARGTYPE(type);
+        switch (placed_type->yt) {
+            case TypeMachineUint32: return OBJ_VAL(newPointerAt(type, location));
+            case TypeArray: {
+                ObjUniformArray* target_array = newUniformArrayAt(type, location);
+                tempRootPush(OBJ_VAL(target_array));
+                Value result = createPointerToObj((Obj*)target_array);
+                tempRootPop();
+                return result;
+            }
+            default:
+                return NIL_VAL;
+        }
+    }
+    return NIL_VAL;
+}
+
 Value defaultStructValue(ObjConcreteYargType* type) {
     ObjStruct* object = ALLOCATE_OBJ(ObjStruct, OBJ_STRUCT);
     tempRootPush(OBJ_VAL(object));
