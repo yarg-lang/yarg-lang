@@ -227,6 +227,8 @@ ObjString* copyString(const char* chars, int length);
 ObjUpvalue* newUpvalue(ValueCell* slot);
 ObjPointer* newPointer(Value type);
 ObjPointer* newPointerAt(Value type, Value location);
+
+Value defaultArrayValue(ObjConcreteYargType* type);
 Value defaultStructValue(ObjConcreteYargType* type);
 
 void printObject(Value value);

@@ -168,6 +168,20 @@ ObjUniformArray* newUniformArray(ObjConcreteYargType* element_type, size_t capac
     return array;
 }
 
+Value defaultArrayValue(ObjConcreteYargType* type) {
+
+    ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*)type;
+    if (arrayType->cardinality == 0) {
+        return NIL_VAL;
+    }
+    
+    if (arrayType->element_type == NULL) {
+        return OBJ_VAL(newValArray(arrayType->cardinality));
+    } else {
+        return OBJ_VAL(newUniformArray(arrayType->element_type, arrayType->cardinality));
+    }
+}
+
 ObjPointer* newPointer(Value type) {
     if (IS_NIL(type)) {
         void* dest = reallocate(NULL, 0, yt_sizeof_type(type));

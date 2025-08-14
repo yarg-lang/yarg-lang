@@ -253,6 +253,7 @@ Value defaultValue(Value type) {
             case TypeDouble: return DOUBLE_VAL(0);
             case TypeMachineUint32: return UINTEGER_VAL(0);
             case TypeStruct: return defaultStructValue(ct);
+            case TypeArray: return defaultArrayValue(ct);
             case TypeAny:
             case TypeString:
             case TypeClass:
@@ -261,7 +262,6 @@ Value defaultValue(Value type) {
             case TypeNativeBlob:
             case TypeRoutine:
             case TypeChannel:
-            case TypeArray:
             case TypeYargType:
                 return NIL_VAL;
         }
