@@ -222,6 +222,23 @@ bool is_nil_assignable_type(ObjConcreteYargType* type) {
     } 
 }
 
+bool is_placeable_type(Value typeVal) {
+    if (IS_YARGTYPE(typeVal)) {
+        switch(AS_YARGTYPE(typeVal)->yt) {
+            case TypeMachineUint32: return true;
+            case TypeArray: {
+                ObjConcreteYargTypeArray* ct = (ObjConcreteYargTypeArray*)AS_YARGTYPE(typeVal);
+                if (ct->element_type) {
+                    return is_placeable_type(OBJ_VAL(ct->element_type));
+                }
+                return false;
+            }
+            default: return false;
+        }
+    }
+    return false;
+}
+
 ObjConcreteYargType* array_element_type(Value val) {
     if (IS_UNIFORMARRAY(val)) {
         ObjUniformArray* array = AS_UNIFORMARRAY(val);

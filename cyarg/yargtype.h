@@ -58,6 +58,7 @@ ConcreteYargType yt_typeof(Value a);
 Value concrete_typeof(Value a);
 bool is_obj_type(ObjConcreteYargType* type);
 bool is_nil_assignable_type(ObjConcreteYargType* type);
+bool is_placeable_type(Value type);
 ObjConcreteYargType* array_element_type(Value val);
 size_t yt_sizeof_type(Value type);
 
