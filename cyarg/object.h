@@ -226,6 +226,7 @@ ObjUniformArray* newUniformArray(ObjConcreteYargType* element_type, size_t capac
 ObjString* takeString(char* chars, int length);
 ObjString* copyString(const char* chars, int length);
 ObjUpvalue* newUpvalue(ValueCell* slot);
+ObjPointer* newPointer(Value target_type);
 ObjPointer* newPointerAt(Value type, Value location);
 
 Value defaultArrayValue(ObjConcreteYargType* type);

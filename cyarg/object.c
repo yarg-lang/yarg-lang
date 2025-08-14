@@ -186,13 +186,8 @@ Value defaultPointerValue(ObjConcreteYargType* type) {
 
     ObjConcreteYargTypePointer* pointerType = (ObjConcreteYargTypePointer*)type;
 
-    ObjPointer* ptr = ALLOCATE_OBJ(ObjPointer, OBJ_POINTER);
+    ObjPointer* ptr = newPointer(pointerType->target_type ? OBJ_VAL(pointerType->target_type) : NIL_VAL);
     tempRootPush(OBJ_VAL(ptr));
-    if (pointerType->target_type == NULL) {
-        ptr->type = NIL_VAL;
-    } else {
-        ptr->type = OBJ_VAL(pointerType->target_type);
-    }
 
     void* target = reallocate(NULL, 0, yt_sizeof_type(ptr->type));
 
@@ -229,6 +224,13 @@ Value defaultPointerValue(ObjConcreteYargType* type) {
 
     tempRootPop();
     return OBJ_VAL(ptr);
+}
+
+ObjPointer* newPointer(Value target_type) {
+
+    ObjPointer* ptr = ALLOCATE_OBJ(ObjPointer, OBJ_POINTER);
+    ptr->type = target_type;
+    return ptr;
 }
 
 ObjPointer* newPointerAt(Value type, Value location) {
