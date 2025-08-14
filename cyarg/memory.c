@@ -471,8 +471,7 @@ static void freeObject(Obj* object) {
         }
         case OBJ_UNIFORMARRAY: {
             ObjUniformArray* array = (ObjUniformArray*)object;
-            reallocate(array->array, array->count * array->element_size, 0);
-            array->array = NULL;    
+            array->array = reallocate(array->array, array->count * array->element_size, 0);  
             FREE(ObjUniformArray, object);
             break;
         }
