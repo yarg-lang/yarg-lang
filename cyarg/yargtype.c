@@ -286,7 +286,7 @@ bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue) {
     Value rhsType = concrete_typeof(rhsValue);
     ObjConcreteYargType* rhsConcreteType = AS_YARGTYPE(rhsType);
 
-    if (is_obj_type(lhsType) && lhsType->yt == TypeArray && rhsConcreteType->yt == TypeArray) {       
+    if (lhsType->yt == TypeArray && rhsConcreteType->yt == TypeArray) {       
         return isInitializableArray((ObjConcreteYargTypeArray*)lhsType, (ObjConcreteYargTypeArray*)rhsConcreteType); 
     } else {
         return lhsType->yt == rhsConcreteType->yt;
