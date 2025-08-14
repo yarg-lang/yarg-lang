@@ -374,12 +374,14 @@ static void blackenObject(Obj* object) {
         case OBJ_POINTER: {
             ObjPointer* ptr = (ObjPointer*)object;
             markValue(ptr->type);
-            if (IS_NIL(ptr->type)) {
-                Value* target = (Value*)ptr->destination;
-                markValue(*target);
-            } else if (is_obj_type(AS_YARGTYPE(ptr->type))) {
-                Obj* payload = (Obj*) ptr->destination;
-                markObject(payload);
+            if (ptr->destination != NULL) {
+                if (IS_NIL(ptr->type)) {
+                    Value* target = (Value*)ptr->destination;
+                    markValue(*target);
+                } else if (is_obj_type(AS_YARGTYPE(ptr->type))) {
+                    Obj* payload = (Obj*) ptr->destination;
+                    markObject(payload);
+                }
             }
             break;
         }
