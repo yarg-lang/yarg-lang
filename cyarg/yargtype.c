@@ -153,27 +153,34 @@ bool is_obj_type(ObjConcreteYargType* type) {
     }
 }
 
-bool is_nil_assignable_type(ObjConcreteYargType* type) {
-    switch (type->yt) {
-        case TypeBool:
-        case TypeDouble:
-        case TypeMachineUint32:
-        case TypeInteger:
-        case TypeStruct:
-            return false;
-        case TypeAny:
-        case TypeString:
-        case TypeClass:
-        case TypeInstance:
-        case TypeFunction:
-        case TypeNativeBlob:
-        case TypeRoutine:
-        case TypeChannel:
-        case TypeArray:
-        case TypePointer:
-        case TypeYargType:
-            return true;
-    } 
+bool is_nil_assignable_type(Value type) {
+    if (IS_NIL(type)) {
+        return true;
+    } else if (IS_YARGTYPE(type)) {
+        ObjConcreteYargType* ct = AS_YARGTYPE(type);
+        switch (ct->yt) {
+            case TypeBool:
+            case TypeDouble:
+            case TypeMachineUint32:
+            case TypeInteger:
+            case TypeStruct:
+                return false;
+            case TypeAny:
+            case TypeString:
+            case TypeClass:
+            case TypeInstance:
+            case TypeFunction:
+            case TypeNativeBlob:
+            case TypeRoutine:
+            case TypeChannel:
+            case TypeArray:
+            case TypePointer:
+            case TypeYargType:
+                return true;
+        } 
+    } else {
+        return false;
+    }
 }
 
 bool is_placeable_type(Value typeVal) {
@@ -280,7 +287,7 @@ bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue) {
     }
     
     if (IS_NIL(rhsValue)) {
-        return is_nil_assignable_type(lhsType);
+        return is_nil_assignable_type(OBJ_VAL(lhsType));
     }
 
     Value rhsType = concrete_typeof(rhsValue);

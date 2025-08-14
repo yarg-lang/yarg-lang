@@ -56,7 +56,7 @@ void addFieldType(ObjConcreteYargTypeStruct* st, size_t index, Value type, Value
 
 Value concrete_typeof(Value a);
 bool is_obj_type(ObjConcreteYargType* type);
-bool is_nil_assignable_type(ObjConcreteYargType* type);
+bool is_nil_assignable_type(Value type);
 bool is_placeable_type(Value type);
 size_t yt_sizeof_type(Value type);
 
