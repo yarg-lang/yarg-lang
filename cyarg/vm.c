@@ -286,20 +286,20 @@ static bool derefElement(ObjRoutine* routine) {
         runtimeError(routine, "Expected an array and a positive or unsigned integer.");
         return false;
     }
-    uint32_t index = as_positive_integer(pop(routine));
+    uint32_t index = as_positive_integer(peek(routine, 0));
     Value result = NIL_VAL;
 
-    if (IS_VALARRAY(peek(routine, 0))) {
-        ObjValArray* array = AS_VALARRAY(pop(routine));
-        if (index >= array->array.count || index < 0) {
+    if (IS_VALARRAY(peek(routine, 1))) {
+        ObjValArray* array = AS_VALARRAY(peek(routine, 1));
+        if (index >= array->array.count) {
             runtimeError(routine, "Array index %d out of bounds (0:%d)", index, array->array.count - 1);
             return false;
         }
 
         result = array->array.values[index];
-    } else if (IS_UNIFORMARRAY(peek(routine, 0))) {
-        ObjUniformArray* array = AS_UNIFORMARRAY(pop(routine));
-        if (index >= array->count || index < 0) {
+    } else if (IS_UNIFORMARRAY(peek(routine, 1))) {
+        ObjUniformArray* array = AS_UNIFORMARRAY(peek(routine, 1));
+        if (index >= array->count) {
             runtimeError(routine, "Array index %d out of bounds (0:%d)", index, array->count - 1);
             return false;
         }
@@ -307,7 +307,8 @@ static bool derefElement(ObjRoutine* routine) {
 
         result = UINTEGER_VAL(entries[index]);
     }
-
+    pop(routine);
+    pop(routine);
     push(routine, result);
     return true;
 }
