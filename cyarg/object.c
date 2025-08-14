@@ -376,7 +376,11 @@ static void printType(FILE* op, ObjConcreteYargType* type) {
             } else {
                 printType(op, array->element_type);
             }
-            fprintf(op, "[]");
+            fprintf(op, "[");
+            if (array->cardinality > 0) {
+                fprintf(op, "%zu", array->cardinality);
+            }
+            fprintf(op, "]");
             break;
         }
         case TypeStruct: {

@@ -29,6 +29,7 @@ typedef struct ObjConcreteYargType {
 
 typedef struct {
     ObjConcreteYargType core;
+    size_t cardinality;
     ObjConcreteYargType* element_type;
 } ObjConcreteYargTypeArray;
 
