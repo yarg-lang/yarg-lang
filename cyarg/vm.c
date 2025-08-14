@@ -282,7 +282,7 @@ static void defineMethod(ObjRoutine* routine, ObjString* name) {
 }
 
 static bool derefElement(ObjRoutine* routine) {
-    if (!isArray(peek(routine, 1)) || !is_positive_integer(peek(routine, 0))) {
+    if (!(isArray(peek(routine, 1)) || IS_POINTER(peek(routine, 1))) || !is_positive_integer(peek(routine, 0))) {
         runtimeError(routine, "Expected an array and a positive or unsigned integer.");
         return false;
     }
@@ -306,6 +306,25 @@ static bool derefElement(ObjRoutine* routine) {
         uint32_t* entries = (uint32_t*) array->array;
 
         result = UINTEGER_VAL(entries[index]);
+    } else if (IS_POINTER(peek(routine, 1))) {
+        ObjPointer* array_pointer = AS_POINTER(peek(routine, 1));
+        Obj* destination = NULL;
+        if (IS_NIL(array_pointer->destination_type)) {
+            destination = AS_OBJ(*(Value*)array_pointer->destination);
+        } else {
+            destination = *((Obj**)(uintptr_t)array_pointer->destination);
+        }
+        if (   destination->type == OBJ_UNIFORMARRAY
+            || destination->type == OBJ_UNOWNED_UNIFORMARRAY) {
+            ObjUniformArray* array = (ObjUniformArray*)destination;
+            if (index >= array->count) {
+                runtimeError(routine, "Array index %d out of bounds (0:%d)", index, array->count - 1);
+                return false;
+            }
+            uint32_t* entries = (uint32_t*) array->array;
+            ObjPointer* element_pointer = newPointerAt(OBJ_VAL(array->element_type), UINTEGER_VAL((uintptr_t)&entries[index]));
+            result = OBJ_VAL(element_pointer);
+        }            
     }
     pop(routine);
     pop(routine);

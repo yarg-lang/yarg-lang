@@ -1,2 +1,9 @@
 place muint32 0xd0000000 hardware_register;
 rpeek(hardware_register);  // expect: rpeek(d0000000)
+
+place muint32[4] 0xe0000000 hardware_registers;
+rpeek(hardware_registers[0]);  // expect: rpeek(e0000000)
+rpeek(hardware_registers[1]);  // expect: rpeek(e0000004)
+rpeek(hardware_registers[2]);  // expect: rpeek(e0000008)
+rpeek(hardware_registers[3]);  // expect: rpeek(e000000c)
+rpeek(hardware_registers[4]);  // expect runtime error: Array index 4 out of bounds (0:3)
