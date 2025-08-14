@@ -204,7 +204,7 @@ ObjConcreteYargType* array_element_type(Value val) {
 
 size_t yt_sizeof_type(Value type) {
     if (IS_NIL(type)) {
-        return 8;
+        return sizeof(Value);
     } else {
         ObjConcreteYargType* t = AS_YARGTYPE(type);
         switch (t->yt) {
@@ -212,9 +212,9 @@ size_t yt_sizeof_type(Value type) {
         case TypeBool:
         case TypeDouble:
         case TypeInteger:
-            return 8;
+            return sizeof(Value);
         case TypeMachineUint32:
-            return 4;
+            return sizeof(uint32_t);
         case TypeString:
         case TypeClass:
         case TypeInstance:
@@ -226,7 +226,7 @@ size_t yt_sizeof_type(Value type) {
         case TypeStruct:
         case TypePointer:
         case TypeYargType:
-            return 4;            
+            return sizeof(uintptr_t);            
         }
     }
 }
