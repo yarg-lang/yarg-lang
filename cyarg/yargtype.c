@@ -268,27 +268,46 @@ Value defaultValue(Value type) {
     }
 }
 
+static bool isAssignableCardinality(size_t lhsCardinality, size_t rhsCardinality) {
+    if (lhsCardinality == 0) {
+        return true;
+    } else {
+        return lhsCardinality == rhsCardinality;
+    }
+}
+
+static bool isInitializableArray(ObjConcreteYargType* lhsType, Value rhsValue) {
+    if (IS_NIL(rhsValue)) {
+        return true;
+    }
+    if (yt_typeof(rhsValue) != TypeArray) {
+        return false;
+    }
+    ObjConcreteYargTypeArray* lhsArType = (ObjConcreteYargTypeArray*)lhsType;
+    ObjConcreteYargTypeArray* rhsArType = (ObjConcreteYargTypeArray*)AS_YARGTYPE(concrete_typeof(rhsValue));
+
+    if (isAssignableCardinality(lhsArType->cardinality, rhsArType->cardinality)) {
+        if (lhsArType->element_type == NULL) {
+            return true;
+        } else if (lhsArType->element_type->yt == TypeAny && rhsArType->element_type == NULL) {
+            return true;
+        } else if (rhsArType->element_type == NULL) {
+            return false;
+        } else {
+            return lhsArType->element_type->yt == rhsArType->element_type->yt;
+        }
+    } else {
+        return false;
+    }
+}
+
 bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue) {
     if (lhsType->yt == TypeAny) {
         return true;
     } else if (is_nil_assignable_type(lhsType) && IS_NIL(rhsValue)) { 
         return true;
-    } else if (is_obj_type(lhsType) && lhsType->yt == TypeArray) {        
-        if (yt_typeof(rhsValue) == TypeArray) {
-            ObjConcreteYargType* lhsElementType = ((ObjConcreteYargTypeArray*)lhsType)->element_type;
-            ObjConcreteYargType* rhsElementType = array_element_type(rhsValue);
-            if (lhsElementType == NULL) {
-                return true;
-            } else if (lhsElementType->yt == TypeAny && rhsElementType == NULL) {
-                return true;
-            } else if (rhsElementType == NULL) {
-                return false;
-            } else {
-                return lhsElementType->yt == rhsElementType->yt;
-            }
-        } else {
-            return false;
-        }
+    } else if (is_obj_type(lhsType) && lhsType->yt == TypeArray) {       
+        return isInitializableArray(lhsType, rhsValue); 
     } else if (is_obj_type(lhsType)) {
         return lhsType->yt == yt_typeof(rhsValue);
     } else {
