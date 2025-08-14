@@ -391,15 +391,38 @@ static ObjExprTypeStruct* structExpression() {
 }
 
 static ObjExpr* type(bool canAssign) {
+    ObjExpr* expression = NULL;
+
     switch (parser.previous.type) {
-        case TOKEN_ANY: return (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL);
-        case TOKEN_BOOL: return (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_BOOL);
-        case TOKEN_MACHINE_UINT32: return (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MUINT32);
-        case TOKEN_INTEGER: return (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INTEGER);
-        case TOKEN_MACHINE_FLOAT64: return (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MFLOAT64);
-        case TOKEN_STRUCT: return (ObjExpr*) structExpression();
-        default: return NULL; // Unreachable
+        case TOKEN_ANY: expression = (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL); break;
+        case TOKEN_BOOL: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_BOOL); break;
+        case TOKEN_MACHINE_UINT32: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MUINT32); break;
+        case TOKEN_INTEGER: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INTEGER); break;
+        case TOKEN_MACHINE_FLOAT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MFLOAT64); break;
+        case TOKEN_STRUCT: expression = (ObjExpr*) structExpression(); break;
+        default: expression = NULL; // Unreachable
     }
+
+    if (expression) {
+        ObjExpr* cursor = expression;
+        pushWorkingNode((Obj*)expression);
+
+        if (match(TOKEN_LEFT_SQUARE_BRACKET)) {
+
+            expression->nextExpr = (ObjExpr*) newExprTypeArray();
+            
+            if (!check(TOKEN_RIGHT_SQUARE_BRACKET)) {
+                ObjExprTypeArray* array = (ObjExprTypeArray*)expression->nextExpr;
+                array->cardinality = parsePrecedence(PREC_ASSIGNMENT); // no assignment in this expression.
+            }
+
+            consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' after array type.");
+        }
+
+        popWorkingNode();
+    }
+
+    return expression;
 }
 
 static ObjExpr* variable(bool canAssign) {
@@ -717,14 +740,22 @@ static ObjExpr* typeExpression() {
         pushWorkingNode((Obj*)expression);
 
         if (match(TOKEN_LEFT_SQUARE_BRACKET)) {
-            consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' after array type.");
-            cursor->nextExpr = (ObjExpr*) newExprType(EXPR_TYPE_MODIFIER_ARRAY);
+            ObjExprTypeArray* array_expr = newExprTypeArray();
+            cursor->nextExpr = (ObjExpr*) array_expr;
             cursor = cursor->nextExpr;
+
+            if (!check(TOKEN_RIGHT_SQUARE_BRACKET)) {
+                array_expr->cardinality = parsePrecedence(PREC_ASSIGNMENT); // no assignment in this expression.
+            }
+
+            consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' after array type.");
         }
 
         if (isConst) {
             cursor->nextExpr = (ObjExpr*) newExprType(EXPR_TYPE_MODIFIER_CONST);
         }
+
+        popWorkingNode();
     }
 
     return expression;
