@@ -194,59 +194,16 @@ Value defaultArrayValue(ObjConcreteYargType* type) {
     }
 }
 
-Value defaultPointerValue(ObjConcreteYargType* type) {
-
-    ObjConcreteYargTypePointer* pointerType = (ObjConcreteYargTypePointer*)type;
-
-    ObjPointer* ptr = newPointer(pointerType->target_type ? OBJ_VAL(pointerType->target_type) : NIL_VAL);
-    tempRootPush(OBJ_VAL(ptr));
-
-    void* target = reallocate(NULL, 0, yt_sizeof_type(ptr->destination_type));
-
-    ConcreteYargType destination_target = pointerType->target_type ? pointerType->target_type->yt : TypeAny;
-
-    switch (destination_target) {
-        case TypeAny:
-        case TypeDouble:
-        case TypeInteger:
-        case TypeBool: {
-            Value* valueTarget = (Value*)target;
-            *valueTarget = defaultValue(ptr->destination_type);
-            ptr->destination = target;
-            break;
-        }
-        case TypeMachineUint32: {
-            uint32_t* uInt32Target = (uint32_t*)target;
-            *uInt32Target = AS_UINTEGER(defaultValue(ptr->destination_type));
-            ptr->destination = target;
-            break;
-        }
-        case TypeString:
-        case TypeClass:
-        case TypeInstance:
-        case TypeFunction:
-        case TypeNativeBlob:
-        case TypeRoutine:
-        case TypeChannel:
-        case TypeArray:
-        case TypeStruct:
-        case TypePointer:
-        case TypeYargType: {
-            Obj** objTarget = (Obj**)target;
-            *objTarget = NULL;
-            ptr->destination = target;
-            break;
-        }
-    }
-
-    tempRootPop();
-    return OBJ_VAL(ptr);
+void* createHeapCell(Value type) {
+    void* dest = reallocate(NULL, 0, yt_sizeof_type(type));
+    return dest;
 }
 
-ObjPointer* newPointer(Value target_type) {
+ObjPointer* newPointerForHeapCell(Value target_type, void* location) {
 
     ObjPointer* ptr = ALLOCATE_OBJ(ObjPointer, OBJ_POINTER);
     ptr->destination_type = target_type;
+    ptr->destination = location;
     return ptr;
 }
 
@@ -263,21 +220,17 @@ ObjPointer* newPointerAt(Value type, Value location) {
     }
 }
 
-Value createPointerToObj(Obj* target) {
+Value createPointerToObj(Value target_type, Obj* target) {
     if (target == NULL) {
         return NIL_VAL;
     }
 
-    Value target_type = concrete_typeof(OBJ_VAL(target));
-    tempRootPush(target_type);
+    void* location = createHeapCell(target_type);
+    Obj** locationObjPtr = (Obj**) location;
+    *locationObjPtr = target;
 
-    ObjPointer* pointer = newPointer(target_type);
-    tempRootPush(OBJ_VAL(pointer));
-    pointer->destination = reallocate(pointer->destination, 0, yt_sizeof_type(target_type));
-    *((Obj**)pointer->destination) = target;
+    ObjPointer* pointer = newPointerForHeapCell(target_type, location);
 
-    tempRootPop();
-    tempRootPop();
     return OBJ_VAL(pointer);
 }
 
@@ -289,7 +242,7 @@ Value placeObjectAt(Value type, Value location) {
             case TypeArray: {
                 ObjUniformArray* target_array = newUniformArrayAt(type, location);
                 tempRootPush(OBJ_VAL(target_array));
-                Value result = createPointerToObj((Obj*)target_array);
+                Value result = createPointerToObj(type, (Obj*)target_array);
                 tempRootPop();
                 return result;
             }

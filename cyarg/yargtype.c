@@ -241,7 +241,7 @@ Value defaultValue(Value type) {
             case TypeMachineUint32: return UINTEGER_VAL(0);
             case TypeStruct: return defaultStructValue(ct);
             case TypeArray: return defaultArrayValue(ct);
-            case TypePointer: return defaultPointerValue(ct);
+            case TypePointer:
             case TypeAny:
             case TypeString:
             case TypeClass:

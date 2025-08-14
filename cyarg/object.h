@@ -227,15 +227,17 @@ ObjUniformArray* newUniformArray(ObjConcreteYargType* element_type, size_t capac
 ObjString* takeString(char* chars, int length);
 ObjString* copyString(const char* chars, int length);
 ObjUpvalue* newUpvalue(ValueCell* slot);
-ObjPointer* newPointer(Value target_type);
+
+void* createHeapCell(Value type);
+ObjPointer* newPointerForHeapCell(Value type, void* location);
+
 ObjPointer* newPointerAt(Value type, Value location);
 ObjUniformArray* newUniformArrayAt(Value type, Value location);
 
-Value createPointerToObj(Obj* target);
+Value createPointerToObj(Value type, Obj* target);
 
 Value defaultArrayValue(ObjConcreteYargType* type);
 Value defaultStructValue(ObjConcreteYargType* type);
-Value defaultPointerValue(ObjConcreteYargType* type);
 
 Value placeObjectAt(Value type, Value location);
 

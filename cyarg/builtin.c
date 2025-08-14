@@ -324,46 +324,48 @@ bool pinBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
 
 bool newBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
 
-    if (   argCount == 0
-        || (argCount == 1 && IS_NIL(args[0].value))) {
-
-        ObjConcreteYargType* ptr_type = newYargPointerType(NIL_VAL);
-        tempRootPush(OBJ_VAL(ptr_type));
-        *result = defaultPointerValue(ptr_type);
-        tempRootPop();
-        return true;
-
-    } else if ((argCount >= 1) && IS_YARGTYPE(args[0].value)) {
-        ObjConcreteYargType* requested_type = AS_YARGTYPE(args[0].value);
-        switch (requested_type->yt) {
-            case TypeBool:
-            case TypeInteger:
-            case TypeDouble:
-            case TypeMachineUint32:
-            case TypeStruct:
-            case TypeAny: {
-                ObjConcreteYargType* ptr_type = newYargPointerType(args[0].value);
-                tempRootPush(OBJ_VAL(ptr_type));
-                *result = defaultPointerValue(ptr_type);
-                tempRootPop();
-                return true;
-            }
-            case TypeArray: {
-                *result = defaultArrayValue(AS_YARGTYPE(args[0].value));
-                return true;
-            }
-            case TypeString:
-            case TypeClass:
-            case TypeInstance:
-            case TypeFunction:
-            case TypeNativeBlob:
-            case TypeRoutine:
-            case TypeChannel:
-            case TypePointer: 
-            case TypeYargType:
-                return false; // unsupported for now.
-        }
+    Value typeToCreate = NIL_VAL;
+    if (   argCount == 1
+        && IS_YARGTYPE(args[0].value)) {
+        typeToCreate = args[0].value;
     }
+
+    ConcreteYargType typeRequested = IS_NIL(typeToCreate) ? TypeAny : AS_YARGTYPE(typeToCreate)->yt;
+    switch (typeRequested) {
+        case TypeBool:
+        case TypeInteger:
+        case TypeDouble:
+        case TypeStruct:
+        case TypeAny: {
+            Value* heap_cell = createHeapCell(typeToCreate);
+            *heap_cell = defaultValue(typeToCreate);
+            tempRootPush(*heap_cell);
+            *result = OBJ_VAL(newPointerForHeapCell(typeToCreate, heap_cell));
+            tempRootPop();
+            return true;
+        }
+        case TypeMachineUint32: {
+            uint32_t* heap_cell = (uint32_t*) createHeapCell(typeToCreate);
+            *heap_cell = AS_UINTEGER(defaultValue(typeToCreate)); // default value
+            *result = OBJ_VAL(newPointerForHeapCell(typeToCreate, heap_cell));
+            return true;
+        }
+        case TypeArray: {
+            *result = defaultArrayValue(AS_YARGTYPE(args[0].value));
+            return true;
+        }
+        case TypeString:
+        case TypeClass:
+        case TypeInstance:
+        case TypeFunction:
+        case TypeNativeBlob:
+        case TypeRoutine:
+        case TypeChannel:
+        case TypePointer: 
+        case TypeYargType:
+            return false; // unsupported for now.
+    }
+
     return false;
 }
 
