@@ -1,3 +1,6 @@
-var any[] array = [ 1, false, "hello" ];
-print array;
-print array[1];
+place muint32[2] 0xd0000000 registers;
+print registers;
+rpeek(registers[0]);
+rpeek(registers[1]);
+
+
