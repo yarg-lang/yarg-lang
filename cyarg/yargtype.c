@@ -39,7 +39,7 @@ ObjConcreteYargType* newYargTypeFromType(ConcreteYargType yt) {
 }
 
 ObjConcreteYargType* newYargArrayTypeFromType(Value elementType) {
-    ObjConcreteYargTypeArray* t = ALLOCATE_OBJ(ObjConcreteYargTypeArray, OBJ_YARGTYPE_ARRAY);
+    ObjConcreteYargTypeArray* t = (ObjConcreteYargTypeArray*) newYargTypeFromType(TypeArray);
     if (IS_YARGTYPE(elementType)) {
         t->element_type = AS_YARGTYPE(elementType);
     }
@@ -48,10 +48,8 @@ ObjConcreteYargType* newYargArrayTypeFromType(Value elementType) {
 }
 
 ObjConcreteYargType* newYargStructType(size_t fieldCount) {
-    ObjConcreteYargTypeStruct* t = ALLOCATE_OBJ(ObjConcreteYargTypeStruct, OBJ_YARGTYPE_STRUCT);
+    ObjConcreteYargTypeStruct* t = (ObjConcreteYargTypeStruct*) newYargTypeFromType(TypeStruct);
     tempRootPush(OBJ_VAL(t));
-    t->core.yt = TypeStruct;
-    initTable(&t->field_names);
 
     t->field_types = GROW_ARRAY(Value, t->field_types, 0, fieldCount);
     t->field_count = fieldCount;
