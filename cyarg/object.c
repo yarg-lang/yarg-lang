@@ -353,12 +353,12 @@ static void printType(FILE* op, ObjConcreteYargType* type) {
         fprintf(op, "const ");
     }
     switch (type->yt) {
-        case TypeAny: fprintf(op, "any"); break;
-        case TypeBool: fprintf(op, "bool"); break;
-        case TypeDouble: fprintf(op, "mfloat64"); break;
-        case TypeMachineUint32: fprintf(op, "muint32"); break;
-        case TypeInteger: fprintf(op, "integer"); break;
-        case TypeString: fprintf(op, "string"); break;
+        case TypeAny: fprintf(op, "Type:any"); break;
+        case TypeBool: fprintf(op, "Type:bool"); break;
+        case TypeDouble: fprintf(op, "Type:mfloat64"); break;
+        case TypeMachineUint32: fprintf(op, "Type:muint32"); break;
+        case TypeInteger: fprintf(op, "Type:integer"); break;
+        case TypeString: fprintf(op, "Type:string"); break;
         case TypeClass: fprintf(op, "Type:Class"); break;
         case TypeInstance: fprintf(op, "Type:Instance"); break;
         case TypeFunction: fprintf(op, "Type:Function"); break;
