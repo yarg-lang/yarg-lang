@@ -384,8 +384,8 @@ static void blackenObject(Obj* object) {
                     Value* target = (Value*)ptr->destination;
                     markValue(*target);
                 } else if (is_obj_type(AS_YARGTYPE(ptr->type))) {
-                    Obj* payload = (Obj*) ptr->destination;
-                    markObject(payload);
+                    Obj** payload = (Obj**) ptr->destination;
+                    markObject(*payload);
                 }
             }
             break;
