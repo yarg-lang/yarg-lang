@@ -368,17 +368,47 @@ bool pinBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
 
 bool newBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
 
-    if (argCount == 0) {
-        ObjPointer* ptr = newPointer(NIL_VAL);
+    if (   argCount == 0
+        || (argCount == 1 && IS_NIL(args[0].value))) {
 
-        *result = OBJ_VAL(ptr);
-    } else if (argCount >= 1) {
-        Value type = args[0].value;
-        ObjPointer* ptr = newPointer(args[0].value);
-        *result = OBJ_VAL(ptr);
+        ObjConcreteYargType* ptr_type = newYargPointerType(NIL_VAL);
+        tempRootPush(OBJ_VAL(ptr_type));
+        *result = defaultPointerValue(ptr_type);
+        tempRootPop();
+        return true;
+
+    } else if ((argCount >= 1) && IS_YARGTYPE(args[0].value)) {
+        ObjConcreteYargType* requested_type = AS_YARGTYPE(args[0].value);
+        switch (requested_type->yt) {
+            case TypeBool:
+            case TypeInteger:
+            case TypeDouble:
+            case TypeMachineUint32:
+            case TypeStruct:
+            case TypeAny: {
+                ObjConcreteYargType* ptr_type = newYargPointerType(args[0].value);
+                tempRootPush(OBJ_VAL(ptr_type));
+                *result = defaultPointerValue(ptr_type);
+                tempRootPop();
+                return true;
+            }
+            case TypeArray: {
+                *result = defaultArrayValue(AS_YARGTYPE(args[0].value));
+                return true;
+            }
+            case TypeString:
+            case TypeClass:
+            case TypeInstance:
+            case TypeFunction:
+            case TypeNativeBlob:
+            case TypeRoutine:
+            case TypeChannel:
+            case TypePointer: 
+            case TypeYargType:
+                return false; // unsupported for now.
+        }
     }
-
-    return true;
+    return false;
 }
 
 Value getBuiltin(uint8_t builtin) {
