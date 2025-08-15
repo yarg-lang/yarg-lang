@@ -173,7 +173,7 @@ ObjUniformArray* newUniformArrayAt(Value type, Value location) {
 
     ObjUniformArray* array = ALLOCATE_OBJ(ObjUniformArray, OBJ_UNOWNED_UNIFORMARRAY);
     array->array = (void*)(uintptr_t)AS_UINTEGER(location);
-    array->element_size = yt_sizeof_type(OBJ_VAL(arrayType->element_type));
+    array->element_size = yt_sizeof_type_storage(OBJ_VAL(arrayType->element_type));
     array->element_type = arrayType->element_type;
     array->count = arrayType->cardinality;
 
@@ -195,7 +195,7 @@ Value defaultArrayValue(ObjConcreteYargType* type) {
 }
 
 void* createHeapCell(Value type) {
-    void* dest = reallocate(NULL, 0, yt_sizeof_type(type));
+    void* dest = reallocate(NULL, 0, yt_sizeof_type_storage(type));
     return dest;
 }
 

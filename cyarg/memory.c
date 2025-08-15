@@ -556,7 +556,7 @@ static void freeObject(Obj* object) {
         case OBJ_UNOWNED_POINTER: FREE(ObjPointer, object); break;
         case OBJ_POINTER: {
             ObjPointer* ptr = (ObjPointer*) object;
-            ptr->destination = reallocate(ptr->destination, yt_sizeof_type(ptr->destination_type), 0);
+            ptr->destination = reallocate(ptr->destination, yt_sizeof_type_storage(ptr->destination_type), 0);
             FREE(ObjPointer, object); 
             break;
         }

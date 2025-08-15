@@ -200,7 +200,7 @@ bool is_placeable_type(Value typeVal) {
     return false;
 }
 
-size_t yt_sizeof_type(Value type) {
+size_t yt_sizeof_type_storage(Value type) {
     if (IS_NIL(type)) {
         return sizeof(Value);
     } else {
