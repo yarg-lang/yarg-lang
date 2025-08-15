@@ -209,8 +209,8 @@ static void blackenObject(Obj* object) {
             break;
         }
         case OBJ_STMT_VARDECLARATION: {
+            markStmt(object);
             ObjStmtVarDeclaration* stmt = (ObjStmtVarDeclaration*)object;
-            markObject((Obj*)stmt->stmt.nextStmt);
             markObject((Obj*)stmt->name);
             markObject((Obj*)stmt->type);
             markObject((Obj*)stmt->initialiser);
