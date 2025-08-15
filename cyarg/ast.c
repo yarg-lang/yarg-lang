@@ -539,7 +539,7 @@ void printStmtExpression(ObjStmtExpression* stmt) {
 void printStmtVarDeclaration(ObjStmtVarDeclaration* decl) {
     printf("var ");
     if (decl->type) {
-        printExpr((ObjExpr*)decl->type);
+        printExpr(decl->type);
     }
     printf(" ");
     printObject(OBJ_VAL(decl->name));
