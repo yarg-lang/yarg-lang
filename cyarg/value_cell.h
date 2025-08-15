@@ -13,4 +13,9 @@ typedef struct {
     Value* type;
 } ValueCellTarget;
 
+typedef struct {
+    StoredValue* storedValue;
+    Value* type;
+} StoredValueCellTarget;
+
 #endif
