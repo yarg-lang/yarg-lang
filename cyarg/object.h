@@ -232,6 +232,7 @@ void* createHeapCell(Value type);
 ObjPointer* newPointerForHeapCell(Value type, void* location);
 
 ObjPointer* newPointerAt(Value type, Value location);
+ObjPointer* newPointerAtCell(Value type, void* location);
 ObjUniformArray* newUniformArrayAt(Value type, Value location);
 
 Value createPointerToObj(Value type, Obj* target);

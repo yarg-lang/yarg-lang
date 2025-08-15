@@ -207,6 +207,17 @@ ObjPointer* newPointerForHeapCell(Value target_type, void* location) {
     return ptr;
 }
 
+ObjPointer* newPointerAtCell(Value type, void* location) {
+    if (IS_NIL(type) || IS_YARGTYPE(type)) {
+        ObjPointer* ptr = ALLOCATE_OBJ(ObjPointer, OBJ_UNOWNED_POINTER);
+        ptr->destination_type = type;
+        ptr->destination = (void*)(uintptr_t) location;
+        return ptr;
+    } else {
+        return NULL;
+    }
+}
+
 ObjPointer* newPointerAt(Value type, Value location) {
     if (   IS_YARGTYPE(type)
         && AS_YARGTYPE(type)->yt == TypeMachineUint32
