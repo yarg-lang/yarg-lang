@@ -560,9 +560,16 @@ static void printStmtPlaceDeclaration(ObjStmtPlaceDeclaration* decl) {
     printf(";");
 }
 
+static bool isNilExpr(ObjExpr* expr) {
+    if (expr->obj.type == OBJ_EXPR_LITERAL) {
+        ObjExprLiteral* lit = (ObjExprLiteral*)expr;
+        return lit->literal == EXPR_LITERAL_NIL;
+    }
+    return false;
+}
+
 static void printStmtFieldDeclaration(ObjStmtFieldDeclaration* decl) {
-    if (   decl->type->obj.type != OBJ_EXPR_LITERAL
-        && ((ObjExprLiteral*)decl->type)->literal != EXPR_LITERAL_NIL) {
+    if (decl->type && !isNilExpr(decl->type)) {
         printExpr(decl->type);
         printf(" ");
     }
