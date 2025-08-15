@@ -762,7 +762,10 @@ static ObjExpr* typeExpression() {
 static ObjStmt* varDeclaration() {
 
     ObjExpr* typeExpr = typeExpression();
-
+    if (typeExpr) {
+        pushWorkingNode((Obj*)typeExpr);
+    }
+    
     consume(TOKEN_IDENTIFIER, "Expect variable name.");
     ObjStmtVarDeclaration* decl = newStmtVarDeclaration((char*)parser.previous.start, parser.previous.length, parser.previous.line);
     pushWorkingNode((Obj*)decl);
