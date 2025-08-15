@@ -229,6 +229,56 @@ size_t yt_sizeof_type_storage(Value type) {
     }
 }
 
+void initialisePackedStorage(Value type, void* storage) {
+    if (IS_NIL(type)) {
+        *(Value*)storage = NIL_VAL;
+    } else {
+        ObjConcreteYargType* ct = AS_YARGTYPE(type);
+        Value* valueStorage = (Value*)storage;
+        switch (ct->yt) {
+            case TypeAny: *valueStorage = NIL_VAL; break;
+            case TypeBool: *valueStorage = FALSE_VAL; break;
+            case TypeDouble: *valueStorage = DOUBLE_VAL(0); break;
+            case TypeInteger:  *valueStorage = INTEGER_VAL(0); break;
+            case TypeMachineUint32: {
+                *(uint32_t*)storage = 0; 
+                break;
+            }
+            case TypeStruct: {
+                ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*)ct;
+                for (size_t i = 0; i < st->field_count; i++) {
+                    valueStorage[i] = defaultValue(st->field_types[i]);
+                }
+                break;
+            }
+            case TypeArray: {
+                ObjConcreteYargTypeArray* at = (ObjConcreteYargTypeArray*)ct;
+                uint8_t* byteStorage = (uint8_t*)storage;
+                if (at->cardinality > 0) {
+                    Value* arrayStorage = (Value*)storage;
+                    for (size_t i = 0; i < at->cardinality; i++) {
+                        initialisePackedStorage(OBJ_VAL(at->element_type), byteStorage + i * yt_sizeof_type_storage(OBJ_VAL(at->element_type)));
+                    }
+                }
+                break;
+            }
+            case TypePointer:
+            case TypeString:
+            case TypeClass:
+            case TypeInstance:
+            case TypeFunction:
+            case TypeNativeBlob:
+            case TypeRoutine:
+            case TypeChannel:
+            case TypeYargType: {
+                Obj** location = (Obj**)storage;
+                *location = NULL;
+                break;
+            }
+        }
+    }
+}
+
 Value defaultValue(Value type) {
     if (IS_NIL(type)) {
         return NIL_VAL;

@@ -61,6 +61,7 @@ bool is_placeable_type(Value type);
 size_t yt_sizeof_type_storage(Value type);
 
 Value defaultValue(Value type);
+void initialisePackedStorage(Value type, void* storage);
 
 bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue);
 bool isCompatibleType(ObjConcreteYargType* lhsType, Value rhsValue);
