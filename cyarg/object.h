@@ -177,7 +177,7 @@ typedef struct {
     Value data;
 } ObjChannel;
 
-typedef struct ObjPackedUniformArray {
+typedef struct {
     Obj obj;
     ObjConcreteYargTypeArray* type;
     StoredValue* arrayElements;
