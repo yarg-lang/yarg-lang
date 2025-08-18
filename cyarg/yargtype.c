@@ -278,6 +278,62 @@ void initialisePackedStorage(Value type, StoredValue* packedStorage) {
     }
 }
 
+Value unpackStoredValue(Value type, StoredValue* packedStorage) {
+    if (IS_NIL(type)) {
+        return packedStorage->asValue;
+    } else {
+        ObjConcreteYargType* ct = AS_YARGTYPE(type);
+        switch (ct->yt) {
+            case TypeAny: return packedStorage->asValue;
+            case TypeBool: return packedStorage->asValue;
+            case TypeDouble: return packedStorage->asValue;
+            case TypeInteger: return packedStorage->asValue;
+            case TypeMachineUint32: return UINTEGER_VAL(packedStorage->as.uinteger);
+            case TypeStruct:
+            case TypeArray:
+            case TypePointer:
+            case TypeString:
+            case TypeClass:
+            case TypeInstance:
+            case TypeFunction:
+            case TypeNativeBlob:
+            case TypeRoutine:
+            case TypeChannel:
+            case TypeYargType: {
+                return OBJ_VAL(packedStorage->as.obj);
+            }
+        }
+    }
+}
+
+void packValueStorage(StoredValueCellTarget* packedStorageCell, Value value) {
+    if (IS_NIL(*packedStorageCell->type)) {
+        packedStorageCell->storedValue->asValue = value;
+    } else {
+        ObjConcreteYargType* ct = AS_YARGTYPE(*packedStorageCell->type);
+        switch (ct->yt) {
+            case TypeAny: packedStorageCell->storedValue->asValue = value; break;
+            case TypeBool: packedStorageCell->storedValue->asValue = value; break;
+            case TypeDouble: packedStorageCell->storedValue->asValue = value; break;
+            case TypeInteger: packedStorageCell->storedValue->asValue = value; break;
+            case TypeMachineUint32: packedStorageCell->storedValue->as.uinteger = AS_UINTEGER(value); break;
+            case TypeStruct:
+            case TypeArray:
+            case TypePointer:
+            case TypeString:
+            case TypeClass:
+            case TypeInstance:
+            case TypeFunction:
+            case TypeNativeBlob:
+            case TypeRoutine:
+            case TypeChannel:
+            case TypeYargType: {
+                packedStorageCell->storedValue->as.obj = AS_OBJ(value); 
+            }
+        }
+    }
+}
+
 Value defaultValue(Value type) {
     if (IS_NIL(type)) {
         return NIL_VAL;
