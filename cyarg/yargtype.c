@@ -133,7 +133,7 @@ Value concrete_typeof(Value a) {
     return NIL_VAL;
 }
 
-bool is_obj_type(ObjConcreteYargType* type) {
+bool type_packs_as_obj(ObjConcreteYargType* type) {
     switch (type->yt) {
         case TypeAny:
         case TypeBool:

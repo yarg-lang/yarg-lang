@@ -57,7 +57,7 @@ ObjConcreteYargType* newYargPointerType(Value targetType);
 size_t addFieldType(ObjConcreteYargTypeStruct* st, size_t index, size_t fieldOffset, Value type, Value name);
 
 Value concrete_typeof(Value a);
-bool is_obj_type(ObjConcreteYargType* type);
+bool type_packs_as_obj(ObjConcreteYargType* type);
 bool is_nil_assignable_type(Value type);
 bool is_placeable_type(Value type);
 size_t yt_sizeof_type_storage(Value type);

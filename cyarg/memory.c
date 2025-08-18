@@ -89,7 +89,7 @@ void markStoredValue(Value type, StoredValue* stored) {
     if (IS_NIL(type)) {
         markValue(stored->asValue);
         return;
-    } else if (is_obj_type(AS_YARGTYPE(type))) {
+    } else if (type_packs_as_obj(AS_YARGTYPE(type))) {
         markObject(stored->as.obj);
         return;
     }
