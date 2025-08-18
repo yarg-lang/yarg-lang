@@ -84,6 +84,17 @@ void markValueCell(ValueCell* cell) {
     markValue(cell->type);
 }
 
+void markStoredValue(Value type, StoredValue* stored) {
+    if (stored == NULL) return;
+    if (IS_NIL(type)) {
+        markValue(stored->asValue);
+        return;
+    } else if (is_obj_type(AS_YARGTYPE(type))) {
+        markObject(stored->as.obj);
+        return;
+    }
+}
+
 static void markArray(ValueArray* array) {
     for (int i = 0; i < array->count; i++) {
         markValue(array->values[i]);
@@ -381,15 +392,7 @@ static void blackenObject(Obj* object) {
         case OBJ_POINTER: {
             ObjPointer* ptr = (ObjPointer*)object;
             markValue(ptr->destination_type);
-            if (ptr->destination != NULL) {
-                if (IS_NIL(ptr->destination_type)) {
-                    Value* target = (Value*)ptr->destination;
-                    markValue(*target);
-                } else if (is_obj_type(AS_YARGTYPE(ptr->destination_type))) {
-                    Obj** payload = (Obj**) ptr->destination;
-                    markObject(*payload);
-                }
-            }
+            markStoredValue(ptr->destination_type, ptr->destination);
             break;
         }
         case OBJ_STRUCT: {
