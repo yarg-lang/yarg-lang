@@ -251,22 +251,52 @@ Value placeObjectAt(Value type, Value location) {
     return NIL_VAL;
 }
 
-Value defaultStructValue(ObjConcreteYargType* type) {
-    ObjStruct* object = ALLOCATE_OBJ(ObjStruct, OBJ_STRUCT);
-    tempRootPush(OBJ_VAL(object));
+ObjPackedStruct* newPackedStruct(ObjConcreteYargTypeStruct* type) {
+    ObjPackedStruct* object = ALLOCATE_OBJ(ObjPackedStruct, OBJ_PACKEDSTRUCT);
     object->type = type;
-    ObjConcreteYargTypeStruct* ct = (ObjConcreteYargTypeStruct*)type;
-    object->fields = GROW_ARRAY(Value, object->fields, 0, ct->field_count);
-    for (size_t i = 0; i < ct->field_count; i++) {
-        object->fields[i] = NIL_VAL;
-    }
-    object->field_count = ct->field_count;
+    tempRootPush(OBJ_VAL(object));
 
-    for (size_t i = 0; i < ct->field_count; i++) {
-        object->fields[i] = defaultValue(ct->field_types[i]);
+    StoredValue* storage = reallocate(object->structFields, 0, type->storage_size);
+
+    for (size_t i = 0; i < type->field_count; i++) {
+        StoredValue* field = structField(object->type, storage, i);
+        initialisePackedStorage(type->field_types[i], field);
     }
+
+    object->structFields = storage;
+
     tempRootPop();
-    return OBJ_VAL(object);
+    return object;
+}
+
+bool structFieldIndex(ObjConcreteYargTypeStruct* structType, ObjString* name, size_t* index) {
+    Value indexVal;
+    if (tableGet(&structType->field_names, name, &indexVal)) {
+        *index = AS_UINTEGER(indexVal);
+        return true;
+    }
+    return false;
+}
+
+StoredValue* structField(ObjConcreteYargTypeStruct* structType, StoredValue* structStart, size_t index) {
+
+    StoredValue* field = (StoredValue*)((uint8_t*)structStart + structType->field_indexes[index]);
+    return field;
+}
+
+Value defaultStructValue(ObjConcreteYargType* type) {
+    ObjConcreteYargTypeStruct* typeStruct = (ObjConcreteYargTypeStruct*)type;
+
+    ObjPackedStruct* object = newPackedStruct(typeStruct);
+    tempRootPush(OBJ_VAL(object));
+
+    for (size_t i = 0; i < typeStruct->field_count; i++) {
+        StoredValue* field = structField(object->type, object->structFields, i);
+        Value def = defaultValue(typeStruct->field_types[i]);
+        StoredValueCellTarget packedStorageCell = { .type = &typeStruct->field_types[i], .storedValue = field };
+        packValueStorage(&packedStorageCell, def);
+    }
+    return tempRootPop();
 }
 
 static ObjString* allocateString(char* chars, int length, uint32_t hash) {
@@ -414,10 +444,12 @@ static void printPointer(FILE* op, ObjPointer* ptr) {
     fprintf(op, ":%p>", (void*) ptr->destination);
 }
 
-static void printStruct(FILE* op, ObjStruct* st) {
-    fprintf(op, "struct{%zu:", st->field_count);
-    for (size_t i = 0; i < st->field_count; i++) {
-        fprintValue(op, st->fields[i]);
+static void printStruct(FILE* op, ObjPackedStruct* st) {
+    fprintf(op, "struct{|%zu:%zu|", st->type->field_count, st->type->storage_size);
+    for (size_t i = 0; i < st->type->field_count; i++) {
+        StoredValue* field = structField(st->type, st->structFields, i);
+        Value logValue = unpackStoredValue(st->type->field_types[i], field);
+        fprintValue(op, logValue);
         fprintf(op, "; ");
     }
     fprintf(op, "}");
@@ -471,7 +503,7 @@ void fprintObject(FILE* op, Value value) {
         case OBJ_POINTER:
             printPointer(op, AS_POINTER(value));
             break;
-        case OBJ_STRUCT:
+        case OBJ_PACKEDSTRUCT:
             printStruct(op, AS_STRUCT(value));
             break;
         default:

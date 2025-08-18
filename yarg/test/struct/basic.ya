@@ -12,9 +12,9 @@ var struct {
        integer x;
        integer y;
        } loc;
-    string name;
+    bool name;
     } location;
 
-print location.name;  // expect: nil
+print location.name;  // expect: false
 print location.loc.x; // expect: 0
 print location.loc.y; // expect: 0

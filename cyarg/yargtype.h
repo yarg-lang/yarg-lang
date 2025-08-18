@@ -34,7 +34,7 @@ typedef struct ObjConcreteYargTypeArray {
     ObjConcreteYargType* element_type;
 } ObjConcreteYargTypeArray;
 
-typedef struct {
+typedef struct ObjConcreteYargTypeStruct {
     ObjConcreteYargType core;
     ValueTable field_names;
     size_t* field_indexes;

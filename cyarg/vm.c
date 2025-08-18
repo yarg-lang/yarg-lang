@@ -532,6 +532,7 @@ InterpretResult run(ObjRoutine* routine) {
 
     for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
+        printf("\n");
         printValueStack(routine, "          ");
         disassembleInstruction(&frame->closure->function->chunk, 
                                (int)(frame->ip - frame->closure->function->chunk.code));
@@ -659,19 +660,17 @@ InterpretResult run(ObjRoutine* routine) {
                         return INTERPRET_RUNTIME_ERROR;
                     }
                 } else if (IS_STRUCT(peek(routine, 0))) {
-                    ObjStruct* object = AS_STRUCT(peek(routine, 0));
-                    ObjConcreteYargTypeStruct* type = (ObjConcreteYargTypeStruct*)object->type;
+                    ObjPackedStruct* object = AS_STRUCT(peek(routine, 0));
                     ObjString* name = READ_STRING();
 
-                    Value indexVal;
-                    Value result = NIL_VAL;
-                    if (tableGet(&type->field_names, name, &indexVal)) {
-                        uint32_t index = AS_UINTEGER(indexVal);
-                        result = object->fields[index];
-                    } else {
+                    size_t index;
+                    if (!structFieldIndex(object->type, name, &index)) {
                         runtimeError(routine, "field not present in struct.");
                         return INTERPRET_RUNTIME_ERROR;
                     }
+                    StoredValue* field = structField(object->type, object->structFields, index);
+                    Value result = unpackStoredValue(object->type->field_types[index], field);
+
                     pop(routine);
                     push(routine, result);
                 }
@@ -689,22 +688,21 @@ InterpretResult run(ObjRoutine* routine) {
                     pop(routine);
                     push(routine, value);
                 } else if (IS_STRUCT(peek(routine, 1))) {
-                    ObjStruct* object = AS_STRUCT(peek(routine, 1));
-                    ObjConcreteYargTypeStruct* type = (ObjConcreteYargTypeStruct*)object->type;
+                    ObjPackedStruct* object = AS_STRUCT(peek(routine, 1));
                     ObjString* name = READ_STRING();
-                    
-                    Value indexVal;
-                    Value result = peek(routine, 0);
-                    if (tableGet(&type->field_names, name, &indexVal)) {
-                        uint32_t index = AS_UINTEGER(indexVal);
-                        ValueCellTarget trg = { .type = &type->field_types[index], .value = &object->fields[index] };
-                        if (!assignTo(trg, result)) {
-                            runtimeError(routine, "cannot assign to field type.");
-                        }
-                    } else {
+
+                    size_t index;
+                    if (!structFieldIndex(object->type, name, &index)) {
                         runtimeError(routine, "field not present in struct.");
                         return INTERPRET_RUNTIME_ERROR;
                     }
+                    StoredValue* field = structField(object->type, object->structFields, index);
+                    StoredValueCellTarget trg = { .type = &object->type->field_types[index], .storedValue = field };
+                    if (!assignToStorage(&trg, peek(routine, 0))) {
+                        runtimeError(routine, "cannot assign to field type.");
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                    Value result = pop(routine);
                     pop(routine);                    
                     pop(routine);
                     push(routine, result);

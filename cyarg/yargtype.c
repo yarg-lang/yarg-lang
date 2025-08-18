@@ -227,7 +227,7 @@ size_t yt_sizeof_type_storage(Value type) {
         case TypeStruct:
         case TypePointer:
         case TypeYargType:
-            return sizeof(uintptr_t);            
+            return sizeof(Obj*);
         }
     }
 }
@@ -247,14 +247,6 @@ void initialisePackedStorage(Value type, StoredValue* packedStorage) {
                 packedStorage->as.uinteger = 0;
                 break;
             }
-            case TypeStruct: {
-                ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*)ct;
-                Value* valueStorage = &packedStorage->asValue;
-                for (size_t i = 0; i < st->field_count; i++) {
-                    valueStorage[i] = defaultValue(st->field_types[i]);
-                }
-                break;
-            }
             case TypeArray: {
                 ObjConcreteYargTypeArray* at = (ObjConcreteYargTypeArray*)ct;
                 uint8_t* byteStorage = (uint8_t*)packedStorage;
@@ -266,6 +258,7 @@ void initialisePackedStorage(Value type, StoredValue* packedStorage) {
                 break;
             }
             case TypePointer:
+            case TypeStruct:
             case TypeString:
             case TypeClass:
             case TypeInstance:
@@ -303,7 +296,11 @@ Value unpackStoredValue(Value type, StoredValue* packedStorage) {
             case TypeRoutine:
             case TypeChannel:
             case TypeYargType: {
-                return OBJ_VAL(packedStorage->as.obj);
+                if (packedStorage->as.obj) {
+                    return OBJ_VAL(packedStorage->as.obj);
+                } else {
+                    return NIL_VAL;
+                }
             }
         }
     }

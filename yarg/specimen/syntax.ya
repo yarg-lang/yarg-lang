@@ -1,6 +1,7 @@
-place muint32[2] 0xd0000000 registers;
-print registers;
-rpeek(registers[0]);
-rpeek(registers[1]);
-
+var struct { struct { bool name; muint32 age; } location; } contact;
+print contact.location.name; // expect: nil
+contact.location.name = true;
+print contact.location.name; // expect: true
+contact.location.age = 0d30;
+print contact.location.age; // expect: 30
 

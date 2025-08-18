@@ -9,6 +9,7 @@
 
 typedef struct ObjConcreteYargType ObjConcreteYargType;
 typedef struct ObjConcreteYargTypeArray ObjConcreteYargTypeArray;
+typedef struct ObjConcreteYargTypeStruct ObjConcreteYargTypeStruct;
 
 
 #define OBJ_TYPE(value)     (AS_OBJ(value)->type)
@@ -26,7 +27,7 @@ typedef struct ObjConcreteYargTypeArray ObjConcreteYargTypeArray;
 #define IS_UNIFORMARRAY(value) (isObjType(value, OBJ_PACKEDUNIFORMARRAY)|| isObjType(value, OBJ_UNOWNED_UNIFORMARRAY))
 #define IS_YARGTYPE(value)     (isObjType(value, OBJ_YARGTYPE) || isObjType(value, OBJ_YARGTYPE_ARRAY) || isObjType(value, OBJ_YARGTYPE_STRUCT) || isObjType(value, OBJ_YARGTYPE_POINTER))
 #define IS_POINTER(value)      (isObjType(value, OBJ_POINTER) || isObjType(value, OBJ_UNOWNED_POINTER))
-#define IS_STRUCT(value)       isObjType(value, OBJ_STRUCT)
+#define IS_STRUCT(value)       isObjType(value, OBJ_PACKEDSTRUCT)
 
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
 #define AS_CLASS(value)        ((ObjClass*)AS_OBJ(value))
@@ -43,7 +44,7 @@ typedef struct ObjConcreteYargTypeArray ObjConcreteYargTypeArray;
 #define AS_UNIFORMARRAY(value) ((ObjPackedUniformArray*)AS_OBJ(value))
 #define AS_YARGTYPE(value)     ((ObjConcreteYargType*)AS_OBJ(value))
 #define AS_POINTER(value)      ((ObjPointer*)AS_OBJ(value))
-#define AS_STRUCT(value)       ((ObjStruct*)AS_OBJ(value))
+#define AS_STRUCT(value)       ((ObjPackedStruct*)AS_OBJ(value))
 
 typedef enum {
     OBJ_BOUND_METHOD,
@@ -65,7 +66,7 @@ typedef enum {
     OBJ_YARGTYPE_POINTER,
     OBJ_POINTER,
     OBJ_UNOWNED_POINTER,
-    OBJ_STRUCT,
+    OBJ_PACKEDSTRUCT,
     OBJ_AST,
     OBJ_STMT_EXPRESSION,
     OBJ_STMT_PRINT,
@@ -191,10 +192,9 @@ typedef struct {
 
 typedef struct {
     Obj obj;
-    ObjConcreteYargType* type;
-    Value* fields;
-    size_t field_count;
-} ObjStruct;
+    ObjConcreteYargTypeStruct* type;
+    StoredValue* structFields;
+} ObjPackedStruct;
 
 #define ALLOCATE_OBJ(type, objectType) \
     (type*)allocateObject(sizeof(type), objectType)
@@ -220,6 +220,9 @@ ObjString* copyString(const char* chars, int length);
 ObjUpvalue* newUpvalue(ValueCell* slot);
 
 StoredValue* arrayElement(ObjPackedUniformArray* array, size_t index);
+
+StoredValue* structField(ObjConcreteYargTypeStruct* structType, StoredValue* structStart, size_t index);
+bool structFieldIndex(ObjConcreteYargTypeStruct* structType, ObjString* name, size_t* index);
 
 void* createHeapCell(Value type);
 ObjPointer* newPointerForHeapCell(Value type, void* location);

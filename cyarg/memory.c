@@ -388,10 +388,12 @@ static void blackenObject(Obj* object) {
             markStoredValue(ptr->destination_type, ptr->destination);
             break;
         }
-        case OBJ_STRUCT: {
-            ObjStruct* struct_ = (ObjStruct*)object;
-            for (int i = 0; i < struct_->field_count; i++) {
-                markValue(struct_->fields[i]);
+        case OBJ_PACKEDSTRUCT: {
+            ObjPackedStruct* struct_ = (ObjPackedStruct*)object;
+            if (struct_->structFields) {
+                for (int i = 0; i < struct_->type->field_count; i++) {
+                    markStoredValue(struct_->type->field_types[i], structField(struct_->type, struct_->structFields, i));
+                }
             }
             markObject((Obj*)struct_->type);
             break;
@@ -551,10 +553,10 @@ static void freeObject(Obj* object) {
             FREE(ObjPointer, object); 
             break;
         }
-        case OBJ_STRUCT: {
-            ObjStruct* struct_ = (ObjStruct*) object;
-            FREE_ARRAY(Value, struct_->fields, struct_->field_count);
-            FREE(ObjStruct, object);
+        case OBJ_PACKEDSTRUCT: {
+            ObjPackedStruct* struct_ = (ObjPackedStruct*) object;
+            struct_->structFields = reallocate(struct_->structFields, struct_->type->storage_size, 0);
+            FREE(ObjPackedStruct, object);
             break;            
         }
     }
