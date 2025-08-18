@@ -23,7 +23,6 @@ typedef struct ObjConcreteYargTypeArray ObjConcreteYargTypeArray;
 #define IS_ROUTINE(value)      isObjType(value, OBJ_ROUTINE)
 #define IS_CHANNEL(value)      isObjType(value, OBJ_CHANNEL)
 #define IS_STRING(value)       isObjType(value, OBJ_STRING)
-#define IS_VALARRAY(value)     isObjType(value, OBJ_VALARRAY)
 #define IS_UNIFORMARRAY(value) (isObjType(value, OBJ_PACKEDUNIFORMARRAY)|| isObjType(value, OBJ_UNOWNED_UNIFORMARRAY))
 #define IS_YARGTYPE(value)     (isObjType(value, OBJ_YARGTYPE) || isObjType(value, OBJ_YARGTYPE_ARRAY) || isObjType(value, OBJ_YARGTYPE_STRUCT) || isObjType(value, OBJ_YARGTYPE_POINTER))
 #define IS_POINTER(value)      (isObjType(value, OBJ_POINTER) || isObjType(value, OBJ_UNOWNED_POINTER))
