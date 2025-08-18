@@ -171,9 +171,7 @@ static void blackenObject(Obj* object) {
             markObject((Obj*)array->type);
             for (size_t i = 0; i < array->type->cardinality; i++) {
                 StoredValue* element = arrayElement(array, i);
-                if (array->type->element_type) {
-                    markStoredValue(OBJ_VAL(array->type->element_type), element);
-                }
+                markStoredValue(array->type->element_type ? OBJ_VAL(array->type->element_type) : NIL_VAL, element);
             }
             break;
         }
