@@ -37,8 +37,10 @@ typedef struct {
 typedef struct {
     ObjConcreteYargType core;
     ValueTable field_names;
+    size_t* field_indexes;
     Value* field_types;
     size_t field_count;
+    size_t storage_size;
 } ObjConcreteYargTypeStruct;
 
 typedef struct {
@@ -52,7 +54,7 @@ ObjConcreteYargType* newYargArrayTypeFromType(Value elementType);
 ObjConcreteYargType* newYargStructType(size_t fieldCount);
 ObjConcreteYargType* newYargPointerType(Value targetType);
 
-void addFieldType(ObjConcreteYargTypeStruct* st, size_t index, Value type, Value name);
+size_t addFieldType(ObjConcreteYargTypeStruct* st, size_t index, size_t fieldOffset, Value type, Value name);
 
 Value concrete_typeof(Value a);
 bool is_obj_type(ObjConcreteYargType* type);

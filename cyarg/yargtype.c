@@ -58,9 +58,16 @@ ObjConcreteYargType* newYargStructType(size_t fieldCount) {
 
     t->field_types = GROW_ARRAY(Value, t->field_types, 0, fieldCount);
     t->field_count = fieldCount;
+
     for (size_t i = 0; i < fieldCount; i++) {
         t->field_types[i] = NIL_VAL;
     }
+
+    t->field_indexes = GROW_ARRAY(size_t, t->field_indexes, 0, fieldCount);
+    for (size_t i = 0; i < fieldCount; i++) {
+        t->field_indexes[i] = 0;
+    }
+
 
     tempRootPop();
     return (ObjConcreteYargType*)t;
@@ -74,9 +81,12 @@ ObjConcreteYargType* newYargPointerType(Value targetType) {
     return (ObjConcreteYargType*)p;
 }
 
-void addFieldType(ObjConcreteYargTypeStruct* st, size_t index, Value type, Value name) {
+size_t addFieldType(ObjConcreteYargTypeStruct* st, size_t index, size_t fieldOffset, Value type, Value name) {
     st->field_types[index] = type;
     tableSet(&st->field_names, AS_STRING(name), UINTEGER_VAL(index));
+    st->field_indexes[index] = fieldOffset;
+    st->storage_size = fieldOffset + yt_sizeof_type_storage(type);
+    return st->storage_size;
 }
 
 Value concrete_typeof(Value a) {
