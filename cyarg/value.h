@@ -11,6 +11,14 @@ typedef struct ObjString ObjString;
 typedef struct ObjRoutine ObjRoutine;
 typedef struct ObjValArray ObjValArray;
 
+typedef union {
+    bool boolean;
+    double dbl;
+    uint32_t uinteger;
+    int32_t integer;
+    Obj* obj;
+} AnyValue;
+
 #ifdef NAN_BOXING
 
 /*
@@ -108,13 +116,7 @@ typedef enum {
 
 typedef struct {
     ValueType type;
-    union {
-        bool boolean;
-        double dbl;
-        uint32_t uinteger;
-        int32_t integer;
-        Obj* obj;
-    } as;
+    AnyValue as;
 } Value;
 
 #define IS_BOOL(value)     ((value).type == VAL_BOOL)
@@ -149,6 +151,11 @@ bool valuesEqual(Value a, Value b);
 void initValueArray(ValueArray* array);
 void appendToValueArray(ValueArray* array, Value value);
 void freeValueArray(ValueArray* array);
+
+typedef union {
+    AnyValue as;
+    Value asValue;
+} StoredValue;
 
 void printValue(Value value);
 void fprintValue(FILE* op, Value value);

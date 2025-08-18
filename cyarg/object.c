@@ -207,11 +207,11 @@ ObjPointer* newPointerForHeapCell(Value target_type, void* location) {
     return ptr;
 }
 
-ObjPointer* newPointerAtCell(Value type, void* location) {
+ObjPointer* newPointerAtCell(Value type, StoredValue* location) {
     if (IS_NIL(type) || IS_YARGTYPE(type)) {
         ObjPointer* ptr = ALLOCATE_OBJ(ObjPointer, OBJ_UNOWNED_POINTER);
         ptr->destination_type = type;
-        ptr->destination = (void*)(uintptr_t) location;
+        ptr->destination = location;
         return ptr;
     } else {
         return NULL;

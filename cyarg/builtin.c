@@ -337,15 +337,15 @@ bool newBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
         case TypeDouble:
         case TypeStruct:
         case TypeAny: {
-            Value* heap_cell = createHeapCell(typeToCreate);
+            StoredValue* heap_cell = createHeapCell(typeToCreate);
             initialisePackedStorage(typeToCreate, heap_cell);
-            tempRootPush(*heap_cell);
+            tempRootPush(heap_cell->asValue);
             *result = OBJ_VAL(newPointerForHeapCell(typeToCreate, heap_cell));
             tempRootPop();
             return true;
         }
         case TypeMachineUint32: {
-            uint32_t* heap_cell = (uint32_t*) createHeapCell(typeToCreate);
+            StoredValue* heap_cell = createHeapCell(typeToCreate);
             initialisePackedStorage(typeToCreate, heap_cell);
             *result = OBJ_VAL(newPointerForHeapCell(typeToCreate, heap_cell));
             return true;

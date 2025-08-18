@@ -229,23 +229,24 @@ size_t yt_sizeof_type_storage(Value type) {
     }
 }
 
-void initialisePackedStorage(Value type, void* storage) {
+void initialisePackedStorage(Value type, StoredValue* packedStorage) {
+
     if (IS_NIL(type)) {
-        *(Value*)storage = NIL_VAL;
+        packedStorage->asValue = NIL_VAL;
     } else {
         ObjConcreteYargType* ct = AS_YARGTYPE(type);
-        Value* valueStorage = (Value*)storage;
         switch (ct->yt) {
-            case TypeAny: *valueStorage = NIL_VAL; break;
-            case TypeBool: *valueStorage = FALSE_VAL; break;
-            case TypeDouble: *valueStorage = DOUBLE_VAL(0); break;
-            case TypeInteger:  *valueStorage = INTEGER_VAL(0); break;
+            case TypeAny: packedStorage->asValue = NIL_VAL; break;
+            case TypeBool: packedStorage->asValue = BOOL_VAL(false); break;
+            case TypeDouble: packedStorage->asValue = DOUBLE_VAL(0); break;
+            case TypeInteger:  packedStorage->asValue = INTEGER_VAL(0); break;
             case TypeMachineUint32: {
-                *(uint32_t*)storage = 0; 
+                packedStorage->as.uinteger = 0;
                 break;
             }
             case TypeStruct: {
                 ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*)ct;
+                Value* valueStorage = &packedStorage->asValue;
                 for (size_t i = 0; i < st->field_count; i++) {
                     valueStorage[i] = defaultValue(st->field_types[i]);
                 }
@@ -253,11 +254,10 @@ void initialisePackedStorage(Value type, void* storage) {
             }
             case TypeArray: {
                 ObjConcreteYargTypeArray* at = (ObjConcreteYargTypeArray*)ct;
-                uint8_t* byteStorage = (uint8_t*)storage;
+                uint8_t* byteStorage = (uint8_t*)packedStorage;
                 if (at->cardinality > 0) {
-                    Value* arrayStorage = (Value*)storage;
                     for (size_t i = 0; i < at->cardinality; i++) {
-                        initialisePackedStorage(OBJ_VAL(at->element_type), byteStorage + i * yt_sizeof_type_storage(OBJ_VAL(at->element_type)));
+                        initialisePackedStorage(OBJ_VAL(at->element_type), (StoredValue*) byteStorage + i * yt_sizeof_type_storage(OBJ_VAL(at->element_type)));
                     }
                 }
                 break;
@@ -271,8 +271,7 @@ void initialisePackedStorage(Value type, void* storage) {
             case TypeRoutine:
             case TypeChannel:
             case TypeYargType: {
-                Obj** location = (Obj**)storage;
-                *location = NULL;
+                packedStorage->as.obj = NULL;
                 break;
             }
         }
@@ -285,7 +284,7 @@ Value defaultValue(Value type) {
     } else {
         ObjConcreteYargType* ct = AS_YARGTYPE(type);
         switch (ct->yt) {
-            case TypeBool: return FALSE_VAL;
+            case TypeBool: return BOOL_VAL(false);
             case TypeInteger: return INTEGER_VAL(0);
             case TypeDouble: return DOUBLE_VAL(0);
             case TypeMachineUint32: return UINTEGER_VAL(0);
