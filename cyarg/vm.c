@@ -420,6 +420,21 @@ static void concatenate(ObjRoutine* routine) {
     push(routine, OBJ_VAL(result));
 }
 
+static bool assignToStorage(StoredValueCellTarget* lhs, Value rhsValue) {
+    if (IS_NIL(*lhs->type)) {
+        lhs->storedValue->asValue = rhsValue;
+        return true;
+    } else {
+        ObjConcreteYargType* lhsType = (ObjConcreteYargType*) AS_OBJ(*lhs->type);
+        if (isCompatibleType(lhsType, rhsValue)) {
+            packValueStorage(lhs, rhsValue);
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
 static bool assignTo(ValueCellTarget lhs, Value rhsValue) {
     if (IS_NIL(*lhs.type)) {
         *lhs.value = rhsValue;
