@@ -27,7 +27,7 @@ typedef struct ObjConcreteYargTypeStruct ObjConcreteYargTypeStruct;
 #define IS_UNIFORMARRAY(value) (isObjType(value, OBJ_PACKEDUNIFORMARRAY)|| isObjType(value, OBJ_UNOWNED_UNIFORMARRAY))
 #define IS_YARGTYPE(value)     (isObjType(value, OBJ_YARGTYPE) || isObjType(value, OBJ_YARGTYPE_ARRAY) || isObjType(value, OBJ_YARGTYPE_STRUCT) || isObjType(value, OBJ_YARGTYPE_POINTER))
 #define IS_POINTER(value)      (isObjType(value, OBJ_POINTER) || isObjType(value, OBJ_UNOWNED_POINTER))
-#define IS_STRUCT(value)       isObjType(value, OBJ_PACKEDSTRUCT)
+#define IS_STRUCT(value)       (isObjType(value, OBJ_PACKEDSTRUCT) || isObjType(value, OBJ_UNOWNED_PACKEDSTRUCT))
 
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
 #define AS_CLASS(value)        ((ObjClass*)AS_OBJ(value))
@@ -66,6 +66,7 @@ typedef enum {
     OBJ_YARGTYPE_POINTER,
     OBJ_POINTER,
     OBJ_UNOWNED_POINTER,
+    OBJ_UNOWNED_PACKEDSTRUCT,
     OBJ_PACKEDSTRUCT,
     OBJ_AST,
     OBJ_STMT_EXPRESSION,
@@ -223,6 +224,7 @@ StoredValue* arrayElement(ObjPackedUniformArray* array, size_t index);
 
 StoredValue* structField(ObjConcreteYargTypeStruct* structType, StoredValue* structStart, size_t index);
 bool structFieldIndex(ObjConcreteYargTypeStruct* structType, ObjString* name, size_t* index);
+ObjPackedStruct* newPackedStructAt(ObjConcreteYargTypeStruct* type, StoredValue* packedStorage);
 
 void* createHeapCell(Value type);
 ObjPointer* newPointerForHeapCell(Value type, void* location);

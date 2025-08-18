@@ -386,6 +386,8 @@ static void blackenObject(Obj* object) {
             markStoredValue(ptr->destination_type, ptr->destination);
             break;
         }
+        case OBJ_UNOWNED_PACKEDSTRUCT:
+            // fall through
         case OBJ_PACKEDSTRUCT: {
             ObjPackedStruct* struct_ = (ObjPackedStruct*)object;
             if (struct_->structFields) {
@@ -551,6 +553,7 @@ static void freeObject(Obj* object) {
             FREE(ObjPointer, object); 
             break;
         }
+        case OBJ_UNOWNED_PACKEDSTRUCT: FREE(ObjPackedStruct, object); break;
         case OBJ_PACKEDSTRUCT: {
             ObjPackedStruct* struct_ = (ObjPackedStruct*) object;
             struct_->structFields = reallocate(struct_->structFields, struct_->type->storage_size, 0);

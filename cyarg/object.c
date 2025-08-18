@@ -269,6 +269,14 @@ ObjPackedStruct* newPackedStruct(ObjConcreteYargTypeStruct* type) {
     return object;
 }
 
+ObjPackedStruct* newPackedStructAt(ObjConcreteYargTypeStruct* type, StoredValue* packedStorage) {
+    ObjPackedStruct* object = ALLOCATE_OBJ(ObjPackedStruct, OBJ_UNOWNED_PACKEDSTRUCT);
+    object->type = type;
+    object->structFields = packedStorage;
+
+    return object;
+}
+
 bool structFieldIndex(ObjConcreteYargTypeStruct* structType, ObjString* name, size_t* index) {
     Value indexVal;
     if (tableGet(&structType->field_names, name, &indexVal)) {
@@ -290,12 +298,6 @@ Value defaultStructValue(ObjConcreteYargType* type) {
     ObjPackedStruct* object = newPackedStruct(typeStruct);
     tempRootPush(OBJ_VAL(object));
 
-    for (size_t i = 0; i < typeStruct->field_count; i++) {
-        StoredValue* field = structField(object->type, object->structFields, i);
-        Value def = defaultValue(typeStruct->field_types[i]);
-        StoredValueCellTarget packedStorageCell = { .type = &typeStruct->field_types[i], .storedValue = field };
-        packValueStorage(&packedStorageCell, def);
-    }
     return tempRootPop();
 }
 
@@ -503,6 +505,7 @@ void fprintObject(FILE* op, Value value) {
         case OBJ_POINTER:
             printPointer(op, AS_POINTER(value));
             break;
+        case OBJ_UNOWNED_PACKEDSTRUCT:
         case OBJ_PACKEDSTRUCT:
             printStruct(op, AS_STRUCT(value));
             break;

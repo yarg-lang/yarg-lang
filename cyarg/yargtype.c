@@ -140,6 +140,7 @@ bool is_obj_type(ObjConcreteYargType* type) {
         case TypeDouble:
         case TypeMachineUint32:
         case TypeInteger:
+        case TypeStruct:
             return false;
         case TypeString:
         case TypeClass:
@@ -149,7 +150,6 @@ bool is_obj_type(ObjConcreteYargType* type) {
         case TypeRoutine:
         case TypeChannel:
         case TypeArray:
-        case TypeStruct:
         case TypePointer:
         case TypeYargType:
             return true;
@@ -216,6 +216,10 @@ size_t yt_sizeof_type_storage(Value type) {
             return sizeof(Value);
         case TypeMachineUint32:
             return sizeof(uint32_t);
+        case TypeStruct: {
+            ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*)t;
+            return st->storage_size;
+        }
         case TypeString:
         case TypeClass:
         case TypeInstance:
@@ -224,7 +228,6 @@ size_t yt_sizeof_type_storage(Value type) {
         case TypeRoutine:
         case TypeChannel:
         case TypeArray:
-        case TypeStruct:
         case TypePointer:
         case TypeYargType:
             return sizeof(Obj*);
@@ -257,8 +260,16 @@ void initialisePackedStorage(Value type, StoredValue* packedStorage) {
                 }
                 break;
             }
+            case TypeStruct: {
+                ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*)ct;
+                uint8_t* byteStorage = (uint8_t*)packedStorage;
+                for (size_t i = 0; i < st->field_count; i++) {
+                    size_t fieldOffset = st->field_indexes[i];
+                    initialisePackedStorage(st->field_types[i], (StoredValue*)(byteStorage + fieldOffset));
+                }
+                break;
+            }
             case TypePointer:
-            case TypeStruct:
             case TypeString:
             case TypeClass:
             case TypeInstance:
@@ -285,7 +296,9 @@ Value unpackStoredValue(Value type, StoredValue* packedStorage) {
             case TypeDouble: return packedStorage->asValue;
             case TypeInteger: return packedStorage->asValue;
             case TypeMachineUint32: return UINTEGER_VAL(packedStorage->as.uinteger);
-            case TypeStruct:
+            case TypeStruct: {
+                return OBJ_VAL(newPackedStructAt((ObjConcreteYargTypeStruct*)ct, packedStorage));
+            }
             case TypeArray:
             case TypePointer:
             case TypeString:
