@@ -180,8 +180,6 @@ typedef struct {
 typedef struct ObjPackedUniformArray {
     Obj obj;
     ObjConcreteYargTypeArray* type;
-    size_t count;
-    size_t element_size;
     StoredValue* arrayElements;
 } ObjPackedUniformArray;
 

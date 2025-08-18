@@ -301,8 +301,8 @@ static bool derefElement(ObjRoutine* routine) {
         ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*) AS_YARGTYPE(pointer->destination_type);
         Obj* target = pointer->destination->as.obj;
         ObjPackedUniformArray* arrayObj = (ObjPackedUniformArray*)target;
-        if (index >= arrayObj->count) {
-            runtimeError(routine, "Array index %d out of bounds (0:%zu)", index, arrayObj->count - 1);
+        if (index >= arrayObj->type->cardinality) {
+            runtimeError(routine, "Array index %d out of bounds (0:%zu)", index, arrayObj->type->cardinality - 1);
             return false;
         }
 
@@ -328,8 +328,8 @@ static bool setArrayElement(ObjRoutine* routine) {
 
     if (IS_UNIFORMARRAY(boxed_array)) {
         ObjPackedUniformArray* array = AS_UNIFORMARRAY(boxed_array);
-        if (index >= array->count || index < 0) {
-            runtimeError(routine, "Array index %d out of bounds (0:%d)", index, array->count - 1);
+        if (index >= array->type->cardinality) {
+            runtimeError(routine, "Array index %d out of bounds (0:%d)", index, array->type->cardinality - 1);
             return false;
         }
         if (array->type->element_type && !isCompatibleType(array->type->element_type, new_value)) {

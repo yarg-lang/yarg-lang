@@ -286,7 +286,7 @@ bool lenBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
         return true;
     } else if (IS_UNIFORMARRAY(args[0].value)) {
         ObjPackedUniformArray* array = AS_UNIFORMARRAY(args[0].value);
-        *result = UINTEGER_VAL(array->count);
+        *result = UINTEGER_VAL(array->type->cardinality);
         return true;
     } else {
         runtimeError(routineContext, "Expected a string or array.");

@@ -123,21 +123,22 @@ ObjBlob* newBlob(size_t count) {
 }
 
 StoredValue* arrayElement(ObjPackedUniformArray* array, size_t index) {
-    StoredValue* element = (StoredValue*)((uint8_t*)array->arrayElements + index * array->element_size);
+    ObjConcreteYargTypeArray* type = array->type;
+    size_t element_size = yt_sizeof_type_storage(type->element_type ? OBJ_VAL(type->element_type) : NIL_VAL);
+    StoredValue* element = (StoredValue*)((uint8_t*)array->arrayElements + index * element_size);
     return element;
 }
 
 ObjPackedUniformArray* newPackedUniformArray(ObjConcreteYargTypeArray* type) {
     ObjPackedUniformArray* array = ALLOCATE_OBJ(ObjPackedUniformArray, OBJ_PACKEDUNIFORMARRAY);
     array->type = type;    
-    array->element_size = yt_sizeof_type_storage(type->element_type ? OBJ_VAL(type->element_type) : NIL_VAL);
-    array->count = type->cardinality;    
+    size_t element_size = yt_sizeof_type_storage(type->element_type ? OBJ_VAL(type->element_type) : NIL_VAL);
 
     tempRootPush(OBJ_VAL(array));
 
-    array->arrayElements = reallocate(array->arrayElements, 0, array->count * array->element_size);
+    array->arrayElements = reallocate(array->arrayElements, 0, type->cardinality * element_size);
 
-    for (size_t i = 0; i < array->count; i++) {
+    for (size_t i = 0; i < array->type->cardinality; i++) {
         StoredValue* element = arrayElement(array, i);
         initialisePackedStorage(type->element_type ? OBJ_VAL(type->element_type) : NIL_VAL, element);
     }
@@ -150,9 +151,7 @@ ObjPackedUniformArray* newPackedUniformArrayAt(ObjConcreteYargTypeArray* type, v
 
     ObjPackedUniformArray* array = ALLOCATE_OBJ(ObjPackedUniformArray, OBJ_UNOWNED_UNIFORMARRAY);
     array->type = type;
-    array->element_size = yt_sizeof_type_storage(type->element_type ? OBJ_VAL(type->element_type) : NIL_VAL);
     array->arrayElements = (StoredValue*)location;
-    array->count = type->cardinality;
 
     return array;
 }
@@ -170,7 +169,7 @@ Value defaultArrayValue(ObjConcreteYargType* type) {
 bool derefArrayElement(Value arrayObj, size_t index, Value* result) {
     if (IS_UNIFORMARRAY(arrayObj)) {
         ObjPackedUniformArray* array = AS_UNIFORMARRAY(arrayObj);
-        if (index >= array->count) {
+        if (index >= array->type->cardinality) {
             return false;
         }
         StoredValue* element = arrayElement(array, index);
@@ -364,11 +363,11 @@ static void printChannel(FILE* op, ObjChannel* channel) {
 static void printArray(FILE* op, ObjPackedUniformArray* array) {
     printType(op, (ObjConcreteYargType*) array->type);
     fprintf(op, ":[");
-    for (int i = 0; i < array->count; i++) {
+    for (int i = 0; i < array->type->cardinality; i++) {
         StoredValue* element = arrayElement(array, i);
         Value unpackedValue = unpackStoredValue(array->type->element_type ? OBJ_VAL(array->type->element_type) : NIL_VAL, element);
         fprintValue(op, unpackedValue);
-        if (i < array->count - 1) {
+        if (i < array->type->cardinality - 1) {
             fprintf(op, ", ");
         }
     }
