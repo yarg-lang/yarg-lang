@@ -322,9 +322,9 @@ static bool setArrayElement(ObjRoutine* routine) {
         return false;
     }
 
-    Value new_value = pop(routine);
-    uint32_t index = as_positive_integer(pop(routine));
-    Value boxed_array = pop(routine);
+    Value new_value = peek(routine, 0);
+    uint32_t index = as_positive_integer(peek(routine, 1));
+    Value boxed_array = peek(routine, 2);
 
     if (IS_UNIFORMARRAY(boxed_array)) {
         ObjPackedUniformArray* array = AS_UNIFORMARRAY(boxed_array);
@@ -343,7 +343,8 @@ static bool setArrayElement(ObjRoutine* routine) {
         packValueStorage(&trg, new_value);
     }
 
-    push(routine, boxed_array);
+    pop(routine);
+    pop(routine);
     return true;
 }
 
