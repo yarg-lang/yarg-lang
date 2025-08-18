@@ -29,7 +29,7 @@ var asBefore;
 
     print aString;      // expect: Hello, Scope!
     print asBefore;     // expect: 10
-    print aArray;       // expect: [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
+    print aArray;       // expect: const Type:any[11]:[nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
 
     counter = 0d7; // expect runtime error: Cannot set local variable to incompatible type.
 }

@@ -120,10 +120,6 @@ Value concrete_typeof(Value a) {
         return OBJ_VAL(newYargTypeFromType(TypeChannel));
     } else if (IS_STRING(a)) {
         return OBJ_VAL(newYargTypeFromType(TypeString));
-    } else if (IS_VALARRAY(a)) {
-        ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*) newYargTypeFromType(TypeArray);
-        arrayType->cardinality = AS_VALARRAY(a)->array.count;
-        return OBJ_VAL((ObjConcreteYargType*)arrayType);
     } else if (IS_UNIFORMARRAY(a)) {
         ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*) newYargTypeFromType(TypeArray);
         arrayType->cardinality = AS_UNIFORMARRAY(a)->count;

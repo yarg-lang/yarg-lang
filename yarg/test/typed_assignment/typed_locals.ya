@@ -24,7 +24,7 @@ var asBefore;
     print aString;      // expect: Hello, Scope!
     print asBefore;     // expect: 10
     print test;         // expect: false
-    print aArray;       // expect: [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
+    print aArray;       // expect: Type:any[11]:[nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
 }
 
 print isTrue; // expect: true
@@ -33,7 +33,7 @@ print aUint;  // expect: 4294967295
 print aString; // expect: Hello, World!
 print asBefore; // expect: nil
 print test;     // expect: nil
-print aArray; // expect: [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
+print aArray; // expect: Type:any[10]:[nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
 
 test = 10;
 asBefore = test;

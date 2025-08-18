@@ -282,14 +282,14 @@ static void defineMethod(ObjRoutine* routine, ObjString* name) {
 }
 
 static bool derefElement(ObjRoutine* routine) {
-    if (!(isArray(peek(routine, 1)) || isArrayPointer(peek(routine, 1))) || !is_positive_integer(peek(routine, 0))) {
+    if (!(IS_UNIFORMARRAY(peek(routine, 1)) || isArrayPointer(peek(routine, 1))) || !is_positive_integer(peek(routine, 0))) {
         runtimeError(routine, "Expected an array and a positive or unsigned integer.");
         return false;
     }
     size_t index = as_positive_integer(peek(routine, 0));
     Value result = NIL_VAL;
 
-    if (isArray(peek(routine, 1))) {
+    if (IS_UNIFORMARRAY(peek(routine, 1))) {
 
         if (!derefArrayElement(peek(routine, 1), index, &result)) {
             runtimeError(routine, "Array index %d out of bounds.", index);
@@ -307,7 +307,7 @@ static bool derefElement(ObjRoutine* routine) {
         }
 
         StoredValue* element = arrayElement(arrayObj, index);
-        result = OBJ_VAL(newPointerAtCell(OBJ_VAL(arrayType->element_type), element));
+        result = OBJ_VAL(newPointerAtCell(arrayType->element_type ? OBJ_VAL(arrayType->element_type) : NIL_VAL, element));
     }
 
     pop(routine);
@@ -317,7 +317,7 @@ static bool derefElement(ObjRoutine* routine) {
 }
 
 static bool setArrayElement(ObjRoutine* routine) {
-    if (!isArray(peek(routine, 2)) || !is_positive_integer(peek(routine, 1))) {
+    if (!IS_UNIFORMARRAY(peek(routine, 2)) || !is_positive_integer(peek(routine, 1))) {
         runtimeError(routine, "Expected an array and a positive or unsigned integer.");
         return false;
     }
@@ -326,29 +326,20 @@ static bool setArrayElement(ObjRoutine* routine) {
     uint32_t index = as_positive_integer(pop(routine));
     Value boxed_array = pop(routine);
 
-    if (IS_VALARRAY(boxed_array)) {
-        ObjValArray* array = AS_VALARRAY(boxed_array);
-
-        if (index >= array->array.count || index < 0) {
-            runtimeError(routine, "Array index %d out of bounds (0:%d)", index, array->array.count - 1);
-            return false;
-        }
-
-        array->array.values[index] = new_value;
-    } else if (IS_UNIFORMARRAY(boxed_array)) {
+    if (IS_UNIFORMARRAY(boxed_array)) {
         ObjPackedUniformArray* array = AS_UNIFORMARRAY(boxed_array);
         if (index >= array->count || index < 0) {
             runtimeError(routine, "Array index %d out of bounds (0:%d)", index, array->count - 1);
             return false;
         }
-        if (!isCompatibleType(array->type->element_type, new_value)) {
+        if (array->type->element_type && !isCompatibleType(array->type->element_type, new_value)) {
             runtimeError(routine, "Cannot set array element to incompatible type.");
             return false;
         }
 
         StoredValue* element = arrayElement(array, index);
-        Value element_type = OBJ_VAL(array->type->element_type);
-        StoredValueCellTarget trg = { .storedValue = element, .type = &element_type };
+        Value elementVal = array->type->element_type ? OBJ_VAL(array->type->element_type) : NIL_VAL;
+        StoredValueCellTarget trg = { .storedValue = element, .type = &elementVal };
         packValueStorage(&trg, new_value);
     }
 

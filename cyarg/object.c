@@ -122,19 +122,6 @@ ObjBlob* newBlob(size_t count) {
     return blob;
 }
 
-ObjValArray* newValArray(size_t capacity) {
-    ObjValArray* array = ALLOCATE_OBJ(ObjValArray, OBJ_VALARRAY);
-    initValueArray(&array->array);
-    tempRootPush(OBJ_VAL(array));
-
-    for (int i = 0; i < capacity; i++) {
-        appendToValueArray(&array->array, NIL_VAL);
-    }
-
-    tempRootPop();
-    return array;
-}
-
 StoredValue* arrayElement(ObjPackedUniformArray* array, size_t index) {
     StoredValue* element = (StoredValue*)((uint8_t*)array->arrayElements + index * array->element_size);
     return element;
@@ -143,7 +130,7 @@ StoredValue* arrayElement(ObjPackedUniformArray* array, size_t index) {
 ObjPackedUniformArray* newPackedUniformArray(ObjConcreteYargTypeArray* type) {
     ObjPackedUniformArray* array = ALLOCATE_OBJ(ObjPackedUniformArray, OBJ_PACKEDUNIFORMARRAY);
     array->type = type;    
-    array->element_size = yt_sizeof_type_storage(OBJ_VAL(type->element_type));
+    array->element_size = yt_sizeof_type_storage(type->element_type ? OBJ_VAL(type->element_type) : NIL_VAL);
     array->count = type->cardinality;    
 
     tempRootPush(OBJ_VAL(array));
@@ -152,7 +139,7 @@ ObjPackedUniformArray* newPackedUniformArray(ObjConcreteYargTypeArray* type) {
 
     for (size_t i = 0; i < array->count; i++) {
         StoredValue* element = arrayElement(array, i);
-        initialisePackedStorage(OBJ_VAL(type->element_type), element);
+        initialisePackedStorage(type->element_type ? OBJ_VAL(type->element_type) : NIL_VAL, element);
     }
 
     tempRootPop();
@@ -163,7 +150,7 @@ ObjPackedUniformArray* newPackedUniformArrayAt(ObjConcreteYargTypeArray* type, v
 
     ObjPackedUniformArray* array = ALLOCATE_OBJ(ObjPackedUniformArray, OBJ_UNOWNED_UNIFORMARRAY);
     array->type = type;
-    array->element_size = yt_sizeof_type_storage(OBJ_VAL(type->element_type));
+    array->element_size = yt_sizeof_type_storage(type->element_type ? OBJ_VAL(type->element_type) : NIL_VAL);
     array->arrayElements = (StoredValue*)location;
     array->count = type->cardinality;
 
@@ -177,29 +164,17 @@ Value defaultArrayValue(ObjConcreteYargType* type) {
         return NIL_VAL;
     }
     
-    if (   arrayType->element_type == NULL
-        || arrayType->element_type->yt == TypeAny) {
-        return OBJ_VAL(newValArray(arrayType->cardinality));
-    } else {
-        return OBJ_VAL(newPackedUniformArray(arrayType));
-    }
+    return OBJ_VAL(newPackedUniformArray(arrayType));
 }
 
 bool derefArrayElement(Value arrayObj, size_t index, Value* result) {
-    if (IS_VALARRAY(arrayObj)) {
-        ObjValArray* array = AS_VALARRAY(arrayObj);
-        if (index >= array->array.count) {
-            return false;
-        }
-        *result = array->array.values[index];
-        return true;
-    } else if (IS_UNIFORMARRAY(arrayObj)) {
+    if (IS_UNIFORMARRAY(arrayObj)) {
         ObjPackedUniformArray* array = AS_UNIFORMARRAY(arrayObj);
         if (index >= array->count) {
             return false;
         }
         StoredValue* element = arrayElement(array, index);
-        *result = unpackStoredValue(OBJ_VAL(array->type->element_type), element);
+        *result = unpackStoredValue(array->type->element_type ? OBJ_VAL(array->type->element_type) : NIL_VAL, element);
         return true;
     }
     return false;
@@ -246,7 +221,7 @@ bool isArrayPointer(Value value) {
     ObjPointer* pointer = AS_POINTER(value);
     if (IS_POINTER(value)) {
         if (IS_NIL(pointer->destination_type)) {
-            return isArray(pointer->destination->asValue);
+            return IS_UNIFORMARRAY(pointer->destination->asValue);
         } else if (   IS_YARGTYPE(pointer->destination_type)
                    && AS_YARGTYPE(pointer->destination_type)->yt == TypeArray) {
             return true;
@@ -386,31 +361,18 @@ static void printChannel(FILE* op, ObjChannel* channel) {
     FPRINTMSG(op, ">");
 }
 
-static void printArray(FILE* op, Value value) {
-    if (IS_VALARRAY(value)) {
-        ObjValArray* array = AS_VALARRAY(value);
-        fprintf(op, "[");
-        for (int i = 0; i < array->array.count; i++) {
-            fprintValue(op, array->array.values[i]);
-            if (i < array->array.count - 1) {
-                fprintf(op, ", ");
-            }
+static void printArray(FILE* op, ObjPackedUniformArray* array) {
+    printType(op, (ObjConcreteYargType*) array->type);
+    fprintf(op, ":[");
+    for (int i = 0; i < array->count; i++) {
+        StoredValue* element = arrayElement(array, i);
+        Value unpackedValue = unpackStoredValue(array->type->element_type ? OBJ_VAL(array->type->element_type) : NIL_VAL, element);
+        fprintValue(op, unpackedValue);
+        if (i < array->count - 1) {
+            fprintf(op, ", ");
         }
-        fprintf(op, "]");
-    } else if (IS_UNIFORMARRAY(value)) {
-        ObjPackedUniformArray* array = AS_UNIFORMARRAY(value);
-        printType(op, (ObjConcreteYargType*) array->type);
-        fprintf(op, ":[");
-        for (int i = 0; i < array->count; i++) {
-            StoredValue* element = arrayElement(array, i);
-            Value unpackedValue = unpackStoredValue(OBJ_VAL(array->type->element_type), element);
-            fprintValue(op, unpackedValue);
-            if (i < array->count - 1) {
-                fprintf(op, ", ");
-            }
-        }
-        fprintf(op, "]");
     }
+    fprintf(op, "]");
 }
 
 static void printType(FILE* op, ObjConcreteYargType* type) {
@@ -510,12 +472,9 @@ void fprintObject(FILE* op, Value value) {
         case OBJ_UPVALUE:
             FPRINTMSG(op, "upvalue");
             break;
-        case OBJ_VALARRAY:
-            printArray(op, value);
-            break;
         case OBJ_UNOWNED_UNIFORMARRAY:
         case OBJ_PACKEDUNIFORMARRAY:
-            printArray(op, value);
+            printArray(op, AS_UNIFORMARRAY(value));
             break;
         case OBJ_YARGTYPE:
         case OBJ_YARGTYPE_ARRAY:

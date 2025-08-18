@@ -164,11 +164,6 @@ static void blackenObject(Obj* object) {
             markRoutine(stack);
             break;
         }
-        case OBJ_VALARRAY: {
-            ObjValArray* array = (ObjValArray*)object;
-            markArray(&array->array);
-            break;
-        }
         case OBJ_UNOWNED_UNIFORMARRAY:
             /* fall through */
         case OBJ_PACKEDUNIFORMARRAY: {
@@ -176,7 +171,9 @@ static void blackenObject(Obj* object) {
             markObject((Obj*)array->type);
             for (size_t i = 0; i < array->count; i++) {
                 StoredValue* element = arrayElement(array, i);
-                markStoredValue(OBJ_VAL(array->type->element_type), element);
+                if (array->type->element_type) {
+                    markStoredValue(OBJ_VAL(array->type->element_type), element);
+                }
             }
             break;
         }
@@ -464,12 +461,6 @@ static void freeObject(Obj* object) {
         case OBJ_CHANNEL:
             FREE(ObjChannel, object);
             break;
-        case OBJ_VALARRAY: {
-            ObjValArray* array = (ObjValArray*)object;
-            freeValueArray(&array->array);
-            FREE(ObjValArray, object);
-            break;
-        }
         case OBJ_UNOWNED_UNIFORMARRAY: FREE(ObjPackedUniformArray, object); break;
         case OBJ_PACKEDUNIFORMARRAY: {
             ObjPackedUniformArray* array = (ObjPackedUniformArray*)object;

@@ -1,5 +1,5 @@
 var test = new(any[10]);
-print test;      // expect: [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
+print test;      // expect: Type:any[10]:[nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
 print test[0];   // expect: nil
 test[1] = 10;
 print test[1];   // expect: 10

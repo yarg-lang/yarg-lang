@@ -41,7 +41,6 @@ typedef struct ObjConcreteYargTypeArray ObjConcreteYargTypeArray;
 #define AS_CHANNEL(value)      ((ObjChannel*)AS_OBJ(value))
 #define AS_STRING(value)       ((ObjString*)AS_OBJ(value))
 #define AS_CSTRING(value)      (((ObjString*)AS_OBJ(value))->chars)
-#define AS_VALARRAY(value)     ((ObjValArray*)AS_OBJ(value))
 #define AS_UNIFORMARRAY(value) ((ObjPackedUniformArray*)AS_OBJ(value))
 #define AS_YARGTYPE(value)     ((ObjConcreteYargType*)AS_OBJ(value))
 #define AS_POINTER(value)      ((ObjPointer*)AS_OBJ(value))
@@ -59,7 +58,6 @@ typedef enum {
     OBJ_CHANNEL,
     OBJ_STRING,
     OBJ_UPVALUE,
-    OBJ_VALARRAY,
     OBJ_UNOWNED_UNIFORMARRAY,
     OBJ_PACKEDUNIFORMARRAY,
     OBJ_YARGTYPE,
@@ -180,11 +178,6 @@ typedef struct {
     Value data;
 } ObjChannel;
 
-typedef struct ObjValArray {
-    Obj obj;
-    ValueArray array;
-} ObjValArray;
-
 typedef struct ObjPackedUniformArray {
     Obj obj;
     ObjConcreteYargTypeArray* type;
@@ -224,7 +217,6 @@ ObjFunction* newFunction();
 ObjInstance* newInstance(ObjClass* klass);
 ObjNative* newNative(NativeFn function);
 ObjBlob* newBlob(size_t size);
-ObjValArray* newValArray(size_t capacity);
 ObjPackedUniformArray* newPackedUniformArray(ObjConcreteYargTypeArray* type);
 ObjString* takeString(char* chars, int length);
 ObjString* copyString(const char* chars, int length);
@@ -253,10 +245,6 @@ void fprintObject(FILE* op, Value value);
 
 static inline bool isObjType(Value value, ObjType type) {
     return IS_OBJ(value) && AS_OBJ(value)->type == type;
-}
-
-static inline bool isArray(Value value) {
-    return IS_VALARRAY(value) || IS_UNIFORMARRAY(value);
 }
 
 bool isArrayPointer(Value value);

@@ -284,9 +284,9 @@ bool lenBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
         ObjString* string = AS_STRING(args[0].value);
         *result = UINTEGER_VAL(string->length);
         return true;
-    } else if (IS_VALARRAY(args[0].value)) {
-        ObjValArray* array = AS_VALARRAY(args[0].value);
-        *result = UINTEGER_VAL(array->array.count);
+    } else if (IS_UNIFORMARRAY(args[0].value)) {
+        ObjPackedUniformArray* array = AS_UNIFORMARRAY(args[0].value);
+        *result = UINTEGER_VAL(array->count);
         return true;
     } else {
         runtimeError(routineContext, "Expected a string or array.");
