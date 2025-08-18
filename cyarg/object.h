@@ -220,7 +220,6 @@ ObjString* copyString(const char* chars, int length);
 ObjUpvalue* newUpvalue(ValueCell* slot);
 
 StoredValue* arrayElement(ObjPackedUniformArray* array, size_t index);
-bool derefArrayElement(Value arrayObj, size_t index, Value* result);
 
 void* createHeapCell(Value type);
 ObjPointer* newPointerForHeapCell(Value type, void* location);

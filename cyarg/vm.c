@@ -290,11 +290,13 @@ static bool derefElement(ObjRoutine* routine) {
     Value result = NIL_VAL;
 
     if (IS_UNIFORMARRAY(peek(routine, 1))) {
-
-        if (!derefArrayElement(peek(routine, 1), index, &result)) {
+        ObjPackedUniformArray* array = AS_UNIFORMARRAY(peek(routine, 1));
+        if (index >= array->type->cardinality) {
             runtimeError(routine, "Array index %d out of bounds.", index);
             return false;
         }
+        StoredValue* element = arrayElement(array, index);
+        result = unpackStoredValue(array->type->element_type ? OBJ_VAL(array->type->element_type) : NIL_VAL, element);
 
     } else {
         ObjPointer* pointer = AS_POINTER(peek(routine, 1));

@@ -166,19 +166,6 @@ Value defaultArrayValue(ObjConcreteYargType* type) {
     return OBJ_VAL(newPackedUniformArray(arrayType));
 }
 
-bool derefArrayElement(Value arrayObj, size_t index, Value* result) {
-    if (IS_UNIFORMARRAY(arrayObj)) {
-        ObjPackedUniformArray* array = AS_UNIFORMARRAY(arrayObj);
-        if (index >= array->type->cardinality) {
-            return false;
-        }
-        StoredValue* element = arrayElement(array, index);
-        *result = unpackStoredValue(array->type->element_type ? OBJ_VAL(array->type->element_type) : NIL_VAL, element);
-        return true;
-    }
-    return false;
-}
-
 void* createHeapCell(Value type) {
     void* dest = reallocate(NULL, 0, yt_sizeof_type_storage(type));
     return dest;
