@@ -171,17 +171,13 @@ static void blackenObject(Obj* object) {
         }
         case OBJ_UNOWNED_UNIFORMARRAY:
             /* fall through */
-        case OBJ_UNIFORMARRAY: {
-            ObjUniformArray* array = (ObjUniformArray*)object;
-            if (is_obj_type(array->element_type)) {
-                for (int i = 0; i < array->count; i++) {
-                    Obj** elements = (Obj**) array->array;
-                    if (elements[i]) {
-                        markObject(elements[i]);
-                    }
-                }
+        case OBJ_PACKEDUNIFORMARRAY: {
+            ObjPackedUniformArray* array = (ObjPackedUniformArray*)object;
+            markObject((Obj*)array->type);
+            for (size_t i = 0; i < array->count; i++) {
+                StoredValue* element = arrayElement(array, i);
+                markStoredValue(OBJ_VAL(array->type->element_type), element);
             }
-            markObject((Obj*)array->element_type);
             break;
         }
         case OBJ_YARGTYPE:
@@ -474,11 +470,11 @@ static void freeObject(Obj* object) {
             FREE(ObjValArray, object);
             break;
         }
-        case OBJ_UNOWNED_UNIFORMARRAY: FREE(ObjUniformArray, object); break;
-        case OBJ_UNIFORMARRAY: {
-            ObjUniformArray* array = (ObjUniformArray*)object;
-            array->array = reallocate(array->array, array->count * array->element_size, 0);  
-            FREE(ObjUniformArray, object);
+        case OBJ_UNOWNED_UNIFORMARRAY: FREE(ObjPackedUniformArray, object); break;
+        case OBJ_PACKEDUNIFORMARRAY: {
+            ObjPackedUniformArray* array = (ObjPackedUniformArray*)object;
+            array->arrayElements = reallocate(array->arrayElements, array->count * array->element_size, 0);  
+            FREE(ObjPackedUniformArray, object);
             break;
         }
         case OBJ_YARGTYPE: {

@@ -8,6 +8,8 @@
 #include "value_cell.h"
 
 typedef struct ObjConcreteYargType ObjConcreteYargType;
+typedef struct ObjConcreteYargTypeArray ObjConcreteYargTypeArray;
+
 
 #define OBJ_TYPE(value)     (AS_OBJ(value)->type)
 
@@ -22,7 +24,7 @@ typedef struct ObjConcreteYargType ObjConcreteYargType;
 #define IS_CHANNEL(value)      isObjType(value, OBJ_CHANNEL)
 #define IS_STRING(value)       isObjType(value, OBJ_STRING)
 #define IS_VALARRAY(value)     isObjType(value, OBJ_VALARRAY)
-#define IS_UNIFORMARRAY(value) (isObjType(value, OBJ_UNIFORMARRAY)|| isObjType(value, OBJ_UNOWNED_UNIFORMARRAY))
+#define IS_UNIFORMARRAY(value) (isObjType(value, OBJ_PACKEDUNIFORMARRAY)|| isObjType(value, OBJ_UNOWNED_UNIFORMARRAY))
 #define IS_YARGTYPE(value)     (isObjType(value, OBJ_YARGTYPE) || isObjType(value, OBJ_YARGTYPE_ARRAY) || isObjType(value, OBJ_YARGTYPE_STRUCT) || isObjType(value, OBJ_YARGTYPE_POINTER))
 #define IS_POINTER(value)      (isObjType(value, OBJ_POINTER) || isObjType(value, OBJ_UNOWNED_POINTER))
 #define IS_STRUCT(value)       isObjType(value, OBJ_STRUCT)
@@ -40,7 +42,7 @@ typedef struct ObjConcreteYargType ObjConcreteYargType;
 #define AS_STRING(value)       ((ObjString*)AS_OBJ(value))
 #define AS_CSTRING(value)      (((ObjString*)AS_OBJ(value))->chars)
 #define AS_VALARRAY(value)     ((ObjValArray*)AS_OBJ(value))
-#define AS_UNIFORMARRAY(value) ((ObjUniformArray*)AS_OBJ(value))
+#define AS_UNIFORMARRAY(value) ((ObjPackedUniformArray*)AS_OBJ(value))
 #define AS_YARGTYPE(value)     ((ObjConcreteYargType*)AS_OBJ(value))
 #define AS_POINTER(value)      ((ObjPointer*)AS_OBJ(value))
 #define AS_STRUCT(value)       ((ObjStruct*)AS_OBJ(value))
@@ -59,7 +61,7 @@ typedef enum {
     OBJ_UPVALUE,
     OBJ_VALARRAY,
     OBJ_UNOWNED_UNIFORMARRAY,
-    OBJ_UNIFORMARRAY,
+    OBJ_PACKEDUNIFORMARRAY,
     OBJ_YARGTYPE,
     OBJ_YARGTYPE_ARRAY,
     OBJ_YARGTYPE_STRUCT,
@@ -183,13 +185,13 @@ typedef struct ObjValArray {
     ValueArray array;
 } ObjValArray;
 
-typedef struct ObjUniformArray {
+typedef struct ObjPackedUniformArray {
     Obj obj;
-    ObjConcreteYargType* element_type;
+    ObjConcreteYargTypeArray* type;
     size_t count;
     size_t element_size;
-    void* array;
-} ObjUniformArray;
+    StoredValue* arrayElements;
+} ObjPackedUniformArray;
 
 typedef struct {
     Obj obj;
@@ -223,17 +225,21 @@ ObjInstance* newInstance(ObjClass* klass);
 ObjNative* newNative(NativeFn function);
 ObjBlob* newBlob(size_t size);
 ObjValArray* newValArray(size_t capacity);
-ObjUniformArray* newUniformArray(ObjConcreteYargType* element_type, size_t capacity);
+ObjPackedUniformArray* newPackedUniformArray(ObjConcreteYargTypeArray* type);
 ObjString* takeString(char* chars, int length);
 ObjString* copyString(const char* chars, int length);
 ObjUpvalue* newUpvalue(ValueCell* slot);
+
+StoredValue* arrayElement(ObjPackedUniformArray* array, size_t index);
+bool derefArrayElement(Value arrayObj, size_t index, Value* result);
 
 void* createHeapCell(Value type);
 ObjPointer* newPointerForHeapCell(Value type, void* location);
 
 ObjPointer* newPointerAt(Value type, Value location);
 ObjPointer* newPointerAtCell(Value type, StoredValue* location);
-ObjUniformArray* newUniformArrayAt(Value type, Value location);
+
+ObjPackedUniformArray* newPackedUniformArrayAt(ObjConcreteYargTypeArray* type, void* location);
 
 Value createPointerToObj(Value type, Obj* target);
 
@@ -252,5 +258,8 @@ static inline bool isObjType(Value value, ObjType type) {
 static inline bool isArray(Value value) {
     return IS_VALARRAY(value) || IS_UNIFORMARRAY(value);
 }
+
+bool isArrayPointer(Value value);
+
 
 #endif

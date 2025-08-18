@@ -282,50 +282,34 @@ static void defineMethod(ObjRoutine* routine, ObjString* name) {
 }
 
 static bool derefElement(ObjRoutine* routine) {
-    if (!(isArray(peek(routine, 1)) || IS_POINTER(peek(routine, 1))) || !is_positive_integer(peek(routine, 0))) {
+    if (!(isArray(peek(routine, 1)) || isArrayPointer(peek(routine, 1))) || !is_positive_integer(peek(routine, 0))) {
         runtimeError(routine, "Expected an array and a positive or unsigned integer.");
         return false;
     }
-    uint32_t index = as_positive_integer(peek(routine, 0));
+    size_t index = as_positive_integer(peek(routine, 0));
     Value result = NIL_VAL;
 
-    if (IS_VALARRAY(peek(routine, 1))) {
-        ObjValArray* array = AS_VALARRAY(peek(routine, 1));
-        if (index >= array->array.count) {
-            runtimeError(routine, "Array index %d out of bounds (0:%d)", index, array->array.count - 1);
+    if (isArray(peek(routine, 1))) {
+
+        if (!derefArrayElement(peek(routine, 1), index, &result)) {
+            runtimeError(routine, "Array index %d out of bounds.", index);
             return false;
         }
 
-        result = array->array.values[index];
-    } else if (IS_UNIFORMARRAY(peek(routine, 1))) {
-        ObjUniformArray* array = AS_UNIFORMARRAY(peek(routine, 1));
-        if (index >= array->count) {
-            runtimeError(routine, "Array index %d out of bounds (0:%d)", index, array->count - 1);
+    } else {
+        ObjPointer* pointer = AS_POINTER(peek(routine, 1));
+        ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*) AS_YARGTYPE(pointer->destination_type);
+        Obj* target = pointer->destination->as.obj;
+        ObjPackedUniformArray* arrayObj = (ObjPackedUniformArray*)target;
+        if (index >= arrayObj->count) {
+            runtimeError(routine, "Array index %d out of bounds (0:%zu)", index, arrayObj->count - 1);
             return false;
         }
-        uint32_t* entries = (uint32_t*) array->array;
 
-        result = UINTEGER_VAL(entries[index]);
-    } else if (IS_POINTER(peek(routine, 1))) {
-        ObjPointer* array_pointer = AS_POINTER(peek(routine, 1));
-        Obj* destination = NULL;
-        if (IS_NIL(array_pointer->destination_type)) {
-            destination = AS_OBJ(*(Value*)array_pointer->destination);
-        } else {
-            destination = *((Obj**)(uintptr_t)array_pointer->destination);
-        }
-        if (   destination->type == OBJ_UNIFORMARRAY
-            || destination->type == OBJ_UNOWNED_UNIFORMARRAY) {
-            ObjUniformArray* array = (ObjUniformArray*)destination;
-            if (index >= array->count) {
-                runtimeError(routine, "Array index %d out of bounds (0:%d)", index, array->count - 1);
-                return false;
-            }
-            uint32_t* entries = (uint32_t*) array->array;
-            ObjPointer* element_pointer = newPointerAt(OBJ_VAL(array->element_type), UINTEGER_VAL((uintptr_t)&entries[index]));
-            result = OBJ_VAL(element_pointer);
-        }            
+        StoredValue* element = arrayElement(arrayObj, index);
+        result = OBJ_VAL(newPointerAtCell(OBJ_VAL(arrayType->element_type), element));
     }
+
     pop(routine);
     pop(routine);
     push(routine, result);
@@ -352,18 +336,20 @@ static bool setArrayElement(ObjRoutine* routine) {
 
         array->array.values[index] = new_value;
     } else if (IS_UNIFORMARRAY(boxed_array)) {
-        ObjUniformArray* array = AS_UNIFORMARRAY(boxed_array);
+        ObjPackedUniformArray* array = AS_UNIFORMARRAY(boxed_array);
         if (index >= array->count || index < 0) {
             runtimeError(routine, "Array index %d out of bounds (0:%d)", index, array->count - 1);
             return false;
         }
-        if (!IS_UINTEGER(new_value)) {
-            runtimeError(routine, "Expected a MachineUint32.");
+        if (!isCompatibleType(array->type->element_type, new_value)) {
+            runtimeError(routine, "Cannot set array element to incompatible type.");
             return false;
         }
-        uint32_t* entries = (uint32_t*) array->array;
-        
-        entries[index] = AS_UINTEGER(new_value);
+
+        StoredValue* element = arrayElement(array, index);
+        Value element_type = OBJ_VAL(array->type->element_type);
+        StoredValueCellTarget trg = { .storedValue = element, .type = &element_type };
+        packValueStorage(&trg, new_value);
     }
 
     push(routine, boxed_array);

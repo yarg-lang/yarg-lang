@@ -1,5 +1,5 @@
 var test = new(any[10]);
-print test;      // expect: any[10]
+print test;      // expect: [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
 print test[0];   // expect: nil
 test[1] = 10;
 print test[1];   // expect: 10
@@ -7,4 +7,4 @@ test[5] = 11;
 print test[3+2]; // expect: 11
 var test2 = [4, 6, 7];
 print test2[2];  // expect: 7
-print test[10];  // expect runtime error: Array index 10 out of bounds (0:9)
+print test[10];  // expect runtime error: Array index 10 out of bounds.

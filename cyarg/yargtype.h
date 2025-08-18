@@ -28,7 +28,7 @@ typedef struct ObjConcreteYargType {
     bool isConst;
 } ObjConcreteYargType;
 
-typedef struct {
+typedef struct ObjConcreteYargTypeArray {
     ObjConcreteYargType core;
     size_t cardinality;
     ObjConcreteYargType* element_type;

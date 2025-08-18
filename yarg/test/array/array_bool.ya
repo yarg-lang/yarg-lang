@@ -1,0 +1,9 @@
+var test = new(bool[10]);
+print test;      // expect: Type:Type:bool[10]:[false, false, false, false, false, false, false, false, false, false]
+print test[0];   // expect: false
+test[1] = true;
+print test[1];   // expect: true
+test[5] = true;
+print test[3+2]; // expect: true
+print test; // expect: Type:Type:bool[10]:[false, true, false, false, false, true, false, false, false, false]
+test[0] = "hello"; // expect runtime error: Cannot set array element to incompatible type.

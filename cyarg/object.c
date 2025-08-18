@@ -135,47 +135,37 @@ ObjValArray* newValArray(size_t capacity) {
     return array;
 }
 
-ObjUniformArray* newUniformArray(ObjConcreteYargType* element_type, size_t capacity) {
-    ObjUniformArray* array = ALLOCATE_OBJ(ObjUniformArray, OBJ_UNIFORMARRAY);
-    array->array = NULL;
-    array->element_size = 0;
-    array->element_type = element_type;
-    array->count = 0;
+StoredValue* arrayElement(ObjPackedUniformArray* array, size_t index) {
+    StoredValue* element = (StoredValue*)((uint8_t*)array->arrayElements + index * array->element_size);
+    return element;
+}
+
+ObjPackedUniformArray* newPackedUniformArray(ObjConcreteYargTypeArray* type) {
+    ObjPackedUniformArray* array = ALLOCATE_OBJ(ObjPackedUniformArray, OBJ_PACKEDUNIFORMARRAY);
+    array->type = type;    
+    array->element_size = yt_sizeof_type_storage(OBJ_VAL(type->element_type));
+    array->count = type->cardinality;    
 
     tempRootPush(OBJ_VAL(array));
 
-    if (is_obj_type(element_type)) {
-        array->element_size = sizeof(Obj*);
-        array->count = capacity;
-        array->array = reallocate(array->array, 0, capacity * array->element_size);
+    array->arrayElements = reallocate(array->arrayElements, 0, array->count * array->element_size);
 
-        for (int i = 0; i < capacity; i++) {
-            Obj** elements = (Obj**) array->array;
-            elements[i] = NULL;
-        }
-    } else if (element_type->yt == TypeMachineUint32) {
-        array->element_size = sizeof(uint32_t);
-        array->count = capacity;
-        array->array = reallocate(array->array, 0, capacity * array->element_size);
-
-        for (int i = 0; i < capacity; i++) {
-            uint32_t* elements = (uint32_t*) array->array;
-            elements[i] = 0;
-        }
+    for (size_t i = 0; i < array->count; i++) {
+        StoredValue* element = arrayElement(array, i);
+        initialisePackedStorage(OBJ_VAL(type->element_type), element);
     }
 
     tempRootPop();
     return array;
 }
 
-ObjUniformArray* newUniformArrayAt(Value type, Value location) {
-    ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray *)AS_YARGTYPE(type);
+ObjPackedUniformArray* newPackedUniformArrayAt(ObjConcreteYargTypeArray* type, void* location) {
 
-    ObjUniformArray* array = ALLOCATE_OBJ(ObjUniformArray, OBJ_UNOWNED_UNIFORMARRAY);
-    array->array = (void*)(uintptr_t)AS_UINTEGER(location);
-    array->element_size = yt_sizeof_type_storage(OBJ_VAL(arrayType->element_type));
-    array->element_type = arrayType->element_type;
-    array->count = arrayType->cardinality;
+    ObjPackedUniformArray* array = ALLOCATE_OBJ(ObjPackedUniformArray, OBJ_UNOWNED_UNIFORMARRAY);
+    array->type = type;
+    array->element_size = yt_sizeof_type_storage(OBJ_VAL(type->element_type));
+    array->arrayElements = (StoredValue*)location;
+    array->count = type->cardinality;
 
     return array;
 }
@@ -187,11 +177,32 @@ Value defaultArrayValue(ObjConcreteYargType* type) {
         return NIL_VAL;
     }
     
-    if (arrayType->element_type == NULL) {
+    if (   arrayType->element_type == NULL
+        || arrayType->element_type->yt == TypeAny) {
         return OBJ_VAL(newValArray(arrayType->cardinality));
     } else {
-        return OBJ_VAL(newUniformArray(arrayType->element_type, arrayType->cardinality));
+        return OBJ_VAL(newPackedUniformArray(arrayType));
     }
+}
+
+bool derefArrayElement(Value arrayObj, size_t index, Value* result) {
+    if (IS_VALARRAY(arrayObj)) {
+        ObjValArray* array = AS_VALARRAY(arrayObj);
+        if (index >= array->array.count) {
+            return false;
+        }
+        *result = array->array.values[index];
+        return true;
+    } else if (IS_UNIFORMARRAY(arrayObj)) {
+        ObjPackedUniformArray* array = AS_UNIFORMARRAY(arrayObj);
+        if (index >= array->count) {
+            return false;
+        }
+        StoredValue* element = arrayElement(array, index);
+        *result = unpackStoredValue(OBJ_VAL(array->type->element_type), element);
+        return true;
+    }
+    return false;
 }
 
 void* createHeapCell(Value type) {
@@ -231,6 +242,20 @@ ObjPointer* newPointerAt(Value type, Value location) {
     }
 }
 
+bool isArrayPointer(Value value) {
+    ObjPointer* pointer = AS_POINTER(value);
+    if (IS_POINTER(value)) {
+        if (IS_NIL(pointer->destination_type)) {
+            return isArray(pointer->destination->asValue);
+        } else if (   IS_YARGTYPE(pointer->destination_type)
+                   && AS_YARGTYPE(pointer->destination_type)->yt == TypeArray) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 Value createPointerToObj(Value target_type, Obj* target) {
     if (target == NULL) {
         return NIL_VAL;
@@ -248,10 +273,11 @@ Value createPointerToObj(Value target_type, Obj* target) {
 Value placeObjectAt(Value type, Value location) {
     if (is_placeable_type(type)) {
         ObjConcreteYargType* placed_type = AS_YARGTYPE(type);
+        void* locationPtr = (void*)(uintptr_t)AS_UINTEGER(location);
         switch (placed_type->yt) {
             case TypeMachineUint32: return OBJ_VAL(newPointerAt(type, location));
             case TypeArray: {
-                ObjUniformArray* target_array = newUniformArrayAt(type, location);
+                ObjPackedUniformArray* target_array = newPackedUniformArrayAt((ObjConcreteYargTypeArray*)placed_type, locationPtr);
                 tempRootPush(OBJ_VAL(target_array));
                 Value result = createPointerToObj(type, (Obj*)target_array);
                 tempRootPop();
@@ -333,6 +359,8 @@ ObjUpvalue* newUpvalue(ValueCell* slot) {
     return upvalue;
 }
 
+static void printType(FILE* op, ObjConcreteYargType* type);
+
 static void printFunction(FILE* op, ObjFunction* function) {
     if (function->name == NULL) {
         FPRINTMSG(op, "<script>");
@@ -358,11 +386,30 @@ static void printChannel(FILE* op, ObjChannel* channel) {
     FPRINTMSG(op, ">");
 }
 
-static void printArray(FILE* op, Value a) {
-    if (IS_VALARRAY(a)) {
-        FPRINTMSG(op, "any[%d]", AS_VALARRAY(a)->array.count);
-    } else if (IS_UNIFORMARRAY(a)) {
-        FPRINTMSG(op, "muint32[%.zd]", AS_UNIFORMARRAY(a)->count);
+static void printArray(FILE* op, Value value) {
+    if (IS_VALARRAY(value)) {
+        ObjValArray* array = AS_VALARRAY(value);
+        fprintf(op, "[");
+        for (int i = 0; i < array->array.count; i++) {
+            fprintValue(op, array->array.values[i]);
+            if (i < array->array.count - 1) {
+                fprintf(op, ", ");
+            }
+        }
+        fprintf(op, "]");
+    } else if (IS_UNIFORMARRAY(value)) {
+        ObjPackedUniformArray* array = AS_UNIFORMARRAY(value);
+        printType(op, (ObjConcreteYargType*) array->type);
+        fprintf(op, ":[");
+        for (int i = 0; i < array->count; i++) {
+            StoredValue* element = arrayElement(array, i);
+            Value unpackedValue = unpackStoredValue(OBJ_VAL(array->type->element_type), element);
+            fprintValue(op, unpackedValue);
+            if (i < array->count - 1) {
+                fprintf(op, ", ");
+            }
+        }
+        fprintf(op, "]");
     }
 }
 
@@ -466,7 +513,8 @@ void fprintObject(FILE* op, Value value) {
         case OBJ_VALARRAY:
             printArray(op, value);
             break;
-        case OBJ_UNIFORMARRAY:
+        case OBJ_UNOWNED_UNIFORMARRAY:
+        case OBJ_PACKEDUNIFORMARRAY:
             printArray(op, value);
             break;
         case OBJ_YARGTYPE:

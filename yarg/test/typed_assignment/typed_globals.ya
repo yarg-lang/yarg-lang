@@ -13,7 +13,7 @@ print aUint;  // expect: 4294967295
 print aString; // expect: Hello, World!
 print asBefore; // expect: nil
 print test;     // expect: nil
-print aArray; // expect: any[10]
+print aArray; // expect: [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
 
 test = 10;
 asBefore = test;

@@ -127,7 +127,7 @@ Value concrete_typeof(Value a) {
     } else if (IS_UNIFORMARRAY(a)) {
         ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*) newYargTypeFromType(TypeArray);
         arrayType->cardinality = AS_UNIFORMARRAY(a)->count;
-        arrayType->element_type = AS_UNIFORMARRAY(a)->element_type;
+        arrayType->element_type = AS_UNIFORMARRAY(a)->type->element_type;
         return OBJ_VAL((ObjConcreteYargType*)arrayType);
     } else if (IS_STRUCT(a)) {
         return OBJ_VAL(AS_STRUCT(a)->type);
