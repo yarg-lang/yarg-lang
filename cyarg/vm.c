@@ -445,11 +445,6 @@ static bool initialiseTo(ValueCellTarget lhs, Value rhsValue) {
     }
 }
 
-static void createConcreteType(ObjRoutine* routine, ConcreteYargType type) {
-    ObjConcreteYargType* typeObj = newYargTypeFromType(type);
-    push(routine, OBJ_VAL(typeObj));
-}
-
 static void makeConcreteTypeConst(ObjRoutine* routine) {
     if (IS_NIL(peek(routine, 0))) {
         pop(routine);
@@ -943,13 +938,19 @@ InterpretResult run(ObjRoutine* routine) {
             }
             case OP_TYPE_LITERAL: {
                 uint8_t typeCode = READ_BYTE();
+                ObjConcreteYargType* typeObj = NULL;
                 switch (typeCode) {
-                    case TYPE_LITERAL_BOOL: createConcreteType(routine, TypeBool); break;
-                    case TYPE_LITERAL_INTEGER: createConcreteType(routine, TypeInteger); break;
-                    case TYPE_LITERAL_MACHINE_UINT32: createConcreteType(routine, TypeMachineUint32); break;
-                    case TYPE_LITERAL_MACHINE_FLOAT64: createConcreteType(routine, TypeDouble); break;
-                    case TYPE_LITERAL_STRING: createConcreteType(routine, TypeString); break;
+                    case TYPE_LITERAL_BOOL: typeObj = newYargTypeFromType(TypeBool); break;
+                    case TYPE_LITERAL_INTEGER: typeObj = newYargTypeFromType(TypeInteger); break;
+                    case TYPE_LITERAL_MACHINE_UINT32: typeObj = newYargTypeFromType(TypeMachineUint32); break;
+                    case TYPE_LITERAL_MACHINE_FLOAT64: typeObj = newYargTypeFromType(TypeDouble); break;
+                    case TYPE_LITERAL_STRING: typeObj = newYargTypeFromType(TypeString); break;
                 }
+                if (typeObj == NULL) {
+                    runtimeError(routine, "Unknown type literal.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                push(routine, OBJ_VAL(typeObj));
                 break;
             }
             case OP_TYPE_MODIFIER: {

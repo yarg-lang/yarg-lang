@@ -68,18 +68,19 @@ ObjConcreteYargType* newYargStructType(size_t fieldCount) {
     ObjConcreteYargTypeStruct* t = (ObjConcreteYargTypeStruct*) newYargTypeFromType(TypeStruct);
     tempRootPush(OBJ_VAL(t));
 
-    t->field_types = GROW_ARRAY(Value, t->field_types, 0, fieldCount);
+    Value* fieldTypes = ALLOCATE(Value, fieldCount);
+    for (size_t i = 0; i < fieldCount; i++) {
+        fieldTypes[i] = NIL_VAL;
+    }
+
+    size_t* fieldIndexes = ALLOCATE(size_t, fieldCount);
+    for (size_t i = 0; i < fieldCount; i++) {
+        fieldIndexes[i] = 0;
+    }
+
+    t->field_indexes = fieldIndexes;
+    t->field_types = fieldTypes;
     t->field_count = fieldCount;
-
-    for (size_t i = 0; i < fieldCount; i++) {
-        t->field_types[i] = NIL_VAL;
-    }
-
-    t->field_indexes = GROW_ARRAY(size_t, t->field_indexes, 0, fieldCount);
-    for (size_t i = 0; i < fieldCount; i++) {
-        t->field_indexes[i] = 0;
-    }
-
 
     tempRootPop();
     return (ObjConcreteYargType*)t;

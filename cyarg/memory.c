@@ -483,6 +483,8 @@ static void freeObject(Obj* object) {
         case OBJ_YARGTYPE_STRUCT: {
             ObjConcreteYargTypeStruct* t = (ObjConcreteYargTypeStruct*)object;
             FREE_ARRAY(Value, t->field_types, t->field_count);
+            FREE_ARRAY(size_t, t->field_indexes, t->field_count);
+            freeTable(&t->field_names);
             FREE(ObjConcreteYargTypeStruct, object);
             break;
         }
