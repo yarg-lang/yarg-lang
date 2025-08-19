@@ -702,8 +702,7 @@ InterpretResult run(ObjRoutine* routine) {
                         runtimeError(routine, "cannot assign to field type.");
                         return INTERPRET_RUNTIME_ERROR;
                     }
-                    Value result = pop(routine);
-                    pop(routine);                    
+                    Value result = pop(routine);                 
                     pop(routine);
                     push(routine, result);
                 }
