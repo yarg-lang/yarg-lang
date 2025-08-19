@@ -117,6 +117,12 @@ void push(ObjRoutine* routine, Value value) {
     }
 }
 
+void pushTyped(ObjRoutine* routine, Value value, Value type) {
+    push(routine, value);
+    ValueCell* top = peekCell(routine, 0);
+    top->type = type;
+}
+
 Value pop(ObjRoutine* routine) {
     routine->stackTop--;
     return routine->stackTop->value;

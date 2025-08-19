@@ -991,9 +991,10 @@ InterpretResult run(ObjRoutine* routine) {
                 break;
             }
             case OP_SET_CELL_TYPE: {
-                ValueCell* last = peekCell(routine, 0);
-                last->type = peek(routine, 0);
-                last->value = defaultValue(last->type);
+                Value type = peek(routine, 0);
+                Value def = defaultValue(type);
+                pop(routine);
+                pushTyped(routine, def, type);
                 break;
             }
             case OP_DEREF_PTR: {

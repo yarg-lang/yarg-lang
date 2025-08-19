@@ -55,6 +55,7 @@ void prepareRoutineStack(ObjRoutine* routine);
 void markRoutine(ObjRoutine* routine);
 
 void push(ObjRoutine* routine, Value value);
+void pushTyped(ObjRoutine* routine, Value value, Value type);
 Value pop(ObjRoutine* routine);
 Value peek(ObjRoutine* routine, int distance);
 ValueCell* peekCell(ObjRoutine* routine, int distance);
