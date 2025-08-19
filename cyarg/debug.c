@@ -234,11 +234,14 @@ int disassembleInstruction(Chunk* chunk, int offset) {
 }
 
 void printValueStack(ObjRoutine* routine, const char* message) {
-    printf("%8s", message);
-    for (ValueCell* slot = routine->stack; slot < routine->stackTop; slot++) {
+    size_t stackSize = routine->stackTop - routine->stack;
+    printf("[%2zu]", stackSize);
+    printf("%6s", message);
+    for (int i = stackSize - 1; i >= 0; i--) {
+        ValueCell* slot = peekCell(routine, i);
         printf("[ ");
         printValue(slot->value);
-        printf(":");
+        printf(" | ");
         printValue(slot->type);
         printf(" ]");
     }

@@ -527,7 +527,6 @@ InterpretResult run(ObjRoutine* routine) {
 
     for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
-        printf("\n");
         printValueStack(routine, "          ");
         disassembleInstruction(&frame->closure->function->chunk, 
                                (int)(frame->ip - frame->closure->function->chunk.code));
