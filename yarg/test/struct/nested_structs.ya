@@ -1,0 +1,19 @@
+var struct {
+        struct {
+            struct {
+                struct { 
+                    any[3] elements;
+                } a;
+            } b;
+        } c;
+        one;
+        struct {
+            i;
+        } two;
+    } d;
+
+print d.c.b.a.elements[0];  // expect: nil
+d.c.b.a.elements[1] = 42;
+print d.c.b.a.elements[1];  // expect: 42
+d.two.i = true;
+print d.two.i;              // expect: true
