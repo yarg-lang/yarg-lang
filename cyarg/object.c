@@ -122,26 +122,25 @@ ObjBlob* newBlob(size_t count) {
     return blob;
 }
 
-StoredValue* arrayElement(ObjPackedUniformArray* array, size_t index) {
-    ObjConcreteYargTypeArray* type = array->type;
-    size_t element_size = yt_sizeof_type_storage(type->element_type ? OBJ_VAL(type->element_type) : NIL_VAL);
-    StoredValue* element = (StoredValue*)((uint8_t*)array->arrayElements + index * element_size);
+StoredValue* arrayElement(ObjConcreteYargTypeArray* arrayType, StoredValue* arrayStart, size_t index) {
+    StoredValue* element = (StoredValue*)(((uint8_t*)arrayStart) + arrayElementOffset(arrayType, index));
     return element;
 }
 
 ObjPackedUniformArray* newPackedUniformArray(ObjConcreteYargTypeArray* type) {
     ObjPackedUniformArray* array = ALLOCATE_OBJ(ObjPackedUniformArray, OBJ_PACKEDUNIFORMARRAY);
     array->type = type;    
-    size_t element_size = yt_sizeof_type_storage(type->element_type ? OBJ_VAL(type->element_type) : NIL_VAL);
 
     tempRootPush(OBJ_VAL(array));
 
-    array->arrayElements = reallocate(array->arrayElements, 0, type->cardinality * element_size);
+    StoredValue* storage = reallocate(NULL, 0, arrayElementSize(type) * type->cardinality);
 
     for (size_t i = 0; i < array->type->cardinality; i++) {
-        StoredValue* element = arrayElement(array, i);
-        initialisePackedStorage(type->element_type ? OBJ_VAL(type->element_type) : NIL_VAL, element);
+        StoredValue* element = arrayElement(array->type, storage, i);
+        initialisePackedStorage(arrayElementType(array->type), element);
     }
+
+    array->arrayElements = storage;
 
     tempRootPop();
     return array;
@@ -383,8 +382,8 @@ static void printArray(FILE* op, ObjPackedUniformArray* array) {
     printType(op, (ObjConcreteYargType*) array->type);
     fprintf(op, ":[");
     for (int i = 0; i < array->type->cardinality; i++) {
-        StoredValue* element = arrayElement(array, i);
-        Value unpackedValue = unpackStoredValue(array->type->element_type ? OBJ_VAL(array->type->element_type) : NIL_VAL, element);
+        StoredValue* element = arrayElement(array->type, array->arrayElements, i);
+        Value unpackedValue = unpackStoredValue(arrayElementType(array->type), element);
         fprintValue(op, unpackedValue);
         if (i < array->type->cardinality - 1) {
             fprintf(op, ", ");
@@ -413,7 +412,8 @@ static void printType(FILE* op, ObjConcreteYargType* type) {
         case TypeArray: {
             ObjConcreteYargTypeArray* array = (ObjConcreteYargTypeArray*) type;
             fprintf(op, "Type:");
-            if (array->element_type == NULL) {
+            Value type = arrayElementType(array);
+            if (IS_NIL(type)) {
                 fprintf(op, "any");
             } else {
                 printType(op, array->element_type);

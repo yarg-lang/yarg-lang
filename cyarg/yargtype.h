@@ -54,6 +54,10 @@ ObjConcreteYargType* newYargArrayTypeFromType(Value elementType);
 ObjConcreteYargType* newYargStructType(size_t fieldCount);
 ObjConcreteYargType* newYargPointerType(Value targetType);
 
+size_t arrayElementOffset(ObjConcreteYargTypeArray* arrayType, size_t index);
+size_t arrayElementSize(ObjConcreteYargTypeArray* arrayType);
+Value arrayElementType(ObjConcreteYargTypeArray* arrayType);
+
 size_t addFieldType(ObjConcreteYargTypeStruct* st, size_t index, size_t fieldOffset, Value type, Value name);
 
 Value concrete_typeof(Value a);

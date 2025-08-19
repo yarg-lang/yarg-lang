@@ -169,9 +169,11 @@ static void blackenObject(Obj* object) {
         case OBJ_PACKEDUNIFORMARRAY: {
             ObjPackedUniformArray* array = (ObjPackedUniformArray*)object;
             markObject((Obj*)array->type);
-            for (size_t i = 0; i < array->type->cardinality; i++) {
-                StoredValue* element = arrayElement(array, i);
-                markStoredValue(array->type->element_type ? OBJ_VAL(array->type->element_type) : NIL_VAL, element);
+            if (array->arrayElements) {
+                for (size_t i = 0; i < array->type->cardinality; i++) {
+                    StoredValue* element = arrayElement(array->type, array->arrayElements, i);
+                    markStoredValue(arrayElementType(array->type), element);
+                }
             }
             break;
         }
@@ -466,7 +468,7 @@ static void freeObject(Obj* object) {
         case OBJ_UNOWNED_UNIFORMARRAY: FREE(ObjPackedUniformArray, object); break;
         case OBJ_PACKEDUNIFORMARRAY: {
             ObjPackedUniformArray* array = (ObjPackedUniformArray*)object;
-            size_t element_size = yt_sizeof_type_storage(array->type->element_type ? OBJ_VAL(array->type->element_type) : NIL_VAL);
+            size_t element_size = arrayElementSize(array->type);
             array->arrayElements = reallocate(array->arrayElements, array->type->cardinality * element_size, 0);  
             FREE(ObjPackedUniformArray, object);
             break;

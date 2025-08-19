@@ -295,8 +295,8 @@ static bool derefElement(ObjRoutine* routine) {
             runtimeError(routine, "Array index %d out of bounds.", index);
             return false;
         }
-        StoredValue* element = arrayElement(array, index);
-        result = unpackStoredValue(array->type->element_type ? OBJ_VAL(array->type->element_type) : NIL_VAL, element);
+        StoredValue* element = arrayElement(array->type, array->arrayElements, index);
+        result = unpackStoredValue(arrayElementType(array->type), element);
 
     } else {
         ObjPointer* pointer = AS_POINTER(peek(routine, 1));
@@ -308,8 +308,8 @@ static bool derefElement(ObjRoutine* routine) {
             return false;
         }
 
-        StoredValue* element = arrayElement(arrayObj, index);
-        result = OBJ_VAL(newPointerAtCell(arrayType->element_type ? OBJ_VAL(arrayType->element_type) : NIL_VAL, element));
+        StoredValue* element = arrayElement(arrayObj->type, arrayObj->arrayElements, index);
+        result = OBJ_VAL(newPointerAtCell(arrayElementType(arrayObj->type), element));
     }
 
     pop(routine);
@@ -339,9 +339,9 @@ static bool setArrayElement(ObjRoutine* routine) {
             return false;
         }
 
-        StoredValue* element = arrayElement(array, index);
-        Value elementVal = array->type->element_type ? OBJ_VAL(array->type->element_type) : NIL_VAL;
-        StoredValueCellTarget trg = { .storedValue = element, .type = &elementVal };
+        StoredValue* element = arrayElement(array->type, array->arrayElements, index);
+        Value elementType = arrayElementType(array->type);
+        StoredValueCellTarget trg = { .storedValue = element, .type = &elementType };
         packValueStorage(&trg, new_value);
     }
 

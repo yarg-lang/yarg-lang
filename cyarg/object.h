@@ -220,7 +220,7 @@ ObjString* takeString(char* chars, int length);
 ObjString* copyString(const char* chars, int length);
 ObjUpvalue* newUpvalue(ValueCell* slot);
 
-StoredValue* arrayElement(ObjPackedUniformArray* array, size_t index);
+StoredValue* arrayElement(ObjConcreteYargTypeArray* arrayType, StoredValue* arrayStart, size_t index);
 
 StoredValue* structField(ObjConcreteYargTypeStruct* structType, StoredValue* structStart, size_t index);
 bool structFieldIndex(ObjConcreteYargTypeStruct* structType, ObjString* name, size_t* index);

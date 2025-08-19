@@ -52,6 +52,18 @@ ObjConcreteYargType* newYargArrayTypeFromType(Value elementType) {
     return (ObjConcreteYargType*)t;
 }
 
+Value arrayElementType(ObjConcreteYargTypeArray* arrayType) {
+    return arrayType->element_type ? OBJ_VAL(arrayType->element_type) : NIL_VAL;
+}
+
+size_t arrayElementOffset(ObjConcreteYargTypeArray* arrayType, size_t index) {
+    return index * arrayElementSize(arrayType);
+}
+
+size_t arrayElementSize(ObjConcreteYargTypeArray* arrayType) {
+    return yt_sizeof_type_storage(arrayElementType(arrayType));
+}
+
 ObjConcreteYargType* newYargStructType(size_t fieldCount) {
     ObjConcreteYargTypeStruct* t = (ObjConcreteYargTypeStruct*) newYargTypeFromType(TypeStruct);
     tempRootPush(OBJ_VAL(t));
@@ -140,6 +152,7 @@ bool type_packs_as_obj(ObjConcreteYargType* type) {
         case TypeDouble:
         case TypeMachineUint32:
         case TypeInteger:
+        case TypeArray:
         case TypeStruct:
             return false;
         case TypeString:
@@ -149,7 +162,6 @@ bool type_packs_as_obj(ObjConcreteYargType* type) {
         case TypeNativeBlob:
         case TypeRoutine:
         case TypeChannel:
-        case TypeArray:
         case TypePointer:
         case TypeYargType:
             return true;
@@ -192,10 +204,8 @@ bool is_placeable_type(Value typeVal) {
             case TypeMachineUint32: return true;
             case TypeArray: {
                 ObjConcreteYargTypeArray* ct = (ObjConcreteYargTypeArray*)AS_YARGTYPE(typeVal);
-                if (ct->element_type) {
-                    return is_placeable_type(OBJ_VAL(ct->element_type));
-                }
-                return false;
+                Value elementType = arrayElementType(ct);
+                return is_placeable_type(elementType);
             }
             default: return false;
         }
@@ -220,6 +230,10 @@ size_t yt_sizeof_type_storage(Value type) {
             ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*)t;
             return st->storage_size;
         }
+        case TypeArray: {
+            ObjConcreteYargTypeArray* array = (ObjConcreteYargTypeArray*)t;
+            return arrayElementSize(array) * array->cardinality;
+        }
         case TypeString:
         case TypeClass:
         case TypeInstance:
@@ -227,7 +241,6 @@ size_t yt_sizeof_type_storage(Value type) {
         case TypeNativeBlob:
         case TypeRoutine:
         case TypeChannel:
-        case TypeArray:
         case TypePointer:
         case TypeYargType:
             return sizeof(Obj*);
@@ -252,20 +265,19 @@ void initialisePackedStorage(Value type, StoredValue* packedStorage) {
             }
             case TypeArray: {
                 ObjConcreteYargTypeArray* at = (ObjConcreteYargTypeArray*)ct;
-                uint8_t* byteStorage = (uint8_t*)packedStorage;
+                Value elementType = arrayElementType(at);
                 if (at->cardinality > 0) {
                     for (size_t i = 0; i < at->cardinality; i++) {
-                        initialisePackedStorage(OBJ_VAL(at->element_type), (StoredValue*) byteStorage + i * yt_sizeof_type_storage(OBJ_VAL(at->element_type)));
+                        initialisePackedStorage(elementType, arrayElement(at, packedStorage, i));
                     }
                 }
                 break;
             }
             case TypeStruct: {
                 ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*)ct;
-                uint8_t* byteStorage = (uint8_t*)packedStorage;
                 for (size_t i = 0; i < st->field_count; i++) {
-                    size_t fieldOffset = st->field_indexes[i];
-                    initialisePackedStorage(st->field_types[i], (StoredValue*)(byteStorage + fieldOffset));
+                    StoredValue* field = structField(st, packedStorage, i);
+                    initialisePackedStorage(st->field_types[i], field);
                 }
                 break;
             }
@@ -299,7 +311,9 @@ Value unpackStoredValue(Value type, StoredValue* packedStorage) {
             case TypeStruct: {
                 return OBJ_VAL(newPackedStructAt((ObjConcreteYargTypeStruct*)ct, packedStorage));
             }
-            case TypeArray:
+            case TypeArray: {
+                return OBJ_VAL(newPackedUniformArrayAt((ObjConcreteYargTypeArray*)ct, packedStorage));
+            }
             case TypePointer:
             case TypeString:
             case TypeClass:
@@ -330,8 +344,6 @@ void packValueStorage(StoredValueCellTarget* packedStorageCell, Value value) {
             case TypeDouble: packedStorageCell->storedValue->asValue = value; break;
             case TypeInteger: packedStorageCell->storedValue->asValue = value; break;
             case TypeMachineUint32: packedStorageCell->storedValue->as.uinteger = AS_UINTEGER(value); break;
-            case TypeStruct:
-            case TypeArray:
             case TypePointer:
             case TypeString:
             case TypeClass:
@@ -341,8 +353,12 @@ void packValueStorage(StoredValueCellTarget* packedStorageCell, Value value) {
             case TypeRoutine:
             case TypeChannel:
             case TypeYargType: {
-                packedStorageCell->storedValue->as.obj = AS_OBJ(value); 
+                packedStorageCell->storedValue->as.obj = AS_OBJ(value);
+                break;
             }
+            case TypeStruct:
+            case TypeArray:
+                break;
         }
     }
 }
