@@ -1,10 +1,19 @@
 var struct {
-    struct {
         struct {
-            any[3] registers;
-            } reg;
-        } loc;
-    } location;
+            struct {
+                struct { 
+                    any[3] elements;
+                } a;
+            } b;
+        } c;
+        one;
+        struct {
+            i;
+        } two;
+    } d;
 
-print location.loc.reg.registers[0];  // expect: false
-
+print d.c.b.a.elements[0];  // expect: nil
+d.c.b.a.elements[1] = 42;
+print d.c.b.a.elements[1];   // expect: nil
+d.two.i = true;
+print d.two.i;
