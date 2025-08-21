@@ -239,20 +239,6 @@ Obj* destinationObject(Value pointer) {
     return NULL;
 }
 
-Value createPointerToObj(Value target_type, Obj* target) {
-    if (target == NULL) {
-        return NIL_VAL;
-    }
-
-    void* location = createHeapCell(target_type);
-    Obj** locationObjPtr = (Obj**) location;
-    *locationObjPtr = target;
-
-    ObjPackedPointer* pointer = newPointerForHeapCell(target_type, location);
-
-    return OBJ_VAL(pointer);
-}
-
 Value placeObjectAt(Value type, Value location) {
     if (is_placeable_type(type)) {
         ObjConcreteYargType* placed_type = AS_YARGTYPE(type);
@@ -262,9 +248,9 @@ Value placeObjectAt(Value type, Value location) {
             case TypeArray: {
                 ObjPackedUniformArray* target_array = newPackedUniformArrayAt((ObjConcreteYargTypeArray*)placed_type, locationPtr);
                 tempRootPush(OBJ_VAL(target_array));
-                Value result = createPointerToObj(type, (Obj*)target_array);
+                ObjPackedPointer* result = newPointerForHeapCell(OBJ_VAL(placed_type), locationPtr);
                 tempRootPop();
-                return result;
+                return OBJ_VAL(result);
             }
             default:
                 return NIL_VAL;

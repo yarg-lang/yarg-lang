@@ -236,8 +236,6 @@ Obj* destinationObject(Value pointer);
 
 ObjPackedUniformArray* newPackedUniformArrayAt(ObjConcreteYargTypeArray* type, void* location);
 
-Value createPointerToObj(Value type, Obj* target);
-
 Value defaultArrayValue(ObjConcreteYargType* type);
 Value defaultStructValue(ObjConcreteYargType* type);
 

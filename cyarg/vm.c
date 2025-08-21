@@ -299,17 +299,16 @@ static bool derefElement(ObjRoutine* routine) {
         result = unpackStoredValue(arrayElementType(array->type), element);
 
     } else {
-        ObjPackedPointer* pointer = AS_POINTER(peek(routine, 1));
-        ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*) AS_YARGTYPE(pointer->destination_type);
-        Obj* target = pointer->destination->as.obj;
-        ObjPackedUniformArray* arrayObj = (ObjPackedUniformArray*)target;
+        ObjPackedUniformArray* arrayObj = (ObjPackedUniformArray*)destinationObject(peek(routine, 1));
         if (index >= arrayObj->type->cardinality) {
             runtimeError(routine, "Array index %d out of bounds (0:%zu)", index, arrayObj->type->cardinality - 1);
             return false;
         }
+        tempRootPush(OBJ_VAL(arrayObj));
 
         StoredValue* element = arrayElement(arrayObj->type, arrayObj->arrayElements, index);
         result = OBJ_VAL(newPointerAtCell(arrayElementType(arrayObj->type), element));
+        tempRootPop();
     }
 
     pop(routine);
@@ -351,32 +350,14 @@ static bool setArrayElement(ObjRoutine* routine) {
 }
 
 static bool derefPtr(ObjRoutine* routine) {
-    Value ptr = peek(routine, 0);
-    ObjPackedPointer* pointer = AS_POINTER(ptr);
-    ObjConcreteYargType* target = AS_YARGTYPE(pointer->destination_type);
+    Value pointerVal = pop(routine);
+    tempRootPush(pointerVal);
 
-    Value result = NIL_VAL;
-
-    if (IS_NIL(pointer->destination_type)
-        || target->yt == TypeAny
-        || target->yt == TypeBool
-        || target->yt == TypeInteger
-        || target->yt == TypeDouble) {
-        Value* remote = (Value*)pointer->destination;
-        result = *remote;
-    } else if (target->yt == TypeMachineUint32) {
-        uint32_t* remote = (uint32_t*)pointer->destination;
-        result = UINTEGER_VAL(*remote);
-    } else {
-        Obj** remote = (Obj**)pointer->destination;
-        if (*remote == NULL) {
-            result = NIL_VAL;
-        } else {
-            result = OBJ_VAL(*remote);
-        }
-    }
-    pop(routine);
+    ObjPackedPointer* pointer = AS_POINTER(pointerVal);
+    Value result = unpackStoredValue(pointer->destination_type, pointer->destination);
     push(routine, result);
+
+    tempRootPop();
     return true;
 }
 
@@ -1018,11 +999,10 @@ InterpretResult run(ObjRoutine* routine) {
             }
             case OP_SET_PTR_TARGET: {
                 Value rhs = peek(routine, 0);
-                ValueCell* lhs = peekCell(routine, 1);
-                ObjPackedPointer* pLhs = AS_POINTER(lhs->value);
-                Value* remote = (Value*)pLhs->destination;
-                ValueCellTarget trg = { .type = &pLhs->destination_type, .value = remote };
-                if (assignTo(trg, rhs)) {
+                Value lhs = peek(routine, 1);
+                ObjPackedPointer* pLhs = AS_POINTER(lhs);
+                StoredValueCellTarget trg = { .type = &pLhs->destination_type, .storedValue = pLhs->destination };
+                if (assignToStorage(&trg, rhs)) {
                     pop(routine);
                     pop(routine);
                     push(routine, rhs);
