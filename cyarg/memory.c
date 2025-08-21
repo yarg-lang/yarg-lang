@@ -379,10 +379,10 @@ static void blackenObject(Obj* object) {
             markObject((Obj*)expr->cardinality);
             break;
         }
-        case OBJ_UNOWNED_POINTER:
+        case OBJ_UNOWNED_PACKEDPOINTER:
             // fall through
-        case OBJ_POINTER: {
-            ObjPointer* ptr = (ObjPointer*)object;
+        case OBJ_PACKEDPOINTER: {
+            ObjPackedPointer* ptr = (ObjPackedPointer*)object;
             markValue(ptr->destination_type);
             markStoredValue(ptr->destination_type, ptr->destination);
             break;
@@ -545,11 +545,11 @@ static void freeObject(Obj* object) {
             break;
         }
         case OBJ_EXPR_TYPE_ARRAY: FREE(ObjExprTypeArray, object); break;
-        case OBJ_UNOWNED_POINTER: FREE(ObjPointer, object); break;
-        case OBJ_POINTER: {
-            ObjPointer* ptr = (ObjPointer*) object;
+        case OBJ_UNOWNED_PACKEDPOINTER: FREE(ObjPackedPointer, object); break;
+        case OBJ_PACKEDPOINTER: {
+            ObjPackedPointer* ptr = (ObjPackedPointer*) object;
             ptr->destination = reallocate(ptr->destination, yt_sizeof_type_storage(ptr->destination_type), 0);
-            FREE(ObjPointer, object); 
+            FREE(ObjPackedPointer, object); 
             break;
         }
         case OBJ_UNOWNED_PACKEDSTRUCT: FREE(ObjPackedStruct, object); break;

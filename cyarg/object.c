@@ -170,17 +170,17 @@ void* createHeapCell(Value type) {
     return dest;
 }
 
-ObjPointer* newPointerForHeapCell(Value target_type, void* location) {
+ObjPackedPointer* newPointerForHeapCell(Value target_type, void* location) {
 
-    ObjPointer* ptr = ALLOCATE_OBJ(ObjPointer, OBJ_POINTER);
+    ObjPackedPointer* ptr = ALLOCATE_OBJ(ObjPackedPointer, OBJ_PACKEDPOINTER);
     ptr->destination_type = target_type;
     ptr->destination = location;
     return ptr;
 }
 
-ObjPointer* newPointerAtCell(Value type, StoredValue* location) {
+ObjPackedPointer* newPointerAtCell(Value type, StoredValue* location) {
     if (IS_NIL(type) || IS_YARGTYPE(type)) {
-        ObjPointer* ptr = ALLOCATE_OBJ(ObjPointer, OBJ_UNOWNED_POINTER);
+        ObjPackedPointer* ptr = ALLOCATE_OBJ(ObjPackedPointer, OBJ_UNOWNED_PACKEDPOINTER);
         ptr->destination_type = type;
         ptr->destination = location;
         return ptr;
@@ -189,11 +189,11 @@ ObjPointer* newPointerAtCell(Value type, StoredValue* location) {
     }
 }
 
-ObjPointer* newPointerAt(Value type, Value location) {
+ObjPackedPointer* newPointerAt(Value type, Value location) {
     if (   IS_YARGTYPE(type)
         && AS_YARGTYPE(type)->yt == TypeMachineUint32
         && IS_UINTEGER(location)) {
-        ObjPointer* ptr = ALLOCATE_OBJ(ObjPointer, OBJ_UNOWNED_POINTER);
+        ObjPackedPointer* ptr = ALLOCATE_OBJ(ObjPackedPointer, OBJ_UNOWNED_PACKEDPOINTER);
         ptr->destination_type = type;
         ptr->destination = (void*)(uintptr_t) AS_UINTEGER(location);
         return ptr;
@@ -203,7 +203,7 @@ ObjPointer* newPointerAt(Value type, Value location) {
 }
 
 bool isArrayPointer(Value value) {
-    ObjPointer* pointer = AS_POINTER(value);
+    ObjPackedPointer* pointer = AS_POINTER(value);
     if (IS_POINTER(value)) {
         if (IS_NIL(pointer->destination_type)) {
             return IS_UNIFORMARRAY(pointer->destination->asValue);
@@ -225,7 +225,7 @@ Value createPointerToObj(Value target_type, Obj* target) {
     Obj** locationObjPtr = (Obj**) location;
     *locationObjPtr = target;
 
-    ObjPointer* pointer = newPointerForHeapCell(target_type, location);
+    ObjPackedPointer* pointer = newPointerForHeapCell(target_type, location);
 
     return OBJ_VAL(pointer);
 }
@@ -440,7 +440,7 @@ static void printType(FILE* op, ObjConcreteYargType* type) {
     }
 }
 
-static void printPointer(FILE* op, ObjPointer* ptr) {
+static void printPointer(FILE* op, ObjPackedPointer* ptr) {
     fprintf(op, "<*");
     fprintValue(op, ptr->destination_type);
     fprintf(op, ":%p>", (void*) ptr->destination);
@@ -501,8 +501,8 @@ void fprintObject(FILE* op, Value value) {
         case OBJ_YARGTYPE_STRUCT:
             printType(op, AS_YARGTYPE(value));
             break;
-        case OBJ_UNOWNED_POINTER:
-        case OBJ_POINTER:
+        case OBJ_UNOWNED_PACKEDPOINTER:
+        case OBJ_PACKEDPOINTER:
             printPointer(op, AS_POINTER(value));
             break;
         case OBJ_UNOWNED_PACKEDSTRUCT:

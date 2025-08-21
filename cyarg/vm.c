@@ -299,7 +299,7 @@ static bool derefElement(ObjRoutine* routine) {
         result = unpackStoredValue(arrayElementType(array->type), element);
 
     } else {
-        ObjPointer* pointer = AS_POINTER(peek(routine, 1));
+        ObjPackedPointer* pointer = AS_POINTER(peek(routine, 1));
         ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*) AS_YARGTYPE(pointer->destination_type);
         Obj* target = pointer->destination->as.obj;
         ObjPackedUniformArray* arrayObj = (ObjPackedUniformArray*)target;
@@ -352,7 +352,7 @@ static bool setArrayElement(ObjRoutine* routine) {
 
 static bool derefPtr(ObjRoutine* routine) {
     Value ptr = peek(routine, 0);
-    ObjPointer* pointer = AS_POINTER(ptr);
+    ObjPackedPointer* pointer = AS_POINTER(ptr);
     ObjConcreteYargType* target = AS_YARGTYPE(pointer->destination_type);
 
     Value result = NIL_VAL;
@@ -1003,7 +1003,7 @@ InterpretResult run(ObjRoutine* routine) {
             case OP_SET_PTR_TARGET: {
                 Value rhs = peek(routine, 0);
                 ValueCell* lhs = peekCell(routine, 1);
-                ObjPointer* pLhs = AS_POINTER(lhs->value);
+                ObjPackedPointer* pLhs = AS_POINTER(lhs->value);
                 Value* remote = (Value*)pLhs->destination;
                 ValueCellTarget trg = { .type = &pLhs->destination_type, .value = remote };
                 if (assignTo(trg, rhs)) {

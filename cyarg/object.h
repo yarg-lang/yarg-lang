@@ -26,7 +26,7 @@ typedef struct ObjConcreteYargTypeStruct ObjConcreteYargTypeStruct;
 #define IS_STRING(value)       isObjType(value, OBJ_STRING)
 #define IS_UNIFORMARRAY(value) (isObjType(value, OBJ_PACKEDUNIFORMARRAY)|| isObjType(value, OBJ_UNOWNED_UNIFORMARRAY))
 #define IS_YARGTYPE(value)     (isObjType(value, OBJ_YARGTYPE) || isObjType(value, OBJ_YARGTYPE_ARRAY) || isObjType(value, OBJ_YARGTYPE_STRUCT) || isObjType(value, OBJ_YARGTYPE_POINTER))
-#define IS_POINTER(value)      (isObjType(value, OBJ_POINTER) || isObjType(value, OBJ_UNOWNED_POINTER))
+#define IS_POINTER(value)      (isObjType(value, OBJ_PACKEDPOINTER) || isObjType(value, OBJ_UNOWNED_PACKEDPOINTER))
 #define IS_STRUCT(value)       (isObjType(value, OBJ_PACKEDSTRUCT) || isObjType(value, OBJ_UNOWNED_PACKEDSTRUCT))
 
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
@@ -43,7 +43,7 @@ typedef struct ObjConcreteYargTypeStruct ObjConcreteYargTypeStruct;
 #define AS_CSTRING(value)      (((ObjString*)AS_OBJ(value))->chars)
 #define AS_UNIFORMARRAY(value) ((ObjPackedUniformArray*)AS_OBJ(value))
 #define AS_YARGTYPE(value)     ((ObjConcreteYargType*)AS_OBJ(value))
-#define AS_POINTER(value)      ((ObjPointer*)AS_OBJ(value))
+#define AS_POINTER(value)      ((ObjPackedPointer*)AS_OBJ(value))
 #define AS_STRUCT(value)       ((ObjPackedStruct*)AS_OBJ(value))
 
 typedef enum {
@@ -64,8 +64,8 @@ typedef enum {
     OBJ_YARGTYPE_ARRAY,
     OBJ_YARGTYPE_STRUCT,
     OBJ_YARGTYPE_POINTER,
-    OBJ_POINTER,
-    OBJ_UNOWNED_POINTER,
+    OBJ_PACKEDPOINTER,
+    OBJ_UNOWNED_PACKEDPOINTER,
     OBJ_UNOWNED_PACKEDSTRUCT,
     OBJ_PACKEDSTRUCT,
     OBJ_AST,
@@ -189,7 +189,7 @@ typedef struct {
     Obj obj;
     Value destination_type;
     StoredValue* destination;
-} ObjPointer;
+} ObjPackedPointer;
 
 typedef struct {
     Obj obj;
@@ -227,7 +227,10 @@ bool structFieldIndex(ObjConcreteYargTypeStruct* structType, ObjString* name, si
 ObjPackedStruct* newPackedStructAt(ObjConcreteYargTypeStruct* type, StoredValue* packedStorage);
 
 void* createHeapCell(Value type);
-ObjPointer* newPointerForHeapCell(Value type, void* location);
+ObjPackedPointer* newPointerForHeapCell(Value type, void* location);
+
+ObjPackedPointer* newPointerAt(Value type, Value location);
+ObjPackedPointer* newPointerAtCell(Value type, StoredValue* location);
 
 ObjPointer* newPointerAt(Value type, Value location);
 ObjPointer* newPointerAtCell(Value type, StoredValue* location);
