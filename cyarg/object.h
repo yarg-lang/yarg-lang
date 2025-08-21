@@ -232,8 +232,7 @@ ObjPackedPointer* newPointerForHeapCell(Value type, void* location);
 ObjPackedPointer* newPointerAt(Value type, Value location);
 ObjPackedPointer* newPointerAtCell(Value type, StoredValue* location);
 
-ObjPointer* newPointerAt(Value type, Value location);
-ObjPointer* newPointerAtCell(Value type, StoredValue* location);
+Obj* destinationObject(Value pointer);
 
 ObjPackedUniformArray* newPackedUniformArrayAt(ObjConcreteYargTypeArray* type, void* location);
 
@@ -252,6 +251,7 @@ static inline bool isObjType(Value value, ObjType type) {
 }
 
 bool isArrayPointer(Value value);
+bool isStructPointer(Value value);
 
 
 #endif

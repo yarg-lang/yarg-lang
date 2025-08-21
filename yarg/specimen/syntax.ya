@@ -1,19 +1,8 @@
-var struct {
-        struct {
-            struct {
-                struct { 
-                    any[3] elements;
-                } a;
-            } b;
-        } c;
-        one;
-        struct {
-            i;
-        } two;
-    } d;
-
-print d.c.b.a.elements[0];  // expect: nil
-d.c.b.a.elements[1] = 42;
-print d.c.b.a.elements[1];   // expect: nil
-d.two.i = true;
-print d.two.i;
+var test = new(struct { muint32 i; struct {muint32 ctrl; muint32 flags;} j;});
+print test;
+print *test.i;  // expect: 0
+rpeek(test.i);
+rpeek (test.j.flags);
+print *test.j.flags;
+*test.j.flags = 0d5;
+print *test.j.flags;

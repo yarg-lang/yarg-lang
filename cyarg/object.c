@@ -215,6 +215,29 @@ bool isArrayPointer(Value value) {
     return false;
 }
 
+bool isStructPointer(Value value) {
+    ObjPackedPointer* pointer = AS_POINTER(value);
+    if (IS_POINTER(value)) {
+        if (IS_NIL(pointer->destination_type)) {
+            return IS_STRUCT(pointer->destination->asValue);
+        } else if (   IS_YARGTYPE(pointer->destination_type)
+                   && AS_YARGTYPE(pointer->destination_type)->yt == TypeStruct) {
+            return true;
+        }
+    }
+    return false;
+}
+
+Obj* destinationObject(Value pointer) {
+    if (IS_POINTER(pointer)) {
+        ObjPackedPointer* p = AS_POINTER(pointer);
+        Value target = unpackStoredValue(p->destination_type, p->destination);
+        if (IS_OBJ(target)) {
+            return AS_OBJ(target);
+        }
+    }
+    return NULL;
+}
 
 Value createPointerToObj(Value target_type, Obj* target) {
     if (target == NULL) {

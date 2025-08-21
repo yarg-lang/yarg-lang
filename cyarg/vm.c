@@ -635,8 +635,8 @@ InterpretResult run(ObjRoutine* routine) {
                 break;
             }
             case OP_GET_PROPERTY: {
-                if (!IS_INSTANCE(peek(routine, 0)) && !IS_STRUCT(peek(routine, 0))) {
-                    runtimeError(routine, "Only instances and structs have properties.");
+                if (!IS_INSTANCE(peek(routine, 0)) && !IS_STRUCT(peek(routine, 0)) && !isStructPointer(peek(routine, 0))) {
+                    runtimeError(routine, "Only instances, structs and pointers to structs have properties.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 if (IS_INSTANCE(peek(routine, 0))) {
@@ -664,6 +664,22 @@ InterpretResult run(ObjRoutine* routine) {
                     }
                     StoredValue* field = structField(object->type, object->structFields, index);
                     Value result = unpackStoredValue(object->type->field_types[index], field);
+
+                    pop(routine);
+                    push(routine, result);
+                } else if (isStructPointer(peek(routine, 0))) {
+                    ObjPackedStruct* object = (ObjPackedStruct*) destinationObject(peek(routine, 0));
+                    tempRootPush(OBJ_VAL(object));
+                    ObjString* name = READ_STRING();
+
+                    size_t index;
+                    if (!structFieldIndex(object->type, name, &index)) {
+                        runtimeError(routine, "field not present in struct.");
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                    StoredValue* field = structField(object->type, object->structFields, index);
+                    Value result = OBJ_VAL(newPointerAtCell(object->type->field_types[index], field));
+                    tempRootPop();
 
                     pop(routine);
                     push(routine, result);
