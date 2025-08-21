@@ -170,7 +170,7 @@ void* createHeapCell(Value type) {
     return dest;
 }
 
-ObjPackedPointer* newPointerForHeapCell(Value target_type, void* location) {
+ObjPackedPointer* newPointerForHeapCell(Value target_type, StoredValue* location) {
 
     ObjPackedPointer* ptr = ALLOCATE_OBJ(ObjPackedPointer, OBJ_PACKEDPOINTER);
     ptr->destination_type = target_type;
@@ -178,24 +178,11 @@ ObjPackedPointer* newPointerForHeapCell(Value target_type, void* location) {
     return ptr;
 }
 
-ObjPackedPointer* newPointerAtCell(Value type, StoredValue* location) {
+ObjPackedPointer* newPointerAtHeapCell(Value type, StoredValue* location) {
     if (IS_NIL(type) || IS_YARGTYPE(type)) {
         ObjPackedPointer* ptr = ALLOCATE_OBJ(ObjPackedPointer, OBJ_UNOWNED_PACKEDPOINTER);
         ptr->destination_type = type;
         ptr->destination = location;
-        return ptr;
-    } else {
-        return NULL;
-    }
-}
-
-ObjPackedPointer* newPointerAt(Value type, Value location) {
-    if (   IS_YARGTYPE(type)
-        && AS_YARGTYPE(type)->yt == TypeMachineUint32
-        && IS_UINTEGER(location)) {
-        ObjPackedPointer* ptr = ALLOCATE_OBJ(ObjPackedPointer, OBJ_UNOWNED_PACKEDPOINTER);
-        ptr->destination_type = type;
-        ptr->destination = (void*)(uintptr_t) AS_UINTEGER(location);
         return ptr;
     } else {
         return NULL;
@@ -239,17 +226,27 @@ Obj* destinationObject(Value pointer) {
     return NULL;
 }
 
-Value placeObjectAt(Value type, Value location) {
-    if (is_placeable_type(type)) {
-        ObjConcreteYargType* placed_type = AS_YARGTYPE(type);
+Value placeObjectAt(Value placedType, Value location) {
+    if (is_placeable_type(placedType)) {
+        ObjConcreteYargType* concrete_type = AS_YARGTYPE(placedType);
         void* locationPtr = (void*)(uintptr_t)AS_UINTEGER(location);
-        switch (placed_type->yt) {
-            case TypeMachineUint32: return OBJ_VAL(newPointerAt(type, location));
+        switch (concrete_type->yt) {
             case TypeArray: {
-                ObjPackedUniformArray* target_array = newPackedUniformArrayAt((ObjConcreteYargTypeArray*)placed_type, locationPtr);
+                ObjPackedUniformArray* target_array = newPackedUniformArrayAt((ObjConcreteYargTypeArray*)concrete_type, locationPtr);
                 tempRootPush(OBJ_VAL(target_array));
-                ObjPackedPointer* result = newPointerForHeapCell(OBJ_VAL(placed_type), locationPtr);
+                ObjPackedPointer* result = newPointerAtHeapCell(placedType, locationPtr);
                 tempRootPop();
+                return OBJ_VAL(result);
+            }
+            case TypeStruct: {
+                ObjPackedStruct* target_struct = newPackedStructAt((ObjConcreteYargTypeStruct*)concrete_type, locationPtr);
+                tempRootPush(OBJ_VAL(target_struct));
+                ObjPackedPointer* result = newPointerAtHeapCell(placedType, locationPtr);
+                tempRootPop();
+                return OBJ_VAL(result);
+            }
+            case TypeMachineUint32: {
+                ObjPackedPointer* result = newPointerAtHeapCell(placedType, locationPtr);
                 return OBJ_VAL(result);
             }
             default:

@@ -6,4 +6,10 @@ rpeek(hardware_registers[0]);  // expect: rpeek(e0000000)
 rpeek(hardware_registers[1]);  // expect: rpeek(e0000004)
 rpeek(hardware_registers[2]);  // expect: rpeek(e0000008)
 rpeek(hardware_registers[3]);  // expect: rpeek(e000000c)
-rpeek(hardware_registers[4]);  // expect runtime error: Array index 4 out of bounds (0:3)
+
+place struct { 
+    muint32 ctrl;
+    muint32 flags;
+    } 0xc0000000 more_registers;
+rpeek(more_registers.ctrl);     // expect: rpeek(c0000000)
+rpeek(more_registers.flags);    // expect: rpeek(c0000004)

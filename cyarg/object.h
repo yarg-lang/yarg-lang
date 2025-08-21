@@ -227,10 +227,8 @@ bool structFieldIndex(ObjConcreteYargTypeStruct* structType, ObjString* name, si
 ObjPackedStruct* newPackedStructAt(ObjConcreteYargTypeStruct* type, StoredValue* packedStorage);
 
 void* createHeapCell(Value type);
-ObjPackedPointer* newPointerForHeapCell(Value type, void* location);
-
-ObjPackedPointer* newPointerAt(Value type, Value location);
-ObjPackedPointer* newPointerAtCell(Value type, StoredValue* location);
+ObjPackedPointer* newPointerForHeapCell(Value type, StoredValue* location);
+ObjPackedPointer* newPointerAtHeapCell(Value type, StoredValue* location);
 
 Obj* destinationObject(Value pointer);
 

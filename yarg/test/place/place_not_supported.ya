@@ -1,0 +1,1 @@
+place bool 0xe0000000 not_allowed;      // expect runtime error: Cannot place this type.

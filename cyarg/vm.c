@@ -307,7 +307,7 @@ static bool derefElement(ObjRoutine* routine) {
         tempRootPush(OBJ_VAL(arrayObj));
 
         StoredValue* element = arrayElement(arrayObj->type, arrayObj->arrayElements, index);
-        result = OBJ_VAL(newPointerAtCell(arrayElementType(arrayObj->type), element));
+        result = OBJ_VAL(newPointerAtHeapCell(arrayElementType(arrayObj->type), element));
         tempRootPop();
     }
 
@@ -659,7 +659,7 @@ InterpretResult run(ObjRoutine* routine) {
                         return INTERPRET_RUNTIME_ERROR;
                     }
                     StoredValue* field = structField(object->type, object->structFields, index);
-                    Value result = OBJ_VAL(newPointerAtCell(object->type->field_types[index], field));
+                    Value result = OBJ_VAL(newPointerAtHeapCell(object->type->field_types[index], field));
                     tempRootPop();
 
                     pop(routine);
@@ -1015,7 +1015,12 @@ InterpretResult run(ObjRoutine* routine) {
             case OP_PLACE: {
                 Value location = peek(routine, 0);
                 Value type = peek(routine, 1);
+                if (!is_placeable_type(type)) {
+                    runtimeError(routine, "Cannot place this type.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
                 Value result = placeObjectAt(type, location);
+
                 pop(routine);
                 pop(routine);
                 push(routine, result);

@@ -208,6 +208,14 @@ bool is_placeable_type(Value typeVal) {
                 Value elementType = arrayElementType(ct);
                 return is_placeable_type(elementType);
             }
+            case TypeStruct: {
+                ObjConcreteYargTypeStruct* ct = (ObjConcreteYargTypeStruct*)AS_YARGTYPE(typeVal);
+                bool is_placeable = true;
+                for (size_t i = 0; i < ct->field_count; i++) {
+                    is_placeable &= is_placeable_type(ct->field_types[i]);
+                }
+                return is_placeable;
+            }
             default: return false;
         }
     }
