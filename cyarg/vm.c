@@ -962,7 +962,7 @@ InterpretResult run(ObjRoutine* routine) {
                 tempRootPush(OBJ_VAL(st));
                 size_t fieldOffset = 0;
                 for (uint8_t i = 0; i < fieldCount; i++) {
-                    fieldOffset = addFieldType(st, i, fieldOffset, peek(routine, 2), peek(routine, 0));
+                    fieldOffset = addFieldType(st, i, fieldOffset, peek(routine, 2), peek(routine, 1), peek(routine, 0));
                     pop(routine);
                     pop(routine);
                     pop(routine);

@@ -1,23 +1,25 @@
-const PPB_BASE = 0xe0000000;
-const M0PLUS_NVIC_ISER_OFFSET = 0x0000e100;
-const NVIC_ISER_OFFSET = 0x0;
-const NVIC_ICER_OFFSET = 0x80;
-const NVIC_ISPR_OFFSET = 0x100;
-const NVIC_ICPR_OFFSET = 0x180;
-const NVIC_HW_BASE = PPB_BASE + M0PLUS_NVIC_ISER_OFFSET;
-
 const IO_IRQ_BANK0 = 0d13;
 
-place muint32 NVIC_HW_BASE + NVIC_ICPR_OFFSET nvic_icpr;
-place muint32 NVIC_HW_BASE + NVIC_ISER_OFFSET nvic_iser;
-place muint32 NVIC_HW_BASE + NVIC_ICER_OFFSET nvic_icer;
+place struct {
+    muint32@0xe010 syst_csr;
+    muint32 syst_rvr;
+    muint32 syst_cvr;
+    muint32 syst_calib;
+
+    muint32@0xe100 nvic_iser;
+    muint32@0xe180 nvic_icer;
+    muint32@0xe200 nvic_ispr;
+    muint32@0xe280 nvic_icpr;
+    muint32[8]@0xe400 nvic_ipr;
+
+    } 0xe0000000 m0plus;
 
 fun irq_set_mask_n_enabled(n, mask, enabled) {
     if (enabled) {
-        rpoke(nvic_icpr, mask);
-        rpoke(nvic_iser, mask);
+        rpoke(m0plus.nvic_icpr, mask);
+        rpoke(m0plus.nvic_iser, mask);
     } else {
-        rpoke(nvic_icer, mask);
+        rpoke(m0plus.nvic_icer, mask);
     }
 }
 

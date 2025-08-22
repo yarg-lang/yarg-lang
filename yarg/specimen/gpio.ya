@@ -17,13 +17,35 @@ const PADS_BANK0_GPIO0_ISO_BITS = 0x00000100;
 
 var any[2] callbacks;
 
-const sio_hw_gpio_out = sio_hw_base + 0x10;
-const sio_hw_gpio_oe  = sio_hw_base + 0x20;
-
 const REG_ALIAS_RW_BITS  = 0x0 << 0d12;
 const REG_ALIAS_XOR_BITS = 0x1 << 0d12;
 const REG_ALIAS_SET_BITS = 0x2 << 0d12;
 const REG_ALIAS_CLR_BITS = 0x3 << 0d12;
+
+place struct {
+    struct {
+        muint32 status;
+        muint32 ctrl;
+        }[NUM_BANK0_GPIOS] gpio;
+    muint32[4]@0x0f0 intr;
+    struct {
+        muint32[4] inte;
+        muint32[4] intf;
+        muint32[4] ints;
+        }[2]@0x100 proc;
+    struct {
+        muint32[4] inte;
+        muint32[4] intf;
+        muint32[4] ints;
+        } dormant_wake;
+    } 0x40014000 io_bank0;
+
+place struct {
+    muint32 voltage_select;
+    muint32[NUM_BANK0_GPIOS] gpio;
+    muint32 swclk;
+    muint32 swd;
+    } 0x4001c000 pads_bank0;
 
 class alias_reg {
     read() { return rpeek(this.rw_reg); }
@@ -47,38 +69,23 @@ class alias_reg4K < alias_reg {
     }
 }
 
-class alias_reg4 < alias_reg {
-    init(addr) {
-        place muint32 addr read_write;
-        this.rw_reg = read_write;
-        place muint32 addr + 0x4 set;
-        this.set_reg = set;
-        place muint32 addr + 0x8 clr;
-        this.clr_reg = clr;
-        place muint32 addr + 0x12 xor;
-        this.xor_reg = xor;
-    }
-}
-
 fun gpio_set_direction(gpio, dir) {
-    var ctrl = alias_reg4(sio_hw_gpio_oe);
 
     if (dir) {
-        ctrl.set(0x1 << gpio);
+        rpoke(sio_hw.gpio_oe.set, 0x1 << gpio);
     }
     else {
-        ctrl.clr(0x1 << gpio);
+        rpoke(sio_hw.gpio_oe.clr, 0x1 << gpio);
     }
 }
 
 fun gpio_put(gpio, value) {
-    var ctrl = alias_reg4(sio_hw_gpio_out);
 
     if (value) {
-        ctrl.set(0x1 << gpio);
+        rpoke(sio_hw.gpio_out.set, 0x1 << gpio);
     }
     else {
-        ctrl.clr(0x1 << gpio);
+        rpoke(sio_hw.gpio_out.clr, 0x1 << gpio);
     }
 }
 
@@ -98,35 +105,20 @@ fun gpio_set_function(gpio, function) {
 
     // Zero all fields apart from fsel; we want this IO to do what the peripheral tells it.
     // This doesn't affect e.g. pullup/pulldown, as these are in pad controls.
-    const ctrl_offset = (0d8 * gpio) + 0d4;
-    var hw_ctrl = alias_reg4K(IO_BANK0_BASE + ctrl_offset);
-    hw_ctrl.write(function);
+    rpoke(io_bank0.gpio[gpio].ctrl, function);
 }
 
 fun gpio_acknowledge_irq(gpio, events) {
-    var register_base = IO_BANK0_BASE;
-    register_base = register_base + 0d30 * 0d8;
-    const offset = (gpio / 0d8) * 0d4;
-    place muint32 register_base + offset reg;
 
-    rpoke(reg, events << (0d4 * (gpio % 0d8)));
+    rpoke(io_bank0.intr[(gpio / 0d8)], events << (0d4 * (gpio % 0d8)));
 }
 
 fun gpio_default_irq_handler() {
     const core = coreNum();
     const callback = callbacks[core];
 
-    var register_base = IO_BANK0_BASE;
-    register_base = register_base + 0d30 * 0d8;
-    register_base = register_base + 0d4 * 0d4;
-    register_base = register_base + core * 0d4 * 0d3 *0d4;
-    register_base = register_base + 0d2 * 0d4 * 0d4;
-
     for (var gpio = 0d0; gpio < NUM_BANK0_GPIOS; gpio= gpio + 0d8) {
-        const gpio_bank = gpio >> 0d3;
-        place muint32 register_base + gpio_bank * 0d4 register_location;
-
-        var events8 = rpeek(register_location);
+        var events8 = rpeek(io_bank0.proc[core].ints[gpio >> 0d3]);
       
         for(var i = gpio; (events8 != 0d0) and (i < (gpio + 0d8)); i = i + 0d1) {
             var events = events8 & 0xf;

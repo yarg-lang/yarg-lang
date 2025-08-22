@@ -1,3 +1,22 @@
-place struct { muint32@10 ctrl; muint32@20 flags; } 0xd0000000 registers;
-rpeek(registers.ctrl);
-rpeek(registers.flags);
+place struct {
+    struct {
+        muint32 status;
+        muint32 ctrl;
+        }[30] gpio;
+    muint32[4]@0x0f0 intr;
+    struct {
+        muint32[4] inte;
+        muint32[4] intf;
+        muint32[4] ints;
+        }[2]@0x100 proc;
+    struct {
+        muint32[4] inte;
+        muint32[4] intf;
+        muint32[4] ints;
+        } dormant_wake;
+    } 0x40014000 io_bank0;
+
+rpeek(io_bank0.proc[0].inte[0]);
+rpeek(io_bank0.proc[1].ints[3]);
+rpeek(io_bank0.dormant_wake.inte[0]);
+rpeek(io_bank0.dormant_wake.ints[3]);

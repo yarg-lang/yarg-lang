@@ -94,10 +94,15 @@ ObjConcreteYargType* newYargPointerType(Value targetType) {
     return (ObjConcreteYargType*)p;
 }
 
-size_t addFieldType(ObjConcreteYargTypeStruct* st, size_t index, size_t fieldOffset, Value type, Value name) {
+size_t addFieldType(ObjConcreteYargTypeStruct* st, size_t index, size_t fieldOffset, Value type, Value offset, Value name) {
     st->field_types[index] = type;
     tableSet(&st->field_names, AS_STRING(name), UINTEGER_VAL(index));
-    st->field_indexes[index] = fieldOffset;
+    if (IS_NIL(offset)) {
+        st->field_indexes[index] = fieldOffset;
+    } else if (is_positive_integer(offset)) {
+        fieldOffset = as_positive_integer(offset);
+        st->field_indexes[index] = fieldOffset;
+    }
     st->storage_size = fieldOffset + yt_sizeof_type_storage(type);
     return st->storage_size;
 }

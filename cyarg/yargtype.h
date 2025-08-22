@@ -58,7 +58,7 @@ size_t arrayElementOffset(ObjConcreteYargTypeArray* arrayType, size_t index);
 size_t arrayElementSize(ObjConcreteYargTypeArray* arrayType);
 Value arrayElementType(ObjConcreteYargTypeArray* arrayType);
 
-size_t addFieldType(ObjConcreteYargTypeStruct* st, size_t index, size_t fieldOffset, Value type, Value name);
+size_t addFieldType(ObjConcreteYargTypeStruct* st, size_t index, size_t fieldOffset, Value type, Value offset, Value name);
 
 Value concrete_typeof(Value a);
 bool type_packs_as_obj(ObjConcreteYargType* type);
