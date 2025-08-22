@@ -361,11 +361,21 @@ static ObjStmtFieldDeclaration* fieldStmt() {
         type = (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL);
     }
     pushWorkingNode((Obj*)type);
+    ObjExpr* offset = NULL;
+    if (match(TOKEN_AT)) {
+        offset = expression();
+    } else {
+        offset = (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL);
+    }
+    pushWorkingNode((Obj*)offset);
 
     consume(TOKEN_IDENTIFIER, "Expect name of field.");
     ObjStmtFieldDeclaration* field = newStmtFieldDeclaration(parser.previous.start, parser.previous.length, parser.previous.line);
     field->type = type;
+    field->offset = offset;
     consume(TOKEN_SEMICOLON, "Expect ';' after field declaration.");
+
+    popWorkingNode();
     popWorkingNode();
     return field;
 }

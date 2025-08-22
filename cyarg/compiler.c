@@ -939,6 +939,7 @@ static void generateStmtClassDeclaration(ObjStmtClassDeclaration* decl) {
 
 static void generateStmtFieldDeclaration(ObjStmtFieldDeclaration* stmt) {
     generateExpr(stmt->type);
+    generateExpr(stmt->offset);
     emitBytes(OP_CONSTANT, makeConstant(OBJ_VAL(stmt->name)));
 }
 

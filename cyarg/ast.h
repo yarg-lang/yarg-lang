@@ -185,6 +185,7 @@ typedef struct {
     ObjStmt stmt;
     ObjString* name;
     ObjExpr* type;
+    ObjExpr* offset;
 } ObjStmtFieldDeclaration;
 
 typedef struct {

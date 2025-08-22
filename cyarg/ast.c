@@ -568,8 +568,19 @@ static bool isNilExpr(ObjExpr* expr) {
 }
 
 static void printStmtFieldDeclaration(ObjStmtFieldDeclaration* decl) {
+    bool typeInfo = false;
     if (decl->type && !isNilExpr(decl->type)) {
         printExpr(decl->type);
+        typeInfo = true;
+    }
+
+    if (decl->offset && !isNilExpr(decl->offset)) {
+        printf("@");
+        printExpr(decl->offset);
+        typeInfo = true;
+    }
+
+    if (typeInfo) {
         printf(" ");
     }
 

@@ -224,6 +224,7 @@ static void blackenObject(Obj* object) {
             ObjStmtFieldDeclaration* stmt = (ObjStmtFieldDeclaration*)object;
             markObject((Obj*)stmt->name);
             markObject((Obj*)stmt->type);
+            markObject((Obj*)stmt->offset);
             break;
         }
         case OBJ_STMT_PLACEDECLARATION: {
