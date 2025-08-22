@@ -389,7 +389,6 @@ static ObjExprTypeStruct* structExpression() {
     while (!check(TOKEN_RIGHT_BRACE)) {
         ObjStmtFieldDeclaration* field = fieldStmt();
         pushWorkingNode((Obj*)field);
-        tableSet(&struct_declaration->fieldsByName, field->name, OBJ_VAL(field));
         appendToValueArray(&struct_declaration->fieldsByIndex, OBJ_VAL(field));
         popWorkingNode();
     }

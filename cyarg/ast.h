@@ -177,7 +177,6 @@ typedef struct {
 
 typedef struct {
     ObjExpr expr;
-    ValueTable fieldsByName;
     ValueArray fieldsByIndex;
 } ObjExprTypeStruct;
 

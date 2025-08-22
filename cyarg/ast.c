@@ -220,7 +220,6 @@ ObjExprTypeLiteral* newExprType(ExprTypeLiteral type) {
 ObjExprTypeStruct* newExprTypeStruct() {
     ObjExprTypeStruct* expr = ALLOCATE_OBJ(ObjExprTypeStruct, OBJ_EXPR_TYPE_STRUCT);
     tempRootPush(OBJ_VAL(expr));
-    initTable(&expr->fieldsByName);
     initValueArray(&expr->fieldsByIndex);
     tempRootPop();
     return expr;

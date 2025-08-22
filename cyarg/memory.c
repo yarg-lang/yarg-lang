@@ -371,7 +371,7 @@ static void blackenObject(Obj* object) {
         case OBJ_EXPR_TYPE_STRUCT: {
             markExpr(object);
             ObjExprTypeStruct* expr = (ObjExprTypeStruct*)object;
-            markTable(&expr->fieldsByName);
+            markArray(&expr->fieldsByIndex);
             break;
         }
         case OBJ_EXPR_TYPE_ARRAY: {
@@ -540,7 +540,6 @@ static void freeObject(Obj* object) {
         case OBJ_EXPR_TYPE: FREE(ObjExprTypeLiteral, object); break;
         case OBJ_EXPR_TYPE_STRUCT: {
             ObjExprTypeStruct* expr = (ObjExprTypeStruct*)object;
-            freeTable(&expr->fieldsByName);
             freeValueArray(&expr->fieldsByIndex);
             FREE(ObjExprTypeStruct, object);
             break;
