@@ -709,13 +709,18 @@ static void generateVarDeclaration(ObjStmtVarDeclaration* decl) {
 }
 
 static void generatePlaceDeclaration(ObjStmtPlaceDeclaration* decl) {
-    
-    generateExpr(decl->type);
-    generateExpr(decl->location);
-    emitByte(OP_PLACE);
-    
-    uint8_t global = parseVariable(decl->name);
-    defineVariable(global);
+
+    for (int i = 0; i < decl->aliases.objectCount; i++) {
+        ObjPlaceAlias* alias = (ObjPlaceAlias*) decl->aliases.objects[i];
+        generateExpr(decl->type);
+
+        generateExpr(alias->location);
+        emitByte(OP_PLACE);
+        
+        uint8_t global = parseVariable(alias->name);
+        defineVariable(global);
+
+    }
 }
 
 static void beginScope() {

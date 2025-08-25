@@ -203,6 +203,12 @@ static void blackenObject(Obj* object) {
             markObject((Obj*)ast->statements);
             break;
         }
+        case OBJ_PLACEALIAS: {
+            ObjPlaceAlias* alias = (ObjPlaceAlias*)object;
+            markObject((Obj*)alias->name);
+            markObject((Obj*)alias->location);
+            break;
+        }
         case OBJ_STMT_YIELD: // fall through
         case OBJ_STMT_RETURN:
         case OBJ_STMT_PRINT:
@@ -230,9 +236,8 @@ static void blackenObject(Obj* object) {
         case OBJ_STMT_PLACEDECLARATION: {
             markStmt(object);
             ObjStmtPlaceDeclaration* stmt = (ObjStmtPlaceDeclaration*)object;
-            markObject((Obj*)stmt->name);
-            markObject((Obj*)stmt->location);
             markObject((Obj*)stmt->type);
+            markDynamicObjArray(&stmt->aliases);
             break;
         }
         case OBJ_STMT_BLOCK: {
@@ -491,13 +496,19 @@ static void freeObject(Obj* object) {
         }
         case OBJ_YARGTYPE_POINTER: FREE(ObjConcreteYargTypePointer, object); break;
         case OBJ_AST: FREE(ObjAst, object); break;
+        case OBJ_PLACEALIAS: FREE(ObjPlaceAlias, object); break;
         case OBJ_STMT_RETURN: // fall through
         case OBJ_STMT_YIELD:
         case OBJ_STMT_PRINT:
         case OBJ_STMT_EXPRESSION: FREE(ObjStmtExpression, object); break;
         case OBJ_STMT_VARDECLARATION: FREE(ObjStmtVarDeclaration, object); break;
         case OBJ_STMT_FIELDDECLARATION: FREE(ObjStmtFieldDeclaration, object); break;
-        case OBJ_STMT_PLACEDECLARATION: FREE(ObjStmtPlaceDeclaration, object); break;
+        case OBJ_STMT_PLACEDECLARATION: {
+            ObjStmtPlaceDeclaration* stmt = (ObjStmtPlaceDeclaration*)object;
+            freeDynamicObjArray(&stmt->aliases);
+            FREE(ObjStmtPlaceDeclaration, object);
+            break;
+        }
         case OBJ_STMT_BLOCK: FREE(ObjStmtBlock, object); break;
         case OBJ_STMT_IF: FREE(ObjStmtIf, object); break;
         case OBJ_STMT_FUNDECLARATION: {

@@ -205,10 +205,15 @@ typedef struct {
 } ObjStmtVarDeclaration;
 
 typedef struct {
-    ObjStmt stmt;
+    Obj obj;
     ObjString* name;
     ObjExpr* location;
+} ObjPlaceAlias;
+
+typedef struct {
+    ObjStmt stmt;
     ObjExpr* type;
+    DynamicObjArray aliases;
 } ObjStmtPlaceDeclaration;
 
 typedef struct {
@@ -271,10 +276,12 @@ ObjStmtExpression* newStmtExpression(ObjExpr* expr, ObjType statement, int line)
 ObjStmtBlock* newStmtBlock(int line);
 
 ObjStmtVarDeclaration* newStmtVarDeclaration(const char* name, int nameLength, int line);
-ObjStmtPlaceDeclaration* newStmtPlaceDeclaration(const char* name, int nameLength, int line);
+ObjStmtPlaceDeclaration* newStmtPlaceDeclaration(int line);
 ObjStmtFunDeclaration* newStmtFunDeclaration(const char* name, int nameLength, int line);
 ObjStmtClassDeclaration* newStmtClassDeclaration(const char* name, int nameLength, int line);
 ObjStmtFieldDeclaration* newStmtFieldDeclaration(const char* name, int nameLength, int line);
+
+void appendPlaceAlias(ObjStmtPlaceDeclaration* place, ObjExpr* location, const char* name, int nameLength);
 
 ObjStmtIf* newStmtIf(int line);
 ObjStmtWhile* newStmtWhile(int line);

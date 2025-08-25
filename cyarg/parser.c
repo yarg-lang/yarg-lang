@@ -968,23 +968,35 @@ static ObjStmtClassDeclaration* classDeclaration() {
     return decl;
 }
 
-static ObjStmtPlaceDeclaration* placeDeclaration() {
-    ObjExpr* type = expression();
-    pushWorkingNode((Obj*)type);
+static void placeAliasDeclaration(ObjStmtPlaceDeclaration* place) {
 
     ObjExpr* location = expression();
     pushWorkingNode((Obj*)location);
 
     consume(TOKEN_IDENTIFIER, "Expect place name.");
-    ObjStmtPlaceDeclaration* decl = newStmtPlaceDeclaration(parser.previous.start, parser.previous.length, parser.previous.line);
-    decl->type = type;
-    decl->location = location;
-    popWorkingNode();
-    popWorkingNode();
+    appendPlaceAlias(place, location, parser.previous.start, parser.previous.length);
 
+    popWorkingNode();
     consume(TOKEN_SEMICOLON, "Expect ';' after place declaration.");
+}
 
-    return decl;
+static ObjStmtPlaceDeclaration* placeDeclaration() {
+
+    ObjStmtPlaceDeclaration* place = newStmtPlaceDeclaration(parser.previous.line);
+    pushWorkingNode((Obj*)place);
+    place->type = expression();
+
+    if (match(TOKEN_LEFT_BRACE)) {
+        while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF)) {
+            placeAliasDeclaration(place);
+        }
+        consume(TOKEN_RIGHT_BRACE, "Expect '}' after place declarations.");
+    } else {
+        placeAliasDeclaration(place);
+    }
+
+    popWorkingNode();
+    return place;
 }
 
 ObjStmt* declaration() {

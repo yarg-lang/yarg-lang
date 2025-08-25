@@ -1,0 +1,37 @@
+place muint32 {
+    0xd0000000 hardware_register;
+    0xd0000000 + 0x1 << 0d12 hardware_register_xor;
+    0xd0000000 + 0x2 << 0d12 hardware_register_set;
+    0xd0000000 + 0x3 << 0d12 hardware_register_clr;
+    }
+
+rpeek(hardware_register);  // expect: rpeek(d0000000)
+rpeek(hardware_register_xor);  // expect: rpeek(d0001000)
+rpeek(hardware_register_set);  // expect: rpeek(d0002000)
+rpeek(hardware_register_clr);  // expect: rpeek(d0003000)
+
+place muint32[4] {
+    0xe0000000 hardware_registers;
+    0xe0000000 + 0x1 << 0d12 hardware_registers_xor;
+    0xe0000000 + 0x2 << 0d12 hardware_registers_set;
+    0xe0000000 + 0x3 << 0d12 hardware_registers_clr;
+    }
+rpeek(hardware_registers[0]);  // expect: rpeek(e0000000)
+rpeek(hardware_registers[1]);  // expect: rpeek(e0000004)
+rpeek(hardware_registers[2]);  // expect: rpeek(e0000008)
+rpeek(hardware_registers[3]);  // expect: rpeek(e000000c)
+rpeek(hardware_registers_xor[0]);  // expect: rpeek(e0001000)
+rpeek(hardware_registers_set[1]);  // expect: rpeek(e0002004)
+rpeek(hardware_registers_clr[3]);  // expect: rpeek(e000300c)
+
+place struct { 
+    muint32 ctrl;
+    muint32 flags;
+    } {
+        0xc0000000 more_registers;
+        0xc0000000 + 0x3 << 0d12 more_registers_clr;
+    }
+rpeek(more_registers.ctrl);     // expect: rpeek(c0000000)
+rpeek(more_registers.flags);    // expect: rpeek(c0000004)
+rpeek(more_registers_clr.ctrl);     // expect: rpeek(c0003000)
+rpeek(more_registers_clr.flags);    // expect: rpeek(c0003004)

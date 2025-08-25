@@ -26,13 +26,20 @@ ObjStmtVarDeclaration* newStmtVarDeclaration(const char* name, int nameLength, i
     return stmt;
 }
 
-ObjStmtPlaceDeclaration* newStmtPlaceDeclaration(const char* name, int nameLength, int line) {
+ObjStmtPlaceDeclaration* newStmtPlaceDeclaration(int line) {
     ObjStmtPlaceDeclaration* stmt = ALLOCATE_OBJ(ObjStmtPlaceDeclaration, OBJ_STMT_PLACEDECLARATION);
-    tempRootPush(OBJ_VAL(stmt));
     stmt->stmt.line = line;
-    stmt->name = copyString(name, nameLength);
-    tempRootPop();
+    initDynamicObjArray(&stmt->aliases);
     return stmt;
+}
+
+void appendPlaceAlias(ObjStmtPlaceDeclaration* place, ObjExpr* location, const char* name, int nameLength) {
+    ObjPlaceAlias* alias = ALLOCATE_OBJ(ObjPlaceAlias, OBJ_PLACEALIAS);
+    tempRootPush(OBJ_VAL(alias));
+    alias->name = copyString(name, nameLength);
+    alias->location = location;
+    appendToDynamicObjArray(&place->aliases, (Obj*)alias);
+    tempRootPop();
 }
 
 ObjStmtBlock* newStmtBlock(int line) {
@@ -548,14 +555,29 @@ void printStmtVarDeclaration(ObjStmtVarDeclaration* decl) {
     printf(";");
 }
 
+static void printAliasDeclaration(ObjPlaceAlias* alias) {
+    printExpr(alias->location);
+    printf(" ");
+    printObject(OBJ_VAL(alias->name));
+    printf(";");
+}
+
 static void printStmtPlaceDeclaration(ObjStmtPlaceDeclaration* decl) {
     printf("place ");
     printExpr(decl->type);
     printf(" ");
-    printExpr(decl->location);
-    printf(" ");
-    printObject(OBJ_VAL(decl->name));
-    printf(";");
+    if (decl->aliases.objectCount == 1) {
+        ObjPlaceAlias* alias = (ObjPlaceAlias*) decl->aliases.objects[0];
+        printAliasDeclaration(alias);
+    } else if (decl->aliases.objectCount > 1) {
+        printf(" {\n");
+        for (int i = 0; i < decl->aliases.objectCount; i++ ) {
+            ObjPlaceAlias* alias = (ObjPlaceAlias*) decl->aliases.objects[i];
+            printAliasDeclaration(alias);
+            printf("\n");
+        }
+        printf(" }");
+    }
 }
 
 static bool isNilExpr(ObjExpr* expr) {

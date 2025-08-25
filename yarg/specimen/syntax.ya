@@ -1,8 +1,20 @@
+const NUM_BANK0_GPIOS = 30;
+
+const PADS_BANK0_GPIO0_IE_BITS = 0x00000040;
+const PADS_BANK0_GPIO0_OD_BITS = 0x00000080;
+const PADS_BANK0_GPIO0_ISO_BITS = 0x00000100;
+
+const REG_ALIAS_RW_BITS  = 0x0 << 0d12;
+const REG_ALIAS_XOR_BITS = 0x1 << 0d12;
+const REG_ALIAS_SET_BITS = 0x2 << 0d12;
+const REG_ALIAS_CLR_BITS = 0x3 << 0d12;
+
+
 place struct {
     struct {
         muint32 status;
         muint32 ctrl;
-        }[30] gpio;
+        }[NUM_BANK0_GPIOS] gpio;
     muint32[4]@0x0f0 intr;
     struct {
         muint32[4] inte;
@@ -16,7 +28,29 @@ place struct {
         } dormant_wake;
     } 0x40014000 io_bank0;
 
-rpeek(io_bank0.proc[0].inte[0]);
-rpeek(io_bank0.proc[1].ints[3]);
-rpeek(io_bank0.dormant_wake.inte[0]);
-rpeek(io_bank0.dormant_wake.ints[3]);
+const pads_bank0_base = 0x4001c000;
+
+place struct {
+    muint32 voltage_select;
+    muint32[NUM_BANK0_GPIOS] gpio;
+    muint32 swclk;
+    muint32 swd;
+    } {
+        pads_bank0_base pads_bank0;
+        pads_bank0_base + REG_ALIAS_XOR_BITS pads_bank0_xor;
+        pads_bank0_base + REG_ALIAS_SET_BITS pads_bank0_set;
+        pads_bank0_base + REG_ALIAS_CLR_BITS pads_bank0_clr;    
+    }
+
+
+fun write_masked(rw, xor, val, mask) { 
+    var muint32 reg = rpeek(rw);
+    rpoke(xor, (reg ^ val) & mask);
+}
+
+fun gpio_set_function(gpio, function) {
+
+    write_masked(pads_bank0.gpio[gpio], pads_bank0_xor.gpio[gpio], PADS_BANK0_GPIO0_IE_BITS, PADS_BANK0_GPIO0_IE_BITS | PADS_BANK0_GPIO0_OD_BITS);
+}
+
+gpio_set_function(0d25, 0d0);
