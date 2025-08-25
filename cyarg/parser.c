@@ -344,7 +344,7 @@ static ObjExpr* builtin(bool canAssign) {
         case TOKEN_RECEIVE: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_RECEIVE, 1);      
         case TOKEN_SHARE: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_SHARE, 1);
         case TOKEN_START: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_START, 1);
-        case TOKEN_PEEK: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_PEEK, 1);
+        case TOKEN_CPEEK: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_CPEEK, 1);
         case TOKEN_LEN: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_LEN, 1);
         case TOKEN_PIN: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_PIN, 1);
         case TOKEN_NEW: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_NEW, 1);
@@ -620,6 +620,7 @@ static AstParseRule rules[] = {
     [TOKEN_BOOL]                 = {type,      NULL,   PREC_NONE},
     [TOKEN_CLASS]                = {NULL,      NULL,   PREC_NONE},
     [TOKEN_CONST]                = {NULL,      NULL,   PREC_NONE},
+    [TOKEN_CPEEK]                = {builtin,   NULL,   PREC_NONE},
     [TOKEN_ELSE]                 = {NULL,      NULL,   PREC_NONE},
     [TOKEN_FALSE]                = {literal,   NULL,   PREC_NONE},
     [TOKEN_FOR]                  = {NULL,      NULL,   PREC_NONE},
@@ -635,7 +636,6 @@ static AstParseRule rules[] = {
     [TOKEN_NEW]                  = {builtin,   NULL,   PREC_NONE},
     [TOKEN_NIL]                  = {literal,   NULL,   PREC_NONE},
     [TOKEN_OR]                   = {NULL,      or_,    PREC_OR},
-    [TOKEN_PEEK]                 = {builtin,   NULL,   PREC_NONE},
     [TOKEN_PIN]                  = {builtin,   NULL,   PREC_NONE},
     [TOKEN_PLACE]                = {NULL,      NULL,   PREC_NONE},
     [TOKEN_POKE]                 = {NULL,      NULL,   PREC_NONE},

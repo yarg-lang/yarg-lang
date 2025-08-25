@@ -60,7 +60,7 @@ static int builtinInstruction(const char* name, Chunk* chunk, int offset) {
         case BUILTIN_SEND: printf("send"); break;
         case BUILTIN_RECEIVE: printf("receive"); break;
         case BUILTIN_SHARE: printf("share"); break;
-        case BUILTIN_PEEK: printf("peek"); break;
+        case BUILTIN_CPEEK: printf("cpeek"); break;
         case BUILTIN_LEN: printf("len"); break;
         case BUILTIN_PIN: printf("pin"); break;
         case BUILTIN_NEW: printf("new"); break;

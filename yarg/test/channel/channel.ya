@@ -3,4 +3,4 @@ var c = make_channel();
 send(c, 10);
 print receive(c);   // expect: 10
 share(c, 11);
-print peek(c);      // expect: 11
+print cpeek(c);      // expect: 11
