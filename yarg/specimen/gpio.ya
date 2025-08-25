@@ -63,26 +63,26 @@ place struct {
 
 fun write_masked(rw, xor, val, mask) { 
     const muint32 reg = rpeek(rw);
-    rpoke(xor, (reg ^ val) & mask);
+    poke(xor, (reg ^ val) & mask);
 }
 
 fun gpio_set_direction(gpio, dir) {
 
     if (dir) {
-        rpoke(sio_hw.gpio_oe.set, 0x1 << gpio);
+        poke(sio_hw.gpio_oe.set, 0x1 << gpio);
     }
     else {
-        rpoke(sio_hw.gpio_oe.clr, 0x1 << gpio);
+        poke(sio_hw.gpio_oe.clr, 0x1 << gpio);
     }
 }
 
 fun gpio_put(gpio, value) {
 
     if (value) {
-        rpoke(sio_hw.gpio_out.set, 0x1 << gpio);
+        poke(sio_hw.gpio_out.set, 0x1 << gpio);
     }
     else {
-        rpoke(sio_hw.gpio_out.clr, 0x1 << gpio);
+        poke(sio_hw.gpio_out.clr, 0x1 << gpio);
     }
 }
 
@@ -101,12 +101,12 @@ fun gpio_set_function(gpio, function) {
 
     // Zero all fields apart from fsel; we want this IO to do what the peripheral tells it.
     // This doesn't affect e.g. pullup/pulldown, as these are in pad controls.
-    rpoke(io_bank0.gpio[gpio].ctrl, function);
+    poke(io_bank0.gpio[gpio].ctrl, function);
 }
 
 fun gpio_acknowledge_irq(gpio, events) {
 
-    rpoke(io_bank0.intr[(gpio / 0d8)], events << (0d4 * (gpio % 0d8)));
+    poke(io_bank0.intr[(gpio / 0d8)], events << (0d4 * (gpio % 0d8)));
 }
 
 fun gpio_default_irq_handler() {
@@ -157,10 +157,10 @@ fun gpio_set_irq_enabled(gpio, events, enabled) {
     events = events << (0d4 * (gpio % 0d8));
 
     if (enabled) {
-        rpoke(io_bank0_set.proc[coreNum()].inte[gpio >> 0d3], events);
+        poke(io_bank0_set.proc[coreNum()].inte[gpio >> 0d3], events);
     }
     else {
-        rpoke(io_bank0_clr.proc[coreNum()].inte[gpio >> 0d3], events);
+        poke(io_bank0_clr.proc[coreNum()].inte[gpio >> 0d3], events);
     }
 }
 

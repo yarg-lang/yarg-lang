@@ -241,6 +241,7 @@ static TokenType identifierType() {
                     case 'i': return checkKeyword(2, 1, "n", TOKEN_PIN);
                     case 'e': return checkKeyword(2, 2, "ek", TOKEN_PEEK);
                     case 'l': return checkKeyword(2, 3, "ace", TOKEN_PLACE);
+                    case 'o': return checkKeyword(2, 2, "ke", TOKEN_POKE);
                     case 'r': return checkKeyword(2, 3, "int", TOKEN_PRINT); 
                 }
             }
@@ -257,14 +258,7 @@ static TokenType identifierType() {
                             }
                         }
                         break;
-                    case 'p':
-                        if (scanner.current - scanner.start > 2) {
-                            switch (scanner.start[2]) {
-                                case 'e': return checkKeyword(3, 2, "ek", TOKEN_RPEEK);                                
-                                case 'o': return checkKeyword(3, 2, "ke", TOKEN_RPOKE);
-                            }
-                        }
-                        break;
+                    case 'p': return checkKeyword(2, 3, "eek", TOKEN_RPEEK);
                 }
             }
             break;

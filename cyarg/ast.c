@@ -319,7 +319,7 @@ void printExprSuper(ObjExprSuper* expr) {
 
 void printExprBuiltin(ObjExprBuiltin* fn) {
     switch (fn->builtin) {
-        case EXPR_BUILTIN_RPOKE: printf("rpoke"); break;
+        case EXPR_BUILTIN_RPOKE: printf("poke"); break;
         case EXPR_BUILTIN_IMPORT: printf("import"); break;
         case EXPR_BUILTIN_MAKE_ROUTINE: printf("make_routine"); break;
         case EXPR_BUILTIN_MAKE_CHANNEL: printf("make_channel"); break;

@@ -24,9 +24,9 @@ const gpio_field = 0x1 << pico_led;
 
 
 // configure GPIO, assuming core was reset first.
-rpoke(io_bank0.gpio[pico_led].ctrl, GPIO_FUNC_SIO); // expect: rpoke(400140cc, 00000005)
-rpoke(sio_hw.gpio_oe.set, gpio_field);              // expect: rpoke(d0000024, 02000000)
+poke(io_bank0.gpio[pico_led].ctrl, GPIO_FUNC_SIO); // expect: poke(400140cc, 00000005)
+poke(sio_hw.gpio_oe.set, gpio_field);              // expect: poke(d0000024, 02000000)
 
 
 // turn the LED on.
-rpoke(sio_hw.gpio_out.set, gpio_field);             // expect: rpoke(d0000014, 02000000)
+poke(sio_hw.gpio_out.set, gpio_field);             // expect: poke(d0000014, 02000000)

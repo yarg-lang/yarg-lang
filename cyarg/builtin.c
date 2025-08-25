@@ -255,7 +255,7 @@ bool rpeekBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Val
     return true;
 }
 
-bool rpokeBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+bool pokeBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
 
     uint32_t nominal_address = 0;
     if (IS_POINTER(args[0].value)) {
@@ -269,7 +269,7 @@ bool rpokeBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Val
 #ifdef CYARG_PICO_TARGET
     *reg = val;
 #else
-    printf("rpoke(%08x, %08x)\n", nominal_address, val);
+    printf("poke(%08x, %08x)\n", nominal_address, val);
 #endif
     return true;
 }
@@ -372,7 +372,7 @@ bool newBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
 Value getBuiltin(uint8_t builtin) {
     switch (builtin) {
         case BUILTIN_RPEEK: return OBJ_VAL(newNative(rpeekBuiltin));
-        case BUILTIN_RPOKE: return OBJ_VAL(newNative(rpokeBuiltin));
+        case BUILTIN_POKE: return OBJ_VAL(newNative(pokeBuiltin));
         case BUILTIN_IMPORT: return OBJ_VAL(newNative(importBuiltin));
         case BUILTIN_MAKE_ROUTINE: return OBJ_VAL(newNative(makeRoutineBuiltin));
         case BUILTIN_RESUME: return OBJ_VAL(newNative(resumeBuiltin));

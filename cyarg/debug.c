@@ -52,7 +52,7 @@ static int builtinInstruction(const char* name, Chunk* chunk, int offset) {
     printf("%-16s ", name);
     switch (slot) {
         case BUILTIN_RPEEK: printf("rpeek"); break;
-        case BUILTIN_RPOKE: printf("rpoke"); break;
+        case BUILTIN_POKE: printf("poke"); break;
         case BUILTIN_IMPORT: printf("import"); break;
         case BUILTIN_MAKE_ROUTINE: printf("make_routine"); break;
         case BUILTIN_MAKE_CHANNEL: printf("make_channel"); break;

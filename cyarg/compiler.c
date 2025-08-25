@@ -493,7 +493,7 @@ static void generateExprBuiltin(ObjExprBuiltin* fn) {
         case EXPR_BUILTIN_PEEK: emitBytes(OP_GET_BUILTIN, BUILTIN_PEEK); break;
         case EXPR_BUILTIN_SHARE: emitBytes(OP_GET_BUILTIN, BUILTIN_SHARE); break;
         case EXPR_BUILTIN_RPEEK: emitBytes(OP_GET_BUILTIN, BUILTIN_RPEEK); break;
-        case EXPR_BUILTIN_RPOKE: emitBytes(OP_GET_BUILTIN, BUILTIN_RPOKE); break;
+        case EXPR_BUILTIN_RPOKE: emitBytes(OP_GET_BUILTIN, BUILTIN_POKE); break;
         case EXPR_BUILTIN_LEN: emitBytes(OP_GET_BUILTIN, BUILTIN_LEN); break;
         case EXPR_BUILTIN_PIN: emitBytes(OP_GET_BUILTIN, BUILTIN_PIN); break;
         case EXPR_BUILTIN_NEW: emitBytes(OP_GET_BUILTIN, BUILTIN_NEW); break;
