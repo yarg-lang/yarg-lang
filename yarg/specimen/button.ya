@@ -1,16 +1,30 @@
 import("gpio");
 
-bool state1 = false;
+var any[NUM_BANK0_GPIOS] response_leds;
+var bool[NUM_BANK0_GPIOS] states;
+
+fun button_led(led, button) {
+
+    fun callback(num, events) {
+        states[num] = !states[num];
+        gpio_put(response_leds[num], states[num]);
+    }
+    
+    gpio_init(led);
+    gpio_set_direction(led, GPIO_OUT);
+
+    response_leds[button] = led;
+
+    gpio_init(button);
+    gpio_set_irq_enabled_with_callback(button, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, callback);
+
+}
+
 const gpio_button1 = 0d2;
 const gpio_led1 = 0d3;
 
-fun gpio_callback(num, events) {
-    state1 = !state1;
-    gpio_put(gpio_led1, state1);
-}
+const gpio_button2 = 0d4;
+const gpio_led2 = 0d5;
 
-gpio_init(gpio_led1);
-gpio_set_direction(gpio_led1, GPIO_OUT);
-
-gpio_init(gpio_button1);
-gpio_set_irq_enabled_with_callback(gpio_button1, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true, gpio_callback);
+button_led(gpio_led1, gpio_button1);
+button_led(gpio_led2, gpio_button2);

@@ -11,9 +11,9 @@ const GPIO_IRQ_EDGE_RISE = 0x8;
 const GPIO_IRQ_CALLBACK_ORDER_PRIORITY = 0d0;
 const NUM_BANK0_GPIOS = 0d30;
 
-const PADS_BANK0_GPIO0_IE_BITS = 0x00000040;
-const PADS_BANK0_GPIO0_OD_BITS = 0x00000080;
-const PADS_BANK0_GPIO0_ISO_BITS = 0x00000100;
+const PADS_BANK0_GPIO_IE_BITS = 0x00000040;
+const PADS_BANK0_GPIO_OD_BITS = 0x00000080;
+const PADS_BANK0_GPIO_ISO_BITS = 0x00000100;
 
 var any[2] callbacks;
 
@@ -21,6 +21,8 @@ const REG_ALIAS_RW_BITS  = 0x0 << 0d12;
 const REG_ALIAS_XOR_BITS = 0x1 << 0d12;
 const REG_ALIAS_SET_BITS = 0x2 << 0d12;
 const REG_ALIAS_CLR_BITS = 0x3 << 0d12;
+
+const io_bank0_base = 0x40014000;
 
 place struct {
     struct {
@@ -38,35 +40,30 @@ place struct {
         muint32[4] intf;
         muint32[4] ints;
         } dormant_wake;
-    } 0x40014000 io_bank0;
+    } {
+    io_bank0_base io_bank0;
+    io_bank0_base + REG_ALIAS_XOR_BITS io_bank0_xor;
+    io_bank0_base + REG_ALIAS_SET_BITS io_bank0_set;
+    io_bank0_base + REG_ALIAS_CLR_BITS io_bank0_clr;
+    }
+
+const pads_bank0_base = 0x4001c000;
 
 place struct {
     muint32 voltage_select;
     muint32[NUM_BANK0_GPIOS] gpio;
     muint32 swclk;
     muint32 swd;
-    } 0x4001c000 pads_bank0;
-
-class alias_reg {
-    read() { return rpeek(this.rw_reg); }
-    write(val) { rpoke(this.rw_reg, val); }
-    write_masked(val, mask) { this.xor((this.read() ^ val) & mask); }
-    set(mask) { rpoke(this.set_reg, mask); }
-    clr(mask) { rpoke(this.clr_reg, mask); }
-    xor(mask) { rpoke(this.xor_reg, mask); }
-}
-
-class alias_reg4K < alias_reg {
-    init(addr) {
-        place muint32 addr + REG_ALIAS_RW_BITS read_write;
-        this.rw_reg = read_write;
-        place muint32 addr + REG_ALIAS_SET_BITS set;
-        this.set_reg = set;
-        place muint32 addr + REG_ALIAS_CLR_BITS clr;
-        this.clr_reg = clr;
-        place muint32 addr + REG_ALIAS_XOR_BITS xor;
-        this.xor_reg = xor;
+    } {
+        pads_bank0_base pads_bank0;
+        pads_bank0_base + REG_ALIAS_XOR_BITS pads_bank0_xor;
+        pads_bank0_base + REG_ALIAS_SET_BITS pads_bank0_set;
+        pads_bank0_base + REG_ALIAS_CLR_BITS pads_bank0_clr;
     }
+
+fun write_masked(rw, xor, val, mask) { 
+    const muint32 reg = rpeek(rw);
+    rpoke(xor, (reg ^ val) & mask);
 }
 
 fun gpio_set_direction(gpio, dir) {
@@ -97,11 +94,10 @@ fun gpio_init(gpio) {
 
 fun gpio_set_function(gpio, function) {
 
-    const pads_bank_0_pin_offset = 0d4 + 0d4 * gpio;
-    var pinctrl = alias_reg4K(PADS_BANK0_BASE + pads_bank_0_pin_offset);
-
     // Set input enable on, output disable off
-    pinctrl.write_masked(PADS_BANK0_GPIO0_IE_BITS, PADS_BANK0_GPIO0_IE_BITS | PADS_BANK0_GPIO0_OD_BITS);
+    write_masked(pads_bank0.gpio[gpio], pads_bank0_xor.gpio[gpio], 
+                 PADS_BANK0_GPIO_IE_BITS, PADS_BANK0_GPIO_IE_BITS | PADS_BANK0_GPIO_OD_BITS);
+
 
     // Zero all fields apart from fsel; we want this IO to do what the peripheral tells it.
     // This doesn't affect e.g. pullup/pulldown, as these are in pad controls.
@@ -159,13 +155,12 @@ fun gpio_set_irq_enabled(gpio, events, enabled) {
     gpio_acknowledge_irq(gpio, events);
 
     events = events << (0d4 * (gpio % 0d8));
-    var ctrl = alias_reg4K(0x40014100);
 
     if (enabled) {
-        ctrl.set(events);
+        rpoke(io_bank0_set.proc[coreNum()].inte[gpio >> 0d3], events);
     }
     else {
-        ctrl.clr(events);
+        rpoke(io_bank0_clr.proc[coreNum()].inte[gpio >> 0d3], events);
     }
 }
 
