@@ -44,7 +44,7 @@ place struct {
 
 
 fun write_masked(rw, xor, val, mask) { 
-    var muint32 reg = rpeek(rw);
+    var muint32 reg = peek(rw);
     poke xor, (reg ^ val) & mask;
 }
 

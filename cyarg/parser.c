@@ -335,7 +335,7 @@ static ObjExpr* literal(bool canAssign) {
 
 static ObjExpr* builtin(bool canAssign) {     
     switch (parser.previous.type) {
-        case TOKEN_RPEEK: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_RPEEK, 1);
+        case TOKEN_PEEK: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_PEEK, 1);
         case TOKEN_IMPORT: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_IMPORT, 1);
         case TOKEN_MAKE_ROUTINE: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_MAKE_ROUTINE, 1);
         case TOKEN_MAKE_CHANNEL: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_MAKE_CHANNEL, 1);
@@ -636,6 +636,7 @@ static AstParseRule rules[] = {
     [TOKEN_NEW]                  = {builtin,   NULL,   PREC_NONE},
     [TOKEN_NIL]                  = {literal,   NULL,   PREC_NONE},
     [TOKEN_OR]                   = {NULL,      or_,    PREC_OR},
+    [TOKEN_PEEK]                 = {builtin,   NULL,   PREC_NONE},
     [TOKEN_PIN]                  = {builtin,   NULL,   PREC_NONE},
     [TOKEN_PLACE]                = {NULL,      NULL,   PREC_NONE},
     [TOKEN_POKE]                 = {NULL,      NULL,   PREC_NONE},
@@ -643,7 +644,6 @@ static AstParseRule rules[] = {
     [TOKEN_RECEIVE]              = {builtin,   NULL,   PREC_NONE},
     [TOKEN_RESUME]               = {builtin,   NULL,   PREC_NONE},
     [TOKEN_RETURN]               = {NULL,      NULL,   PREC_NONE},
-    [TOKEN_RPEEK]                = {builtin,   NULL,   PREC_NONE},
     [TOKEN_SEND]                 = {builtin,   NULL,   PREC_NONE},
     [TOKEN_SHARE]                = {builtin,   NULL,   PREC_NONE},
     [TOKEN_START]                = {builtin,   NULL,   PREC_NONE},

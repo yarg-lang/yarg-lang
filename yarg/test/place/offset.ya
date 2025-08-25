@@ -2,8 +2,8 @@ place struct {
     muint32@10 ctrl;
     muint32@20 flags;
     } 0xc0000000 more_registers;
-rpeek(more_registers.ctrl);     // expect: rpeek(c000000a)
-rpeek(more_registers.flags);    // expect: rpeek(c0000014)
+peek(more_registers.ctrl);     // expect: peek(c000000a)
+peek(more_registers.flags);    // expect: peek(c0000014)
 
 place struct { 
     muint32@0d0 << 0d12 rw;
@@ -11,10 +11,10 @@ place struct {
     muint32@0d2 << 0d12 set;
     muint32@0d3 << 0d12 clr;
     } 0xc0000000 fourkregister;
-rpeek(fourkregister.rw);     // expect: rpeek(c0000000)
-rpeek(fourkregister.xor);    // expect: rpeek(c0001000)
-rpeek(fourkregister.set);    // expect: rpeek(c0002000)
-rpeek(fourkregister.clr);    // expect: rpeek(c0003000)
+peek(fourkregister.rw);     // expect: peek(c0000000)
+peek(fourkregister.xor);    // expect: peek(c0001000)
+peek(fourkregister.set);    // expect: peek(c0002000)
+peek(fourkregister.clr);    // expect: peek(c0003000)
 
 place struct { 
     muint32 begin;
@@ -23,8 +23,8 @@ place struct {
     muint32[2]@0d2 << 0d4 flags;
     muint32 flags2;
     } 0xc0000000 registers2;
-rpeek(registers2.ctrl);     // expect: rpeek(c0000010)
-rpeek(registers2.flags);    // expect: rpeek(c0000020)
-rpeek(registers2.begin);     // expect: rpeek(c0000000)
-rpeek(registers2.ctrl2);    // expect: rpeek(c0000014)
-rpeek(registers2.flags2);     // expect: rpeek(c0000028)
+peek(registers2.ctrl);     // expect: peek(c0000010)
+peek(registers2.flags);    // expect: peek(c0000020)
+peek(registers2.begin);     // expect: peek(c0000000)
+peek(registers2.ctrl2);    // expect: peek(c0000014)
+peek(registers2.flags2);     // expect: peek(c0000028)

@@ -62,7 +62,7 @@ place struct {
     }
 
 fun write_masked(rw, xor, val, mask) { 
-    const muint32 reg = rpeek(rw);
+    const muint32 reg = peek(rw);
     poke xor, (reg ^ val) & mask;
 }
 
@@ -114,7 +114,7 @@ fun gpio_default_irq_handler() {
     const callback = callbacks[core];
 
     for (var gpio = 0d0; gpio < NUM_BANK0_GPIOS; gpio= gpio + 0d8) {
-        var events8 = rpeek(io_bank0.proc[core].ints[gpio >> 0d3]);
+        var events8 = peek(io_bank0.proc[core].ints[gpio >> 0d3]);
       
         for(var i = gpio; (events8 != 0d0) and (i < (gpio + 0d8)); i = i + 0d1) {
             var events = events8 & 0xf;

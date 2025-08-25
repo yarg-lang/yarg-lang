@@ -235,7 +235,7 @@ bool startBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Val
 
 typedef volatile uint32_t Register;
 
-bool rpeekBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+bool peekBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
 
     uint32_t nominal_address = 0;
     if (IS_POINTER(args[0].value)) {
@@ -249,7 +249,7 @@ bool rpeekBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Val
     uint32_t res = *reg;
     *result = UINTEGER_VAL(res);
 #else
-    printf("rpeek(%08x)\n", nominal_address);
+    printf("peek(%08x)\n", nominal_address);
     *result = UINTEGER_VAL(0);
 #endif
     return true;
@@ -352,7 +352,7 @@ bool newBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
 
 Value getBuiltin(uint8_t builtin) {
     switch (builtin) {
-        case BUILTIN_RPEEK: return OBJ_VAL(newNative(rpeekBuiltin));
+        case BUILTIN_PEEK: return OBJ_VAL(newNative(peekBuiltin));
         case BUILTIN_IMPORT: return OBJ_VAL(newNative(importBuiltin));
         case BUILTIN_MAKE_ROUTINE: return OBJ_VAL(newNative(makeRoutineBuiltin));
         case BUILTIN_RESUME: return OBJ_VAL(newNative(resumeBuiltin));

@@ -20,5 +20,5 @@ place struct {
     } 0xd0000000 sio_hw;
 
 fun coreNum() {
-    return rpeek(sio_hw.cpuid);
+    return peek(sio_hw.cpuid);
 }
