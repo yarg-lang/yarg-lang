@@ -493,7 +493,6 @@ static void generateExprBuiltin(ObjExprBuiltin* fn) {
         case EXPR_BUILTIN_PEEK: emitBytes(OP_GET_BUILTIN, BUILTIN_PEEK); break;
         case EXPR_BUILTIN_SHARE: emitBytes(OP_GET_BUILTIN, BUILTIN_SHARE); break;
         case EXPR_BUILTIN_RPEEK: emitBytes(OP_GET_BUILTIN, BUILTIN_RPEEK); break;
-        case EXPR_BUILTIN_RPOKE: emitBytes(OP_GET_BUILTIN, BUILTIN_POKE); break;
         case EXPR_BUILTIN_LEN: emitBytes(OP_GET_BUILTIN, BUILTIN_LEN); break;
         case EXPR_BUILTIN_PIN: emitBytes(OP_GET_BUILTIN, BUILTIN_PIN); break;
         case EXPR_BUILTIN_NEW: emitBytes(OP_GET_BUILTIN, BUILTIN_NEW); break;
@@ -687,6 +686,12 @@ static void defineVariable(uint8_t global) {
     }
 
     emitBytes(OP_DEFINE_GLOBAL, global);
+}
+
+static void generateStmtPoke(ObjStmtPoke* stmt) {
+    generateExpr(stmt->assignment);
+    generateExpr(stmt->location);
+    emitByte(OP_POKE);
 }
 
 static void generateVarDeclaration(ObjStmtVarDeclaration* decl) {
@@ -959,6 +964,9 @@ static void generateStmt(ObjStmt* stmt) {
         case OBJ_STMT_PRINT:
             generateExpr(((ObjStmtExpression*)stmt)->expression);
             emitByte(OP_PRINT);
+            break;
+        case OBJ_STMT_POKE:
+            generateStmtPoke((ObjStmtPoke*)stmt);
             break;
         case OBJ_STMT_VARDECLARATION:
             generateVarDeclaration((ObjStmtVarDeclaration*)stmt);

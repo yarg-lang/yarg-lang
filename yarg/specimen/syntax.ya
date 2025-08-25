@@ -45,7 +45,7 @@ place struct {
 
 fun write_masked(rw, xor, val, mask) { 
     var muint32 reg = rpeek(rw);
-    poke(xor, (reg ^ val) & mask);
+    poke xor, (reg ^ val) & mask;
 }
 
 fun gpio_set_function(gpio, function) {

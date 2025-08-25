@@ -60,6 +60,8 @@ Value arrayElementType(ObjConcreteYargTypeArray* arrayType);
 
 size_t addFieldType(ObjConcreteYargTypeStruct* st, size_t index, size_t fieldOffset, Value type, Value offset, Value name);
 
+bool isMuint32Pointer(Value val);
+
 Value concrete_typeof(Value a);
 bool type_packs_as_obj(ObjConcreteYargType* type);
 bool is_nil_assignable_type(Value type);

@@ -336,7 +336,6 @@ static ObjExpr* literal(bool canAssign) {
 static ObjExpr* builtin(bool canAssign) {     
     switch (parser.previous.type) {
         case TOKEN_RPEEK: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_RPEEK, 1);
-        case TOKEN_POKE: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_RPOKE, 2);
         case TOKEN_IMPORT: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_IMPORT, 1);
         case TOKEN_MAKE_ROUTINE: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_MAKE_ROUTINE, 1);
         case TOKEN_MAKE_CHANNEL: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_MAKE_CHANNEL, 1);
@@ -639,7 +638,7 @@ static AstParseRule rules[] = {
     [TOKEN_PEEK]                 = {builtin,   NULL,   PREC_NONE},
     [TOKEN_PIN]                  = {builtin,   NULL,   PREC_NONE},
     [TOKEN_PLACE]                = {NULL,      NULL,   PREC_NONE},
-    [TOKEN_POKE]                 = {builtin,   NULL,   PREC_NONE},
+    [TOKEN_POKE]                 = {NULL,      NULL,   PREC_NONE},
     [TOKEN_PRINT]                = {NULL,      NULL,   PREC_NONE},
     [TOKEN_RECEIVE]              = {builtin,   NULL,   PREC_NONE},
     [TOKEN_RESUME]               = {builtin,   NULL,   PREC_NONE},
@@ -707,6 +706,17 @@ static ObjStmtExpression* printStatement() {
     ObjStmtExpression* print = newStmtExpression(expr, OBJ_STMT_PRINT, parser.previous.line);
     popWorkingNode();
     return print;
+}
+
+static ObjStmtPoke* pokeStatement() {
+    ObjStmtPoke* stmt = newStmtPoke(parser.previous.line);
+    pushWorkingNode((Obj*)stmt);
+    stmt->location = expression();
+    consume(TOKEN_COMMA, "Expect ',' after location.");
+    stmt->assignment = expression();
+    consume(TOKEN_SEMICOLON, "Expect ';' after value.");
+    popWorkingNode();
+    return stmt;
 }
 
 static ObjStmtExpression* expressionStatement() {
@@ -896,6 +906,8 @@ ObjStmtBlock* blockStatement() {
 ObjStmt* statement() {
     if (match(TOKEN_PRINT)) {
         return (ObjStmt*) printStatement();
+    } else if (match(TOKEN_POKE)) {
+        return (ObjStmt*) pokeStatement();
     } else if (match(TOKEN_FOR)) {
         return (ObjStmt*) forStatement();
     } else if (match(TOKEN_IF)) {

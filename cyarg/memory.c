@@ -217,6 +217,13 @@ static void blackenObject(Obj* object) {
             markObject((Obj*)((ObjStmtExpression*)object)->expression);
             break;
         }
+        case OBJ_STMT_POKE: {
+            markStmt(object);
+            ObjStmtPoke* stmt = (ObjStmtPoke*)object;
+            markObject((Obj*)stmt->location);
+            markObject((Obj*)stmt->assignment);
+            break;
+        }
         case OBJ_STMT_VARDECLARATION: {
             markStmt(object);
             ObjStmtVarDeclaration* stmt = (ObjStmtVarDeclaration*)object;
@@ -501,6 +508,7 @@ static void freeObject(Obj* object) {
         case OBJ_STMT_YIELD:
         case OBJ_STMT_PRINT:
         case OBJ_STMT_EXPRESSION: FREE(ObjStmtExpression, object); break;
+        case OBJ_STMT_POKE: FREE(ObjStmtPoke, object); break;
         case OBJ_STMT_VARDECLARATION: FREE(ObjStmtVarDeclaration, object); break;
         case OBJ_STMT_FIELDDECLARATION: FREE(ObjStmtFieldDeclaration, object); break;
         case OBJ_STMT_PLACEDECLARATION: {

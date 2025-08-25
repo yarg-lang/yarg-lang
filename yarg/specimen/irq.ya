@@ -16,10 +16,10 @@ place struct {
 
 fun irq_set_mask_n_enabled(n, mask, enabled) {
     if (enabled) {
-        poke(m0plus.nvic_icpr, mask);
-        poke(m0plus.nvic_iser, mask);
+        poke m0plus.nvic_icpr, mask;
+        poke m0plus.nvic_iser, mask;
     } else {
-        poke(m0plus.nvic_icer, mask);
+        poke m0plus.nvic_icer, mask;
     }
 }
 

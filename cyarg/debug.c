@@ -52,7 +52,6 @@ static int builtinInstruction(const char* name, Chunk* chunk, int offset) {
     printf("%-16s ", name);
     switch (slot) {
         case BUILTIN_RPEEK: printf("rpeek"); break;
-        case BUILTIN_POKE: printf("poke"); break;
         case BUILTIN_IMPORT: printf("import"); break;
         case BUILTIN_MAKE_ROUTINE: printf("make_routine"); break;
         case BUILTIN_MAKE_CHANNEL: printf("make_channel"); break;
@@ -163,6 +162,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             return simpleInstruction("OP_NEGATE", offset);
         case OP_PRINT:
             return simpleInstruction("OP_PRINT", offset);
+        case OP_POKE:
+            return simpleInstruction("OP_POKE", offset);
         case OP_JUMP:
             return jumpInstruction("OP_JUMP", 1, chunk, offset);
         case OP_JUMP_IF_FALSE:

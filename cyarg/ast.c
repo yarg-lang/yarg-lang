@@ -17,6 +17,13 @@ ObjStmtExpression* newStmtExpression(ObjExpr* expr, ObjType type, int line) {
     return stmt;
 }
 
+ObjStmtPoke* newStmtPoke(int line) {
+    ObjStmtPoke* stmt = ALLOCATE_OBJ(ObjStmtPoke, OBJ_STMT_POKE);
+    stmt->stmt.line = line;
+
+    return stmt;
+}
+
 ObjStmtVarDeclaration* newStmtVarDeclaration(const char* name, int nameLength, int line) {
     ObjStmtVarDeclaration* stmt = ALLOCATE_OBJ(ObjStmtVarDeclaration, OBJ_STMT_VARDECLARATION);
     tempRootPush(OBJ_VAL(stmt));
@@ -319,7 +326,6 @@ void printExprSuper(ObjExprSuper* expr) {
 
 void printExprBuiltin(ObjExprBuiltin* fn) {
     switch (fn->builtin) {
-        case EXPR_BUILTIN_RPOKE: printf("poke"); break;
         case EXPR_BUILTIN_IMPORT: printf("import"); break;
         case EXPR_BUILTIN_MAKE_ROUTINE: printf("make_routine"); break;
         case EXPR_BUILTIN_MAKE_CHANNEL: printf("make_channel"); break;
@@ -541,6 +547,14 @@ void printStmtExpression(ObjStmtExpression* stmt) {
     printf(";");
 }
 
+void printStmtPoke(ObjStmtPoke* stmt) {
+    printf("poke ");
+    printExpr(stmt->location);
+    printf(", ");
+    printExpr(stmt->assignment);
+    printf(";");
+}
+
 void printStmtVarDeclaration(ObjStmtVarDeclaration* decl) {
     printf("var ");
     if (decl->type) {
@@ -626,6 +640,7 @@ void printStmts(ObjStmt* stmts) {
             case OBJ_STMT_YIELD:
             case OBJ_STMT_PRINT:
             case OBJ_STMT_EXPRESSION: printStmtExpression((ObjStmtExpression*)cursor); break;
+            case OBJ_STMT_POKE: printStmtPoke((ObjStmtPoke*)cursor); break;
             case OBJ_STMT_VARDECLARATION: printStmtVarDeclaration((ObjStmtVarDeclaration*)cursor); break;
             case OBJ_STMT_PLACEDECLARATION: printStmtPlaceDeclaration((ObjStmtPlaceDeclaration*)cursor); break;
             case OBJ_STMT_BLOCK: printStmtBlock((ObjStmtBlock*)cursor); break;

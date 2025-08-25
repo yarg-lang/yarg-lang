@@ -817,6 +817,38 @@ InterpretResult run(ObjRoutine* routine) {
                 printf("\n");
                 break;
             }
+            case OP_POKE: {
+                Value location = peek(routine, 0);
+                Value assignment = peek(routine, 1);
+                if (!isMuint32Pointer(location) && !IS_UINTEGER(location)) {
+                    runtimeError(routine, "Location must be a pointer or unsigned integer.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                if (!IS_UINTEGER(assignment)) {
+                    runtimeError(routine, "Value must be an muint32.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+
+                uintptr_t nominal_address = 0;
+                if (isMuint32Pointer(location)) {
+                    nominal_address = (uintptr_t) AS_POINTER(location)->destination;
+                } else {
+                    nominal_address = AS_UINTEGER(location);
+                }
+                volatile uint32_t* reg = (volatile uint32_t*) nominal_address;
+
+                uint32_t val = AS_UINTEGER(assignment);
+#ifdef CYARG_PICO_TARGET
+                *reg = val;
+#else
+                printf("poke %08lx, %08x\n", nominal_address, val);
+#endif
+
+                pop(routine);
+                pop(routine);
+
+                break;
+            }
             case OP_JUMP: {
                 uint16_t offset = READ_SHORT();
                 frame->ip += offset;

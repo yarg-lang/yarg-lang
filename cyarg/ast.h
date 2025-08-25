@@ -64,7 +64,6 @@ typedef enum {
     EXPR_BUILTIN_PEEK,
     EXPR_BUILTIN_SHARE,
     EXPR_BUILTIN_RPEEK,
-    EXPR_BUILTIN_RPOKE,
     EXPR_BUILTIN_LEN,
     EXPR_BUILTIN_PIN,
     EXPR_BUILTIN_NEW
@@ -199,6 +198,12 @@ typedef struct  {
 
 typedef struct {
     ObjStmt stmt;
+    ObjExpr* location;
+    ObjExpr* assignment;
+} ObjStmtPoke;
+
+typedef struct {
+    ObjStmt stmt;
     ObjString* name;
     ObjExpr* type;
     ObjExpr* initialiser;
@@ -274,6 +279,7 @@ ObjExprTypeArray* newExprTypeArray();
 
 ObjStmtExpression* newStmtExpression(ObjExpr* expr, ObjType statement, int line);
 ObjStmtBlock* newStmtBlock(int line);
+ObjStmtPoke* newStmtPoke(int line);
 
 ObjStmtVarDeclaration* newStmtVarDeclaration(const char* name, int nameLength, int line);
 ObjStmtPlaceDeclaration* newStmtPlaceDeclaration(int line);

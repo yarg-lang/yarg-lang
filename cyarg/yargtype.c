@@ -107,6 +107,17 @@ size_t addFieldType(ObjConcreteYargTypeStruct* st, size_t index, size_t fieldOff
     return st->storage_size;
 }
 
+bool isMuint32Pointer(Value val) {
+    if (IS_POINTER(val)) {
+        Value destination = AS_POINTER(val)->destination_type;
+        ObjConcreteYargType* dest = IS_NIL(destination) ? NULL : AS_YARGTYPE(destination);
+        if (dest) {
+            return dest->yt == TypeMachineUint32;
+        }
+    }
+    return false;
+}
+
 Value concrete_typeof(Value a) {
     if (IS_NIL(a)) {
         return NIL_VAL;
