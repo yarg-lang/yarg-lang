@@ -1,0 +1,43 @@
+import("gpio");
+
+fun button_callback(gpio, chan) {
+
+    const core = coreNum();
+
+    fun gpio_callback() {
+        const events8 = peek(io_bank0.proc[core].ints[gpio >> 0d3]);
+        const events = events8 >> (0d4 * (gpio % 0d8));
+
+        // acknowledge the irq to the peripheral, and signal the requesting routine.
+        gpio_acknowledge_irq(gpio, events);
+        share(chan, events);
+    }
+
+    return gpio_callback;
+}
+
+// intialise a GPIO for an LED.
+const led_io = 0d3;
+gpio_init(led_io);
+gpio_set_direction(led_io, GPIO_OUT);
+
+// set up the callback as an address we can install in the IRQ peripheral
+const button_io = 0d2;
+var button_channel = make_channel();
+var button_handler_routine = make_routine(button_callback(button_io, button_channel), true);
+var button_handler_address = pin(button_handler_routine);
+
+gpio_init(button_io);
+irq_add_shared_handler(IO_IRQ_BANK0, button_handler_address, 0d0);
+
+// enable interrupts for this gpio
+gpio_set_irq_enabled(button_io, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
+irq_set_enabled(IO_IRQ_BANK0, true);
+
+
+bool state;
+while (true) {
+    var events = receive(button_channel);
+    state = !state;
+    gpio_put(led_io, state);
+}

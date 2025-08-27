@@ -1,7 +1,7 @@
-const GPIO_FUNC_SIO = 0d5;
-const NUM_BANK0_GPIOS = 0d30;
+// the memory locations we need, see rp2040 datasheet: 
+// https://datasheets.raspberrypi.com/rp2040/rp2040-datasheet.pdf
 
-// the memory locations we need.
+const NUM_BANK0_GPIOS = 30;
 
 place struct {
     muint32@0x014 gpio_out_set;
@@ -15,12 +15,13 @@ place struct {
         }[NUM_BANK0_GPIOS] gpio;
     } 0x40014000 io_bank0;
 
-
+// the built in LED on a Pico.
 const pico_led = 0d25;
 const gpio_field = 0x1 << pico_led;
 
+// minimally configure a GPIO, assuming core was reset first.
+const GPIO_FUNC_SIO = 0d5;
 
-// configure GPIO, assuming core was reset first.
 poke io_bank0.gpio[pico_led].ctrl, GPIO_FUNC_SIO;
 poke sio_hw.gpio_oe_set, gpio_field;
 
