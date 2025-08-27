@@ -7,18 +7,21 @@ Yarg aims to be a dedicated language for Microcontroller firmware development. I
   - An interactive, on-device, REPL
   - Direct hardware access
   - Interupt based and multi-core multiprocessing
-  - Many other modern language conveniences.
+  - Modern language conveniences
+  - Intended for production deployment
 
-Microcontrollers (such as the $4 Raspberry Pi Pico, or the ESP32 family) are powerful computers, yet we commonly develop software for them with languages like C that were designed when resources were far more scarce. Yarg aims to provide a richer language, spending some of these resources to achive that. Of course, if you want to use modern language features, many general purpose languages are available in 'Micro', 'Tiny' or other cut-down versions of their implementation for microcontroller use. These implementations are faced with choices when the resources available do not support the same implementation possible in their original general purpose implementation. Do they try to be compatible (but over-expensive), or do they document a limitation compared to the full language implementation? Yarg aims to remove the limitations these choices impose, and offer modern langauge features, by being dedicated to the task of Microcontroller development.
+Microcontrollers (such as the $4 Raspberry Pi Pico, or the ESP32 family) are powerful computers, supporting multiple cores, many peripherals, and interrupts from those peripherals arriving at any time. We commonly develop software for them with languages like C or Python. C offers complete access to the system, but was designed when resources were very scarce, and it leaves a lot of work to the developer. Languages like Python offer more to the developer, but were designed with a general purpose computer in mind, and make access to hardware awkward (often they require a C driver). Yarg aims to provide the conveniences of languages like Python, alongside features that allow full access to hardware, so that C is not required to complete a project.
 
-Many samples for starting projects include polling, (while 'true'; sleep(x); do-stuff;), which can be wasteful of energy. How long is x? Modern microprocessors are designed to be normally off, and to wake when something interesting is happening. Yarg is a language designed with this in mind from the start.
+Of course, if you want to use modern language features, many general purpose languages are available in 'Micro', 'Tiny' or other cut-down versions of their implementation for microcontroller use. These implementations are faced with choices when the resources available do not support the same implementation possible in their original form. Do they try to be compatible (at what cost, if that is even possible?), or do they document a limitation compared to the original language? Yarg always priortises microcontroller development, so all of the implementation choices suit production use for firmware.
+
+Without clear multiprocessing support, language samples for starting projects must include polling, ("while true { sleep(x); do-stuff(); }"), which is wasteful of energy. How long is x? How often is do-stuff() actually needed? Modern microcontrollers are designed to be normally off, and to wake when something interesting is happening. Yarg is a language designed to eliminate wasteful polling like this from the start.
 
 ## Aims
 
   - A dynamic environment for on-device prototyping
-  - Tooling to deploy working prototypes
+  - Tooling to deploy working firmware to production
   - Sufficient static typing to reasonably add device specific code without writing C
-  - Interop with C libraries available on device
+  - Interop with C libraries available on device (such as USB, TCP/IP or WiFi)
 
 Not (yet) intended for use. Additional documentation on the [wiki][wiki]
 
@@ -32,7 +35,6 @@ Not (yet) intended for use. Additional documentation on the [wiki][wiki]
 | `vscode-yarg/` | A VS Code Language Extension for Yarg |
 | `yarg/specimen/` | Samples of Yarg |
 | `yarg/specimen/conway-life-display` | A Yarg implemention of: [jhmcaleely/conway-life-display](https://github.com/jhmcaleely/conway-life-display) |
-| `yarg/specimen/todo` | Things that don't work yet |
 | `yarg/test/` | A Test Suite |
 
 ## Samples
