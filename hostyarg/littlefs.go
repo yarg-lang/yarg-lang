@@ -2,7 +2,7 @@ package main
 
 /*
 #include <stdlib.h>
-#include "littlefs/lfs.h"
+#include "lfs.h"
 */
 import "C"
 import (

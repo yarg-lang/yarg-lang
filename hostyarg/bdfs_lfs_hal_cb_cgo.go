@@ -2,7 +2,7 @@ package main
 
 /*
 #include <stdint.h>
-#include "littlefs/lfs.h"
+#include "lfs.h"
 
 int go_bdfs_read(uintptr_t fs, lfs_block_t block, lfs_off_t off, uint8_t *buffer, lfs_size_t size);
 int go_bdfs_prog_page(uintptr_t fs, lfs_block_t block, lfs_off_t off, const uint8_t *buffer, lfs_size_t size);
