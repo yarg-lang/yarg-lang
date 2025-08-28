@@ -91,7 +91,7 @@ if (PICO_BOARD)
 
 
 pico_set_program_name(cyarg "cyarg")
-pico_set_program_version(cyarg "0.1")
+pico_set_program_version(cyarg "0.1.0")
 
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(cyarg 1)

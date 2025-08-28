@@ -1,6 +1,6 @@
 {
     "name": "yarg-lang",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "displayName": "Yarg Language",
     "description": "Yarg Language Support for VS Code",
     "publisher": "jhmcaleely",
