@@ -1,0 +1,48 @@
+* Yarg-Lang 0.1.0 README
+
+This release is a demonstrator, and not intended for development use. You could use it to recreate the 'hello_led' or 'hello_button' examples.
+
+** Requirements
+
+Yarg 0.1.0 runs on a Raspberry Pi Pico. It does not support the Pico W, or Pico 2/Pico 2W versions in this release.
+
+** Installing
+
+Mount the Pico as a USB drive, by plugging it in to a host with the 'bootsel' button depressed.
+
+Copy yarg-lang-pico-0.1.0.uf2 to the drive, and it will reboot.
+
+Yarg presents a serial based REPL over both the USB serial connection and UART1 on the Pico.
+  
+On my machine, that's available as /dev/tty.usbmodem1101 - your machine will vary.
+
+Connect your favourite serial monitor (I use VSCode) to your device, and press enter. You should see the prompt:
+
+>
+
+You can type:
+
+> import("hello_led");
+
+and the built in led should illuminate
+
+** Extras
+
+*** vscode plugin
+
+extras/yarg-lang-0.1.0.vsix is a vscode syntax highligher for yarg. Install it via the 'Extensions: Install from visx...' command.
+
+*** hostyarg
+
+Use go install github.com/jhmcaleely/yarg-lang/hostyarg@0.1.0 to install hostyarg.
+
+You can use this to add yarg files to your image, for your own development, eg:
+
+$ hostyarg addfile -fs yarg-lang-pico-0.1.0.uf2 -add my_yarg.ya
+
+install the uf2 as above, and after the pico reboots, at the yarg prompt:
+
+> import("my_yarg");
+
+will execute your file.
+
