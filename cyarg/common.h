@@ -12,7 +12,6 @@
 // Global source configruation options
 // Managed in CMakePresets.json and CMakeLists.txt
 
-//#define NAN_BOXING
 //#define DEBUG_TRACE_EXECUTION
 //#define DEBUG_AST_PARSE
 

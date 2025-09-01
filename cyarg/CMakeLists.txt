@@ -70,8 +70,6 @@ target_sources(cyarg
       files_stdlib.c)
 endif()
 
-add_compile_definitions(NAN_BOXING)
-
 if (HOST_TYPE STREQUAL "Interactive")
 add_compile_definitions(DEBUG_TRACE_EXECUTION)
 add_compile_definitions(DEBUG_AST_PARSE)

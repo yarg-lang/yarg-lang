@@ -5,7 +5,7 @@ var struct {
 print pair.x;        // expect: 0
 pair.x = 10;
 print pair.x;        // expect: 10
-print pair.y;        // expect: struct{|2:16|nil; false; }
+print pair.y;        // expect: struct{|2:32|nil; false; }
 var test = pair.y;
 test.a = 42;
 test.b = true;

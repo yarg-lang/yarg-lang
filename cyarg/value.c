@@ -32,21 +32,6 @@ void printValue(Value value) {
 }
 
 void fprintValue(FILE* op, Value value) {
-#ifdef NAN_BOXING
-    if (IS_BOOL(value)) {
-        FPRINTMSG(op, AS_BOOL(value) ? "true" : "false");
-    } else if (IS_NIL(value)) {
-        FPRINTMSG(op, "nil");
-    } else if (IS_DOUBLE(value)) {
-        FPRINTMSG(op, "%#g", AS_DOUBLE(value));
-    } else if (IS_UINTEGER(value)) {
-        FPRINTMSG(op, "%u", AS_UINTEGER(value));
-    } else if (IS_INTEGER(value)) {
-        FPRINTMSG(op, "%d", AS_INTEGER(value));
-    } else if (IS_OBJ(value)) {
-        fprintObject(op, value);
-    }
-#else
     switch (value.type) {
         case VAL_BOOL:
             FPRINTMSG(op, AS_BOOL(value) ? "true" : "false");
@@ -57,16 +42,9 @@ void fprintValue(FILE* op, Value value) {
         case VAL_INTEGER: FPRINTMSG(op, "%d", AS_INTEGER(value)); break;
         case VAL_OBJ: fprintObject(op, value); break;
     }
-#endif
 }
 
 bool valuesEqual(Value a, Value b) {
-#ifdef NAN_BOXING
-    if (IS_DOUBLE(a) && IS_DOUBLE(b)) {
-        return AS_DOUBLE(a) == AS_DOUBLE(b);
-    }
-    return a == b;
-#else
     if (a.type != b.type) return false;
     switch (a.type) {
         case VAL_BOOL:     return AS_BOOL(a) == AS_BOOL(b);
@@ -77,7 +55,6 @@ bool valuesEqual(Value a, Value b) {
         case VAL_OBJ:      return AS_OBJ(a) == AS_OBJ(b);
         default:           return false; // Unreachable.
     }
-#endif
 }
 
 bool is_positive_integer(Value a) {
