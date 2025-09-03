@@ -177,7 +177,7 @@ bool alarmAddRepeatingMSNative(ObjRoutine* routine, int argCount, ValueCell* arg
         return false;
     }
 
-    if (!IS_INTEGER(args[0].value)) {
+    if (!IS_I32(args[0].value)) {
         runtimeError(routine, "First argument must be an unsigned integer.");
         return false;
     }
@@ -195,7 +195,7 @@ bool alarmAddRepeatingMSNative(ObjRoutine* routine, int argCount, ValueCell* arg
     prepareRoutineStack(isrRoutine);
 
     isrRoutine->state = EXEC_RUNNING;
-    add_repeating_timer_ms(AS_INTEGER(args[0].value), nativeRecurringCallback, isrRoutine, (repeating_timer_t*)handle->blob);
+    add_repeating_timer_ms(AS_I32(args[0].value), nativeRecurringCallback, isrRoutine, (repeating_timer_t*)handle->blob);
 
     *result = OBJ_VAL(handle);
     return true;

@@ -354,6 +354,7 @@ static ObjExpr* builtin(bool canAssign) {
         case TOKEN_NEW: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_NEW, 1);
         case TOKEN_INT8: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_INT8, 1);
         case TOKEN_UINT8: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_UINT8, 1);
+        case TOKEN_INT32: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_INT32, 1);
         case TOKEN_UINT32: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_UINT32, 1);
         case TOKEN_INT64: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_INT64, 1);
         case TOKEN_UINT64: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_UINT64, 1);

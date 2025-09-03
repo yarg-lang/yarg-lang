@@ -132,8 +132,8 @@ ObjExprNumber* newExprNumberDouble(double value) {
 
 ObjExprNumber* newExprNumberInteger(int value) {
     ObjExprNumber* num = ALLOCATE_OBJ(ObjExprNumber, OBJ_EXPR_NUMBER);
-    num->type = NUMBER_INTEGER;
-    num->val.integer = value;
+    num->type = NUMBER_INTEGER32;
+    num->val.integer32 = value;
     return num;
 }
 
@@ -353,6 +353,7 @@ void printExprBuiltin(ObjExprBuiltin* fn) {
         case EXPR_BUILTIN_NEW: printf("new"); break;
         case EXPR_BUILTIN_INT8: printf("int8"); break;
         case EXPR_BUILTIN_UINT8: printf("uint8"); break;
+        case EXPR_BUILTIN_INT32: printf("int32"); break;
         case EXPR_BUILTIN_UINT32: printf("uint32"); break;
         case EXPR_BUILTIN_INT64: printf("int64"); break;
         case EXPR_BUILTIN_UINT64: printf("uint64"); break;
@@ -423,8 +424,8 @@ void printExpr(ObjExpr* expr) {
                     case NUMBER_DOUBLE:
                         printf("%f", num->val.dbl);
                         break;
-                    case NUMBER_INTEGER:
-                        printf("%d", num->val.integer);
+                    case NUMBER_INTEGER32:
+                        printf("%d", num->val.integer32);
                         break;
                     case NUMBER_UINTEGER32:
                         printf("u%u", num->val.uinteger32);

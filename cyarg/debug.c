@@ -66,6 +66,7 @@ static int builtinInstruction(const char* name, Chunk* chunk, int offset) {
         case BUILTIN_NEW: printf("new"); break;
         case BUILTIN_INT8: printf("int8"); break;
         case BUILTIN_UINT8: printf("uint8"); break;
+        case BUILTIN_INT32: printf("int32"); break;
         case BUILTIN_UINT32: printf("uint32"); break;
         case BUILTIN_INT64: printf("int64"); break;
         case BUILTIN_UINT64: printf("uint64"); break;

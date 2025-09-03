@@ -40,7 +40,7 @@ void fprintValue(FILE* op, Value value) {
         case VAL_DOUBLE: FPRINTMSG(op, "%#g", AS_DOUBLE(value)); break;
         case VAL_I8: FPRINTMSG(op, "%d", AS_I8(value)); break;
         case VAL_UI8: FPRINTMSG(op, "%u", AS_UI8(value)); break;
-        case VAL_INTEGER: FPRINTMSG(op, "%d", AS_INTEGER(value)); break;
+        case VAL_I32: FPRINTMSG(op, "%d", AS_I32(value)); break;
         case VAL_UI32: FPRINTMSG(op, "%u", AS_UI32(value)); break;
         case VAL_I64: FPRINTMSG(op, "%lld", AS_I64(value)); break;
         case VAL_UI64: FPRINTMSG(op, "%llu", AS_UI64(value)); break;
@@ -57,7 +57,7 @@ bool valuesEqual(Value a, Value b) {
         case VAL_DOUBLE:   return AS_DOUBLE(a) == AS_DOUBLE(b);
         case VAL_I8:       return AS_I8(a) == AS_I8(b);
         case VAL_UI8:      return AS_UI8(a) == AS_UI8(b);
-        case VAL_INTEGER:  return AS_INTEGER(a) == AS_INTEGER(b);
+        case VAL_I32:      return AS_I32(a) == AS_I32(b);
         case VAL_UI32:     return AS_UI32(a) == AS_UI32(b);
         case VAL_I64:      return AS_I64(a) == AS_I64(b);
         case VAL_UI64:     return AS_UI64(a) == AS_UI64(b);
@@ -72,7 +72,7 @@ bool is_positive_integer(Value a) {
         return true;
     } else if (IS_UI64(a) && AS_UI64(a) <= UINT32_MAX) {
         return true;
-    } else if (IS_INTEGER(a) && AS_INTEGER(a) >= 0) {
+    } else if (IS_I32(a) && AS_I32(a) >= 0) {
         return true;
     } else if (IS_I8(a) && AS_I8(a) >= 0) {
         return true;
@@ -83,8 +83,8 @@ bool is_positive_integer(Value a) {
 }
 
 uint32_t as_positive_integer(Value a) {
-    if (IS_INTEGER(a)) {
-        return AS_INTEGER(a);
+    if (IS_I32(a)) {
+        return AS_I32(a);
     } else if (IS_I8(a)) {
         return AS_I8(a);
     } else if (IS_I64(a) && AS_I64(a) <= UINT32_MAX) {

@@ -227,8 +227,8 @@ static uint8_t makeConstant(Value value) {
 
 static int emitConstant(Value value) {
 
-    int32_t i = AS_INTEGER(value);
-    if (IS_INTEGER(value) && i <= INT8_MAX && i >= INT8_MIN) {
+    int32_t i = AS_I32(value);
+    if (IS_I32(value) && i <= INT8_MAX && i >= INT8_MIN) {
         emitBytes(OP_IMMEDIATE, (uint8_t)i);
     } else {
         emitBytes(OP_CONSTANT, makeConstant(value));
@@ -300,7 +300,7 @@ static void generateStmt(ObjStmt* stmt);
 static void generateNumber(ObjExprNumber* num) {
     switch(num->type) {
         case NUMBER_DOUBLE: emitConstant(DOUBLE_VAL(num->val.dbl)); break;
-        case NUMBER_INTEGER: emitConstant(INTEGER_VAL(num->val.integer)); break;
+        case NUMBER_INTEGER32: emitConstant(I32_VAL(num->val.integer32)); break;
         case NUMBER_UINTEGER32: emitConstant(UI32_VAL(num->val.uinteger32)); break;
         case NUMBER_UINTEGER64: emitConstant(UI64_VAL(num->val.ui64)); break;
         case NUMBER_ADDRESS: emitConstant(ADDRESS_VAL(num->val.address)); break;
@@ -460,12 +460,12 @@ static void generateExprArrayInit(ObjExprArrayInit* array) {
  
     emitBytes(OP_GET_BUILTIN, BUILTIN_NEW);
     emitByte(OP_NIL);
-    emitConstant(INTEGER_VAL(array->initializers.objectCount));
+    emitConstant(I32_VAL(array->initializers.objectCount));
     emitByte(OP_TYPE_ARRAY);
     emitBytes(OP_CALL, 1);
  
     for (int i = 0; i < array->initializers.objectCount; i++) {
-        emitConstant(INTEGER_VAL(i));
+        emitConstant(I32_VAL(i));
         generateExpr((ObjExpr*)array->initializers.objects[i]);
         emitByte(OP_SET_ELEMENT);
     }
@@ -500,6 +500,7 @@ static void generateExprBuiltin(ObjExprBuiltin* fn) {
         case EXPR_BUILTIN_NEW: emitBytes(OP_GET_BUILTIN, BUILTIN_NEW); break;
         case EXPR_BUILTIN_INT8: emitBytes(OP_GET_BUILTIN, BUILTIN_INT8); break;
         case EXPR_BUILTIN_UINT8: emitBytes(OP_GET_BUILTIN, BUILTIN_UINT8); break;
+        case EXPR_BUILTIN_INT32: emitBytes(OP_GET_BUILTIN, BUILTIN_INT32); break;
         case EXPR_BUILTIN_UINT32: emitBytes(OP_GET_BUILTIN, BUILTIN_UINT32); break;
         case EXPR_BUILTIN_INT64: emitBytes(OP_GET_BUILTIN, BUILTIN_INT64); break;
         case EXPR_BUILTIN_UINT64: emitBytes(OP_GET_BUILTIN, BUILTIN_UINT64); break;

@@ -69,6 +69,7 @@ typedef enum {
     EXPR_BUILTIN_NEW,
     EXPR_BUILTIN_INT8,
     EXPR_BUILTIN_UINT8,
+    EXPR_BUILTIN_INT32,
     EXPR_BUILTIN_UINT32,
     EXPR_BUILTIN_INT64,
     EXPR_BUILTIN_UINT64
@@ -105,7 +106,7 @@ typedef struct {
 
 typedef enum {
     NUMBER_DOUBLE,
-    NUMBER_INTEGER,
+    NUMBER_INTEGER32,
     NUMBER_UINTEGER32,
     NUMBER_UINTEGER64,
     NUMBER_ADDRESS
@@ -116,11 +117,10 @@ typedef struct {
     NumberType type;
     union {
         double dbl;
-        int integer;
+        int32_t integer32;
         uint32_t uinteger32;
-        uintptr_t address;
         uint64_t ui64;
-        int64_t i64;
+        uintptr_t address;
     } val;
 } ObjExprNumber;
 

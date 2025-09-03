@@ -462,10 +462,10 @@ InterpretResult run(ObjRoutine* routine) {
 #define READ_STRING() AS_STRING(READ_CONSTANT())
 #define BINARY_OP(routine, op) \
     do { \
-        if (IS_INTEGER(peek(routine, 0)) && IS_INTEGER(peek(routine, 1))) { \
-            int32_t b = AS_INTEGER(pop(routine)); \
-            int32_t a = AS_INTEGER(pop(routine)); \
-            push(routine, INTEGER_VAL(a op b)); \
+        if (IS_I32(peek(routine, 0)) && IS_I32(peek(routine, 1))) { \
+            int32_t b = AS_I32(pop(routine)); \
+            int32_t a = AS_I32(pop(routine)); \
+            push(routine, I32_VAL(a op b)); \
         } else if (IS_UI32(peek(routine, 0)) && IS_UI32(peek(routine, 1))) { \
             uint32_t b = AS_UI32(pop(routine)); \
             uint32_t a = AS_UI32(pop(routine)); \
@@ -497,9 +497,9 @@ InterpretResult run(ObjRoutine* routine) {
     } while (false)
 #define BINARY_BOOLEAN_OP(routine, op) \
     do { \
-        if (IS_INTEGER(peek(routine, 0)) && IS_INTEGER(peek(routine, 1))) { \
-            int32_t b = AS_INTEGER(pop(routine)); \
-            int32_t a = AS_INTEGER(pop(routine)); \
+        if (IS_I32(peek(routine, 0)) && IS_I32(peek(routine, 1))) { \
+            int32_t b = AS_I32(pop(routine)); \
+            int32_t a = AS_I32(pop(routine)); \
             push(routine, BOOL_VAL(a op b)); \
         } else if (IS_UI32(peek(routine, 0)) && IS_UI32(peek(routine, 1))) { \
             uint32_t b = AS_UI32(pop(routine)); \
@@ -568,7 +568,7 @@ InterpretResult run(ObjRoutine* routine) {
             }
             case OP_IMMEDIATE: {
                 uint8_t byte = READ_BYTE();
-                Value constant = INTEGER_VAL((int8_t)byte);
+                Value constant = I32_VAL((int8_t)byte);
                 push(routine, constant);
                 break;
             }
@@ -769,10 +769,10 @@ InterpretResult run(ObjRoutine* routine) {
             case OP_BITAND:      BINARY_UINT_OP(routine, &); break;
             case OP_BITXOR:      BINARY_UINT_OP(routine, ^); break;
             case OP_ADD: {
-                if (IS_INTEGER(peek(routine, 0)) && IS_INTEGER(peek(routine, 1))) {
-                    int32_t b = AS_INTEGER(pop(routine));
-                    int32_t a = AS_INTEGER(pop(routine));
-                    push(routine, INTEGER_VAL(a + b));
+                if (IS_I32(peek(routine, 0)) && IS_I32(peek(routine, 1))) {
+                    int32_t b = AS_I32(pop(routine));
+                    int32_t a = AS_I32(pop(routine));
+                    push(routine, I32_VAL(a + b));
                 } else if (IS_UI32(peek(routine, 0)) && IS_UI32(peek(routine, 1))) {
                     uint32_t b = AS_UI32(pop(routine));
                     uint32_t a = AS_UI32(pop(routine));
@@ -797,8 +797,8 @@ InterpretResult run(ObjRoutine* routine) {
                     double b = AS_DOUBLE(pop(routine));
                     double a = AS_DOUBLE(pop(routine));
                     push(routine, DOUBLE_VAL(a + b));
-                } else if (IS_ADDRESS(peek(routine, 1)) && IS_INTEGER(peek(routine, 0))) {
-                    int32_t b = AS_INTEGER(pop(routine));
+                } else if (IS_ADDRESS(peek(routine, 1)) && IS_I32(peek(routine, 0))) {
+                    int32_t b = AS_I32(pop(routine));
                     uintptr_t a = AS_ADDRESS(pop(routine));
                     push(routine, ADDRESS_VAL(a + b));
                 } else if (IS_ADDRESS(peek(routine, 1)) && IS_UI32(peek(routine, 0))) {
@@ -814,14 +814,14 @@ InterpretResult run(ObjRoutine* routine) {
                 break;
             }
             case OP_MODULO: {
-                if (IS_INTEGER(peek(routine, 0)) && IS_INTEGER(peek(routine, 1))) {
-                    int32_t b = AS_INTEGER(pop(routine));
-                    int32_t a = AS_INTEGER(pop(routine));
+                if (IS_I32(peek(routine, 0)) && IS_I32(peek(routine, 1))) {
+                    int32_t b = AS_I32(pop(routine));
+                    int32_t a = AS_I32(pop(routine));
                     int32_t r = a % b;
                     if (r < 0) {
                         r += b;
                     }
-                    push(routine, INTEGER_VAL(r));
+                    push(routine, I32_VAL(r));
                 } else if (IS_I8(peek(routine, 0)) && IS_I8(peek(routine, 1))) {
                     int8_t b = AS_I8(pop(routine));
                     int8_t a = AS_I8(pop(routine));
@@ -865,8 +865,8 @@ InterpretResult run(ObjRoutine* routine) {
             case OP_NEGATE: {
                 if (IS_DOUBLE(peek(routine, 0))) {
                     push(routine, DOUBLE_VAL(-AS_DOUBLE(pop(routine))));
-                } else if (IS_INTEGER(peek(routine, 0))) {
-                    push(routine, INTEGER_VAL(-AS_INTEGER(pop(routine))));
+                } else if (IS_I32(peek(routine, 0))) {
+                    push(routine, I32_VAL(-AS_I32(pop(routine))));
                 } else if (IS_I8(peek(routine, 0))) {
                     push(routine, I8_VAL(-AS_I8(pop(routine))));
                 } else if (IS_I64(peek(routine, 0))) {
