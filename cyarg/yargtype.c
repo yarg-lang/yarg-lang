@@ -340,10 +340,7 @@ void initialisePackedStorage(Value type, StoredValue* packedStorage) {
                 packedStorage->as.uinteger = 0;
                 break;
             }
-            case TypeUint64: {
-                packedStorage->as.ui64 = 0;
-                break;
-            }
+            case TypeUint64: packedStorage->as.ui64 = 0; break;
             case TypeArray: {
                 ObjConcreteYargTypeArray* at = (ObjConcreteYargTypeArray*)ct;
                 Value elementType = arrayElementType(at);
