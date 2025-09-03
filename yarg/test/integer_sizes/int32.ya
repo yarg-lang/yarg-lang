@@ -1,0 +1,23 @@
+var x = int32(10);
+x = x + int32(-10);
+print x; // expect: 0
+
+place struct {
+    int32 a;
+    int32 b;
+    } @xc0000000 test;
+
+print test.a; // expect: <*Type:int32:0xc0000000>
+print test.b; // expect: <*Type:int32:0xc0000004>
+
+var x = uint32(10);
+x = x + uint32(10);
+print x; // expect: 20
+
+place struct {
+    uint32 a;
+    uint32 b;
+    } @xd0000000 test;
+
+print test.a; // expect: <*Type:uint32:0xd0000000>
+print test.b; // expect: <*Type:uint32:0xd0000004>

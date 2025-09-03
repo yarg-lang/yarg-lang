@@ -1,0 +1,35 @@
+var x = int64(0xfffffffff);
+x = x + int64(-5);
+print x; // expect: 68719476730
+
+place struct {
+    int64 a;
+    int64 b;
+    } @xc0000000 test;
+
+print test.a; // expect: <*Type:int64:0xc0000000>
+print test.b; // expect: <*Type:int64:0xc0000008>
+
+var x = uint64(0xfffffffff);
+x = x + uint64(10);
+print x; // expect: 68719476745
+
+place struct {
+    uint64 a;
+    uint64 b;
+    } @xd0000000 test;
+
+print test.a; // expect: <*Type:uint64:0xd0000000>
+print test.b; // expect: <*Type:uint64:0xd0000008>
+
+uint32 high = 0xff;
+uint32 low  = 0xdd;
+uint64 val = uint64(low) | uint64(high) << uint64(32);
+var expect = 0x000000FF000000dd;
+print val == expect; // expect: true
+
+uint32 llow = uint32(val & uint64(0xffffffff));
+uint32 hhigh = uint32((val & 0xffffffff00000000) >> uint64(32));
+
+print llow == low; // expect: true
+print hhigh == high; // expect: true

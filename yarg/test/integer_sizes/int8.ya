@@ -1,0 +1,23 @@
+var x = int8(10);
+x = x + int8(-10);
+print x; // expect: 0
+
+place struct {
+    int8 a;
+    int8 b;
+    } @xc0000000 test;
+
+print test.a; // expect: <*Type:int8:0xc0000000>
+print test.b; // expect: <*Type:int8:0xc0000001>
+
+var x = uint8(10);
+x = x + uint8(10);
+print x; // expect: 20
+
+place struct {
+    uint8 a;
+    uint8 b;
+    } @xd0000000 test;
+
+print test.a; // expect: <*Type:uint8:0xd0000000>
+print test.b; // expect: <*Type:uint8:0xd0000001>
