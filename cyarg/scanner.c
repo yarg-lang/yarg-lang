@@ -238,14 +238,6 @@ static TokenType identifierType() {
                         }
                         break;
                     }
-                    case 'u':  {
-                        if ( scanner.current - scanner.start > 5
-                            && memcmp(scanner.start + 2, "int", 3) == 0) {
-                            switch(scanner.start[5]) {
-                                case '3': return checkKeyword(6, 1, "2", TOKEN_MACHINE_UINT32);
-                            }
-                        }
-                    }
                     case 'f': return checkKeyword(2, 6, "loat64", TOKEN_MACHINE_FLOAT64);
                 }
             }
@@ -328,6 +320,7 @@ static TokenType identifierType() {
                 && memcmp(scanner.start + 1, "int", 3) == 0) {
                 switch (scanner.start[4]) {
                     case '8': return TOKEN_UINT8;
+                    case '3': return checkKeyword(5, 1, "2", TOKEN_UINT32);
                     case '6': return checkKeyword(5, 1, "4", TOKEN_UINT64);
                 }
             }

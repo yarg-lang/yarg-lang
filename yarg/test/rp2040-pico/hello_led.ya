@@ -5,16 +5,16 @@ const NUM_BANK0_GPIOS = 0d30;
 
 place struct {
     struct {
-        muint32@0x004 set;
+        uint32@0x004 set;
         }@0x010 gpio_out;
     struct {
-        muint32@0x004 set;
+        uint32@0x004 set;
         }@0x020 gpio_oe;
     } @xd0000000 sio_hw;
 
 place struct {
     struct {
-        muint32@0x004 ctrl;
+        uint32@0x004 ctrl;
         }[NUM_BANK0_GPIOS] gpio;
     } @x40014000 io_bank0;
 

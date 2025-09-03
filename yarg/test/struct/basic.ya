@@ -1,7 +1,7 @@
 var struct {
     integer x;
     y;
-    muint32 z;
+    uint32 z;
     } coord;
 print coord.x;  // expect: 0
 print coord.y;  // expect: nil

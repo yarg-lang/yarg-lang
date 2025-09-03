@@ -2,7 +2,7 @@ var any test;
 var integer counter = 6;
 var bool isTrue = true;
 var mfloat64 aFloat = 0.0;
-var muint32 aUint = 0xFFFFFFFF;
+var uint32 aUint = 0xFFFFFFFF;
 var string aString = "Hello, World!";
 var any[] aArray = new(any[10]);
 var asBefore;

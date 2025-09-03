@@ -886,11 +886,11 @@ InterpretResult run(ObjRoutine* routine) {
                 Value location = peek(routine, 0);
                 Value assignment = peek(routine, 1);
                 if (!isAddressValue(location) && !isMuint32Pointer(location)) {
-                    runtimeError(routine, "Location must be a pointer to an muint32 or address.");
+                    runtimeError(routine, "Location must be a pointer to an uint32 or address.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 if (!IS_UINTEGER(assignment)) {
-                    runtimeError(routine, "Value must be an muint32.");
+                    runtimeError(routine, "Value must be an uint32.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
 

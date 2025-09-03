@@ -55,14 +55,14 @@ This sample turns on the builtin LED for a Pico, manipulating the registers dire
 const NUM_BANK0_GPIOS = 30;
 
 place struct {
-    muint32@0x014 gpio_out_set;
-    muint32@0x024 gpio_oe_set;
+    uint32@0x014 gpio_out_set;
+    uint32@0x024 gpio_oe_set;
     } @xd0000000 sio_hw;
 
 place struct {
     struct {
-        muint32 status;
-        muint32 ctrl;
+        uint32 status;
+        uint32 ctrl;
         }[NUM_BANK0_GPIOS] gpio;
     } @x40014000 io_bank0;
 

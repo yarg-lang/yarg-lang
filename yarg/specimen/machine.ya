@@ -1,18 +1,18 @@
 place struct {
-    muint32 cpuid;
-    muint32 gpio_in;
-    muint32 gpio_hi_in;
+    uint32 cpuid;
+    uint32 gpio_in;
+    uint32 gpio_hi_in;
     struct {
-        muint32 rw;
-        muint32 set;
-        muint32 clr;
-        muint32 xor;
+        uint32 rw;
+        uint32 set;
+        uint32 clr;
+        uint32 xor;
         }@0x010 gpio_out;
     struct {
-        muint32 rw;
-        muint32 set;
-        muint32 clr;
-        muint32 xor;
+        uint32 rw;
+        uint32 set;
+        uint32 clr;
+        uint32 xor;
         }@0x020 gpio_oe;
     } @xd0000000 sio_hw;
 

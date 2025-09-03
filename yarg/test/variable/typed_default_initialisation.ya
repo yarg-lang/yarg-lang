@@ -2,7 +2,7 @@ var any test;
 var integer counter;
 var bool isTrue;
 var mfloat64 aFloat;
-var muint32 aUint;
+var uint32 aUint;
 var string aString;
 var asBefore;
 
@@ -11,7 +11,7 @@ var asBefore;
     var integer counter;
     var bool isTrue;
     var mfloat64 aFloat;
-    var muint32 aUint;
+    var uint32 aUint;
     var string aString;
     var asBefore;
 
@@ -38,7 +38,7 @@ print test;             // expect: nil
     var isTrue;
     var string aFloat;
     var mfloat64 aUint;
-    var muint32 aString;
+    var uint32 aString;
     var bool asBefore;
 
     print counter;      // expect: nil

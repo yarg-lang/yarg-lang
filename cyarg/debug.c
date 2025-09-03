@@ -66,7 +66,7 @@ static int builtinInstruction(const char* name, Chunk* chunk, int offset) {
         case BUILTIN_NEW: printf("new"); break;
         case BUILTIN_INT8: printf("int8"); break;
         case BUILTIN_UINT8: printf("uint8"); break;
-        case BUILTIN_MUINT32: printf("muint32"); break;
+        case BUILTIN_MUINT32: printf("uint32"); break;
         case BUILTIN_INT64: printf("int64"); break;
         case BUILTIN_UINT64: printf("uint64"); break;
         default: printf("<unknown %4d>", slot); break;
@@ -83,7 +83,7 @@ static int typeLiteralInstruction(const char* name, Chunk* chunk, int offset) {
         case TYPE_LITERAL_INT8: printf("int8"); break;
         case TYPE_LITERAL_UINT8: printf("uint8"); break;
         case TYPE_LITERAL_INTEGER: printf("integer"); break;
-        case TYPE_LITERAL_MACHINE_UINT32: printf("muint32"); break;
+        case TYPE_LITERAL_MACHINE_UINT32: printf("uint32"); break;
         case TYPE_LITERAL_INT64: printf("int64"); break;
         case TYPE_LITERAL_UINT64: printf("uint64"); break;
         case TYPE_LITERAL_MACHINE_FLOAT64: printf("mfloat64"); break;

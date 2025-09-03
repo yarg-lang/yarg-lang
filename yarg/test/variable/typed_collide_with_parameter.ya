@@ -1,3 +1,3 @@
 fun foo(a) {
-  muint32 a; // Error at 'a': Already a variable with this name in this scope.
+  uint32 a; // Error at 'a': Already a variable with this name in this scope.
 }

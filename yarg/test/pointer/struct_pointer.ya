@@ -2,13 +2,13 @@ var test = new(struct { i; });
 print *test.i;  // expect: nil
 *test.i = 42;
 print *test.i;  // expect: 42
-test = new(struct { muint32 i; bool j; });
+test = new(struct { uint32 i; bool j; });
 print *test.i;  // expect: 0
 *test.i = 0d78;
 print *test.i;  // expect: 78
 *test.j = true;
 print *test.j;  // expect: true
-test = new(struct { muint32 i; struct {muint32 ctrl; muint32 flags; } j;});
+test = new(struct { uint32 i; struct {uint32 ctrl; uint32 flags; } j;});
 print *test.i;  // expect: 0
 print *test.j.ctrl;  // expect: 0
 print *test.j.flags; // expect: 0

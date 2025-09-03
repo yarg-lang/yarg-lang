@@ -22,19 +22,19 @@ const io_bank0_base = @x40014000;
 
 place struct {
     struct {
-        muint32 status;
-        muint32 ctrl;
+        uint32 status;
+        uint32 ctrl;
         }[NUM_BANK0_GPIOS] gpio;
-    muint32[4]@0x0f0 intr;
+    uint32[4]@0x0f0 intr;
     struct {
-        muint32[4] inte;
-        muint32[4] intf;
-        muint32[4] ints;
+        uint32[4] inte;
+        uint32[4] intf;
+        uint32[4] ints;
         }[2]@0x100 proc;
     struct {
-        muint32[4] inte;
-        muint32[4] intf;
-        muint32[4] ints;
+        uint32[4] inte;
+        uint32[4] intf;
+        uint32[4] ints;
         } dormant_wake;
     } {
     io_bank0_base io_bank0;
@@ -46,10 +46,10 @@ place struct {
 const pads_bank0_base = @x4001c000;
 
 place struct {
-    muint32 voltage_select;
-    muint32[NUM_BANK0_GPIOS] gpio;
-    muint32 swclk;
-    muint32 swd;
+    uint32 voltage_select;
+    uint32[NUM_BANK0_GPIOS] gpio;
+    uint32 swclk;
+    uint32 swd;
     } {
         pads_bank0_base pads_bank0;
         pads_bank0_base + REG_ALIAS_XOR_BITS pads_bank0_xor;
@@ -58,7 +58,7 @@ place struct {
     }
 
 fun write_masked(rw, xor, val, mask) { 
-    const muint32 reg = peek(rw);
+    const uint32 reg = peek(rw);
     poke xor, (reg ^ val) & mask;
 }
 

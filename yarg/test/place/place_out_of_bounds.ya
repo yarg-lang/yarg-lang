@@ -1,3 +1,3 @@
-place muint32[4] @xe0000000 hardware_registers;
+place uint32[4] @xe0000000 hardware_registers;
 peek(hardware_registers[1]);  // expect: peek(0xe0000004)
 peek(hardware_registers[4]);  // expect runtime error: Array index 4 out of bounds (0:3)

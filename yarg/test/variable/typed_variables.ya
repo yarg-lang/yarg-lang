@@ -2,7 +2,7 @@ var any test;
 var integer counter = 6;
 var bool isTrue = true;
 var mfloat64 aFloat = 0.0;
-var muint32 aUint = 0xFFFFFFFF;
+var uint32 aUint = 0xFFFFFFFF;
 var string aString = "Hello, World!";
 var asBefore;
 
@@ -11,7 +11,7 @@ var asBefore;
     var integer counter = 7;
     var bool isTrue = false;
     var mfloat64 aFloat = 1.2;
-    var muint32 aUint = 0xdede;
+    var uint32 aUint = 0xdede;
     var string aString = "Hello, Scope!";
     var asBefore = 10;
 

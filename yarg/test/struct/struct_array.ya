@@ -1,9 +1,9 @@
-var struct { bool correct; muint32[3] registers; end; } cpu_registers;
+var struct { bool correct; uint32[3] registers; end; } cpu_registers;
 print cpu_registers.registers[0]; // expect: 0
 cpu_registers.registers[1] = 0d42;
 print cpu_registers.registers[1]; // expect: 42
-print cpu_registers.registers; // expect: Type:Type:muint32[3]:[0, 42, 0]
-print cpu_registers; // expect: struct{|3:44|false; Type:Type:muint32[3]:[0, 42, 0]; nil; }
+print cpu_registers.registers; // expect: Type:Type:uint32[3]:[0, 42, 0]
+print cpu_registers; // expect: struct{|3:44|false; Type:Type:uint32[3]:[0, 42, 0]; nil; }
 print cpu_registers.correct; // expect: false
 cpu_registers.correct = true;
 print cpu_registers.correct; // expect: true

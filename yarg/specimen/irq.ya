@@ -1,16 +1,16 @@
 const IO_IRQ_BANK0 = 0d13;
 
 place struct {
-    muint32@0xe010 syst_csr;
-    muint32 syst_rvr;
-    muint32 syst_cvr;
-    muint32 syst_calib;
+    uint32@0xe010 syst_csr;
+    uint32 syst_rvr;
+    uint32 syst_cvr;
+    uint32 syst_calib;
 
-    muint32@0xe100 nvic_iser;
-    muint32@0xe180 nvic_icer;
-    muint32@0xe200 nvic_ispr;
-    muint32@0xe280 nvic_icpr;
-    muint32[8]@0xe400 nvic_ipr;
+    uint32@0xe100 nvic_iser;
+    uint32@0xe180 nvic_icer;
+    uint32@0xe200 nvic_ispr;
+    uint32@0xe280 nvic_icpr;
+    uint32[8]@0xe400 nvic_ipr;
 
     } @xe0000000 m0plus;
 

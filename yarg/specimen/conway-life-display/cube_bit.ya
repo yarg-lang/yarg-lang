@@ -2,7 +2,7 @@
 // LEDs) that are arranged off of pin 0 of the Pico:ed connector, and 
 // pin 12 (GPIO 18) of the 40-pin Pi connector.
 
-const muint32 max_brightness = 0d127;
+const uint32 max_brightness = 0d127;
 
 var any[64] cube_display_pixels;
 for (var i = 0d0; i < len(cube_display_pixels); i = i + 0d1) {

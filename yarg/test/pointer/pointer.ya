@@ -23,7 +23,7 @@ test = new(mfloat64);
 print *test; // expect: 0.00000
 *test = 3.14;
 print *test; // expect: 3.14000
-test = new(muint32);
+test = new(uint32);
 print *test; // expect: 0
 *test = 0xffffffff;
 print *test; // expect: 4294967295
