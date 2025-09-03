@@ -1,5 +1,5 @@
 var struct {
-    integer x;
+    int32 x;
     struct { a; bool b; } y;
     } pair;
 print pair.x;        // expect: 0

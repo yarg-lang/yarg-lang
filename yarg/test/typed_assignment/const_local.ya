@@ -1,5 +1,5 @@
 var const any test;
-var const integer counter = 6;
+var const int32 counter = 6;
 var const bool isTrue = true;
 var const mfloat64 aFloat = 0.0;
 var uint32 aUint = 0xFFFFFFFF;
@@ -10,7 +10,7 @@ var asBefore;
 
 {
     var const any test = false;
-    var const integer counter = 7;
+    var const int32 counter = 7;
     
     print counter;      // expect: 7
     print test;         // expect: false

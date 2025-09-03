@@ -1,5 +1,5 @@
 var any test;
-var integer counter;
+var int32 counter;
 var bool isTrue;
 var mfloat64 aFloat;
 var uint32 aUint;
@@ -8,7 +8,7 @@ var asBefore;
 
 {
     var any test;
-    var integer counter;
+    var int32 counter;
     var bool isTrue;
     var mfloat64 aFloat;
     var uint32 aUint;

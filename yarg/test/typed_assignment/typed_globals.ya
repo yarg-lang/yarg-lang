@@ -1,5 +1,5 @@
 var any test;
-var integer counter = 6;
+var int32 counter = 6;
 var bool isTrue = true;
 var mfloat64 aFloat = 0.0;
 var uint32 aUint = 0xFFFFFFFF;

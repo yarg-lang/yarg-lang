@@ -373,10 +373,10 @@ void printType(ObjExpr* type) {
             case EXPR_TYPE_LITERAL_MFLOAT64: printf("mfloat64"); break;
             case EXPR_TYPE_LITERAL_INT8: printf("int8"); break;
             case EXPR_TYPE_LITERAL_UINT8: printf("uint8"); break;
+            case EXPR_TYPE_LITERAL_INTEGER: printf("int32"); break;
             case EXPR_TYPE_LITERAL_UINT32: printf("uint32"); break;
             case EXPR_TYPE_LITERAL_INT64: printf("int64"); break;
             case EXPR_TYPE_LITERAL_UINT64: printf("uint64"); break;
-            case EXPR_TYPE_LITERAL_INTEGER: printf("integer"); break;
             case EXPR_TYPE_LITERAL_BOOL: printf("bool"); break;
             case EXPR_TYPE_LITERAL_STRING: printf("string"); break;
             case EXPR_TYPE_MODIFIER_CONST: printf("<const>"); break;

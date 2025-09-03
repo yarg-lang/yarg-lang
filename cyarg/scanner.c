@@ -210,9 +210,9 @@ static TokenType identifierType() {
                                 case 't': {
                                     if (scanner.current - scanner.start > 3) {
                                         switch (scanner.start[3]) {
-                                            case 'e': return checkKeyword(4, 3, "ger", TOKEN_INTEGER);
-                                            case '8': return TOKEN_INT8;
+                                            case '3': return checkKeyword(4, 1, "2", TOKEN_INT32);
                                             case '6': return checkKeyword(4, 1, "4", TOKEN_INT64);
+                                            case '8': return TOKEN_INT8;
                                             }
                                         }
                                     }
@@ -319,9 +319,9 @@ static TokenType identifierType() {
             if (   scanner.current - scanner.start > 4
                 && memcmp(scanner.start + 1, "int", 3) == 0) {
                 switch (scanner.start[4]) {
-                    case '8': return TOKEN_UINT8;
                     case '3': return checkKeyword(5, 1, "2", TOKEN_UINT32);
                     case '6': return checkKeyword(5, 1, "4", TOKEN_UINT64);
+                    case '8': return TOKEN_UINT8;
                 }
             }
             break;

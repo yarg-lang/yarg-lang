@@ -1,5 +1,5 @@
 var any test;
-var integer counter = 6;
+var int32 counter = 6;
 var bool isTrue = true;
 var mfloat64 aFloat = 0.0;
 var uint32 aUint = 0xFFFFFFFF;
@@ -9,7 +9,7 @@ var any[] aArray = new(any[10]);
 var asBefore;
 {
     var any test = false;
-    var integer counter = 7;
+    var int32 counter = 7;
     var bool isTrue = false;
     var mfloat64 aFloat = 1.2;
     var uint32 aUint = 0xdede;
@@ -42,7 +42,7 @@ asBefore = "test";
 print asBefore; // expect: test
 
 {
-    var integer counter = 8;
+    var int32 counter = 8;
     print counter; // expect: 8
     counter = true;    // expect runtime error: Cannot set local variable to incompatible type.
 }

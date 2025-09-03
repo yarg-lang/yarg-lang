@@ -1,5 +1,5 @@
 var struct {
-    integer x;
+    int32 x;
     y;
     uint32 z;
     } coord;
@@ -9,8 +9,8 @@ print coord.z;  // expect: 0
 
 var struct {
     struct {
-       integer x;
-       integer y;
+       int32 x;
+       int32 y;
        } loc;
     bool name;
     } location;

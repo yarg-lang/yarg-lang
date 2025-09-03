@@ -162,10 +162,10 @@ static bool checkTypeToken() {
         case TOKEN_MACHINE_FLOAT64:
         case TOKEN_INT8:
         case TOKEN_UINT8:
+        case TOKEN_INT32:
         case TOKEN_UINT32:
         case TOKEN_INT64:
         case TOKEN_UINT64:
-        case TOKEN_INTEGER:
         case TOKEN_BOOL:
         case TOKEN_TYPE_STRING:
         case TOKEN_ANY:
@@ -418,8 +418,8 @@ static ObjExpr* type(bool canAssign) {
             case TOKEN_BOOL: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_BOOL); break;
             case TOKEN_INT8: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT8); break;
             case TOKEN_UINT8: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT8); break;
+            case TOKEN_INT32: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INTEGER); break;
             case TOKEN_UINT32: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT32); break;
-            case TOKEN_INTEGER: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INTEGER); break;
             case TOKEN_INT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT64); break;
             case TOKEN_UINT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT64); break;
             case TOKEN_MACHINE_FLOAT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MFLOAT64); break;
@@ -654,8 +654,8 @@ static AstParseRule rules[] = {
     [TOKEN_IF]                   = {NULL,      NULL,   PREC_NONE},
     [TOKEN_IMPORT]               = {builtin,   NULL,   PREC_NONE},
     [TOKEN_INT8]                 = {type,      NULL,   PREC_NONE},
+    [TOKEN_INT32]                = {type,      NULL,   PREC_NONE},
     [TOKEN_INT64]                = {type,      NULL,   PREC_NONE},
-    [TOKEN_INTEGER]              = {type,      NULL,   PREC_NONE},
     [TOKEN_LEN]                  = {builtin,   NULL,   PREC_NONE},
     [TOKEN_MACHINE_FLOAT64]      = {type,      NULL,   PREC_NONE},
     [TOKEN_MAKE_CHANNEL]         = {builtin,   NULL,   PREC_NONE},
@@ -769,8 +769,8 @@ static ObjExpr* typeExpression() {
             case TOKEN_MACHINE_FLOAT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MFLOAT64); break;
             case TOKEN_INT8: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT8); break;
             case TOKEN_UINT8: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT8); break;
+            case TOKEN_INT32: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INTEGER); break;
             case TOKEN_UINT32: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT32); break;
-            case TOKEN_INTEGER: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INTEGER); break;
             case TOKEN_INT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT64); break;
             case TOKEN_UINT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT64); break;
             case TOKEN_BOOL: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_BOOL); break;

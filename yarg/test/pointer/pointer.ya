@@ -15,7 +15,7 @@ var test1 = new();
 print *test1; // expect: 255
 *test1 = true;
 print *test1; // expect: true
-test = new(integer);
+test = new(int32);
 print *test; // expect: 0
 *test = 42;
 print *test; // expect: 42

@@ -82,7 +82,7 @@ static int typeLiteralInstruction(const char* name, Chunk* chunk, int offset) {
         case TYPE_LITERAL_BOOL: printf("bool"); break;
         case TYPE_LITERAL_INT8: printf("int8"); break;
         case TYPE_LITERAL_UINT8: printf("uint8"); break;
-        case TYPE_LITERAL_INTEGER: printf("integer"); break;
+        case TYPE_LITERAL_INTEGER: printf("int32"); break;
         case TYPE_LITERAL_UINT32: printf("uint32"); break;
         case TYPE_LITERAL_INT64: printf("int64"); break;
         case TYPE_LITERAL_UINT64: printf("uint64"); break;
