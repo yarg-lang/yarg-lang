@@ -220,8 +220,18 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             return simpleInstruction("OP_ELEMENT", offset);
         case OP_SET_ELEMENT:
             return simpleInstruction("OP_SET_ELEMENT", offset);
-        case OP_IMMEDIATE:
-            return byteInstruction("OP_IMMEDIATE", chunk, offset);
+        case OP_IMMEDIATEi8:
+            return byteInstruction("OP_IMMEDIATEi8", chunk, offset);
+        case OP_IMMEDIATEui8:
+            return byteInstruction("OP_IMMEDIATEui8", chunk, offset);
+        case OP_IMMEDIATEi32:
+            return byteInstruction("OP_IMMEDIATEi32", chunk, offset);
+        case OP_IMMEDIATEui32:
+            return byteInstruction("OP_IMMEDIATEui32", chunk, offset);
+        case OP_IMMEDIATEi64:
+            return byteInstruction("OP_IMMEDIATEi64", chunk, offset);
+        case OP_IMMEDIATEui64:
+            return byteInstruction("OP_IMMEDIATEui64", chunk, offset);
         case OP_TYPE_LITERAL:
             return typeLiteralInstruction("OP_TYPE_LITERAL", chunk, offset);
         case OP_TYPE_MODIFIER:

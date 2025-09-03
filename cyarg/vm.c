@@ -566,9 +566,39 @@ InterpretResult run(ObjRoutine* routine) {
                 push(routine, constant);
                 break;
             }
-            case OP_IMMEDIATE: {
+            case OP_IMMEDIATEi8: {
+                uint8_t byte = READ_BYTE();
+                Value constant = I8_VAL((int8_t)byte);
+                push(routine, constant);
+                break;
+            }
+            case OP_IMMEDIATEui8: {
+                uint8_t byte = READ_BYTE();
+                Value constant = UI8_VAL(byte);
+                push(routine, constant);
+                break;
+            }
+            case OP_IMMEDIATEi32: {
                 uint8_t byte = READ_BYTE();
                 Value constant = I32_VAL((int8_t)byte);
+                push(routine, constant);
+                break;
+            }
+            case OP_IMMEDIATEui32: {
+                uint8_t byte = READ_BYTE();
+                Value constant = UI32_VAL(byte);
+                push(routine, constant);
+                break;
+            }
+            case OP_IMMEDIATEi64: {
+                uint8_t byte = READ_BYTE();
+                Value constant = I64_VAL((int8_t)byte);
+                push(routine, constant);
+                break;
+            }
+            case OP_IMMEDIATEui64: {
+                uint8_t byte = READ_BYTE();
+                Value constant = UI64_VAL(byte);
                 push(routine, constant);
                 break;
             }

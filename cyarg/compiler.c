@@ -227,9 +227,18 @@ static uint8_t makeConstant(Value value) {
 
 static int emitConstant(Value value) {
 
-    int32_t i = AS_I32(value);
-    if (IS_I32(value) && i <= INT8_MAX && i >= INT8_MIN) {
-        emitBytes(OP_IMMEDIATE, (uint8_t)i);
+    if (IS_I8(value)) {
+        emitBytes(OP_IMMEDIATEi8, AS_I8(value));
+    } else if (IS_UI8(value)) {
+        emitBytes(OP_IMMEDIATEui8, AS_UI8(value));
+    } else if (IS_I32(value) && AS_I32(value) >= INT8_MIN && AS_I32(value) <= INT8_MAX) {
+        emitBytes(OP_IMMEDIATEi32, AS_I32(value));
+    } else if (IS_UI32(value) && AS_UI32(value) <= UINT8_MAX) {
+        emitBytes(OP_IMMEDIATEui32, AS_UI32(value));
+    } else if (IS_I64(value) && AS_I64(value) >= INT8_MIN && AS_I64(value) <= INT8_MAX) {
+        emitBytes(OP_IMMEDIATEi64, AS_I64(value));
+    } else if (IS_UI64(value) && AS_UI64(value) <= UINT8_MAX) {
+        emitBytes(OP_IMMEDIATEui64, AS_UI64(value));
     } else {
         emitBytes(OP_CONSTANT, makeConstant(value));
     }
