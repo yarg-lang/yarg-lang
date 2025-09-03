@@ -68,11 +68,15 @@ bool valuesEqual(Value a, Value b) {
 }
 
 bool is_positive_integer(Value a) {
-    if (IS_UI32(a)) {
+    if (IS_UI32(a) || IS_UI8(a)) {
         return true;
-    }
-    int32_t aa = AS_INTEGER(a);
-    if (IS_INTEGER(a) && aa >= 0) {
+    } else if (IS_UI64(a) && AS_UI64(a) <= UINT32_MAX) {
+        return true;
+    } else if (IS_INTEGER(a) && AS_INTEGER(a) >= 0) {
+        return true;
+    } else if (IS_I8(a) && AS_I8(a) >= 0) {
+        return true;
+    } else if (IS_I64(a) && AS_I64(a) >= 0) {
         return true;
     }
     return false;
@@ -81,6 +85,16 @@ bool is_positive_integer(Value a) {
 uint32_t as_positive_integer(Value a) {
     if (IS_INTEGER(a)) {
         return AS_INTEGER(a);
+    } else if (IS_I8(a)) {
+        return AS_I8(a);
+    } else if (IS_I64(a) && AS_I64(a) <= UINT32_MAX) {
+        return AS_I64(a);
+    } else if (IS_UI32(a)) {
+        return AS_UI32(a);
+    } else if (IS_UI8(a)) {
+        return AS_UI8(a);
+    } else if (IS_UI64(a) && AS_UI64(a) <= UINT32_MAX) {
+        return AS_UI64(a);
     }
-    return AS_UI32(a);;
+    return 0;
 }
