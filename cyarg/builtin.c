@@ -313,7 +313,6 @@ bool newBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
     ConcreteYargType typeRequested = IS_NIL(typeToCreate) ? TypeAny : AS_YARGTYPE(typeToCreate)->yt;
     switch (typeRequested) {
         case TypeBool:
-        case TypeInteger:
         case TypeDouble:
         case TypeStruct:
         case TypeAny: {
@@ -326,6 +325,7 @@ bool newBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
         }
         case TypeInt8:  // fall through
         case TypeUint8:
+        case TypeInt32:
         case TypeUint32:
         case TypeInt64:
         case TypeUint64: {

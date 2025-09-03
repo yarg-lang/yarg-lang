@@ -422,7 +422,7 @@ static void printType(FILE* op, ObjConcreteYargType* type) {
         case TypeDouble: fprintf(op, "Type:mfloat64"); break;
         case TypeInt8: fprintf(op, "Type:int8"); break;
         case TypeUint8: fprintf(op, "Type:uint8"); break;
-        case TypeInteger: fprintf(op, "Type:int32"); break;
+        case TypeInt32: fprintf(op, "Type:int32"); break;
         case TypeUint32: fprintf(op, "Type:uint32"); break;
         case TypeInt64: fprintf(op, "Type:int64"); break;
         case TypeUint64: fprintf(op, "Type:uint64"); break;
