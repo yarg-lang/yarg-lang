@@ -125,7 +125,6 @@ ObjExprGrouping* newExprGrouping(ObjExpr* expression) {
 
 ObjExprNumber* newExprNumberDouble(double value) {
     ObjExprNumber* num = ALLOCATE_OBJ(ObjExprNumber, OBJ_EXPR_NUMBER);
-    num->expr.nextExpr = NULL;
     num->type = NUMBER_DOUBLE;
     num->val.dbl = value;
     return num;
@@ -133,7 +132,6 @@ ObjExprNumber* newExprNumberDouble(double value) {
 
 ObjExprNumber* newExprNumberInteger(int value) {
     ObjExprNumber* num = ALLOCATE_OBJ(ObjExprNumber, OBJ_EXPR_NUMBER);
-    num->expr.nextExpr = NULL;
     num->type = NUMBER_INTEGER;
     num->val.integer = value;
     return num;
@@ -141,7 +139,6 @@ ObjExprNumber* newExprNumberInteger(int value) {
 
 ObjExprNumber* newExprNumberUInteger32(uint32_t value) {
     ObjExprNumber* num = ALLOCATE_OBJ(ObjExprNumber, OBJ_EXPR_NUMBER);
-    num->expr.nextExpr = NULL;
     num->type = NUMBER_UINTEGER32;
     num->val.uinteger32 = value;
     return num;
