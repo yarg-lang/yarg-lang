@@ -57,7 +57,7 @@ void fatalVMError(const char* format, ...) {
     vfprintf(stderr, format, args);
     va_end(args);
 
-    fprintf(stderr, "fatal VM error\n");
+    FPRINTMSG(stderr, "fatal VM error\n");
     exit(5);
 }
 

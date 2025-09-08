@@ -92,13 +92,13 @@ static void errorAt(const char* location, const char* message) {
     current->panicMode = true;
 
     int line = current->recent ? current->recent->line : 1;
-    fprintf(stderr, "[line %d] Error", line);
+    FPRINTMSG(stderr, "[line %d] Error", line);
 
     if (location) {
-        fprintf(stderr, " at '%s'", location);
+        FPRINTMSG(stderr, " at '%s'", location);
     }
 
-    fprintf(stderr, ": %s\n", message);
+    FPRINTMSG(stderr, ": %s\n", message);
     current->hadError = true;
 }
 
@@ -108,13 +108,13 @@ static void errorAtValue(Value location, const char* message) {
     current->panicMode = true;
 
     int line = current->recent ? current->recent->line : 1;
-    fprintf(stderr, "[line %d] Error", line);
+    FPRINTMSG(stderr, "[line %d] Error", line);
 
-    fprintf(stderr, " at '");
+    FPRINTMSG(stderr, " at '");
     printSourceValue(stderr, location);
-    fprintf(stderr, "'");
+    FPRINTMSG(stderr, "'");
 
-    fprintf(stderr, ": %s\n", message);
+    FPRINTMSG(stderr, ": %s\n", message);
     current->hadError = true;
 }
 

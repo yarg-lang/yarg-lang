@@ -400,16 +400,16 @@ static void printChannel(FILE* op, ObjChannel* channel) {
 
 static void printArray(FILE* op, ObjPackedUniformArray* array) {
     printType(op, (ObjConcreteYargType*) array->type);
-    fprintf(op, ":[");
+    FPRINTMSG(op, ":[");
     for (int i = 0; i < array->type->cardinality; i++) {
         StoredValue* element = arrayElement(array->type, array->arrayElements, i);
         Value unpackedValue = unpackStoredValue(arrayElementType(array->type), element);
         fprintValue(op, unpackedValue);
         if (i < array->type->cardinality - 1) {
-            fprintf(op, ", ");
+            FPRINTMSG(op, ", ");
         }
     }
-    fprintf(op, "]");
+    FPRINTMSG(op, "]");
 }
 
 static void printType(FILE* op, ObjConcreteYargType* type) {
@@ -465,20 +465,20 @@ static void printType(FILE* op, ObjConcreteYargType* type) {
 }
 
 static void printPointer(FILE* op, ObjPackedPointer* ptr) {
-    fprintf(op, "<*");
+    FPRINTMSG(op, "<*");
     fprintValue(op, ptr->destination_type);
-    fprintf(op, ":%p>", (void*) ptr->destination);
+    FPRINTMSG(op, ":%p>", (void*) ptr->destination);
 }
 
 static void printStruct(FILE* op, ObjPackedStruct* st) {
-    fprintf(op, "struct{|%zu:%zu|", st->type->field_count, st->type->storage_size);
+    FPRINTMSG(op, "struct{|%zu:%zu|", st->type->field_count, st->type->storage_size);
     for (size_t i = 0; i < st->type->field_count; i++) {
         StoredValue* field = structField(st->type, st->structFields, i);
         Value logValue = unpackStoredValue(st->type->field_types[i], field);
         fprintValue(op, logValue);
-        fprintf(op, "; ");
+        FPRINTMSG(op, "; ");
     }
-    fprintf(op, "}");
+    FPRINTMSG(op, "}");
 }
 
 void fprintObject(FILE* op, Value value) {
@@ -487,7 +487,7 @@ void fprintObject(FILE* op, Value value) {
             printFunction(op, AS_BOUND_METHOD(value)->method->function);
             break;
         case OBJ_CLASS:
-            fprintf(op, "%s", AS_CLASS(value)->name->chars);
+            FPRINTMSG(op, "%s", AS_CLASS(value)->name->chars);
             break;
         case OBJ_CLOSURE:
             printFunction(op, AS_CLOSURE(value)->function);

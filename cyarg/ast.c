@@ -687,7 +687,7 @@ void printStmts(ObjStmt* stmts) {
 
 void printSourceValue(FILE* op, Value value) {
     if (IS_STRING(value)) {
-        fprintf(op, "\"%s\"", AS_CSTRING(value));
+        FPRINTMSG(op, "\"%s\"", AS_CSTRING(value));
         return;
     } else {
         fprintValue(op, value);

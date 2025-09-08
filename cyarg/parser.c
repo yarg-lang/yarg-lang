@@ -80,17 +80,17 @@ static ObjExpr* typeExpression();
 void errorAt(Token* token, const char* message) {
     if (parser.panicMode) return;
     parser.panicMode = true;
-    fprintf(stderr, "[line %d] Error", token->line);
+    FPRINTMSG(stderr, "[line %d] Error", token->line);
 
     if (token->type == TOKEN_EOF) {
-        fprintf(stderr, " at end");
+        FPRINTMSG(stderr, " at end");
     } else if (token->type == TOKEN_ERROR) {
         // Nothing.
     } else {
-        fprintf(stderr, " at '%.*s'", token->length, token->start);
+        FPRINTMSG(stderr, " at '%.*s'", token->length, token->start);
     }
 
-    fprintf(stderr, ": %s\n", message);
+    FPRINTMSG(stderr, ": %s\n", message);
     parser.hadError = true;
 }
 

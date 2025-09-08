@@ -83,7 +83,7 @@ int main(int argc, const char* argv[]) {
         disassembleFile(argv[2]);
     }
     else {
-        fprintf(stderr, "Usage: cyarg [path]\n");
+        FPRINTMSG(stderr, "Usage: cyarg [path]\n");
         exit(64);
     }
 

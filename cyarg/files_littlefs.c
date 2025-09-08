@@ -1,6 +1,7 @@
 #include "../hostyarg/littlefs/lfs.h"
 #include "pico_lfs_hal.h"
 #include "pico_flash_fs.h"
+#include "print.h"
 
 static struct lfs_config cfg = {
     .read = pico_read_flash_block,
@@ -35,13 +36,13 @@ static void lsDir(const char* path) {
     // mount the filesystem
     int err = lfs_mount(&lfs, &cfg);
     if (err < 0) {
-        fprintf(stderr, "Could not mount filesystem (%d).\n", err);
+        FPRINTMSG(stderr, "Could not mount filesystem (%d).\n", err);
         exit(74);
     }
 
     err = lfs_dir_open(&lfs, &dir, path);
     if (err < 0) {
-        fprintf(stderr, "Could not open dir \"%s\" (%d).\n", path, err);
+        FPRINTMSG(stderr, "Could not open dir \"%s\" (%d).\n", path, err);
         exit(74);
     }
     struct lfs_info info;
@@ -58,7 +59,7 @@ static void lsDir(const char* path) {
         memset(&info, 0, sizeof(info));
     }
     if (err < 0) {
-        fprintf(stderr, "Could not read dir \"%s\" (%d).\n", path, err);
+        FPRINTMSG(stderr, "Could not read dir \"%s\" (%d).\n", path, err);
         exit(74);
     }
 
@@ -77,7 +78,7 @@ char* readFile(const char* path) {
     // mount the filesystem
     int err = lfs_mount(&lfs, &cfg);
     if (err < 0) {
-        fprintf(stderr, "Could not mount filesystem (%d).\n", err);
+        FPRINTMSG(stderr, "Could not mount filesystem (%d).\n", err);
         return NULL;
     }
     struct lfs_info info;
@@ -91,19 +92,19 @@ char* readFile(const char* path) {
 
     char* buffer = (char*)malloc(fileSize + 1);
     if (buffer == NULL) {
-        fprintf(stderr, "Not enough memory to read \"%s\".\n", path);
+        FPRINTMSG(stderr, "Not enough memory to read \"%s\".\n", path);
         return NULL;
     }
 
     err = lfs_file_open(&lfs, &file, path, LFS_O_RDONLY);
     if (err < 0) {
-        fprintf(stderr, "Could not open file \"%s\".\n", path);
+        FPRINTMSG(stderr, "Could not open file \"%s\".\n", path);
         return NULL;
     }
 
     int bytesRead = lfs_file_read(&lfs, &file, buffer, fileSize);
     if (bytesRead < fileSize) {
-        fprintf(stderr, "could not read file \"%s\".\n", path);
+        FPRINTMSG(stderr, "could not read file \"%s\".\n", path);
         return NULL;
     }
     buffer[bytesRead] = '\0';
