@@ -234,7 +234,7 @@ ObjPackedPointer* newPointerAtHeapCell(Value type, StoredValue* location);
 
 Obj* destinationObject(Value pointer);
 
-ObjPackedUniformArray* newPackedUniformArrayAt(ObjConcreteYargTypeArray* type, void* location);
+ObjPackedUniformArray* newPackedUniformArrayAt(ObjConcreteYargTypeArray* type, StoredValue* location);
 
 Value defaultArrayValue(ObjConcreteYargType* type);
 Value defaultStructValue(ObjConcreteYargType* type);
