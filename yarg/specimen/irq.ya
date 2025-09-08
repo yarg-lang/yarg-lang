@@ -12,7 +12,7 @@ place struct {
     muint32@0xe280 nvic_icpr;
     muint32[8]@0xe400 nvic_ipr;
 
-    } 0xe0000000 m0plus;
+    } @xe0000000 m0plus;
 
 // We have two native functions (for now) which allow us to interop with
 // Pico C SDK users like TinyUSB.

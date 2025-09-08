@@ -40,6 +40,7 @@ void fprintValue(FILE* op, Value value) {
         case VAL_DOUBLE: FPRINTMSG(op, "%#g", AS_DOUBLE(value)); break;
         case VAL_UINTEGER: FPRINTMSG(op, "%u", AS_UINTEGER(value)); break;
         case VAL_INTEGER: FPRINTMSG(op, "%d", AS_INTEGER(value)); break;
+        case VAL_ADDRESS: FPRINTMSG(op, "%p", (void*) AS_ADDRESS(value)); break;
         case VAL_OBJ: fprintObject(op, value); break;
     }
 }
@@ -52,6 +53,7 @@ bool valuesEqual(Value a, Value b) {
         case VAL_DOUBLE:   return AS_DOUBLE(a) == AS_DOUBLE(b);
         case VAL_UINTEGER: return AS_UINTEGER(a) == AS_UINTEGER(b);
         case VAL_INTEGER:  return AS_INTEGER(a) == AS_INTEGER(b);
+        case VAL_ADDRESS:  return AS_ADDRESS(a) == AS_ADDRESS(b);
         case VAL_OBJ:      return AS_OBJ(a) == AS_OBJ(b);
         default:           return false; // Unreachable.
     }

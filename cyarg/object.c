@@ -189,6 +189,16 @@ ObjPackedPointer* newPointerAtHeapCell(Value type, StoredValue* location) {
     }
 }
 
+bool isAddressValue(Value val) {
+    if (IS_ADDRESS(val)) {
+        return true;
+    } else if (IS_POINTER(val)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 bool isArrayPointer(Value value) {
     ObjPackedPointer* pointer = AS_POINTER(value);
     if (IS_POINTER(value)) {
@@ -227,9 +237,9 @@ Obj* destinationObject(Value pointer) {
 }
 
 Value placeObjectAt(Value placedType, Value location) {
-    if (is_placeable_type(placedType)) {
+    if (is_placeable_type(placedType) && IS_ADDRESS(location)) {
         ObjConcreteYargType* concrete_type = AS_YARGTYPE(placedType);
-        void* locationPtr = (void*)(uintptr_t)AS_UINTEGER(location);
+        StoredValue* locationPtr = (StoredValue*) AS_ADDRESS(location);
         switch (concrete_type->yt) {
             case TypeArray: {
                 ObjPackedUniformArray* target_array = newPackedUniformArrayAt((ObjConcreteYargTypeArray*)concrete_type, locationPtr);

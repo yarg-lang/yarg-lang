@@ -248,6 +248,8 @@ static inline bool isObjType(Value value, ObjType type) {
     return IS_OBJ(value) && AS_OBJ(value)->type == type;
 }
 
+bool isAddressValue(Value value);
+
 bool isArrayPointer(Value value);
 bool isStructPointer(Value value);
 

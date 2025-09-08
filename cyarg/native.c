@@ -14,15 +14,17 @@
 #endif
 
 bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, ValueCell* args, Value* result) {
+
+    if (!IS_ADDRESS(args[1].value)) {
+        runtimeError(routine, "Expected an address.");
+        return false;
+    }
+
     *result = NIL_VAL;
     Value numVal = args[0].value;
     unsigned int num = as_positive_integer(numVal);
 
-#ifdef CYARG_PICO_TARGET
-    uintptr_t isrRoutine = AS_UINTEGER(args[1].value);
-#else
-    uintptr_t isrRoutine = (uintptr_t) vm.pinnedRoutineHandlers[AS_UINTEGER(args[1].value)];
-#endif
+    uintptr_t isrRoutine = AS_ADDRESS(args[1].value);
 
     Value prioVal = args[2].value;
     unsigned int prio = as_positive_integer(prioVal);
@@ -40,15 +42,17 @@ bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, ValueCell* 
 }
 
 bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, ValueCell* args, Value* result) {
+
+    if (!IS_ADDRESS(args[1].value)) {
+        runtimeError(routine, "Expected an address.");
+        return false;
+    }
+
     *result = NIL_VAL;
     Value numVal = args[0].value;
     unsigned int num = as_positive_integer(numVal);
 
-#ifdef CYARG_PICO_TARGET
-    uintptr_t isrRoutine = AS_UINTEGER(args[1].value);
-#else
-    uintptr_t isrRoutine = (uintptr_t) vm.pinnedRoutineHandlers[AS_UINTEGER(args[1].value)];
-#endif
+    uintptr_t isrRoutine = AS_ADDRESS(args[1].value);
 
 #ifdef CYARG_PICO_TARGET
     irq_remove_handler(num, (irq_handler_t) isrRoutine);

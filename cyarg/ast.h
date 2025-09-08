@@ -101,7 +101,8 @@ typedef struct {
 typedef enum {
     NUMBER_DOUBLE,
     NUMBER_INTEGER,
-    NUMBER_UINTEGER32
+    NUMBER_UINTEGER32,
+    NUMBER_ADDRESS
 } NumberType;
 
 typedef struct {
@@ -111,6 +112,7 @@ typedef struct {
         double dbl;
         int integer;
         uint32_t uinteger32;
+        uintptr_t address;
     } val;
 } ObjExprNumber;
 
@@ -261,6 +263,7 @@ ObjAst* newObjAst();
 ObjExprNumber* newExprNumberDouble(double value);
 ObjExprNumber* newExprNumberInteger(int value);
 ObjExprNumber* newExprNumberUInteger32(uint32_t value);
+ObjExprNumber* newExprNumberAddress(uintptr_t value);
 ObjExprLiteral* newExprLiteral(ExprLiteral literal);
 ObjExprString* newExprString(const char* str, int strLength);
 ObjExprOperation* newExprOperation(ObjExpr* rhs, ExprOp op);

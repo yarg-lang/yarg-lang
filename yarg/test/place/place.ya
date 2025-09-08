@@ -1,15 +1,15 @@
-place muint32 0xd0000000 hardware_register;
-peek(hardware_register);  // expect: peek(d0000000)
+place muint32 @xd0000000 hardware_register;
+peek(hardware_register);  // expect: peek(0xd0000000)
 
-place muint32[4] 0xe0000000 hardware_registers;
-peek(hardware_registers[0]);  // expect: peek(e0000000)
-peek(hardware_registers[1]);  // expect: peek(e0000004)
-peek(hardware_registers[2]);  // expect: peek(e0000008)
-peek(hardware_registers[3]);  // expect: peek(e000000c)
+place muint32[4] @xe0000000 hardware_registers;
+peek(hardware_registers[0]);  // expect: peek(0xe0000000)
+peek(hardware_registers[1]);  // expect: peek(0xe0000004)
+peek(hardware_registers[2]);  // expect: peek(0xe0000008)
+peek(hardware_registers[3]);  // expect: peek(0xe000000c)
 
 place struct { 
     muint32 ctrl;
     muint32 flags;
-    } 0xc0000000 more_registers;
-peek(more_registers.ctrl);     // expect: peek(c0000000)
-peek(more_registers.flags);    // expect: peek(c0000004)
+    } @xc0000000 more_registers;
+peek(more_registers.ctrl);     // expect: peek(0xc0000000)
+peek(more_registers.flags);    // expect: peek(0xc0000004)

@@ -144,6 +144,14 @@ ObjExprNumber* newExprNumberUInteger32(uint32_t value) {
     return num;
 }
 
+ObjExprNumber* newExprNumberAddress(uintptr_t value) {
+    ObjExprNumber* num = ALLOCATE_OBJ(ObjExprNumber, OBJ_EXPR_NUMBER);
+    num->type = NUMBER_ADDRESS;
+    num->val.address = value;
+    return num;
+}
+
+
 ObjExprNamedVariable* newExprNamedVariable(const char* name, int nameLength) {
     ObjExprNamedVariable* var = ALLOCATE_OBJ(ObjExprNamedVariable, OBJ_EXPR_NAMEDVARIABLE);
     tempRootPush(OBJ_VAL(var));
@@ -404,6 +412,9 @@ void printExpr(ObjExpr* expr) {
                         break;
                     case NUMBER_UINTEGER32:
                         printf("u%u", num->val.uinteger32);
+                        break;
+                    case NUMBER_ADDRESS:
+                        printf("@x%lx", num->val.address);
                         break;
                 }
                 break;

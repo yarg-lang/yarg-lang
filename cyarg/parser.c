@@ -173,10 +173,10 @@ static bool checkTypeToken() {
 }
 
 
-static uint32_t strtoNum(const char* literal, int length, int radix) {
-    uint32_t val = 0;
+static uint64_t strtoNum(const char* literal, int length, int radix) {
+    uint64_t val = 0;
     for (int i = length - 1 ; i >= 0; i--) {
-        uint32_t positionVal = 0;
+        uint64_t positionVal = 0;
         switch (literal[i]) {
             case '0': positionVal = 0; break;
             case '1': positionVal = 1; break;
@@ -201,7 +201,7 @@ static uint32_t strtoNum(const char* literal, int length, int radix) {
             case 'e': positionVal = 14; break;
             case 'f': positionVal = 15; break;
         }
-        uint32_t power = length - 1 - i;
+        uint64_t power = length - 1 - i;
         val += positionVal * pow(radix, power);
     }
     return val;
@@ -584,6 +584,12 @@ static ObjExpr* number(bool canAssign) {
     return (ObjExpr*) val;
 }
 
+static ObjExpr* address(bool canAssign) {
+    uintptr_t value = strtoNum(parser.previous.start, parser.previous.length, 16);
+    ObjExprNumber* addr = newExprNumberAddress(value);
+    return (ObjExpr*) addr;
+}
+
 static AstParseRule rules[] = {
     [TOKEN_LEFT_PAREN]           = {grouping,  call,   PREC_CALL},
     [TOKEN_RIGHT_PAREN]          = {NULL,      NULL,   PREC_NONE},
@@ -612,6 +618,7 @@ static AstParseRule rules[] = {
     [TOKEN_LESS]                 = {NULL,      binary, PREC_COMPARISON},
     [TOKEN_LESS_EQUAL]           = {NULL,      binary, PREC_COMPARISON},
     [TOKEN_LEFT_SHIFT]           = {NULL,      binary, PREC_FACTOR},
+    [TOKEN_ADDRESS]              = {address,   NULL,   PREC_NONE},
     [TOKEN_IDENTIFIER]           = {variable,  NULL,   PREC_NONE},
     [TOKEN_STRING]               = {string,    NULL,   PREC_NONE},
     [TOKEN_NUMBER]               = {number,    NULL,   PREC_NONE},

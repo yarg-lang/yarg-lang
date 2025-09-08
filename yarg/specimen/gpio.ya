@@ -18,7 +18,7 @@ const REG_ALIAS_XOR_BITS = 0x1 << 0d12;
 const REG_ALIAS_SET_BITS = 0x2 << 0d12;
 const REG_ALIAS_CLR_BITS = 0x3 << 0d12;
 
-const io_bank0_base = 0x40014000;
+const io_bank0_base = @x40014000;
 
 place struct {
     struct {
@@ -43,7 +43,7 @@ place struct {
     io_bank0_base + REG_ALIAS_CLR_BITS io_bank0_clr;
     }
 
-const pads_bank0_base = 0x4001c000;
+const pads_bank0_base = @x4001c000;
 
 place struct {
     muint32 voltage_select;

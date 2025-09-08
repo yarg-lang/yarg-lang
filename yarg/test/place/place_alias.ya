@@ -1,37 +1,37 @@
 place muint32 {
-    0xd0000000 hardware_register;
-    0xd0000000 + 0x1 << 0d12 hardware_register_xor;
-    0xd0000000 + 0x2 << 0d12 hardware_register_set;
-    0xd0000000 + 0x3 << 0d12 hardware_register_clr;
+    @xd0000000 hardware_register;
+    @xd0000000 + 0x1 << 0d12 hardware_register_xor;
+    @xd0000000 + 0x2 << 0d12 hardware_register_set;
+    @xd0000000 + 0x3 << 0d12 hardware_register_clr;
     }
 
-peek(hardware_register);  // expect: peek(d0000000)
-peek(hardware_register_xor);  // expect: peek(d0001000)
-peek(hardware_register_set);  // expect: peek(d0002000)
-peek(hardware_register_clr);  // expect: peek(d0003000)
+peek(hardware_register);  // expect: peek(0xd0000000)
+peek(hardware_register_xor);  // expect: peek(0xd0001000)
+peek(hardware_register_set);  // expect: peek(0xd0002000)
+peek(hardware_register_clr);  // expect: peek(0xd0003000)
 
 place muint32[4] {
-    0xe0000000 hardware_registers;
-    0xe0000000 + 0x1 << 0d12 hardware_registers_xor;
-    0xe0000000 + 0x2 << 0d12 hardware_registers_set;
-    0xe0000000 + 0x3 << 0d12 hardware_registers_clr;
+    @xe0000000 hardware_registers;
+    @xe0000000 + 0x1 << 0d12 hardware_registers_xor;
+    @xe0000000 + 0x2 << 0d12 hardware_registers_set;
+    @xe0000000 + 0x3 << 0d12 hardware_registers_clr;
     }
-peek(hardware_registers[0]);  // expect: peek(e0000000)
-peek(hardware_registers[1]);  // expect: peek(e0000004)
-peek(hardware_registers[2]);  // expect: peek(e0000008)
-peek(hardware_registers[3]);  // expect: peek(e000000c)
-peek(hardware_registers_xor[0]);  // expect: peek(e0001000)
-peek(hardware_registers_set[1]);  // expect: peek(e0002004)
-peek(hardware_registers_clr[3]);  // expect: peek(e000300c)
+peek(hardware_registers[0]);  // expect: peek(0xe0000000)
+peek(hardware_registers[1]);  // expect: peek(0xe0000004)
+peek(hardware_registers[2]);  // expect: peek(0xe0000008)
+peek(hardware_registers[3]);  // expect: peek(0xe000000c)
+peek(hardware_registers_xor[0]);  // expect: peek(0xe0001000)
+peek(hardware_registers_set[1]);  // expect: peek(0xe0002004)
+peek(hardware_registers_clr[3]);  // expect: peek(0xe000300c)
 
 place struct { 
     muint32 ctrl;
     muint32 flags;
     } {
-        0xc0000000 more_registers;
-        0xc0000000 + 0x3 << 0d12 more_registers_clr;
+        @xc0000000 more_registers;
+        @xc0000000 + 0x3 << 0d12 more_registers_clr;
     }
-peek(more_registers.ctrl);     // expect: peek(c0000000)
-peek(more_registers.flags);    // expect: peek(c0000004)
-peek(more_registers_clr.ctrl);     // expect: peek(c0003000)
-peek(more_registers_clr.flags);    // expect: peek(c0003004)
+peek(more_registers.ctrl);     // expect: peek(0xc0000000)
+peek(more_registers.flags);    // expect: peek(0xc0000004)
+peek(more_registers_clr.ctrl);     // expect: peek(0xc0003000)
+peek(more_registers_clr.flags);    // expect: peek(0xc0003004)

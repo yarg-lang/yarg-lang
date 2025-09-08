@@ -736,6 +736,14 @@ InterpretResult run(ObjRoutine* routine) {
                     double b = AS_DOUBLE(pop(routine));
                     double a = AS_DOUBLE(pop(routine));
                     push(routine, DOUBLE_VAL(a + b));
+                } else if (IS_ADDRESS(peek(routine, 1)) && IS_INTEGER(peek(routine, 0))) {
+                    int32_t b = AS_INTEGER(pop(routine));
+                    uintptr_t a = AS_ADDRESS(pop(routine));
+                    push(routine, ADDRESS_VAL(a + b));
+                } else if (IS_ADDRESS(peek(routine, 1)) && IS_UINTEGER(peek(routine, 0))) {
+                    uint32_t b = AS_UINTEGER(pop(routine));
+                    uintptr_t a = AS_ADDRESS(pop(routine));
+                    push(routine, ADDRESS_VAL(a + b));
                 } else {
                     runtimeError(routine, "Operands must be two numbers or two strings.");
                     return INTERPRET_RUNTIME_ERROR;
@@ -820,8 +828,8 @@ InterpretResult run(ObjRoutine* routine) {
             case OP_POKE: {
                 Value location = peek(routine, 0);
                 Value assignment = peek(routine, 1);
-                if (!isMuint32Pointer(location) && !IS_UINTEGER(location)) {
-                    runtimeError(routine, "Location must be a pointer or unsigned integer.");
+                if (!isAddressValue(location) && !isMuint32Pointer(location)) {
+                    runtimeError(routine, "Location must be a pointer to an muint32 or address.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 if (!IS_UINTEGER(assignment)) {
@@ -833,7 +841,7 @@ InterpretResult run(ObjRoutine* routine) {
                 if (isMuint32Pointer(location)) {
                     nominal_address = (uintptr_t) AS_POINTER(location)->destination;
                 } else {
-                    nominal_address = AS_UINTEGER(location);
+                    nominal_address = AS_ADDRESS(location);
                 }
                 volatile uint32_t* reg = (volatile uint32_t*) nominal_address;
 
@@ -1050,6 +1058,10 @@ InterpretResult run(ObjRoutine* routine) {
                 Value type = peek(routine, 1);
                 if (!is_placeable_type(type)) {
                     runtimeError(routine, "Cannot place this type.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                if (!IS_ADDRESS(location)) {
+                    runtimeError(routine, "Value must be an address");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 Value result = placeObjectAt(type, location);

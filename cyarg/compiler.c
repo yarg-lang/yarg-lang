@@ -302,6 +302,7 @@ static void generateNumber(ObjExprNumber* num) {
         case NUMBER_DOUBLE: emitConstant(DOUBLE_VAL(num->val.dbl)); break;
         case NUMBER_INTEGER: emitConstant(INTEGER_VAL(num->val.integer)); break;
         case NUMBER_UINTEGER32: emitConstant(UINTEGER_VAL(num->val.uinteger32)); break;
+        case NUMBER_ADDRESS: emitConstant(ADDRESS_VAL(num->val.address)); break;
         default:
             return; //  unreachable
     }

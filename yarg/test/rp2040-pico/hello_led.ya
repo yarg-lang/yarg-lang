@@ -10,13 +10,13 @@ place struct {
     struct {
         muint32@0x004 set;
         }@0x020 gpio_oe;
-    } 0xd0000000 sio_hw;
+    } @xd0000000 sio_hw;
 
 place struct {
     struct {
         muint32@0x004 ctrl;
         }[NUM_BANK0_GPIOS] gpio;
-    } 0x40014000 io_bank0;
+    } @x40014000 io_bank0;
 
 
 const pico_led = 0d25;

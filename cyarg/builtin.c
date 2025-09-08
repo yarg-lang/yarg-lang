@@ -233,23 +233,26 @@ bool startBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Val
     return true;
 }
 
-typedef volatile uint32_t Register;
-
 bool peekBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
 
-    uint32_t nominal_address = 0;
+    if (!isAddressValue(args[0].value)) {
+        runtimeError(routineContext, "Expected an address or pointer.");
+        return false;
+    }
+
+    uintptr_t nominal_address = 0;
     if (IS_POINTER(args[0].value)) {
         nominal_address = (uintptr_t) AS_POINTER(args[0].value)->destination;
     } else {
-        nominal_address = AS_UINTEGER(args[0].value);
+        nominal_address = AS_ADDRESS(args[0].value);
     }
-    Register* reg = (Register*) (uintptr_t)nominal_address;
+    volatile uint32_t* reg = (volatile uint32_t*) nominal_address;
 
 #ifdef CYARG_PICO_TARGET
     uint32_t res = *reg;
     *result = UINTEGER_VAL(res);
 #else
-    printf("peek(%08x)\n", nominal_address);
+    printf("peek(%p)\n", (void*)nominal_address);
     *result = UINTEGER_VAL(0);
 #endif
     return true;
@@ -289,11 +292,7 @@ bool pinBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
     for (size_t i = 0; i < MAX_PINNED_ROUTINES; i++) {
         if (vm.pinnedRoutines[i] == NULL) {
             vm.pinnedRoutines[i] = AS_ROUTINE(args[0].value);
-#ifdef CYARG_PICO_TARGET
-            *result = UINTEGER_VAL((uintptr_t)vm.pinnedRoutineHandlers[i]);
-#else
-            *result = UINTEGER_VAL(i);
-#endif
+            *result = ADDRESS_VAL((uintptr_t)vm.pinnedRoutineHandlers[i]);
             return true;
         }
     }

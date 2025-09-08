@@ -16,6 +16,7 @@ typedef union {
     double dbl;
     uint32_t uinteger;
     int32_t integer;
+    uintptr_t address;
     Obj* obj;
 } AnyValue;
 
@@ -25,6 +26,7 @@ typedef enum {
     VAL_DOUBLE,
     VAL_UINTEGER,
     VAL_INTEGER,
+    VAL_ADDRESS,
     VAL_OBJ,
 } ValueType;
 
@@ -38,12 +40,14 @@ typedef struct {
 #define IS_DOUBLE(value)   ((value).type == VAL_DOUBLE)
 #define IS_UINTEGER(value) ((value).type == VAL_UINTEGER)
 #define IS_INTEGER(value)  ((value).type == VAL_INTEGER)
+#define IS_ADDRESS(value)  ((value).type == VAL_ADDRESS)
 #define IS_OBJ(value)      ((value).type == VAL_OBJ)
 
 #define AS_OBJ(value)      ((value).as.obj)
 #define AS_BOOL(value)     ((value).as.boolean)
 #define AS_UINTEGER(value) ((value).as.uinteger)
 #define AS_INTEGER(value)  ((value).as.integer)
+#define AS_ADDRESS(value)  ((value).as.address)
 #define AS_DOUBLE(value)   ((value).as.dbl)
 
 #define BOOL_VAL(value)     ((Value){VAL_BOOL, {.boolean = value }})
@@ -51,6 +55,7 @@ typedef struct {
 #define DOUBLE_VAL(value)   ((Value){VAL_DOUBLE, {.dbl = value }})
 #define UINTEGER_VAL(value) ((Value){VAL_UINTEGER, {.uinteger = value }})
 #define INTEGER_VAL(value)  ((Value){VAL_INTEGER, {.integer = value }})
+#define ADDRESS_VAL(value)  ((Value){VAL_ADDRESS, { .address = value}})
 #define OBJ_VAL(object)     ((Value){VAL_OBJ, {.obj = (Obj*)object}})
 
 typedef struct {

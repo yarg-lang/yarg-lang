@@ -14,7 +14,7 @@ place struct {
         muint32 clr;
         muint32 xor;
         }@0x020 gpio_oe;
-    } 0xd0000000 sio_hw;
+    } @xd0000000 sio_hw;
 
 fun coreNum() {
     return peek(sio_hw.cpuid);
