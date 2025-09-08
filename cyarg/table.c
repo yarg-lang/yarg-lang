@@ -303,3 +303,17 @@ void markCellTable(ValueCellTable* table) {
         markValueCell(&entry->cell);
     }
 }
+
+void printCellTable(ValueCellTable* table) {
+    for (int i = 0; i < table->capacity; i++) {
+        EntryCell* entry = &table->entries[i];
+        if (entry->key != NULL) {
+            printObject(OBJ_VAL((Obj*)entry->key));
+            FPRINTMSG(stderr, ":::");
+            printValue(entry->cell.value);
+            FPRINTMSG(stderr, ":::");
+            printValue(entry->cell.type);
+            FPRINTMSG(stderr, "\n");
+        }
+    }
+}

@@ -47,5 +47,6 @@ void tableCellAddAll(ValueCellTable* from, ValueCellTable* to);
 ObjString* tableCellFindString(ValueCellTable* table, const char* chars, int length, uint32_t hash);
 void tableCellRemoveWhite(ValueCellTable* table);
 void markCellTable(ValueCellTable* table);
+void printCellTable(ValueCellTable* table);
 
 #endif
