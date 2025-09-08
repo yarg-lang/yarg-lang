@@ -84,13 +84,60 @@ void markValueCell(ValueCell* cell) {
     markValue(cell->type);
 }
 
-void markStoredValue(Value type, StoredValue* stored) {
+static void markStoredValue(Value type, StoredValue* stored);
+
+static void markStoredStructFields(ObjConcreteYargTypeStruct* type, StoredValue* fields) {
+    if (fields) {
+        for (int i = 0; i < type->field_count; i++) {
+            markStoredValue(type->field_types[i], structField(type, fields, i));
+        }
+    }
+}
+
+static void markStoredArrayElements(ObjConcreteYargTypeArray* type, StoredValue* elements) {
+    if (elements) {
+        for (size_t i = 0; i < type->cardinality; i++) {
+            StoredValue* element = arrayElement(type, elements, i);
+            markStoredValue(arrayElementType(type), element);
+        }
+    }
+}
+
+static void markStoredContainerElements(ObjConcreteYargType* type, StoredValue* stored) {
+    switch (type->yt) {
+        case TypeStruct: {
+            ObjConcreteYargTypeStruct* structType = (ObjConcreteYargTypeStruct*) type;
+            markStoredStructFields(structType, stored);
+            break;
+        }
+        case TypeArray: {
+            ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*) type;
+            markStoredArrayElements(arrayType, stored);
+            break;
+        }
+        case TypePointer: {
+            ObjConcreteYargTypePointer* pointerType = (ObjConcreteYargTypePointer*)type;
+            if (stored && pointerType->target_type) {
+                markStoredValue(OBJ_VAL(pointerType->target_type), stored);
+            }
+            break;
+        }
+        default:
+            break; // nothing to do.
+
+    }
+}
+
+static void markStoredValue(Value type, StoredValue* stored) {
     if (stored == NULL) return;
     if (IS_NIL(type)) {
         markValue(stored->asValue);
         return;
     } else if (type_packs_as_obj(AS_YARGTYPE(type))) {
         markObject(stored->as.obj);
+        return;
+    } else if (type_packs_as_container(AS_YARGTYPE(type))) {
+        markStoredContainerElements(AS_YARGTYPE(type), stored);
         return;
     }
 }
@@ -177,24 +224,15 @@ static void blackenObject(Obj* object) {
         case OBJ_PACKEDUNIFORMARRAY: {
             ObjPackedUniformArray* array = (ObjPackedUniformArray*)object;
             markObject((Obj*)array->type);
-            if (array->arrayElements) {
-                for (size_t i = 0; i < array->type->cardinality; i++) {
-                    StoredValue* element = arrayElement(array->type, array->arrayElements, i);
-                    markStoredValue(arrayElementType(array->type), element);
-                }
-            }
+            markStoredArrayElements(array->type, array->arrayElements);
             break;
         }
         case OBJ_UNOWNED_PACKEDSTRUCT:
             // fall through
         case OBJ_PACKEDSTRUCT: {
             ObjPackedStruct* struct_ = (ObjPackedStruct*)object;
-            if (struct_->structFields) {
-                for (int i = 0; i < struct_->type->field_count; i++) {
-                    markStoredValue(struct_->type->field_types[i], structField(struct_->type, struct_->structFields, i));
-                }
-            }
             markObject((Obj*)struct_->type);
+            markStoredStructFields(struct_->type, struct_->structFields);
             break;
         }
         case OBJ_NATIVE: break;

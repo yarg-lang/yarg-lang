@@ -64,6 +64,7 @@ bool isMuint32Pointer(Value val);
 
 Value concrete_typeof(Value a);
 bool type_packs_as_obj(ObjConcreteYargType* type);
+bool type_packs_as_container(ObjConcreteYargType* type);
 bool is_nil_assignable_type(Value type);
 bool is_placeable_type(Value type);
 size_t yt_sizeof_type_storage(Value type);

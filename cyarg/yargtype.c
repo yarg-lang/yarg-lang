@@ -185,6 +185,29 @@ bool type_packs_as_obj(ObjConcreteYargType* type) {
     }
 }
 
+bool type_packs_as_container(ObjConcreteYargType* type) {
+    switch (type->yt) {
+        case TypeAny:
+        case TypeBool:
+        case TypeDouble:
+        case TypeMachineUint32:
+        case TypeInteger:
+        case TypeString:
+        case TypeClass:
+        case TypeInstance:
+        case TypeFunction:
+        case TypeNativeBlob:
+        case TypeRoutine:
+        case TypeChannel:
+        case TypeYargType:
+            return false;
+        case TypePointer:
+        case TypeArray:
+        case TypeStruct:
+            return true;
+    }
+}
+
 bool is_nil_assignable_type(Value type) {
     if (IS_NIL(type)) {
         return true;
