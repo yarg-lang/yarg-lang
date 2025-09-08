@@ -349,6 +349,17 @@ bool newBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
     return false;
 }
 
+bool muint32Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+    if (IS_INTEGER(args[0].value) && AS_INTEGER(args[0].value) >= 0) {
+        *result = UINTEGER_VAL(AS_INTEGER(args[0].value));
+        return true;
+    } else if (IS_UINTEGER(args[0].value)) {
+        *result = args[0].value;
+        return true;
+    }
+    return false;
+}
+
 Value getBuiltin(uint8_t builtin) {
     switch (builtin) {
         case BUILTIN_PEEK: return OBJ_VAL(newNative(peekBuiltin));
@@ -364,6 +375,7 @@ Value getBuiltin(uint8_t builtin) {
         case BUILTIN_LEN: return OBJ_VAL(newNative(lenBuiltin));
         case BUILTIN_PIN: return OBJ_VAL(newNative(pinBuiltin));
         case BUILTIN_NEW: return OBJ_VAL(newNative(newBuiltin));
+        case BUILTIN_MUINT32: return OBJ_VAL(newNative(muint32Builtin));
         default: return NIL_VAL;
     }
 }

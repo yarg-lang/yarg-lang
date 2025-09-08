@@ -344,6 +344,7 @@ void printExprBuiltin(ObjExprBuiltin* fn) {
         case EXPR_BUILTIN_LEN: printf("len"); break;
         case EXPR_BUILTIN_PIN: printf("pin"); break;
         case EXPR_BUILTIN_NEW: printf("new"); break;
+        case EXPR_BUILTIN_MUINT32: printf("muint32"); break;
     }
 }
 

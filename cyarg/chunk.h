@@ -86,7 +86,8 @@ typedef enum {
     BUILTIN_PEEK,
     BUILTIN_LEN,
     BUILTIN_PIN,
-    BUILTIN_NEW
+    BUILTIN_NEW,
+    BUILTIN_MUINT32
 } BuiltinFn;
 
 typedef enum {
