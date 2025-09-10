@@ -13,6 +13,9 @@ pushd cyarg
 cmake --preset pico .
 cmake --build build/pico
 
+cmake --preset pico-debug .
+cmake --build build/pico-debug
+
 cmake --preset host
 cmake --build build/host
 
