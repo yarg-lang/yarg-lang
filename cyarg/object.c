@@ -413,54 +413,55 @@ static void printArray(FILE* op, ObjPackedUniformArray* array) {
 }
 
 static void printType(FILE* op, ObjConcreteYargType* type) {
+    FPRINTMSG(op, "Type:");
+
     if (type->isConst) {
-        fprintf(op, "const ");
+        FPRINTMSG(op, "const ");
     }
     switch (type->yt) {
-        case TypeAny: fprintf(op, "Type:any"); break;
-        case TypeBool: fprintf(op, "Type:bool"); break;
-        case TypeDouble: fprintf(op, "Type:mfloat64"); break;
-        case TypeInt8: fprintf(op, "Type:int8"); break;
-        case TypeUint8: fprintf(op, "Type:uint8"); break;
-        case TypeInt32: fprintf(op, "Type:int32"); break;
-        case TypeUint32: fprintf(op, "Type:uint32"); break;
-        case TypeInt64: fprintf(op, "Type:int64"); break;
-        case TypeUint64: fprintf(op, "Type:uint64"); break;
-        case TypeString: fprintf(op, "Type:string"); break;
-        case TypeClass: fprintf(op, "Type:Class"); break;
-        case TypeInstance: fprintf(op, "Type:Instance"); break;
-        case TypeFunction: fprintf(op, "Type:Function"); break;
-        case TypeNativeBlob: fprintf(op, "Type:NativeBlob"); break;
-        case TypeRoutine: fprintf(op, "Type:Routine"); break;
-        case TypeChannel: fprintf(op, "Type:Channel"); break;
+        case TypeAny: FPRINTMSG(op, "any"); break;
+        case TypeBool: FPRINTMSG(op, "bool"); break;
+        case TypeDouble: FPRINTMSG(op, "mfloat64"); break;
+        case TypeInt8: FPRINTMSG(op, "int8"); break;
+        case TypeUint8: FPRINTMSG(op, "uint8"); break;
+        case TypeInt32: FPRINTMSG(op, "int32"); break;
+        case TypeUint32: FPRINTMSG(op, "uint32"); break;
+        case TypeInt64: FPRINTMSG(op, "int64"); break;
+        case TypeUint64: FPRINTMSG(op, "uint64"); break;
+        case TypeString: FPRINTMSG(op, "string"); break;
+        case TypeClass: FPRINTMSG(op, "Class"); break;
+        case TypeInstance: FPRINTMSG(op, "Instance"); break;
+        case TypeFunction: FPRINTMSG(op, "Function"); break;
+        case TypeNativeBlob: FPRINTMSG(op, "NativeBlob"); break;
+        case TypeRoutine: FPRINTMSG(op, "Routine"); break;
+        case TypeChannel: FPRINTMSG(op, "Channel"); break;
         case TypeArray: {
             ObjConcreteYargTypeArray* array = (ObjConcreteYargTypeArray*) type;
-            fprintf(op, "Type:");
             Value type = arrayElementType(array);
             if (IS_NIL(type)) {
-                fprintf(op, "any");
+                FPRINTMSG(op, "any");
             } else {
                 printType(op, array->element_type);
             }
-            fprintf(op, "[");
+            FPRINTMSG(op, "[");
             if (array->cardinality > 0) {
-                fprintf(op, "%zu", array->cardinality);
+                FPRINTMSG(op, "%zu", array->cardinality);
             }
-            fprintf(op, "]");
+            FPRINTMSG(op, "]");
             break;
         }
         case TypeStruct: {
             ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*) type;
-            fprintf(op, "Type:struct{%zu:", st->field_count);
+            FPRINTMSG(op, "struct{|%zu:%zu| ", st->field_count, st->storage_size);
             for (size_t i = 0; i < st->field_count; i++) {
                 fprintValue(op, st->field_types[i]);
-                fprintf(op, "; ");
+                FPRINTMSG(op, "; ");
             }
-            fprintf(op, "}");
+            FPRINTMSG(op, "}");
             break;
         }
-        case TypeYargType: fprintf(op, "Type:Type"); break;
-        default: fprintf(op, "Type:Unknown"); break;
+        case TypeYargType: FPRINTMSG(op, "Type"); break;
+        default: FPRINTMSG(op, "Unknown"); break;
     }
 }
 
