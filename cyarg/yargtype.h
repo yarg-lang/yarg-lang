@@ -7,6 +7,8 @@ typedef enum {
    TypeAny,
    TypeBool,
    TypeDouble,
+   TypeInt8,
+   TypeUint8,
    TypeMachineUint32,
    TypeMachineUint64,
    TypeInteger,

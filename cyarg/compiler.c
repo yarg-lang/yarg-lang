@@ -498,6 +498,8 @@ static void generateExprBuiltin(ObjExprBuiltin* fn) {
         case EXPR_BUILTIN_LEN: emitBytes(OP_GET_BUILTIN, BUILTIN_LEN); break;
         case EXPR_BUILTIN_PIN: emitBytes(OP_GET_BUILTIN, BUILTIN_PIN); break;
         case EXPR_BUILTIN_NEW: emitBytes(OP_GET_BUILTIN, BUILTIN_NEW); break;
+        case EXPR_BUILTIN_INT8: emitBytes(OP_GET_BUILTIN, BUILTIN_INT8); break;
+        case EXPR_BUILTIN_UINT8: emitBytes(OP_GET_BUILTIN, BUILTIN_UINT8); break;
         case EXPR_BUILTIN_MUINT32: emitBytes(OP_GET_BUILTIN, BUILTIN_MUINT32); break;
         case EXPR_BUILTIN_MUINT64: emitBytes(OP_GET_BUILTIN, BUILTIN_MUINT64); break;
     }    
@@ -552,6 +554,8 @@ static void generateExprSuper(ObjExprSuper* super) {
 static void generateExprType(ObjExprTypeLiteral* type) {
     switch (type->type) {
         case EXPR_TYPE_LITERAL_BOOL: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_BOOL); return;
+        case EXPR_TYPE_LITERAL_INT8: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_INT8); return;
+        case EXPR_TYPE_LITERAL_UINT8: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_UINT8); return;
         case EXPR_TYPE_LITERAL_INTEGER: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_INTEGER); return;
         case EXPR_TYPE_LITERAL_MFLOAT64: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_MACHINE_FLOAT64); return;
         case EXPR_TYPE_LITERAL_MUINT32: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_MACHINE_UINT32); return;

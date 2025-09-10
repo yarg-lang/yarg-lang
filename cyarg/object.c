@@ -255,6 +255,8 @@ Value placeObjectAt(Value placedType, Value location) {
                 tempRootPop();
                 return OBJ_VAL(result);
             }
+            case TypeInt8:
+            case TypeUint8:
             case TypeMachineUint64: // fall through
             case TypeMachineUint32: {
                 ObjPackedPointer* result = newPointerAtHeapCell(placedType, locationPtr);
@@ -417,6 +419,8 @@ static void printType(FILE* op, ObjConcreteYargType* type) {
         case TypeAny: fprintf(op, "Type:any"); break;
         case TypeBool: fprintf(op, "Type:bool"); break;
         case TypeDouble: fprintf(op, "Type:mfloat64"); break;
+        case TypeInt8: fprintf(op, "Type:int8"); break;
+        case TypeUint8: fprintf(op, "Type:uint8"); break;
         case TypeMachineUint32: fprintf(op, "Type:muint32"); break;
         case TypeMachineUint64: fprintf(op, "Type:muint64"); break;
         case TypeInteger: fprintf(op, "Type:integer"); break;

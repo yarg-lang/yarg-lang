@@ -38,6 +38,8 @@ void fprintValue(FILE* op, Value value) {
             break;
         case VAL_NIL: FPRINTMSG(op, "nil"); break;
         case VAL_DOUBLE: FPRINTMSG(op, "%#g", AS_DOUBLE(value)); break;
+        case VAL_I8: FPRINTMSG(op, "%d", AS_I8(value)); break;
+        case VAL_UI8: FPRINTMSG(op, "%u", AS_UI8(value)); break;
         case VAL_UINTEGER: FPRINTMSG(op, "%u", AS_UINTEGER(value)); break;
         case VAL_INTEGER: FPRINTMSG(op, "%d", AS_INTEGER(value)); break;
         case VAL_UI64: FPRINTMSG(op, "%llu", AS_UI64(value)); break;
@@ -53,6 +55,8 @@ bool valuesEqual(Value a, Value b) {
         case VAL_BOOL:     return AS_BOOL(a) == AS_BOOL(b);
         case VAL_NIL:      return true;
         case VAL_DOUBLE:   return AS_DOUBLE(a) == AS_DOUBLE(b);
+        case VAL_I8:       return AS_I8(a) == AS_I8(b);
+        case VAL_UI8:      return AS_UI8(a) == AS_UI8(b);
         case VAL_UINTEGER: return AS_UINTEGER(a) == AS_UINTEGER(b);
         case VAL_INTEGER:  return AS_INTEGER(a) == AS_INTEGER(b);
         case VAL_UI64:     return AS_UI64(a) == AS_UI64(b);

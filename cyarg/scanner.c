@@ -204,12 +204,27 @@ static TokenType identifierType() {
                 switch (scanner.start[1]) {
                     case 'f': return TOKEN_IF;
                     case 'm': return checkKeyword(2, 4, "port", TOKEN_IMPORT);
-                    case 'n': return checkKeyword(2, 5, "teger", TOKEN_INTEGER);
+                    case 'n': {
+                        if (scanner.current - scanner.start > 2) {
+                            switch (scanner.start[2]) {
+                                case 't': {
+                                    if (scanner.current - scanner.start > 3) {
+                                        switch (scanner.start[3]) {
+                                            case 'e': return checkKeyword(4, 3, "ger", TOKEN_INTEGER);
+                                            case '8': return TOKEN_INT8;
+                                            }
+                                        }
+                                    }
+
+                                }
+                                break;
+                            }
+                        }
+                        break;
                 }
             }
-            break;
         case 'l': return checkKeyword(1, 2, "en", TOKEN_LEN);
-    case 'm':
+        case 'm':
             if (scanner.current - scanner.start > 1) {
                 switch (scanner.start[1]) {
                     case 'a': {
@@ -308,6 +323,7 @@ static TokenType identifierType() {
                 }
             }
             break;
+        case 'u': return checkKeyword(1, 4, "int8", TOKEN_UINT8);
         case 'v': return checkKeyword(1, 2, "ar", TOKEN_VAR);
         case 'w': return checkKeyword(1, 4, "hile", TOKEN_WHILE);
         case 'y': return checkKeyword(1, 4, "ield", TOKEN_YIELD);

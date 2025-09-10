@@ -324,7 +324,9 @@ bool newBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
             tempRootPop();
             return true;
         }
-        case TypeMachineUint64: // fall through
+        case TypeInt8:  // fall through
+        case TypeUint8:
+        case TypeMachineUint64:
         case TypeMachineUint32: {
             StoredValue* heap_cell = createHeapCell(typeToCreate);
             initialisePackedStorage(typeToCreate, heap_cell);
@@ -360,7 +362,7 @@ bool muint32Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, V
     } else if (IS_UI64(args[0].value) && AS_UI64(args[0].value) <= UINT32_MAX) {
         *result = UINTEGER_VAL(AS_UI64(args[0].value));
         return true;
-    } else if (IS_I64(args[0].value) && AS_I64(args[0].value) <= INT32_MAX && AS_I64(args[0].value) >= 0) {
+    } else if (IS_I64(args[0].value) && AS_I64(args[0].value) <= UINT32_MAX && AS_I64(args[0].value) >= 0) {
         *result = UINTEGER_VAL(AS_I64(args[0].value));
         return true;
     }
@@ -368,7 +370,13 @@ bool muint32Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, V
 }
 
 bool muint64Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
-    if (IS_INTEGER(args[0].value)) {
+    if (IS_I8(args[0].value)) {
+        *result = UI64_VAL(AS_I8(args[0].value));
+        return true;
+    } else if (IS_UI8(args[0].value)) {
+        *result = UI64_VAL(AS_UI8(args[0].value));
+        return true;
+    } else if (IS_INTEGER(args[0].value)) {
         *result = UI64_VAL(AS_INTEGER(args[0].value));
         return true;
     } else if (IS_UINTEGER(args[0].value)) {
@@ -382,6 +390,54 @@ bool muint64Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, V
         return true;
     }
     return false;
+}
+
+bool uint8Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+    if (IS_I8(args[0].value) && AS_I8(args[0].value) >= 0) {
+        *result = UI8_VAL(AS_I8(args[0].value));
+        return true;
+    } else if (IS_INTEGER(args[0].value) && AS_INTEGER(args[0].value) >= 0 && AS_INTEGER(args[0].value) < UINT8_MAX) {
+        *result = UI8_VAL(AS_INTEGER(args[0].value));
+        return true;
+    } else if (IS_I64(args[0].value) && AS_I64(args[0].value) >= 0 && AS_I64(args[0].value) < UINT8_MAX) {
+        *result = UI8_VAL(AS_I64(args[0].value));
+        return true;
+    } else if (IS_UI8(args[0].value)) {
+        *result = args[0].value;
+        return true;
+    } else if (IS_UINTEGER(args[0].value) && AS_UINTEGER(args[0].value) <= UINT8_MAX) {
+        *result = UI8_VAL(AS_UINTEGER(args[0].value));
+        return true;
+    } else if (IS_UI64(args[0].value) && AS_UI64(args[0].value) <= UINT8_MAX) {
+        *result = UI8_VAL(AS_UI64(args[0].value));
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool int8Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+    if (IS_I8(args[0].value)) {
+        *result = args[0].value;
+        return true;
+    } else if (IS_INTEGER(args[0].value) && AS_INTEGER(args[0].value) >= INT8_MIN && AS_INTEGER(args[0].value) < INT8_MAX) {
+        *result = I8_VAL(AS_INTEGER(args[0].value));
+        return true;
+    } else if (IS_I64(args[0].value) && AS_I64(args[0].value) >= INT8_MIN && AS_I64(args[0].value) < INT8_MAX) {
+        *result = I8_VAL(AS_I64(args[0].value));
+        return true;
+    } else if (IS_UI8(args[0].value) && AS_UI8(args[0].value) <= INT8_MAX) {
+        *result = I8_VAL(AS_UI8(args[0].value));
+        return true;
+    } else if (IS_UINTEGER(args[0].value) && AS_UINTEGER(args[0].value) <= INT8_MAX) {
+        *result = I8_VAL(AS_UINTEGER(args[0].value));
+        return true;
+    } else if (IS_UI64(args[0].value) && AS_UI64(args[0].value) <= INT8_MAX) {
+        *result = I8_VAL(AS_UI64(args[0].value));
+        return true;
+    } else {
+        return false;
+    }
 }
 
 Value getBuiltin(uint8_t builtin) {
@@ -399,6 +455,8 @@ Value getBuiltin(uint8_t builtin) {
         case BUILTIN_LEN: return OBJ_VAL(newNative(lenBuiltin));
         case BUILTIN_PIN: return OBJ_VAL(newNative(pinBuiltin));
         case BUILTIN_NEW: return OBJ_VAL(newNative(newBuiltin));
+        case BUILTIN_INT8: return OBJ_VAL(newNative(int8Builtin));
+        case BUILTIN_UINT8: return OBJ_VAL(newNative(uint8Builtin));
         case BUILTIN_MUINT32: return OBJ_VAL(newNative(muint32Builtin));
         case BUILTIN_MUINT64: return OBJ_VAL(newNative(muint64Builtin));
         default: return NIL_VAL;

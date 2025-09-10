@@ -14,6 +14,8 @@ typedef struct ObjValArray ObjValArray;
 typedef union {
     bool boolean;
     double dbl;
+    uint8_t ui8;
+    int8_t i8;
     uint32_t uinteger;
     int32_t integer;
     uint64_t ui64;
@@ -26,6 +28,8 @@ typedef enum {
     VAL_BOOL,
     VAL_NIL,
     VAL_DOUBLE,
+    VAL_I8,
+    VAL_UI8,
     VAL_UINTEGER,
     VAL_INTEGER,
     VAL_UI64,
@@ -42,6 +46,8 @@ typedef struct {
 #define IS_BOOL(value)     ((value).type == VAL_BOOL)
 #define IS_NIL(value)      ((value).type == VAL_NIL)
 #define IS_DOUBLE(value)   ((value).type == VAL_DOUBLE)
+#define IS_I8(value)       ((value).type == VAL_I8)
+#define IS_UI8(value)      ((value).type == VAL_UI8)
 #define IS_UINTEGER(value) ((value).type == VAL_UINTEGER)
 #define IS_INTEGER(value)  ((value).type == VAL_INTEGER)
 #define IS_UI64(value)     ((value).type == VAL_UI64)
@@ -51,6 +57,8 @@ typedef struct {
 
 #define AS_OBJ(value)      ((value).as.obj)
 #define AS_BOOL(value)     ((value).as.boolean)
+#define AS_I8(value)       ((value).as.i8)
+#define AS_UI8(value)      ((value).as.ui8)
 #define AS_UINTEGER(value) ((value).as.uinteger)
 #define AS_INTEGER(value)  ((value).as.integer)
 #define AS_UI64(value)     ((value).as.ui64)
@@ -61,6 +69,8 @@ typedef struct {
 #define BOOL_VAL(value)     ((Value){VAL_BOOL, {.boolean = value }})
 #define NIL_VAL             ((Value){VAL_NIL, {.integer = 0 }})
 #define DOUBLE_VAL(value)   ((Value){VAL_DOUBLE, {.dbl = value }})
+#define I8_VAL(value)       ((Value){VAL_I8, {.i8 = value}})
+#define UI8_VAL(value)      ((Value){VAL_UI8, {.ui8 = value}})
 #define UINTEGER_VAL(value) ((Value){VAL_UINTEGER, {.uinteger = value }})
 #define INTEGER_VAL(value)  ((Value){VAL_INTEGER, {.integer = value }})
 #define UI64_VAL(a)         ((Value){VAL_UI64, { .ui64 = a}})

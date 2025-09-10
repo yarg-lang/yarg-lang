@@ -1,4 +1,4 @@
-const muint64 test = 0xfffffffff;
-var maths = test % muint64(200);
+const uint8 test = uint8(0xff);
+var maths = test % uint8(6);
 print test;
 print maths;

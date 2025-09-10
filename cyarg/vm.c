@@ -470,6 +470,14 @@ InterpretResult run(ObjRoutine* routine) {
             int32_t b = AS_INTEGER(pop(routine)); \
             int32_t a = AS_INTEGER(pop(routine)); \
             push(routine, INTEGER_VAL(a op b)); \
+        } else if (IS_I8(peek(routine, 0)) && IS_I8(peek(routine, 1))) { \
+            int8_t b = AS_I8(pop(routine)); \
+            int8_t a = AS_I8(pop(routine)); \
+            push(routine, I8_VAL(a op b)); \
+        } else if (IS_UI8(peek(routine, 0)) && IS_UI8(peek(routine, 1))) { \
+            uint8_t b = AS_UI8(pop(routine)); \
+            uint8_t a = AS_UI8(pop(routine)); \
+            push(routine, UI8_VAL(a op b)); \
         } else if (IS_UI64(peek(routine, 0)) && IS_UI64(peek(routine, 1))) { \
             int64_t b = AS_UI64(pop(routine)); \
             int64_t a = AS_UI64(pop(routine)); \
@@ -497,6 +505,14 @@ InterpretResult run(ObjRoutine* routine) {
             int32_t b = AS_INTEGER(pop(routine)); \
             int32_t a = AS_INTEGER(pop(routine)); \
             push(routine, BOOL_VAL(a op b)); \
+        } else if (IS_I8(peek(routine, 0)) && IS_I8(peek(routine, 1))) { \
+            int8_t b = AS_I8(pop(routine)); \
+            int8_t a = AS_I8(pop(routine)); \
+            push(routine, BOOL_VAL(a op b)); \
+        } else if (IS_UI8(peek(routine, 0)) && IS_UI8(peek(routine, 1))) { \
+            uint8_t b = AS_UI8(pop(routine)); \
+            uint8_t a = AS_UI8(pop(routine)); \
+            push(routine, BOOL_VAL(a op b)); \
         } else if (IS_UI64(peek(routine, 0)) && IS_UI64(peek(routine, 1))) { \
             uint64_t b = AS_UI64(pop(routine)); \
             uint64_t a = AS_UI64(pop(routine)); \
@@ -521,6 +537,11 @@ InterpretResult run(ObjRoutine* routine) {
             uint32_t a = AS_UINTEGER(pop(routine)); \
             uint32_t c = a op b; \
             push(routine, UINTEGER_VAL(c)); \
+        } else if (IS_UI8(peek(routine, 0)) && IS_UI8(peek(routine, 1))) { \
+            uint8_t b = AS_UI8(pop(routine)); \
+            uint8_t a = AS_UI8(pop(routine)); \
+            uint8_t c = a op b; \
+            push(routine, UI8_VAL(c)); \
         } else if (IS_UI64(peek(routine, 0)) && IS_UI64(peek(routine, 1))) { \
             uint64_t b = AS_UI64(pop(routine)); \
             uint64_t a = AS_UI64(pop(routine)); \
@@ -756,6 +777,14 @@ InterpretResult run(ObjRoutine* routine) {
                     uint32_t b = AS_UINTEGER(pop(routine));
                     uint32_t a = AS_UINTEGER(pop(routine));
                     push(routine, UINTEGER_VAL(a + b));
+                } else if (IS_I8(peek(routine, 0)) && IS_I8(peek(routine, 1))) {
+                    uint8_t b = AS_I8(pop(routine));
+                    uint8_t a = AS_I8(pop(routine));
+                    push(routine, I8_VAL(a + b));
+                } else if (IS_UI8(peek(routine, 0)) && IS_UI8(peek(routine, 1))) {
+                    uint8_t b = AS_UI8(pop(routine));
+                    uint8_t a = AS_UI8(pop(routine));
+                    push(routine, UI8_VAL(a + b));
                 } else if (IS_I64(peek(routine, 0)) && IS_I64(peek(routine, 1))) {
                     int64_t b = AS_I64(pop(routine));
                     int64_t a = AS_I64(pop(routine));
@@ -793,6 +822,14 @@ InterpretResult run(ObjRoutine* routine) {
                         r += b;
                     }
                     push(routine, INTEGER_VAL(r));
+                } else if (IS_I8(peek(routine, 0)) && IS_I8(peek(routine, 1))) {
+                    int8_t b = AS_I8(pop(routine));
+                    int8_t a = AS_I8(pop(routine));
+                    int8_t r = a % b;
+                    if (r < 0) {
+                        r += b;
+                    }
+                    push(routine, I8_VAL(r));
                 } else if (IS_I64(peek(routine, 0)) && IS_I64(peek(routine, 1))) {
                     int64_t b = AS_I64(pop(routine));
                     int64_t a = AS_I64(pop(routine));
@@ -805,6 +842,10 @@ InterpretResult run(ObjRoutine* routine) {
                     uint32_t b = AS_UINTEGER(pop(routine));
                     uint32_t a = AS_UINTEGER(pop(routine));
                     push(routine, UINTEGER_VAL(a % b));
+                } else if (IS_UI8(peek(routine, 0)) && IS_UI8(peek(routine, 1))) {
+                    uint8_t b = AS_UI8(pop(routine));
+                    uint8_t a = AS_UI8(pop(routine));
+                    push(routine, UI64_VAL(a % b));
                 } else if (IS_UI64(peek(routine, 0)) && IS_UI64(peek(routine, 1))) {
                     uint64_t b = AS_UI64(pop(routine));
                     uint64_t a = AS_UI64(pop(routine));
@@ -826,6 +867,8 @@ InterpretResult run(ObjRoutine* routine) {
                     push(routine, DOUBLE_VAL(-AS_DOUBLE(pop(routine))));
                 } else if (IS_INTEGER(peek(routine, 0))) {
                     push(routine, INTEGER_VAL(-AS_INTEGER(pop(routine))));
+                } else if (IS_I8(peek(routine, 0))) {
+                    push(routine, I8_VAL(-AS_I8(pop(routine))));
                 } else if (IS_I64(peek(routine, 0))) {
                     push(routine, I64_VAL(-AS_I64(pop(routine))));
                 } else {
@@ -991,6 +1034,8 @@ InterpretResult run(ObjRoutine* routine) {
                 ObjConcreteYargType* typeObj = NULL;
                 switch (typeCode) {
                     case TYPE_LITERAL_BOOL: typeObj = newYargTypeFromType(TypeBool); break;
+                    case TYPE_LITERAL_INT8: typeObj = newYargTypeFromType(TypeInt8); break;
+                    case TYPE_LITERAL_UINT8: typeObj = newYargTypeFromType(TypeUint8); break;
                     case TYPE_LITERAL_INTEGER: typeObj = newYargTypeFromType(TypeInteger); break;
                     case TYPE_LITERAL_MACHINE_UINT32: typeObj = newYargTypeFromType(TypeMachineUint32); break;
                     case TYPE_LITERAL_MACHINE_UINT64: typeObj = newYargTypeFromType(TypeMachineUint64); break;
