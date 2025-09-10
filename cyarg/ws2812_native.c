@@ -54,7 +54,7 @@ bool ws2812writepixelNative(ObjRoutine* routineContext, int argCount, ValueCell*
         runtimeError(routineContext, "Expected a WS2812 handle.");
         return false;
     }
-    if (!IS_UINTEGER(args[1].value)) {
+    if (!IS_UI32(args[1].value)) {
         runtimeError(routineContext, "Expected an unsigned integer.");
         return false;
     }
@@ -62,7 +62,7 @@ bool ws2812writepixelNative(ObjRoutine* routineContext, int argCount, ValueCell*
     ObjBlob* blob = AS_BLOB(args[0].value);
     struct ws2812pio* pio = (struct ws2812pio*) blob->blob;
 
-    uint32_t pixel = AS_UINTEGER(args[1].value);
+    uint32_t pixel = AS_UI32(args[1].value);
 
     pio_sm_put_blocking(pio->pio, pio->sm, pixel);
 #endif

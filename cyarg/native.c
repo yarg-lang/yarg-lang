@@ -68,7 +68,7 @@ bool clockNative(ObjRoutine* routine, int argCount, ValueCell* args, Value* resu
         return false;
     }
 
-    *result = UINTEGER_VAL(clock() / CLOCKS_PER_SEC);
+    *result = UI32_VAL(clock() / CLOCKS_PER_SEC);
     return true;
 }
 
@@ -78,12 +78,12 @@ bool sleepNative(ObjRoutine* routine, int argCount, ValueCell* args, Value* resu
         runtimeError(routine, "Expected 1 arguments but got %d.", argCount);
         return false;
     }
-    if (!IS_UINTEGER(args[0].value)) {
+    if (!IS_UI32(args[0].value)) {
         runtimeError(routine, "Argument must be an unsigned integer");
         return false;
     }
 
-    sleep_ms(AS_UINTEGER(args[0].value));
+    sleep_ms(AS_UI32(args[0].value));
 
     *result = NIL_VAL;
     return true;
@@ -136,7 +136,7 @@ bool alarmAddInMSNative(ObjRoutine* routine, int argCount, ValueCell* args, Valu
         return false;
     }
 
-    if (!IS_UINTEGER(args[0].value)) {
+    if (!IS_UI32(args[0].value)) {
         runtimeError(routine, "First argument must be an unsigned integer.");
         return false;
     }
@@ -152,7 +152,7 @@ bool alarmAddInMSNative(ObjRoutine* routine, int argCount, ValueCell* args, Valu
     prepareRoutineStack(isrRoutine);
 
     isrRoutine->state = EXEC_RUNNING;
-    add_alarm_in_ms(AS_UINTEGER(args[0].value), nativeOneShotCallback, isrRoutine, false);
+    add_alarm_in_ms(AS_UI32(args[0].value), nativeOneShotCallback, isrRoutine, false);
 
     *result = NIL_VAL;
     return true;

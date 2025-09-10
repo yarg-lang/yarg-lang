@@ -462,14 +462,14 @@ InterpretResult run(ObjRoutine* routine) {
 #define READ_STRING() AS_STRING(READ_CONSTANT())
 #define BINARY_OP(routine, op) \
     do { \
-        if (IS_UINTEGER(peek(routine, 0)) && IS_UINTEGER(peek(routine, 1))) { \
-            uint32_t b = AS_UINTEGER(pop(routine)); \
-            uint32_t a = AS_UINTEGER(pop(routine)); \
-            push(routine, UINTEGER_VAL(a op b)); \
-        } else if (IS_INTEGER(peek(routine, 0)) && IS_INTEGER(peek(routine, 1))) { \
+        if (IS_INTEGER(peek(routine, 0)) && IS_INTEGER(peek(routine, 1))) { \
             int32_t b = AS_INTEGER(pop(routine)); \
             int32_t a = AS_INTEGER(pop(routine)); \
             push(routine, INTEGER_VAL(a op b)); \
+        } else if (IS_UI32(peek(routine, 0)) && IS_UI32(peek(routine, 1))) { \
+            uint32_t b = AS_UI32(pop(routine)); \
+            uint32_t a = AS_UI32(pop(routine)); \
+            push(routine, UI32_VAL(a op b)); \
         } else if (IS_I8(peek(routine, 0)) && IS_I8(peek(routine, 1))) { \
             int8_t b = AS_I8(pop(routine)); \
             int8_t a = AS_I8(pop(routine)); \
@@ -497,13 +497,13 @@ InterpretResult run(ObjRoutine* routine) {
     } while (false)
 #define BINARY_BOOLEAN_OP(routine, op) \
     do { \
-        if (IS_UINTEGER(peek(routine, 0)) && IS_UINTEGER(peek(routine, 1))) { \
-            uint32_t b = AS_UINTEGER(pop(routine)); \
-            uint32_t a = AS_UINTEGER(pop(routine)); \
-            push(routine, BOOL_VAL(a op b)); \
-        } else if (IS_INTEGER(peek(routine, 0)) && IS_INTEGER(peek(routine, 1))) { \
+        if (IS_INTEGER(peek(routine, 0)) && IS_INTEGER(peek(routine, 1))) { \
             int32_t b = AS_INTEGER(pop(routine)); \
             int32_t a = AS_INTEGER(pop(routine)); \
+            push(routine, BOOL_VAL(a op b)); \
+        } else if (IS_UI32(peek(routine, 0)) && IS_UI32(peek(routine, 1))) { \
+            uint32_t b = AS_UI32(pop(routine)); \
+            uint32_t a = AS_UI32(pop(routine)); \
             push(routine, BOOL_VAL(a op b)); \
         } else if (IS_I8(peek(routine, 0)) && IS_I8(peek(routine, 1))) { \
             int8_t b = AS_I8(pop(routine)); \
@@ -532,11 +532,11 @@ InterpretResult run(ObjRoutine* routine) {
     } while (false)
 #define BINARY_UINT_OP(routine, op) \
     do { \
-        if (IS_UINTEGER(peek(routine, 0)) && IS_UINTEGER(peek(routine, 1))) { \
-            uint32_t b = AS_UINTEGER(pop(routine)); \
-            uint32_t a = AS_UINTEGER(pop(routine)); \
+        if (IS_UI32(peek(routine, 0)) && IS_UI32(peek(routine, 1))) { \
+            uint32_t b = AS_UI32(pop(routine)); \
+            uint32_t a = AS_UI32(pop(routine)); \
             uint32_t c = a op b; \
-            push(routine, UINTEGER_VAL(c)); \
+            push(routine, UI32_VAL(c)); \
         } else if (IS_UI8(peek(routine, 0)) && IS_UI8(peek(routine, 1))) { \
             uint8_t b = AS_UI8(pop(routine)); \
             uint8_t a = AS_UI8(pop(routine)); \
@@ -773,10 +773,10 @@ InterpretResult run(ObjRoutine* routine) {
                     int32_t b = AS_INTEGER(pop(routine));
                     int32_t a = AS_INTEGER(pop(routine));
                     push(routine, INTEGER_VAL(a + b));
-                } else if (IS_UINTEGER(peek(routine, 0)) && IS_UINTEGER(peek(routine, 1))) {
-                    uint32_t b = AS_UINTEGER(pop(routine));
-                    uint32_t a = AS_UINTEGER(pop(routine));
-                    push(routine, UINTEGER_VAL(a + b));
+                } else if (IS_UI32(peek(routine, 0)) && IS_UI32(peek(routine, 1))) {
+                    uint32_t b = AS_UI32(pop(routine));
+                    uint32_t a = AS_UI32(pop(routine));
+                    push(routine, UI32_VAL(a + b));
                 } else if (IS_I8(peek(routine, 0)) && IS_I8(peek(routine, 1))) {
                     uint8_t b = AS_I8(pop(routine));
                     uint8_t a = AS_I8(pop(routine));
@@ -801,8 +801,8 @@ InterpretResult run(ObjRoutine* routine) {
                     int32_t b = AS_INTEGER(pop(routine));
                     uintptr_t a = AS_ADDRESS(pop(routine));
                     push(routine, ADDRESS_VAL(a + b));
-                } else if (IS_ADDRESS(peek(routine, 1)) && IS_UINTEGER(peek(routine, 0))) {
-                    uint32_t b = AS_UINTEGER(pop(routine));
+                } else if (IS_ADDRESS(peek(routine, 1)) && IS_UI32(peek(routine, 0))) {
+                    uint32_t b = AS_UI32(pop(routine));
                     uintptr_t a = AS_ADDRESS(pop(routine));
                     push(routine, ADDRESS_VAL(a + b));
                 } else if (IS_STRING(peek(routine, 0)) && IS_STRING(peek(routine, 1))) {
@@ -838,10 +838,10 @@ InterpretResult run(ObjRoutine* routine) {
                         r += b;
                     }
                     push(routine, I64_VAL(r));
-                } else if (IS_UINTEGER(peek(routine, 0)) && IS_UINTEGER(peek(routine, 1))) {
-                    uint32_t b = AS_UINTEGER(pop(routine));
-                    uint32_t a = AS_UINTEGER(pop(routine));
-                    push(routine, UINTEGER_VAL(a % b));
+                } else if (IS_UI32(peek(routine, 0)) && IS_UI32(peek(routine, 1))) {
+                    uint32_t b = AS_UI32(pop(routine));
+                    uint32_t a = AS_UI32(pop(routine));
+                    push(routine, UI32_VAL(a % b));
                 } else if (IS_UI8(peek(routine, 0)) && IS_UI8(peek(routine, 1))) {
                     uint8_t b = AS_UI8(pop(routine));
                     uint8_t a = AS_UI8(pop(routine));
@@ -885,24 +885,24 @@ InterpretResult run(ObjRoutine* routine) {
             case OP_POKE: {
                 Value location = peek(routine, 0);
                 Value assignment = peek(routine, 1);
-                if (!isAddressValue(location) && !isMuint32Pointer(location)) {
+                if (!isAddressValue(location) && !isUint32Pointer(location)) {
                     runtimeError(routine, "Location must be a pointer to an uint32 or address.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                if (!IS_UINTEGER(assignment)) {
+                if (!IS_UI32(assignment)) {
                     runtimeError(routine, "Value must be an uint32.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
 
                 uintptr_t nominal_address = 0;
-                if (isMuint32Pointer(location)) {
+                if (isUint32Pointer(location)) {
                     nominal_address = (uintptr_t) AS_POINTER(location)->destination;
                 } else {
                     nominal_address = AS_ADDRESS(location);
                 }
                 volatile uint32_t* reg = (volatile uint32_t*) nominal_address;
 
-                uint32_t val = AS_UINTEGER(assignment);
+                uint32_t val = AS_UI32(assignment);
 #ifdef CYARG_PICO_TARGET
                 *reg = val;
 #else
@@ -1037,7 +1037,7 @@ InterpretResult run(ObjRoutine* routine) {
                     case TYPE_LITERAL_INT8: typeObj = newYargTypeFromType(TypeInt8); break;
                     case TYPE_LITERAL_UINT8: typeObj = newYargTypeFromType(TypeUint8); break;
                     case TYPE_LITERAL_INTEGER: typeObj = newYargTypeFromType(TypeInteger); break;
-                    case TYPE_LITERAL_MACHINE_UINT32: typeObj = newYargTypeFromType(TypeMachineUint32); break;
+                    case TYPE_LITERAL_UINT32: typeObj = newYargTypeFromType(TypeUint32); break;
                     case TYPE_LITERAL_INT64: typeObj = newYargTypeFromType(TypeInt64); break;
                     case TYPE_LITERAL_UINT64: typeObj = newYargTypeFromType(TypeUint64); break;
                     case TYPE_LITERAL_MACHINE_FLOAT64: typeObj = newYargTypeFromType(TypeDouble); break;

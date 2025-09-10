@@ -250,10 +250,10 @@ bool peekBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Valu
 
 #ifdef CYARG_PICO_TARGET
     uint32_t res = *reg;
-    *result = UINTEGER_VAL(res);
+    *result = UI32_VAL(res);
 #else
     printf("peek(%p)\n", (void*)nominal_address);
-    *result = UINTEGER_VAL(0);
+    *result = UI32_VAL(0);
 #endif
     return true;
 }
@@ -266,11 +266,11 @@ bool lenBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
 
     if (IS_STRING(args[0].value)) {
         ObjString* string = AS_STRING(args[0].value);
-        *result = UINTEGER_VAL(string->length);
+        *result = UI32_VAL(string->length);
         return true;
     } else if (IS_UNIFORMARRAY(args[0].value)) {
         ObjPackedUniformArray* array = AS_UNIFORMARRAY(args[0].value);
-        *result = UINTEGER_VAL(array->type->cardinality);
+        *result = UI32_VAL(array->type->cardinality);
         return true;
     } else {
         runtimeError(routineContext, "Expected a string or array.");
@@ -326,9 +326,9 @@ bool newBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
         }
         case TypeInt8:  // fall through
         case TypeUint8:
+        case TypeUint32:
         case TypeInt64:
-        case TypeUint64:
-        case TypeMachineUint32: {
+        case TypeUint64: {
             StoredValue* heap_cell = createHeapCell(typeToCreate);
             initialisePackedStorage(typeToCreate, heap_cell);
             *result = OBJ_VAL(newPointerForHeapCell(typeToCreate, heap_cell));
@@ -353,23 +353,6 @@ bool newBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
     return false;
 }
 
-bool muint32Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
-    if (IS_INTEGER(args[0].value) && AS_INTEGER(args[0].value) >= 0) {
-        *result = UINTEGER_VAL(AS_INTEGER(args[0].value));
-        return true;
-    } else if (IS_UINTEGER(args[0].value)) {
-        *result = args[0].value;
-        return true;
-    } else if (IS_UI64(args[0].value) && AS_UI64(args[0].value) <= UINT32_MAX) {
-        *result = UINTEGER_VAL(AS_UI64(args[0].value));
-        return true;
-    } else if (IS_I64(args[0].value) && AS_I64(args[0].value) <= UINT32_MAX && AS_I64(args[0].value) >= 0) {
-        *result = UINTEGER_VAL(AS_I64(args[0].value));
-        return true;
-    }
-    return false;
-}
-
 bool uint64Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
     if (IS_I8(args[0].value)) {
         *result = UI64_VAL(AS_I8(args[0].value));
@@ -380,8 +363,8 @@ bool uint64Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Va
     } else if (IS_INTEGER(args[0].value)) {
         *result = UI64_VAL(AS_INTEGER(args[0].value));
         return true;
-    } else if (IS_UINTEGER(args[0].value)) {
-        *result = UI64_VAL(AS_UINTEGER(args[0].value));
+    } else if (IS_UI32(args[0].value)) {
+        *result = UI64_VAL(AS_UI32(args[0].value));
         return true;
     } else if (IS_UI64(args[0].value)) {
         *result = args[0].value;
@@ -406,8 +389,8 @@ bool int64Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Val
     } else if (IS_UI8(args[0].value)) {
         *result = I64_VAL(AS_UI8(args[0].value));
         return true;
-    } else if (IS_UINTEGER(args[0].value)) {
-        *result = I64_VAL(AS_UINTEGER(args[0].value));
+    } else if (IS_UI32(args[0].value)) {
+        *result = I64_VAL(AS_UI32(args[0].value));
         return true;
     } else if (IS_UI64(args[0].value) && AS_UI64(args[0].value) <= INT64_MAX) {
         *result = I64_VAL(AS_UI64(args[0].value));
@@ -415,6 +398,29 @@ bool int64Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Val
     } else {
         return false;
     }
+}
+
+bool uint32Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+    if (IS_I8(args[0].value) && AS_I8(args[0].value) >= 0) {
+        *result = UI32_VAL(AS_I8(args[0].value));
+        return true;
+    } else if (IS_INTEGER(args[0].value) && AS_INTEGER(args[0].value) >= 0) {
+        *result = UI32_VAL(AS_INTEGER(args[0].value));
+        return true;
+    } else if (IS_I64(args[0].value) && AS_I64(args[0].value) >= 0 && AS_I64(args[0].value) < UINT32_MAX) {
+        *result = UI32_VAL(AS_I64(args[0].value));
+        return true;
+    } else if (IS_UI8(args[0].value)) {
+        *result = UI32_VAL(AS_UI8(args[0].value));
+        return true;
+    } else if (IS_UI32(args[0].value)) {
+        *result = args[0].value;
+        return true;
+    } else if (IS_UI64(args[0].value) && AS_UI64(args[0].value) <= UINT32_MAX) {
+        *result = UI32_VAL(AS_UI64(args[0].value));
+        return true;
+    }
+    return false;
 }
 
 bool uint8Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
@@ -430,8 +436,8 @@ bool uint8Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Val
     } else if (IS_UI8(args[0].value)) {
         *result = args[0].value;
         return true;
-    } else if (IS_UINTEGER(args[0].value) && AS_UINTEGER(args[0].value) <= UINT8_MAX) {
-        *result = UI8_VAL(AS_UINTEGER(args[0].value));
+    } else if (IS_UI32(args[0].value) && AS_UI32(args[0].value) <= UINT8_MAX) {
+        *result = UI8_VAL(AS_UI32(args[0].value));
         return true;
     } else if (IS_UI64(args[0].value) && AS_UI64(args[0].value) <= UINT8_MAX) {
         *result = UI8_VAL(AS_UI64(args[0].value));
@@ -454,8 +460,8 @@ bool int8Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Valu
     } else if (IS_UI8(args[0].value) && AS_UI8(args[0].value) <= INT8_MAX) {
         *result = I8_VAL(AS_UI8(args[0].value));
         return true;
-    } else if (IS_UINTEGER(args[0].value) && AS_UINTEGER(args[0].value) <= INT8_MAX) {
-        *result = I8_VAL(AS_UINTEGER(args[0].value));
+    } else if (IS_UI32(args[0].value) && AS_UI32(args[0].value) <= INT8_MAX) {
+        *result = I8_VAL(AS_UI32(args[0].value));
         return true;
     } else if (IS_UI64(args[0].value) && AS_UI64(args[0].value) <= INT8_MAX) {
         *result = I8_VAL(AS_UI64(args[0].value));
@@ -482,7 +488,7 @@ Value getBuiltin(uint8_t builtin) {
         case BUILTIN_NEW: return OBJ_VAL(newNative(newBuiltin));
         case BUILTIN_INT8: return OBJ_VAL(newNative(int8Builtin));
         case BUILTIN_UINT8: return OBJ_VAL(newNative(uint8Builtin));
-        case BUILTIN_MUINT32: return OBJ_VAL(newNative(muint32Builtin));
+        case BUILTIN_UINT32: return OBJ_VAL(newNative(uint32Builtin));
         case BUILTIN_INT64: return OBJ_VAL(newNative(int64Builtin));
         case BUILTIN_UINT64: return OBJ_VAL(newNative(uint64Builtin));
         default: return NIL_VAL;

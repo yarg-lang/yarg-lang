@@ -40,10 +40,10 @@ void fprintValue(FILE* op, Value value) {
         case VAL_DOUBLE: FPRINTMSG(op, "%#g", AS_DOUBLE(value)); break;
         case VAL_I8: FPRINTMSG(op, "%d", AS_I8(value)); break;
         case VAL_UI8: FPRINTMSG(op, "%u", AS_UI8(value)); break;
-        case VAL_UINTEGER: FPRINTMSG(op, "%u", AS_UINTEGER(value)); break;
         case VAL_INTEGER: FPRINTMSG(op, "%d", AS_INTEGER(value)); break;
-        case VAL_UI64: FPRINTMSG(op, "%llu", AS_UI64(value)); break;
+        case VAL_UI32: FPRINTMSG(op, "%u", AS_UI32(value)); break;
         case VAL_I64: FPRINTMSG(op, "%lld", AS_I64(value)); break;
+        case VAL_UI64: FPRINTMSG(op, "%llu", AS_UI64(value)); break;
         case VAL_ADDRESS: FPRINTMSG(op, "%p", (void*) AS_ADDRESS(value)); break;
         case VAL_OBJ: fprintObject(op, value); break;
     }
@@ -57,10 +57,10 @@ bool valuesEqual(Value a, Value b) {
         case VAL_DOUBLE:   return AS_DOUBLE(a) == AS_DOUBLE(b);
         case VAL_I8:       return AS_I8(a) == AS_I8(b);
         case VAL_UI8:      return AS_UI8(a) == AS_UI8(b);
-        case VAL_UINTEGER: return AS_UINTEGER(a) == AS_UINTEGER(b);
         case VAL_INTEGER:  return AS_INTEGER(a) == AS_INTEGER(b);
-        case VAL_UI64:     return AS_UI64(a) == AS_UI64(b);
+        case VAL_UI32:     return AS_UI32(a) == AS_UI32(b);
         case VAL_I64:      return AS_I64(a) == AS_I64(b);
+        case VAL_UI64:     return AS_UI64(a) == AS_UI64(b);
         case VAL_ADDRESS:  return AS_ADDRESS(a) == AS_ADDRESS(b);
         case VAL_OBJ:      return AS_OBJ(a) == AS_OBJ(b);
         default:           return false; // Unreachable.
@@ -68,7 +68,7 @@ bool valuesEqual(Value a, Value b) {
 }
 
 bool is_positive_integer(Value a) {
-    if (IS_UINTEGER(a)) {
+    if (IS_UI32(a)) {
         return true;
     }
     int32_t aa = AS_INTEGER(a);
@@ -82,5 +82,5 @@ uint32_t as_positive_integer(Value a) {
     if (IS_INTEGER(a)) {
         return AS_INTEGER(a);
     }
-    return AS_UINTEGER(a);;
+    return AS_UI32(a);;
 }

@@ -301,7 +301,7 @@ static void generateNumber(ObjExprNumber* num) {
     switch(num->type) {
         case NUMBER_DOUBLE: emitConstant(DOUBLE_VAL(num->val.dbl)); break;
         case NUMBER_INTEGER: emitConstant(INTEGER_VAL(num->val.integer)); break;
-        case NUMBER_UINTEGER32: emitConstant(UINTEGER_VAL(num->val.uinteger32)); break;
+        case NUMBER_UINTEGER32: emitConstant(UI32_VAL(num->val.uinteger32)); break;
         case NUMBER_UINTEGER64: emitConstant(UI64_VAL(num->val.ui64)); break;
         case NUMBER_ADDRESS: emitConstant(ADDRESS_VAL(num->val.address)); break;
         default:
@@ -500,7 +500,7 @@ static void generateExprBuiltin(ObjExprBuiltin* fn) {
         case EXPR_BUILTIN_NEW: emitBytes(OP_GET_BUILTIN, BUILTIN_NEW); break;
         case EXPR_BUILTIN_INT8: emitBytes(OP_GET_BUILTIN, BUILTIN_INT8); break;
         case EXPR_BUILTIN_UINT8: emitBytes(OP_GET_BUILTIN, BUILTIN_UINT8); break;
-        case EXPR_BUILTIN_MUINT32: emitBytes(OP_GET_BUILTIN, BUILTIN_MUINT32); break;
+        case EXPR_BUILTIN_UINT32: emitBytes(OP_GET_BUILTIN, BUILTIN_UINT32); break;
         case EXPR_BUILTIN_INT64: emitBytes(OP_GET_BUILTIN, BUILTIN_INT64); break;
         case EXPR_BUILTIN_UINT64: emitBytes(OP_GET_BUILTIN, BUILTIN_UINT64); break;
     }    
@@ -559,7 +559,7 @@ static void generateExprType(ObjExprTypeLiteral* type) {
         case EXPR_TYPE_LITERAL_UINT8: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_UINT8); return;
         case EXPR_TYPE_LITERAL_INTEGER: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_INTEGER); return;
         case EXPR_TYPE_LITERAL_MFLOAT64: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_MACHINE_FLOAT64); return;
-        case EXPR_TYPE_LITERAL_MUINT32: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_MACHINE_UINT32); return;
+        case EXPR_TYPE_LITERAL_UINT32: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_UINT32); return;
         case EXPR_TYPE_LITERAL_INT64: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_INT64); return;
         case EXPR_TYPE_LITERAL_UINT64: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_UINT64); return;
         case EXPR_TYPE_LITERAL_STRING: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_STRING); return;

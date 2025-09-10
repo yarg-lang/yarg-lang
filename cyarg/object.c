@@ -255,11 +255,11 @@ Value placeObjectAt(Value placedType, Value location) {
                 tempRootPop();
                 return OBJ_VAL(result);
             }
-            case TypeInt8:
+            case TypeInt8: // fall through
             case TypeUint8:
+            case TypeUint32:
             case TypeInt64:
-            case TypeUint64: // fall through
-            case TypeMachineUint32: {
+            case TypeUint64: {
                 ObjPackedPointer* result = newPointerAtHeapCell(placedType, locationPtr);
                 return OBJ_VAL(result);
             }
@@ -299,7 +299,7 @@ ObjPackedStruct* newPackedStructAt(ObjConcreteYargTypeStruct* type, StoredValue*
 bool structFieldIndex(ObjConcreteYargTypeStruct* structType, ObjString* name, size_t* index) {
     Value indexVal;
     if (tableGet(&structType->field_names, name, &indexVal)) {
-        *index = AS_UINTEGER(indexVal);
+        *index = AS_UI32(indexVal);
         return true;
     }
     return false;
@@ -422,8 +422,8 @@ static void printType(FILE* op, ObjConcreteYargType* type) {
         case TypeDouble: fprintf(op, "Type:mfloat64"); break;
         case TypeInt8: fprintf(op, "Type:int8"); break;
         case TypeUint8: fprintf(op, "Type:uint8"); break;
-        case TypeMachineUint32: fprintf(op, "Type:uint32"); break;
         case TypeInteger: fprintf(op, "Type:integer"); break;
+        case TypeUint32: fprintf(op, "Type:uint32"); break;
         case TypeInt64: fprintf(op, "Type:int64"); break;
         case TypeUint64: fprintf(op, "Type:uint64"); break;
         case TypeString: fprintf(op, "Type:string"); break;
