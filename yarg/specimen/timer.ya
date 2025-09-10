@@ -1,0 +1,164 @@
+import("machine");
+import("irq");
+
+const timer_base = @x40054000;
+
+place struct {
+    uint32 timehw;
+    uint32 timelw;
+    uint32 timehr;
+    uint32 timelr;
+    uint32[4] alarm;
+    uint32 armed;
+    uint32 timerawh;
+    uint32 timerawl;
+    uint32 dbgpause;
+    uint32 pause;
+    uint32 intr;
+    uint32 inte;
+    uint32 intf;
+    uint32 ints;
+    } {
+        timer_base timer;
+        timer_base + REG_ALIAS_XOR_BITS timer_xor;
+        timer_base + REG_ALIAS_SET_BITS timer_set;
+        timer_base + REG_ALIAS_CLR_BITS timer_clr;
+    }
+
+fun get_time_latched() {
+    var current_time = uint64(peek(timer.timelr));
+    current_time = current_time | uint64(peek(timer.timehr)) << uint64(32);
+    return current_time;
+}
+
+fun get_time() {
+    uint32 hi;
+    uint32 lo;
+    uint32 next_hi;
+
+    fun read_time() {
+        hi = peek(timer.timerawh);
+        lo = peek(timer.timerawl);
+        next_hi = peek(timer.timerawh);
+    }
+
+    read_time();
+    while (hi != next_hi) {
+        read_time();
+    }
+    return (uint64(hi) << uint64(32)) | uint64(lo);
+}
+
+fun elapsed_time(start_time) {
+    const time_now = get_time();
+
+    return  time_now - start_time;
+}
+
+var struct {
+    irq_routine;
+    pinned_routine;
+    }[4] alarm_handlers;
+
+fun enable_alarm_handler(al, irq_response) {
+    const ALARM_CALLBACK_ORDER_PRIORITY = 0d0;
+
+    if (alarm_handlers[al].irq_routine != nil) {
+        irq_remove_handler(timer_irq[al], alarm_handlers[al].pinned_routine);
+        alarm_handlers[al].irq_routine = nil;
+        alarm_handlers[al].pinned_routine = nil;
+    }
+    alarm_handlers[al].irq_routine = make_routine(irq_response, true);
+    alarm_handlers[al].pinned_routine = pin(alarm_handlers[al].irq_routine);
+
+    irq_add_shared_handler(timer_irq[al], alarm_handlers[al].pinned_routine, ALARM_CALLBACK_ORDER_PRIORITY);
+    irq_set_enabled(timer_irq[al], true);
+}
+
+
+fun alarm_in_us(al, delay_us, response) {
+    var target = get_time() + uint64(delay_us);
+
+    fun alarm_irq_respsonse() {
+        poke timer_clr.intr, 0x1 << al;
+        response();
+    }
+
+    poke timer_set.inte, 0x1 << al;
+
+    enable_alarm_handler(al, alarm_irq_respsonse);
+
+    target = target & uint64(0xFFFFFFFF);
+    poke timer.alarm[al], uint32(target);
+}
+
+fun repeating_alarm_us(alarm, repeat_us, response) {
+    var next_target_time = get_time();
+
+    fun next_target() {
+        var t = next_target_time + uint64(repeat_us);
+        next_target_time = t;
+
+        t = t & uint64(0xFFFFFFFF);
+        return uint32(t);
+    }
+
+    fun alarm_irq_respsonse() {
+        poke timer_clr.intr, 0x1 << alarm;
+        var next = next_target();
+
+        response();
+
+        poke timer.alarm[alarm], next;
+    }
+
+    poke timer_set.inte, 0x1 << alarm;
+
+    enable_alarm_handler(alarm, alarm_irq_respsonse);
+
+    poke timer.alarm[alarm], next_target();
+}
+
+fun repeating_alarm_ms(alarm, repeat_ms, response) {
+    repeating_alarm_us(alarm, uint64(repeat_ms) * uint64(1000), response);
+}
+
+fun repeating_alarm_s(alarm, repeat_s, response) {
+    repeating_alarm_us(alarm, uint64(repeat_s) * uint64(1000000), response);
+}
+
+fun cancel_repeating_alarm(alarm) {
+    poke timer_clr.intr, 0x1 << alarm;
+    poke timer_clr.inte, 0x1 << alarm;
+
+    if (alarm_handlers[alarm].irq_routine != nil) {
+        irq_remove_handler(timer_irq[alarm], alarm_handlers[alarm].pinned_routine);
+        alarm_handlers[alarm].irq_routine = nil;
+        alarm_handlers[alarm].pinned_routine = nil;
+    }
+}
+
+fun alarm_in_ms(alarm, delay_ms, response) {
+    alarm_in_us(alarm, uint64(delay_ms) * uint64(1000), response);
+}
+
+fun alarm_in_s(alarm, delay_s, response) {
+    alarm_in_us(alarm, uint64(delay_s) * uint64(1000000), response);
+}
+
+fun sleep_us(delay_us) {
+    var done = make_channel();
+    fun response() {
+        share(done, true);
+    }
+    alarm_in_us(0d2, delay_us, response);
+    receive(done);
+}
+
+fun y_sleep_ms(delay_ms) {
+    sleep_us(uint64(delay_ms) * uint64(1000));
+}
+
+fun sleep_s(delay_s) {
+    sleep_us(uint64(delay_s) * uint64(1000000));
+}

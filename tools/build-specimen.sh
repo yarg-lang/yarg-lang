@@ -10,6 +10,8 @@ fi
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add gpio.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add irq.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add machine.ya
+../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add timer.ya
+
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add alarm.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add blinky.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add hello_led.ya

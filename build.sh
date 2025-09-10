@@ -34,6 +34,7 @@ pushd yarg/specimen
 ../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add machine.ya
 ../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add gpio.ya
 ../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add irq.ya
+../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add timer.ya
 popd
 
 pushd vscode-yarg
