@@ -1,2 +1,10 @@
 const muint64 test = 0xfffffffff;
 print test;
+const muint32 testh = muint32((test & 0xffffffff00000000) >> muint64(32));
+const muint32 testl = muint32(test & muint64(0xffffffff));
+print testh;
+print testl;
+muint64 result;
+result = muint64(testh) << muint64(32);
+result = result | muint64(testl);
+print result;

@@ -144,6 +144,13 @@ ObjExprNumber* newExprNumberUInteger32(uint32_t value) {
     return num;
 }
 
+ObjExprNumber* newExprNumberUInteger64(uint64_t value) {
+    ObjExprNumber* num = ALLOCATE_OBJ(ObjExprNumber, OBJ_EXPR_NUMBER);
+    num->type = NUMBER_UINTEGER64;
+    num->val.ui64 = value;
+    return num;
+}
+
 ObjExprNumber* newExprNumberAddress(uintptr_t value) {
     ObjExprNumber* num = ALLOCATE_OBJ(ObjExprNumber, OBJ_EXPR_NUMBER);
     num->type = NUMBER_ADDRESS;
@@ -345,6 +352,7 @@ void printExprBuiltin(ObjExprBuiltin* fn) {
         case EXPR_BUILTIN_PIN: printf("pin"); break;
         case EXPR_BUILTIN_NEW: printf("new"); break;
         case EXPR_BUILTIN_MUINT32: printf("muint32"); break;
+        case EXPR_BUILTIN_MUINT64: printf("muint64"); break;
     }
 }
 
@@ -361,6 +369,7 @@ void printType(ObjExpr* type) {
         switch (typeObject->type) {
             case EXPR_TYPE_LITERAL_MFLOAT64: printf("mfloat64"); break;
             case EXPR_TYPE_LITERAL_MUINT32: printf("muint32"); break;
+            case EXPR_TYPE_LITERAL_MUINT64: printf("muint64"); break;
             case EXPR_TYPE_LITERAL_INTEGER: printf("integer"); break;
             case EXPR_TYPE_LITERAL_BOOL: printf("bool"); break;
             case EXPR_TYPE_LITERAL_STRING: printf("string"); break;
@@ -413,6 +422,9 @@ void printExpr(ObjExpr* expr) {
                         break;
                     case NUMBER_UINTEGER32:
                         printf("u%u", num->val.uinteger32);
+                        break;
+                    case NUMBER_UINTEGER64:
+                        printf("u%llu", num->val.ui64);
                         break;
                     case NUMBER_ADDRESS:
                         printf("@x%lx", num->val.address);

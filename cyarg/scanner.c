@@ -222,7 +222,15 @@ static TokenType identifierType() {
                         }
                         break;
                     }
-                    case 'u': return checkKeyword(2, 5, "int32", TOKEN_MACHINE_UINT32);
+                    case 'u':  {
+                        if ( scanner.current - scanner.start > 5
+                            && memcmp(scanner.start + 2, "int", 3) == 0) {
+                            switch(scanner.start[5]) {
+                                case '3': return checkKeyword(6, 1, "2", TOKEN_MACHINE_UINT32);
+                                case '6': return checkKeyword(6, 1, "4", TOKEN_MACHINE_UINT64);
+                            }
+                        }
+                    }
                     case 'f': return checkKeyword(2, 6, "loat64", TOKEN_MACHINE_FLOAT64);
                 }
             }

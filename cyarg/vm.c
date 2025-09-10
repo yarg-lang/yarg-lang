@@ -460,50 +460,76 @@ InterpretResult run(ObjRoutine* routine) {
     (frame->closure->function->chunk.constants.values[READ_BYTE()])
 
 #define READ_STRING() AS_STRING(READ_CONSTANT())
-#define BINARY_OP(routine, valueType, op) \
+#define BINARY_OP(routine, op) \
     do { \
         if (IS_UINTEGER(peek(routine, 0)) && IS_UINTEGER(peek(routine, 1))) { \
             uint32_t b = AS_UINTEGER(pop(routine)); \
             uint32_t a = AS_UINTEGER(pop(routine)); \
-            push(routine, valueType(a op b)); \
+            push(routine, UINTEGER_VAL(a op b)); \
         } else if (IS_INTEGER(peek(routine, 0)) && IS_INTEGER(peek(routine, 1))) { \
             int32_t b = AS_INTEGER(pop(routine)); \
             int32_t a = AS_INTEGER(pop(routine)); \
-            push(routine, valueType(a op b)); \
+            push(routine, INTEGER_VAL(a op b)); \
+        } else if (IS_UI64(peek(routine, 0)) && IS_UI64(peek(routine, 1))) { \
+            int64_t b = AS_UI64(pop(routine)); \
+            int64_t a = AS_UI64(pop(routine)); \
+            push(routine, UI64_VAL(a op b)); \
+        } else if (IS_I64(peek(routine, 0)) && IS_I64(peek(routine, 1))) { \
+            int64_t b = AS_I64(pop(routine)); \
+            int64_t a = AS_I64(pop(routine)); \
+            push(routine, I64_VAL(a op b)); \
         } else if (IS_DOUBLE(peek(routine, 0)) && IS_DOUBLE(peek(routine, 1))) { \
             double b = AS_DOUBLE(pop(routine)); \
             double a = AS_DOUBLE(pop(routine)); \
-            push(routine, valueType(a op b)); \
+            push(routine, DOUBLE_VAL(a op b)); \
         } else { \
             runtimeError(routine, "Operands must both be numbers, integers or unsigned integers."); \
             return INTERPRET_RUNTIME_ERROR; \
         } \
     } while (false)
-#define BINARY_INTGRAL_OP(routine, valueType, op) \
+#define BINARY_BOOLEAN_OP(routine, op) \
     do { \
         if (IS_UINTEGER(peek(routine, 0)) && IS_UINTEGER(peek(routine, 1))) { \
             uint32_t b = AS_UINTEGER(pop(routine)); \
             uint32_t a = AS_UINTEGER(pop(routine)); \
-            push(routine, valueType(a op b)); \
+            push(routine, BOOL_VAL(a op b)); \
         } else if (IS_INTEGER(peek(routine, 0)) && IS_INTEGER(peek(routine, 1))) { \
             int32_t b = AS_INTEGER(pop(routine)); \
             int32_t a = AS_INTEGER(pop(routine)); \
-            push(routine, valueType(a op b)); \
+            push(routine, BOOL_VAL(a op b)); \
+        } else if (IS_UI64(peek(routine, 0)) && IS_UI64(peek(routine, 1))) { \
+            uint64_t b = AS_UI64(pop(routine)); \
+            uint64_t a = AS_UI64(pop(routine)); \
+            push(routine, BOOL_VAL(a op b)); \
+        } else if (IS_I64(peek(routine, 0)) && IS_I64(peek(routine, 1))) { \
+            int64_t b = AS_I64(pop(routine)); \
+            int64_t a = AS_I64(pop(routine)); \
+            push(routine, BOOL_VAL(a op b)); \
+        } else if (IS_DOUBLE(peek(routine, 0)) && IS_DOUBLE(peek(routine, 1))) { \
+            double b = AS_DOUBLE(pop(routine)); \
+            double a = AS_DOUBLE(pop(routine)); \
+            push(routine, BOOL_VAL(a op b)); \
         } else { \
-            runtimeError(routine, "Operands must both be integers or unsigned integers."); \
+            runtimeError(routine, "Operands must both be numbers, integers or unsigned integers."); \
             return INTERPRET_RUNTIME_ERROR; \
         } \
     } while (false)
-#define BINARY_UINT_OP(routine, valueType, op) \
+#define BINARY_UINT_OP(routine, op) \
     do { \
-        if (!IS_UINTEGER(peek(routine, 0)) || !IS_UINTEGER(peek(routine, 1))) { \
+        if (IS_UINTEGER(peek(routine, 0)) && IS_UINTEGER(peek(routine, 1))) { \
+            uint32_t b = AS_UINTEGER(pop(routine)); \
+            uint32_t a = AS_UINTEGER(pop(routine)); \
+            uint32_t c = a op b; \
+            push(routine, UINTEGER_VAL(c)); \
+        } else if (IS_UI64(peek(routine, 0)) && IS_UI64(peek(routine, 1))) { \
+            uint64_t b = AS_UI64(pop(routine)); \
+            uint64_t a = AS_UI64(pop(routine)); \
+            uint64_t c = a op b; \
+            push(routine, UI64_VAL(c)); \
+        } else { \
             runtimeError(routine, "Operands must be unsigned integers."); \
             return INTERPRET_RUNTIME_ERROR; \
         } \
-        uint32_t b = AS_UINTEGER(pop(routine)); \
-        uint32_t a = AS_UINTEGER(pop(routine)); \
-        uint32_t c = a op b; \
-        push(routine, valueType(c)); \
     } while (false)
 
     for (;;) {
@@ -714,17 +740,15 @@ InterpretResult run(ObjRoutine* routine) {
                 push(routine, BOOL_VAL(valuesEqual(a, b)));
                 break;
             }
-            case OP_GREATER:  BINARY_OP(routine, BOOL_VAL, >); break;
-            case OP_LESS:     BINARY_OP(routine, BOOL_VAL, <); break;
-            case OP_LEFT_SHIFT:  BINARY_UINT_OP(routine, UINTEGER_VAL, <<); break;
-            case OP_RIGHT_SHIFT: BINARY_UINT_OP(routine, UINTEGER_VAL, >>); break;
-            case OP_BITOR:       BINARY_UINT_OP(routine, UINTEGER_VAL, |); break;
-            case OP_BITAND:      BINARY_UINT_OP(routine, UINTEGER_VAL, &); break;
-            case OP_BITXOR:      BINARY_UINT_OP(routine, UINTEGER_VAL, ^); break;
+            case OP_GREATER:  BINARY_BOOLEAN_OP(routine, >); break;
+            case OP_LESS:     BINARY_BOOLEAN_OP(routine, <); break;
+            case OP_LEFT_SHIFT:  BINARY_UINT_OP(routine, <<); break;
+            case OP_RIGHT_SHIFT: BINARY_UINT_OP(routine, >>); break;
+            case OP_BITOR:       BINARY_UINT_OP(routine, |); break;
+            case OP_BITAND:      BINARY_UINT_OP(routine, &); break;
+            case OP_BITXOR:      BINARY_UINT_OP(routine, ^); break;
             case OP_ADD: {
-                if (IS_STRING(peek(routine, 0)) && IS_STRING(peek(routine, 1))) {
-                    concatenate(routine);
-                } else if (IS_INTEGER(peek(routine, 0)) && IS_INTEGER(peek(routine, 1))) {
+                if (IS_INTEGER(peek(routine, 0)) && IS_INTEGER(peek(routine, 1))) {
                     int32_t b = AS_INTEGER(pop(routine));
                     int32_t a = AS_INTEGER(pop(routine));
                     push(routine, INTEGER_VAL(a + b));
@@ -732,6 +756,14 @@ InterpretResult run(ObjRoutine* routine) {
                     uint32_t b = AS_UINTEGER(pop(routine));
                     uint32_t a = AS_UINTEGER(pop(routine));
                     push(routine, UINTEGER_VAL(a + b));
+                } else if (IS_I64(peek(routine, 0)) && IS_I64(peek(routine, 1))) {
+                    int64_t b = AS_I64(pop(routine));
+                    int64_t a = AS_I64(pop(routine));
+                    push(routine, I64_VAL(a + b));
+                } else if (IS_UI64(peek(routine, 0)) && IS_UI64(peek(routine, 1))) {
+                    uint64_t b = AS_UI64(pop(routine));
+                    uint64_t a = AS_UI64(pop(routine));
+                    push(routine, UI64_VAL(a + b));
                 } else if (IS_DOUBLE(peek(routine, 0)) && IS_DOUBLE(peek(routine, 1))) {
                     double b = AS_DOUBLE(pop(routine));
                     double a = AS_DOUBLE(pop(routine));
@@ -744,6 +776,8 @@ InterpretResult run(ObjRoutine* routine) {
                     uint32_t b = AS_UINTEGER(pop(routine));
                     uintptr_t a = AS_ADDRESS(pop(routine));
                     push(routine, ADDRESS_VAL(a + b));
+                } else if (IS_STRING(peek(routine, 0)) && IS_STRING(peek(routine, 1))) {
+                    concatenate(routine);
                 } else {
                     runtimeError(routine, "Operands must be two numbers or two strings.");
                     return INTERPRET_RUNTIME_ERROR;
@@ -759,53 +793,31 @@ InterpretResult run(ObjRoutine* routine) {
                         r += b;
                     }
                     push(routine, INTEGER_VAL(r));
+                } else if (IS_I64(peek(routine, 0)) && IS_I64(peek(routine, 1))) {
+                    int64_t b = AS_I64(pop(routine));
+                    int64_t a = AS_I64(pop(routine));
+                    int64_t r = a % b;
+                    if (r < 0) {
+                        r += b;
+                    }
+                    push(routine, I64_VAL(r));
                 } else if (IS_UINTEGER(peek(routine, 0)) && IS_UINTEGER(peek(routine, 1))) {
-                    BINARY_INTGRAL_OP(routine, UINTEGER_VAL, %);
+                    uint32_t b = AS_UINTEGER(pop(routine));
+                    uint32_t a = AS_UINTEGER(pop(routine));
+                    push(routine, UINTEGER_VAL(a % b));
+                } else if (IS_UI64(peek(routine, 0)) && IS_UI64(peek(routine, 1))) {
+                    uint64_t b = AS_UI64(pop(routine));
+                    uint64_t a = AS_UI64(pop(routine));
+                    push(routine, UI64_VAL(a % b));
                 } else {
                     runtimeError(routine, "Operands must integers or unsigned integers of same type.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
             }
-            case OP_SUBTRACT: {
-                if (IS_INTEGER(peek(routine, 0)) && IS_INTEGER(peek(routine, 1))) {
-                    BINARY_OP(routine, INTEGER_VAL, -);
-                } else if (IS_UINTEGER(peek(routine, 0)) && IS_UINTEGER(peek(routine, 1))) {
-                    BINARY_OP(routine, UINTEGER_VAL, -);
-                } else if (IS_DOUBLE(peek(routine, 0)) && IS_DOUBLE(peek(routine, 1))) {
-                    BINARY_OP(routine, DOUBLE_VAL, -);
-                } else {
-                    runtimeError(routine, "Operands must be of same type.");
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-                break;
-            }
-            case OP_MULTIPLY: {
-                if (IS_INTEGER(peek(routine, 0)) && IS_INTEGER(peek(routine, 1))) {
-                    BINARY_OP(routine, INTEGER_VAL, *);
-                } else if (IS_UINTEGER(peek(routine, 0)) && IS_UINTEGER(peek(routine, 1))) {
-                    BINARY_OP(routine, UINTEGER_VAL, *);
-                } else if (IS_DOUBLE(peek(routine, 0)) && IS_DOUBLE(peek(routine, 1))) {
-                    BINARY_OP(routine, DOUBLE_VAL, *);
-                } else {
-                    runtimeError(routine, "Operands must be of same type.");
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-                break;
-            }
-            case OP_DIVIDE: {
-                if (IS_INTEGER(peek(routine, 0)) && IS_INTEGER(peek(routine, 1))) {
-                    BINARY_OP(routine, INTEGER_VAL, /);
-                } else if (IS_UINTEGER(peek(routine, 0)) && IS_UINTEGER(peek(routine, 1))) {
-                    BINARY_OP(routine, UINTEGER_VAL, /);
-                } else if (IS_DOUBLE(peek(routine, 0)) && IS_DOUBLE(peek(routine, 1))) {
-                    BINARY_OP(routine, DOUBLE_VAL, /);
-                } else {
-                    runtimeError(routine, "Operands must be of same type.");
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-                break;
-            }
+            case OP_SUBTRACT: BINARY_OP(routine, -); break;
+            case OP_MULTIPLY: BINARY_OP(routine, *); break;
+            case OP_DIVIDE: BINARY_OP(routine, /); break;
             case OP_NOT:
                 push(routine, BOOL_VAL(isFalsey(pop(routine))));
                 break;
@@ -814,6 +826,8 @@ InterpretResult run(ObjRoutine* routine) {
                     push(routine, DOUBLE_VAL(-AS_DOUBLE(pop(routine))));
                 } else if (IS_INTEGER(peek(routine, 0))) {
                     push(routine, INTEGER_VAL(-AS_INTEGER(pop(routine))));
+                } else if (IS_I64(peek(routine, 0))) {
+                    push(routine, I64_VAL(-AS_I64(pop(routine))));
                 } else {
                     runtimeError(routine, "Operand must be a number or integer.");
                     return INTERPRET_RUNTIME_ERROR;
@@ -979,6 +993,7 @@ InterpretResult run(ObjRoutine* routine) {
                     case TYPE_LITERAL_BOOL: typeObj = newYargTypeFromType(TypeBool); break;
                     case TYPE_LITERAL_INTEGER: typeObj = newYargTypeFromType(TypeInteger); break;
                     case TYPE_LITERAL_MACHINE_UINT32: typeObj = newYargTypeFromType(TypeMachineUint32); break;
+                    case TYPE_LITERAL_MACHINE_UINT64: typeObj = newYargTypeFromType(TypeMachineUint64); break;
                     case TYPE_LITERAL_MACHINE_FLOAT64: typeObj = newYargTypeFromType(TypeDouble); break;
                     case TYPE_LITERAL_STRING: typeObj = newYargTypeFromType(TypeString); break;
                 }
@@ -1078,6 +1093,7 @@ InterpretResult run(ObjRoutine* routine) {
 #undef READ_SHORT
 #undef READ_CONSTANT
 #undef READ_STRING
+#undef BINARY_BOOLEAN_OP
 #undef BINARY_OP
 }
 

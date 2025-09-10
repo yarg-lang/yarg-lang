@@ -161,6 +161,7 @@ static bool checkTypeToken() {
     switch (parser.current.type) {
         case TOKEN_MACHINE_FLOAT64:
         case TOKEN_MACHINE_UINT32:
+        case TOKEN_MACHINE_UINT64:
         case TOKEN_INTEGER:
         case TOKEN_BOOL:
         case TOKEN_TYPE_STRING:
@@ -349,6 +350,7 @@ static ObjExpr* builtin(bool canAssign) {
         case TOKEN_PIN: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_PIN, 1);
         case TOKEN_NEW: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_NEW, 1);
         case TOKEN_MACHINE_UINT32: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_MUINT32, 1);
+        case TOKEN_MACHINE_UINT64: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_MUINT64, 1);
         default: return NULL; // Unreachable.
     } 
 }
@@ -410,6 +412,7 @@ static ObjExpr* type(bool canAssign) {
             case TOKEN_BOOL: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_BOOL); break;
             case TOKEN_MACHINE_UINT32: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MUINT32); break;
             case TOKEN_INTEGER: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INTEGER); break;
+            case TOKEN_MACHINE_UINT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MUINT64); break;
             case TOKEN_MACHINE_FLOAT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MFLOAT64); break;
             case TOKEN_STRUCT: expression = (ObjExpr*) structExpression(); break;
             default: expression = NULL; // Unreachable
@@ -581,8 +584,12 @@ static ObjExpr* number(bool canAssign) {
         }
     }
     else {
-        uint32_t value = strtoNum(number_start, number_len, radix);
-        val = newExprNumberUInteger32(value);
+        uint64_t value = strtoNum(number_start, number_len, radix);
+        if (value <= UINT32_MAX) {
+            val = newExprNumberUInteger32(value);
+        } else {
+            val = newExprNumberUInteger64(value);
+        }
     }
     return (ObjExpr*) val;
 }
@@ -641,6 +648,7 @@ static AstParseRule rules[] = {
     [TOKEN_LEN]                  = {builtin,   NULL,   PREC_NONE},
     [TOKEN_MACHINE_FLOAT64]      = {type,      NULL,   PREC_NONE},
     [TOKEN_MACHINE_UINT32]       = {type,      NULL,   PREC_NONE},
+    [TOKEN_MACHINE_UINT64]       = {type,      NULL,   PREC_NONE},
     [TOKEN_MAKE_CHANNEL]         = {builtin,   NULL,   PREC_NONE},
     [TOKEN_MAKE_ROUTINE]         = {builtin,   NULL,   PREC_NONE},
     [TOKEN_NEW]                  = {builtin,   NULL,   PREC_NONE},
@@ -748,6 +756,7 @@ static ObjExpr* typeExpression() {
         switch (parser.previous.type) {
             case TOKEN_MACHINE_FLOAT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MFLOAT64); break;
             case TOKEN_MACHINE_UINT32: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MUINT32); break;
+            case TOKEN_MACHINE_UINT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MUINT64); break;
             case TOKEN_INTEGER: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INTEGER); break;
             case TOKEN_BOOL: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_BOOL); break;
             case TOKEN_TYPE_STRING: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_STRING); break;

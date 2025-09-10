@@ -11,6 +11,7 @@ ObjConcreteYargType* newYargTypeFromType(ConcreteYargType yt) {
         case TypeBool:
         case TypeDouble:
         case TypeMachineUint32:
+        case TypeMachineUint64:
         case TypeInteger:
         case TypeString:
         case TypeClass:
@@ -129,6 +130,8 @@ Value concrete_typeof(Value a) {
         return OBJ_VAL(newYargTypeFromType(TypeMachineUint32));
     } else if (IS_INTEGER(a)) {
         return OBJ_VAL(newYargTypeFromType(TypeInteger));
+    } else if (IS_UI64(a)) {
+        return OBJ_VAL(newYargTypeFromType(TypeMachineUint64));
     } else if (IS_FUNCTION(a)) {
         return OBJ_VAL(newYargTypeFromType(TypeFunction));
     } else if (IS_CLOSURE(a)) {
@@ -168,6 +171,7 @@ bool type_packs_as_obj(ObjConcreteYargType* type) {
         case TypeBool:
         case TypeDouble:
         case TypeMachineUint32:
+        case TypeMachineUint64:
         case TypeInteger:
         case TypeArray:
         case TypeStruct:
@@ -192,6 +196,7 @@ bool type_packs_as_container(ObjConcreteYargType* type) {
         case TypeDouble:
         case TypeMachineUint32:
         case TypeInteger:
+        case TypeMachineUint64:
         case TypeString:
         case TypeClass:
         case TypeInstance:
@@ -217,6 +222,7 @@ bool is_nil_assignable_type(Value type) {
             case TypeBool:
             case TypeDouble:
             case TypeMachineUint32:
+            case TypeMachineUint64:
             case TypeInteger:
             case TypeStruct:
                 return false;
@@ -241,6 +247,7 @@ bool is_nil_assignable_type(Value type) {
 bool is_placeable_type(Value typeVal) {
     if (IS_YARGTYPE(typeVal)) {
         switch(AS_YARGTYPE(typeVal)->yt) {
+            case TypeMachineUint64: return true;
             case TypeMachineUint32: return true;
             case TypeArray: {
                 ObjConcreteYargTypeArray* ct = (ObjConcreteYargTypeArray*)AS_YARGTYPE(typeVal);
@@ -274,6 +281,8 @@ size_t yt_sizeof_type_storage(Value type) {
             return sizeof(Value);
         case TypeMachineUint32:
             return sizeof(uint32_t);
+        case TypeMachineUint64:
+            return sizeof(uint64_t);
         case TypeStruct: {
             ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*)t;
             return st->storage_size;
@@ -309,6 +318,10 @@ void initialisePackedStorage(Value type, StoredValue* packedStorage) {
             case TypeInteger:  packedStorage->asValue = INTEGER_VAL(0); break;
             case TypeMachineUint32: {
                 packedStorage->as.uinteger = 0;
+                break;
+            }
+            case TypeMachineUint64: {
+                packedStorage->as.ui64 = 0;
                 break;
             }
             case TypeArray: {
@@ -356,6 +369,7 @@ Value unpackStoredValue(Value type, StoredValue* packedStorage) {
             case TypeDouble: return packedStorage->asValue;
             case TypeInteger: return packedStorage->asValue;
             case TypeMachineUint32: return UINTEGER_VAL(packedStorage->as.uinteger);
+            case TypeMachineUint64: return UI64_VAL(packedStorage->as.ui64);
             case TypeStruct: {
                 return OBJ_VAL(newPackedStructAt((ObjConcreteYargTypeStruct*)ct, packedStorage));
             }
@@ -392,6 +406,7 @@ void packValueStorage(StoredValueCellTarget* packedStorageCell, Value value) {
             case TypeDouble: packedStorageCell->storedValue->asValue = value; break;
             case TypeInteger: packedStorageCell->storedValue->asValue = value; break;
             case TypeMachineUint32: packedStorageCell->storedValue->as.uinteger = AS_UINTEGER(value); break;
+            case TypeMachineUint64: packedStorageCell->storedValue->as.ui64 = AS_UI64(value); break;
             case TypePointer:
             case TypeString:
             case TypeClass:
@@ -421,6 +436,7 @@ Value defaultValue(Value type) {
             case TypeInteger: return INTEGER_VAL(0);
             case TypeDouble: return DOUBLE_VAL(0);
             case TypeMachineUint32: return UINTEGER_VAL(0);
+            case TypeMachineUint64: return UI64_VAL(0);
             case TypeStruct: return defaultStructValue(ct);
             case TypeArray: return defaultArrayValue(ct);
             case TypePointer:
