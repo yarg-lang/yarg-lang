@@ -326,6 +326,7 @@ bool newBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
         }
         case TypeInt8:  // fall through
         case TypeUint8:
+        case TypeInt64:
         case TypeUint64:
         case TypeMachineUint32: {
             StoredValue* heap_cell = createHeapCell(typeToCreate);
@@ -390,6 +391,30 @@ bool uint64Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Va
         return true;
     }
     return false;
+}
+
+bool int64Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+    if (IS_I8(args[0].value)) {
+        *result = I64_VAL(AS_I8(args[0].value));
+        return true;
+    } else if (IS_INTEGER(args[0].value)) {
+        *result = I64_VAL(AS_INTEGER(args[0].value));
+        return true;
+    } else if (IS_I64(args[0].value)) {
+        *result = args[0].value;
+        return true;
+    } else if (IS_UI8(args[0].value)) {
+        *result = I64_VAL(AS_UI8(args[0].value));
+        return true;
+    } else if (IS_UINTEGER(args[0].value)) {
+        *result = I64_VAL(AS_UINTEGER(args[0].value));
+        return true;
+    } else if (IS_UI64(args[0].value) && AS_UI64(args[0].value) <= INT64_MAX) {
+        *result = I64_VAL(AS_UI64(args[0].value));
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool uint8Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
@@ -458,6 +483,7 @@ Value getBuiltin(uint8_t builtin) {
         case BUILTIN_INT8: return OBJ_VAL(newNative(int8Builtin));
         case BUILTIN_UINT8: return OBJ_VAL(newNative(uint8Builtin));
         case BUILTIN_MUINT32: return OBJ_VAL(newNative(muint32Builtin));
+        case BUILTIN_INT64: return OBJ_VAL(newNative(int64Builtin));
         case BUILTIN_UINT64: return OBJ_VAL(newNative(uint64Builtin));
         default: return NIL_VAL;
     }

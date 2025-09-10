@@ -10,6 +10,7 @@ typedef enum {
    TypeInt8,
    TypeUint8,
    TypeMachineUint32,
+   TypeInt64,
    TypeUint64,
    TypeInteger,
    TypeString,

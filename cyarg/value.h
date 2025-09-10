@@ -73,8 +73,8 @@ typedef struct {
 #define UI8_VAL(value)      ((Value){VAL_UI8, {.ui8 = value}})
 #define UINTEGER_VAL(value) ((Value){VAL_UINTEGER, {.uinteger = value }})
 #define INTEGER_VAL(value)  ((Value){VAL_INTEGER, {.integer = value }})
-#define UI64_VAL(a)         ((Value){VAL_UI64, { .ui64 = a}})
-#define I64_VAL(a)          ((Value){VAL_I64, { .i64 = a}})
+#define UI64_VAL(a)         ((Value){VAL_UI64, {.ui64 = a}})
+#define I64_VAL(a)          ((Value){VAL_I64, {.i64 = a}})
 #define ADDRESS_VAL(value)  ((Value){VAL_ADDRESS, { .address = value}})
 #define OBJ_VAL(object)     ((Value){VAL_OBJ, {.obj = (Obj*)object}})
 

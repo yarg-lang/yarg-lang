@@ -212,6 +212,7 @@ static TokenType identifierType() {
                                         switch (scanner.start[3]) {
                                             case 'e': return checkKeyword(4, 3, "ger", TOKEN_INTEGER);
                                             case '8': return TOKEN_INT8;
+                                            case '6': return checkKeyword(4, 1, "4", TOKEN_INT64);
                                             }
                                         }
                                     }
