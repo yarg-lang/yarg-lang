@@ -13,7 +13,7 @@ ObjConcreteYargType* newYargTypeFromType(ConcreteYargType yt) {
         case TypeInt8:
         case TypeUint8:
         case TypeMachineUint32:
-        case TypeMachineUint64:
+        case TypeUint64:
         case TypeInteger:
         case TypeString:
         case TypeClass:
@@ -137,7 +137,7 @@ Value concrete_typeof(Value a) {
     } else if (IS_INTEGER(a)) {
         return OBJ_VAL(newYargTypeFromType(TypeInteger));
     } else if (IS_UI64(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeMachineUint64));
+        return OBJ_VAL(newYargTypeFromType(TypeUint64));
     } else if (IS_FUNCTION(a)) {
         return OBJ_VAL(newYargTypeFromType(TypeFunction));
     } else if (IS_CLOSURE(a)) {
@@ -179,7 +179,7 @@ bool type_packs_as_obj(ObjConcreteYargType* type) {
         case TypeInt8:
         case TypeUint8:
         case TypeMachineUint32:
-        case TypeMachineUint64:
+        case TypeUint64:
         case TypeInteger:
         case TypeArray:
         case TypeStruct:
@@ -206,7 +206,7 @@ bool type_packs_as_container(ObjConcreteYargType* type) {
         case TypeUint8:
         case TypeMachineUint32:
         case TypeInteger:
-        case TypeMachineUint64:
+        case TypeUint64:
         case TypeString:
         case TypeClass:
         case TypeInstance:
@@ -234,7 +234,7 @@ bool is_nil_assignable_type(Value type) {
             case TypeInt8:
             case TypeUint8:
             case TypeMachineUint32:
-            case TypeMachineUint64:
+            case TypeUint64:
             case TypeInteger:
             case TypeStruct:
                 return false;
@@ -261,7 +261,7 @@ bool is_placeable_type(Value typeVal) {
         switch(AS_YARGTYPE(typeVal)->yt) {
             case TypeInt8: return true;
             case TypeUint8: return true;
-            case TypeMachineUint64: return true;
+            case TypeUint64: return true;
             case TypeMachineUint32: return true;
             case TypeArray: {
                 ObjConcreteYargTypeArray* ct = (ObjConcreteYargTypeArray*)AS_YARGTYPE(typeVal);
@@ -299,7 +299,7 @@ size_t yt_sizeof_type_storage(Value type) {
             return sizeof(uint8_t);
         case TypeMachineUint32:
             return sizeof(uint32_t);
-        case TypeMachineUint64:
+        case TypeUint64:
             return sizeof(uint64_t);
         case TypeStruct: {
             ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*)t;
@@ -340,7 +340,7 @@ void initialisePackedStorage(Value type, StoredValue* packedStorage) {
                 packedStorage->as.uinteger = 0;
                 break;
             }
-            case TypeMachineUint64: {
+            case TypeUint64: {
                 packedStorage->as.ui64 = 0;
                 break;
             }
@@ -391,7 +391,7 @@ Value unpackStoredValue(Value type, StoredValue* packedStorage) {
             case TypeInt8: return I8_VAL(packedStorage->as.i8);
             case TypeUint8: return UI8_VAL(packedStorage->as.ui8);
             case TypeMachineUint32: return UINTEGER_VAL(packedStorage->as.uinteger);
-            case TypeMachineUint64: return UI64_VAL(packedStorage->as.ui64);
+            case TypeUint64: return UI64_VAL(packedStorage->as.ui64);
             case TypeStruct: {
                 return OBJ_VAL(newPackedStructAt((ObjConcreteYargTypeStruct*)ct, packedStorage));
             }
@@ -430,7 +430,7 @@ void packValueStorage(StoredValueCellTarget* packedStorageCell, Value value) {
             case TypeInt8: packedStorageCell->storedValue->as.i8 = AS_I8(value); break;
             case TypeUint8: packedStorageCell->storedValue->as.ui8 = AS_UI8(value); break;
             case TypeMachineUint32: packedStorageCell->storedValue->as.uinteger = AS_UINTEGER(value); break;
-            case TypeMachineUint64: packedStorageCell->storedValue->as.ui64 = AS_UI64(value); break;
+            case TypeUint64: packedStorageCell->storedValue->as.ui64 = AS_UI64(value); break;
             case TypePointer:
             case TypeString:
             case TypeClass:
@@ -462,7 +462,7 @@ Value defaultValue(Value type) {
             case TypeInt8: return I8_VAL(0);
             case TypeUint8: return UI8_VAL(0);
             case TypeMachineUint32: return UINTEGER_VAL(0);
-            case TypeMachineUint64: return UI64_VAL(0);
+            case TypeUint64: return UI64_VAL(0);
             case TypeStruct: return defaultStructValue(ct);
             case TypeArray: return defaultArrayValue(ct);
             case TypePointer:

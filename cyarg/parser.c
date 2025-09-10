@@ -163,7 +163,7 @@ static bool checkTypeToken() {
         case TOKEN_INT8:
         case TOKEN_UINT8:
         case TOKEN_MACHINE_UINT32:
-        case TOKEN_MACHINE_UINT64:
+        case TOKEN_UINT64:
         case TOKEN_INTEGER:
         case TOKEN_BOOL:
         case TOKEN_TYPE_STRING:
@@ -354,7 +354,7 @@ static ObjExpr* builtin(bool canAssign) {
         case TOKEN_INT8: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_INT8, 1);
         case TOKEN_UINT8: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_UINT8, 1);
         case TOKEN_MACHINE_UINT32: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_MUINT32, 1);
-        case TOKEN_MACHINE_UINT64: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_MUINT64, 1);
+        case TOKEN_UINT64: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_UINT64, 1);
         default: return NULL; // Unreachable.
     } 
 }
@@ -418,7 +418,7 @@ static ObjExpr* type(bool canAssign) {
             case TOKEN_UINT8: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT8); break;
             case TOKEN_MACHINE_UINT32: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MUINT32); break;
             case TOKEN_INTEGER: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INTEGER); break;
-            case TOKEN_MACHINE_UINT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MUINT64); break;
+            case TOKEN_UINT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT64); break;
             case TOKEN_MACHINE_FLOAT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MFLOAT64); break;
             case TOKEN_STRUCT: expression = (ObjExpr*) structExpression(); break;
             default: expression = NULL; // Unreachable
@@ -655,7 +655,6 @@ static AstParseRule rules[] = {
     [TOKEN_LEN]                  = {builtin,   NULL,   PREC_NONE},
     [TOKEN_MACHINE_FLOAT64]      = {type,      NULL,   PREC_NONE},
     [TOKEN_MACHINE_UINT32]       = {type,      NULL,   PREC_NONE},
-    [TOKEN_MACHINE_UINT64]       = {type,      NULL,   PREC_NONE},
     [TOKEN_MAKE_CHANNEL]         = {builtin,   NULL,   PREC_NONE},
     [TOKEN_MAKE_ROUTINE]         = {builtin,   NULL,   PREC_NONE},
     [TOKEN_NEW]                  = {builtin,   NULL,   PREC_NONE},
@@ -678,6 +677,7 @@ static AstParseRule rules[] = {
     [TOKEN_THIS]                 = {this_,     NULL,   PREC_NONE},
     [TOKEN_TRUE]                 = {literal,   NULL,   PREC_NONE},
     [TOKEN_UINT8]                = {type,      NULL,   PREC_NONE},
+    [TOKEN_UINT64]               = {type,      NULL,   PREC_NONE},
     [TOKEN_VAR]                  = {NULL,      NULL,   PREC_NONE},
     [TOKEN_WHILE]                = {NULL,      NULL,   PREC_NONE},
     [TOKEN_YIELD]                = {NULL,      NULL,   PREC_NONE},
@@ -766,8 +766,8 @@ static ObjExpr* typeExpression() {
             case TOKEN_INT8: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT8); break;
             case TOKEN_UINT8: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT8); break;
             case TOKEN_MACHINE_UINT32: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MUINT32); break;
-            case TOKEN_MACHINE_UINT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MUINT64); break;
             case TOKEN_INTEGER: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INTEGER); break;
+            case TOKEN_UINT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT64); break;
             case TOKEN_BOOL: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_BOOL); break;
             case TOKEN_TYPE_STRING: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_STRING); break;
             case TOKEN_ANY: expression = (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL); break;

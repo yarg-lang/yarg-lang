@@ -18,7 +18,7 @@
       },
       "keywords": {
             "name": "keyword.yarg",
-            "match": "\\b(and|any|bool|class|const|cpeek|else|false|for|fun|if|import|integer|int8|len|mfloat64|muint32|muint64|make_channel|make_routine|new|nil|or|peek|pin|place|poke|print|receive|resume|return|send|set_element|share|start|string|struct|super|this|true|uint8|var|while|yield)\\b"
+            "match": "\\b(and|any|bool|class|const|cpeek|else|false|for|fun|if|import|integer|int8|len|mfloat64|muint32|make_channel|make_routine|new|nil|or|peek|pin|place|poke|print|receive|resume|return|send|set_element|share|start|string|struct|super|this|true|uint8|uint64|var|while|yield)\\b"
         }
     }
 }

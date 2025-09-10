@@ -354,7 +354,7 @@ void printExprBuiltin(ObjExprBuiltin* fn) {
         case EXPR_BUILTIN_INT8: printf("int8"); break;
         case EXPR_BUILTIN_UINT8: printf("uint8"); break;
         case EXPR_BUILTIN_MUINT32: printf("muint32"); break;
-        case EXPR_BUILTIN_MUINT64: printf("muint64"); break;
+        case EXPR_BUILTIN_UINT64: printf("uint64"); break;
     }
 }
 
@@ -373,7 +373,7 @@ void printType(ObjExpr* type) {
             case EXPR_TYPE_LITERAL_INT8: printf("int8"); break;
             case EXPR_TYPE_LITERAL_UINT8: printf("uint8"); break;
             case EXPR_TYPE_LITERAL_MUINT32: printf("muint32"); break;
-            case EXPR_TYPE_LITERAL_MUINT64: printf("muint64"); break;
+            case EXPR_TYPE_LITERAL_UINT64: printf("uint64"); break;
             case EXPR_TYPE_LITERAL_INTEGER: printf("integer"); break;
             case EXPR_TYPE_LITERAL_BOOL: printf("bool"); break;
             case EXPR_TYPE_LITERAL_STRING: printf("string"); break;

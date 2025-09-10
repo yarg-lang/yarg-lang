@@ -1038,7 +1038,7 @@ InterpretResult run(ObjRoutine* routine) {
                     case TYPE_LITERAL_UINT8: typeObj = newYargTypeFromType(TypeUint8); break;
                     case TYPE_LITERAL_INTEGER: typeObj = newYargTypeFromType(TypeInteger); break;
                     case TYPE_LITERAL_MACHINE_UINT32: typeObj = newYargTypeFromType(TypeMachineUint32); break;
-                    case TYPE_LITERAL_MACHINE_UINT64: typeObj = newYargTypeFromType(TypeMachineUint64); break;
+                    case TYPE_LITERAL_UINT64: typeObj = newYargTypeFromType(TypeUint64); break;
                     case TYPE_LITERAL_MACHINE_FLOAT64: typeObj = newYargTypeFromType(TypeDouble); break;
                     case TYPE_LITERAL_STRING: typeObj = newYargTypeFromType(TypeString); break;
                 }

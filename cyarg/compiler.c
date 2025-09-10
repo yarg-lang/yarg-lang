@@ -501,7 +501,7 @@ static void generateExprBuiltin(ObjExprBuiltin* fn) {
         case EXPR_BUILTIN_INT8: emitBytes(OP_GET_BUILTIN, BUILTIN_INT8); break;
         case EXPR_BUILTIN_UINT8: emitBytes(OP_GET_BUILTIN, BUILTIN_UINT8); break;
         case EXPR_BUILTIN_MUINT32: emitBytes(OP_GET_BUILTIN, BUILTIN_MUINT32); break;
-        case EXPR_BUILTIN_MUINT64: emitBytes(OP_GET_BUILTIN, BUILTIN_MUINT64); break;
+        case EXPR_BUILTIN_UINT64: emitBytes(OP_GET_BUILTIN, BUILTIN_UINT64); break;
     }    
 }
 
@@ -559,7 +559,7 @@ static void generateExprType(ObjExprTypeLiteral* type) {
         case EXPR_TYPE_LITERAL_INTEGER: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_INTEGER); return;
         case EXPR_TYPE_LITERAL_MFLOAT64: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_MACHINE_FLOAT64); return;
         case EXPR_TYPE_LITERAL_MUINT32: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_MACHINE_UINT32); return;
-        case EXPR_TYPE_LITERAL_MUINT64: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_MACHINE_UINT64); return;
+        case EXPR_TYPE_LITERAL_UINT64: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_UINT64); return;
         case EXPR_TYPE_LITERAL_STRING: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_STRING); return;
         case EXPR_TYPE_MODIFIER_CONST: emitBytes(OP_TYPE_MODIFIER, TYPE_MODIFIER_CONST); return;
         default: return; // unreachable.
