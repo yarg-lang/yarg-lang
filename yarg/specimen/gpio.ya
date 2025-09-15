@@ -13,11 +13,6 @@ const NUM_BANK0_GPIOS = 0d30;
 const PADS_BANK0_GPIO_IE_BITS = 0x00000040;
 const PADS_BANK0_GPIO_OD_BITS = 0x00000080;
 
-const REG_ALIAS_RW_BITS  = 0x0 << 0d12;
-const REG_ALIAS_XOR_BITS = 0x1 << 0d12;
-const REG_ALIAS_SET_BITS = 0x2 << 0d12;
-const REG_ALIAS_CLR_BITS = 0x3 << 0d12;
-
 const io_bank0_base = @x40014000;
 
 place struct {
