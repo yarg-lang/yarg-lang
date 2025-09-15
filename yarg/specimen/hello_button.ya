@@ -28,11 +28,11 @@ var button_handler_routine = button_routine(button_io, button_channel);
 var button_handler_address = pin(button_handler_routine);
 
 gpio_init(button_io);
-irq_add_shared_handler(IO_IRQ_BANK0, button_handler_address, 0d0);
+irq_add_shared_handler(io_irq_bank0, button_handler_address, 0d0);
 
 // enable interrupts for this gpio
 gpio_set_irq_enabled(button_io, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
-irq_set_enabled(IO_IRQ_BANK0, true);
+irq_set_enabled(io_irq_bank0, true);
 
 
 while (true) {

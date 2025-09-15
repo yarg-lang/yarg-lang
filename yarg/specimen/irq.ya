@@ -1,5 +1,3 @@
-const IO_IRQ_BANK0 = 0d13;
-
 place struct {
     uint32@0xe010 syst_csr;
     uint32 syst_rvr;
@@ -13,6 +11,22 @@ place struct {
     uint32[8]@0xe400 nvic_ipr;
 
     } @xe0000000 m0plus;
+
+const timer_irq = [0d0, 0d1, 0d2, 0d3];
+const pwm_irq_wrap = 0d4;
+const usbctrl_irq = 0d5;
+const xip_irq = 0d6;
+const pio_irq = [ [0d8, 0d9], [0d10, 0d11] ];
+const dma_irq = [0d12, 0d13];
+const io_irq_bank0 = 0d13;
+const io_irq_qspi = 0d14;
+const sio_irq_proc = [0d15, 0d16];
+const clocks_irq = 0d17;
+const spi_irq = [0d18, 0d19];
+const uart_irq = [0d20, 0d21];
+const adc_irq_fifo = 0d22;
+const i2c_irq = [0d23, 0d24];
+const rtc_irq = 0d25;
 
 // We have two native functions (for now) which allow us to interop with
 // Pico C SDK users like TinyUSB.

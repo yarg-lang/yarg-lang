@@ -34,7 +34,7 @@ gpio_set_irq_routine(gpio_response);
 
 gpio_set_irq_enabled(gpio_button1, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
 gpio_set_irq_enabled(gpio_button2, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
-irq_set_enabled(IO_IRQ_BANK0, true);
+irq_set_enabled(io_irq_bank0, true);
 
 while (true) {
     var pressed = receive(button);

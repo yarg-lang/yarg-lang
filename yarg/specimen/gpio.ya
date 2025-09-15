@@ -128,14 +128,14 @@ fun gpio_set_irq_routine(response) {
         if (response) {
             gpio_handlers[core].irq_routine = make_routine(irq_response, true);
             gpio_handlers[core].pinned_routine = pin(gpio_handlers[core].irq_routine);
-            irq_add_shared_handler(IO_IRQ_BANK0, gpio_handlers[core].pinned_routine, GPIO_IRQ_CALLBACK_ORDER_PRIORITY);
+            irq_add_shared_handler(io_irq_bank0, gpio_handlers[core].pinned_routine, GPIO_IRQ_CALLBACK_ORDER_PRIORITY);
         }
     }
 
     if (!gpio_handlers[core].pinned_routine) {
         setup_routine();
     } else {
-        irq_remove_handler(IO_IRQ_BANK0, gpio_handlers[core].pinned_routine);
+        irq_remove_handler(io_irq_bank0, gpio_handlers[core].pinned_routine);
         gpio_handlers[core].pinned_routine = nil;
         gpio_handlers[core].irq_routine = nil;
         setup_routine();
