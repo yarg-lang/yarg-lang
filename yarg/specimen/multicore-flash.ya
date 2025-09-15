@@ -1,5 +1,6 @@
 import("machine");
 import("gpio");
+import("timer");
 
 fun flash(n) {
 
@@ -16,7 +17,7 @@ fun flash(n) {
         while (tick < n * 2) {
             state = !state;
             gpio_put(led_pin, state);
-            sleep_ms(0d500);
+            sleep_ms(500);
             tick = tick + 1;
         }
 

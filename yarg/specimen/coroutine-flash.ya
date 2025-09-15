@@ -1,4 +1,5 @@
 import("gpio");
+import("timer");
 
 fun flash(count) {
     gpio_init(pico_led);
@@ -9,7 +10,7 @@ fun flash(count) {
 
     fun sleep() {
         while (true) {
-            sleep_ms(0d500);
+            sleep_ms(500);
             yield 1;
         }
     }

@@ -114,13 +114,6 @@ void initVM() {
     vm.initString = copyString("init", 4);
 
     defineNative("clock", clockNative);
-#ifdef CYARG_PICO_TARGET
-    defineNative("sleep_ms", sleepNative);
-
-    defineNative("alarm_add_in_ms", alarmAddInMSNative);
-    defineNative("alarm_add_repeating_ms", alarmAddRepeatingMSNative);
-    defineNative("alarm_cancel_repeating", alarmCancelRepeatingMSNative);
-#endif
     defineNative("ws2812_init", ws2812initNative);
     defineNative("ws2812_write_pixel", ws2812writepixelNative);
 

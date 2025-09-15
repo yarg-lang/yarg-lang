@@ -13,10 +13,10 @@ fun led() {
 
 alarm_in_ms(0d0, 500, led);
 
-y_sleep_ms(1000);
+sleep_ms(1000);
 
 repeating_alarm_ms(0d0, 500, led);
 
-y_sleep_ms(3000); 
+sleep_ms(3000); 
 
 cancel_repeating_alarm(0d0);

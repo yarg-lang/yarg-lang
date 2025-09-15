@@ -1,4 +1,5 @@
 import("gpio");
+import("timer");
 
 gpio_init(pico_led);
 gpio_set_direction(pico_led, GPIO_OUT);
@@ -9,6 +10,6 @@ bool state = false;
 while (n > 0) {
     state = !state;
     gpio_put(pico_led, state);
-    sleep_ms(0d500);
+    sleep_ms(500);
     n = n - 1;
 }

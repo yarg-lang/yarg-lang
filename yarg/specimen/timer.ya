@@ -155,7 +155,7 @@ fun sleep_us(delay_us) {
     receive(done);
 }
 
-fun y_sleep_ms(delay_ms) {
+fun sleep_ms(delay_ms) {
     sleep_us(uint64(delay_ms) * uint64(1000));
 }
 
