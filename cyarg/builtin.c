@@ -43,6 +43,14 @@ bool importBuiltin(ObjRoutine* routineContext, int argCount) {
         return false;
     }
 
+    Value val;
+    if (tableGet(&vm.imports, AS_STRING(peek(routineContext, 0)), &val)) {
+        pop(routineContext);
+        pop(routineContext);
+        push(routineContext, NIL_VAL);
+        return true;
+    }
+    
     char* source = NULL;
     char* library = libraryNameFor(AS_CSTRING(peek(routineContext, 0)));
     if (library) {
@@ -60,12 +68,17 @@ bool importBuiltin(ObjRoutine* routineContext, int argCount) {
 
         tempRootPush(OBJ_VAL(function));
 
-        pop(routineContext);
+        Value libstring = pop(routineContext);
+        tempRootPush(libstring);
         pop(routineContext);
 
         ObjClosure* closure = newClosure(function);
         push(routineContext, OBJ_VAL(closure));
-        tempRootPop();   
+
+        tableSet(&vm.imports, AS_STRING(libstring), BOOL_VAL(true));
+
+        tempRootPop();
+        tempRootPop();
 
         callfn(routineContext, closure, 0);
         return true;

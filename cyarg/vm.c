@@ -109,6 +109,7 @@ void initVM() {
 
     initCellTable(&vm.globals);
     initTable(&vm.strings);
+    initTable(&vm.imports);
 
     vm.initString = NULL;
     vm.initString = copyString("init", 4);
@@ -125,6 +126,7 @@ void initVM() {
 void freeVM() {
     freeCellTable(&vm.globals);
     freeTable(&vm.strings);
+    freeTable(&vm.imports);
     vm.initString = NULL;
     freeObjects();
 }

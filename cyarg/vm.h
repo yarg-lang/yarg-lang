@@ -23,6 +23,7 @@ typedef struct {
     ValueCellTable globals;
     ValueTable strings;
     ObjString* initString;
+    ValueTable imports;
 
     platform_mutex heap;
 

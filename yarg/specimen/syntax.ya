@@ -1,3 +1,4 @@
-import("main");
+import("machine");
 print 1;
-import("main");
+import("machine");
+print 1;
