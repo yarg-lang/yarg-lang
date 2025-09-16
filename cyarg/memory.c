@@ -687,3 +687,17 @@ void freeObjects() {
 
     free(vm.grayStack);
 }
+
+void printObjects() {
+    PRINTERR("=== Objects ===\n");
+    Obj* object = vm.objects;
+    size_t count = 0;
+    while (object != NULL) {
+        PRINTERR("%p ", (void*)object);
+        fprintValue(stderr, OBJ_VAL(object));
+        PRINTERR("\n");
+        object = object->next;
+        count++;
+    }
+    PRINTERR("=== End Objects (%zu) ===\n", count);
+}

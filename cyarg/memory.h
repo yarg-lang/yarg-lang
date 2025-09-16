@@ -38,5 +38,6 @@ void markValue(Value value);
 void markValueCell(ValueCell* value);
 void collectGarbage();
 void freeObjects();
+void printObjects();
 
 #endif
