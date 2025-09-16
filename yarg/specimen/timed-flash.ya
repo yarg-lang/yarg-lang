@@ -1,4 +1,5 @@
 import("gpio");
+import("timer");
 
 fun flash(seconds) {
     gpio_init(pico_led);
@@ -15,11 +16,9 @@ fun flash(seconds) {
     fun complete() {
         share(done, true);
     }
-    var elapsed = make_routine(complete, true);
-    var flasher = make_routine(toggle, true);
 
-    var duty = alarm_add_repeating_ms(-500, flasher);
-    alarm_add_in_ms(seconds * 0d1000, elapsed); 
-    var msg = receive(done); 
-    alarm_cancel_repeating(duty); 
+    repeating_alarm_ms(0d0, 500, toggle);
+    alarm_in_ms(0d1, uint32(seconds) * 0d1000, complete); 
+    receive(done); 
+    cancel_repeating_alarm(0d0); 
 }
