@@ -174,13 +174,17 @@ static bool callValue(ObjRoutine* routine, Value callee, int argCount) {
                 return callfn(routine, AS_CLOSURE(callee), argCount);
             case OBJ_NATIVE: {
                 NativeFn native = AS_NATIVE(callee);
-                Value result = NIL_VAL; 
-                if (native(routine, argCount, (routine->stackTop - argCount), &result)) {
-                    routine->stackTop -= argCount + 1;
-                    push(routine, result);
-                    return true;
+                if (native == importBuiltinDummy) {
+                    return importBuiltin(routine, argCount);
                 } else {
-                    return false;
+                    Value result = NIL_VAL; 
+                    if (native(routine, argCount, (routine->stackTop - argCount), &result)) {
+                        routine->stackTop -= argCount + 1;
+                        push(routine, result);
+                        return true;
+                    } else {
+                        return false;
+                    }
                 }
             }
             default:

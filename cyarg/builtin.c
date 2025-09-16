@@ -18,31 +18,9 @@
 #include "channel.h"
 #include "yargtype.h"
 
-InterpretResult interpretImport(const char* source) {
-
-    ObjFunction* function = compile(source);
-    if (function == NULL) return INTERPRET_COMPILE_ERROR;
-    tempRootPush(OBJ_VAL(function));
-
-    ObjRoutine* routine = newRoutine(ROUTINE_THREAD);
-    tempRootPush(OBJ_VAL(routine));
-
-    ObjClosure* closure = newClosure(function);
-    tempRootPop();
-    tempRootPop();
-
-    bindEntryFn(routine, closure);
-
-    push(routine, OBJ_VAL(closure));
-    callfn(routine, closure, 0);
-
-    tempRootPush(OBJ_VAL(routine));
-    InterpretResult result = run(routine);
-    tempRootPop();
-    
-    pop(routine);
-
-    return result;
+bool importBuiltinDummy(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+    *result = NIL_VAL;
+    return true;
 }
 
 static char* libraryNameFor(const char* importname) {
@@ -55,41 +33,46 @@ static char* libraryNameFor(const char* importname) {
     return filename;
 }
 
-bool importBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+bool importBuiltin(ObjRoutine* routineContext, int argCount) {
     if (argCount != 1) {
         runtimeError(routineContext, "Expected 1 arguments but got %d.", argCount);
         return false;
     }
-    if (!IS_STRING(args[0].value)) {
+    if (!IS_STRING(peek(routineContext, 0))) {
         runtimeError(routineContext, "Argument to import must be string.");
         return false;
     }
 
     char* source = NULL;
-    char* library = libraryNameFor(AS_CSTRING(args[0].value));
+    char* library = libraryNameFor(AS_CSTRING(peek(routineContext, 0)));
     if (library) {
         source = readFile(library);
         free(library);
     }
 
     if (source) {
-        InterpretResult result = interpretImport(source);        
+        ObjFunction* function = compile(source);
         free(source);
+        if (function == NULL) {
+            runtimeError(routineContext, "Interpret error; compiling source failed.");
+            return false;
+        }
 
-        if (result == INTERPRET_COMPILE_ERROR) {
-            runtimeError(routineContext, "Interpret error");
-            return false;
-        }
-        else if (result == INTERPRET_RUNTIME_ERROR) {
-            runtimeError(routineContext, "Interpret error");
-            return false;
-        }
+        tempRootPush(OBJ_VAL(function));
+
+        pop(routineContext);
+        pop(routineContext);
+
+        ObjClosure* closure = newClosure(function);
+        push(routineContext, OBJ_VAL(closure));
+        tempRootPop();   
+
+        callfn(routineContext, closure, 0);
         return true;
     }
     else {
         runtimeError(routineContext, "source not found");
         return false;
-
     }
 
 }
@@ -498,7 +481,7 @@ bool int8Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Valu
 Value getBuiltin(uint8_t builtin) {
     switch (builtin) {
         case BUILTIN_PEEK: return OBJ_VAL(newNative(peekBuiltin));
-        case BUILTIN_IMPORT: return OBJ_VAL(newNative(importBuiltin));
+        case BUILTIN_IMPORT: return OBJ_VAL(newNative(importBuiltinDummy));
         case BUILTIN_MAKE_ROUTINE: return OBJ_VAL(newNative(makeRoutineBuiltin));
         case BUILTIN_RESUME: return OBJ_VAL(newNative(resumeBuiltin));
         case BUILTIN_START: return OBJ_VAL(newNative(startBuiltin));
