@@ -47,7 +47,7 @@ InterpretResult interpretImport(const char* source) {
 
 static char* libraryNameFor(const char* importname) {
     size_t namelen = strlen(importname);
-    char* filename = malloc(namelen + 5);
+    char* filename = malloc(namelen + 3 + 1);
     if (filename) {
         strcpy(filename, importname);
         strcat(filename, ".ya");
