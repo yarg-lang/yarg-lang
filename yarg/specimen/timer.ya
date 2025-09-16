@@ -127,15 +127,20 @@ fun repeating_alarm_s(alarm, repeat_s, response) {
     repeating_alarm_us(alarm, uint64(repeat_s) * uint64(1000000), response);
 }
 
-fun cancel_repeating_alarm(alarm) {
+fun cancel_alarm(alarm) {
     poke timer_clr.intr, 0x1 << alarm;
-    poke timer_clr.inte, 0x1 << alarm;
 
     if (alarm_handlers[alarm].irq_routine != nil) {
         irq_remove_handler(timer_irq[alarm], alarm_handlers[alarm].pinned_routine);
         alarm_handlers[alarm].irq_routine = nil;
         alarm_handlers[alarm].pinned_routine = nil;
     }
+}
+
+fun cancel_repeating_alarm(alarm) {
+    poke timer_clr.inte, 0x1 << alarm;
+
+    cancel_alarm(alarm);
 }
 
 fun alarm_in_ms(alarm, delay_ms, response) {
@@ -153,6 +158,8 @@ fun sleep_us(delay_us) {
     }
     alarm_in_us(0d2, delay_us, response);
     receive(done);
+
+    cancel_alarm(0d2);
 }
 
 fun sleep_ms(delay_ms) {
