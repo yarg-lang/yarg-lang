@@ -58,6 +58,9 @@ bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, ValueCell* args
     irq_remove_handler(num, (irq_handler_t) isrRoutine);
 #endif
 
+    size_t handlerIndex = pinnedRoutineIndex(isrRoutine);
+    vm.pinnedRoutines[handlerIndex] = NULL;
+
     return true;
 }
 
