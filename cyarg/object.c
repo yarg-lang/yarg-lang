@@ -362,11 +362,12 @@ ObjString* copyString(const char* chars, int length) {
     return allocateString(heapChars, length, hash);
 }
 
-ObjUpvalue* newUpvalue(ValueCell* slot) {
+ObjUpvalue* newUpvalue(ValueCell* slot, size_t stackOffset) {
     ObjUpvalue* upvalue = ALLOCATE_OBJ(ObjUpvalue, OBJ_UPVALUE);
     upvalue->closed.value = NIL_VAL;
     upvalue->closed.type = NIL_VAL;
-    upvalue->location = slot;
+    upvalue->contents = slot;
+    upvalue->stackOffset = stackOffset;
     upvalue->next = NULL;
     return upvalue;
 }

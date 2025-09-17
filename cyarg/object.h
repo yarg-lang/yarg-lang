@@ -144,7 +144,8 @@ struct ObjString {
 
 typedef struct ObjUpvalue {
     Obj obj;
-    ValueCell* location;
+    ValueCell* contents;
+    size_t stackOffset;
     ValueCell closed;
     struct ObjUpvalue* next;
 } ObjUpvalue;
@@ -220,7 +221,7 @@ ObjBlob* newBlob(size_t size);
 ObjPackedUniformArray* newPackedUniformArray(ObjConcreteYargTypeArray* type);
 ObjString* takeString(char* chars, int length);
 ObjString* copyString(const char* chars, int length);
-ObjUpvalue* newUpvalue(ValueCell* slot);
+ObjUpvalue* newUpvalue(ValueCell* slot, size_t stackOffset);
 
 StoredValue* arrayElement(ObjConcreteYargTypeArray* arrayType, StoredValue* arrayStart, size_t index);
 

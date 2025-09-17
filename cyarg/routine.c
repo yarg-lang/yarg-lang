@@ -61,6 +61,16 @@ void prepareRoutineStack(ObjRoutine* routine) {
     callfn(routine, routine->entryFunction, routine->entryFunction->function->arity);
 }
 
+ValueCell* frameSlot(ObjRoutine* routine, CallFrame* frame, size_t index) {
+    size_t stackElementIndex = frame->stackEntryIndex + index;
+
+    return peekCell(routine, routine->stackTopIndex - (stackElementIndex + 1));
+}
+
+size_t stackOffsetOf(CallFrame* frame, size_t frameIndex) {
+    return frame->stackEntryIndex + frameIndex;
+}
+
 void markRoutine(ObjRoutine* routine) {
 
     size_t stackSize = routine->stackTopIndex;

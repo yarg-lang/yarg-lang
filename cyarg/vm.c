@@ -146,7 +146,6 @@ bool callfn(ObjRoutine* routine, ObjClosure* closure, int argCount) {
     CallFrame* frame = &routine->frames[routine->frameCount++];
     frame->closure = closure;
     frame->ip = closure->function->chunk.code;
-    frame->slots = peekCell(routine, argCount);
     frame->stackEntryIndex = routine->stackTopIndex - (argCount + 1);
     return true;
 }
@@ -245,19 +244,19 @@ static bool bindMethod(ObjRoutine* routine, ObjClass* klass, ObjString* name) {
     return true;
 }
 
-static ObjUpvalue* captureUpvalue(ObjRoutine* routine, ValueCell* local) {
+static ObjUpvalue* captureUpvalue(ObjRoutine* routine, ValueCell* local, size_t stackOffset) {
     ObjUpvalue* prevUpvalue = NULL;
     ObjUpvalue* upvalue = routine->openUpvalues;
-    while (upvalue != NULL && upvalue->location > local) {
+    while (upvalue != NULL && upvalue->stackOffset > stackOffset) {
         prevUpvalue = upvalue;
         upvalue = upvalue->next;
     }
 
-    if (upvalue != NULL && upvalue->location == local) {
+    if (upvalue != NULL && upvalue->stackOffset == stackOffset) {
         return upvalue;
     }
 
-    ObjUpvalue* createdUpvalue = newUpvalue(local);
+    ObjUpvalue* createdUpvalue = newUpvalue(local, stackOffset);
     createdUpvalue->next = upvalue;
 
     if (prevUpvalue == NULL) {
@@ -269,11 +268,11 @@ static ObjUpvalue* captureUpvalue(ObjRoutine* routine, ValueCell* local) {
     return createdUpvalue;
 }
 
-static void closeUpvalues(ObjRoutine* routine, ValueCell* last) {
-    while (routine->openUpvalues != NULL && routine->openUpvalues->location >= last) {
+static void closeUpvalues(ObjRoutine* routine, size_t last) {
+    while (routine->openUpvalues != NULL && routine->openUpvalues->stackOffset >= last) {
         ObjUpvalue* upvalue = routine->openUpvalues;
-        upvalue->closed = *upvalue->location;
-        upvalue->location = &upvalue->closed;
+        upvalue->closed = *upvalue->contents;
+        upvalue->contents = &upvalue->closed;
         routine->openUpvalues = upvalue->next;
     }
 }
@@ -619,7 +618,7 @@ InterpretResult run(ObjRoutine* routine) {
             case OP_SET_LOCAL: {
                 uint8_t slot = READ_BYTE();
                 ValueCell* rhs = peekCell(routine, 0);
-                ValueCell* lhs = &frame->slots[slot];
+                ValueCell* lhs = frameSlot(routine, frame, slot);
                 ValueCellTarget trg = { .type = &lhs->type, .value = &lhs->value };
 
                 if (!assignTo(trg, rhs->value)) {
@@ -630,7 +629,7 @@ InterpretResult run(ObjRoutine* routine) {
             }
             case OP_GET_LOCAL: {
                 uint8_t slot = READ_BYTE();
-                push(routine, frame->slots[slot].value);
+                push(routine, frameSlot(routine, frame, slot)->value);
                 break;
             }
             case OP_GET_GLOBAL: {
@@ -679,15 +678,15 @@ InterpretResult run(ObjRoutine* routine) {
             }
             case OP_GET_UPVALUE: {
                 uint8_t slot = READ_BYTE();
-                push(routine, frame->closure->upvalues[slot]->location->value);
+                push(routine, frame->closure->upvalues[slot]->contents->value);
                 break;
             }
             case OP_SET_UPVALUE: {
                 uint8_t slot = READ_BYTE();
                 ValueCell* rhs = peekCell(routine, 0);
                 ValueCellTarget trg = { 
-                    .type = &frame->closure->upvalues[slot]->location->type, 
-                    .value = &frame->closure->upvalues[slot]->location->value 
+                    .type = &frame->closure->upvalues[slot]->contents->type, 
+                    .value = &frame->closure->upvalues[slot]->contents->value 
                 };
 
                 if (!assignTo(trg, rhs->value)) {
@@ -998,7 +997,7 @@ InterpretResult run(ObjRoutine* routine) {
                     uint8_t isLocal = READ_BYTE();
                     uint8_t index = READ_BYTE();
                     if (isLocal) {
-                        closure->upvalues[i] = captureUpvalue(routine, frame->slots + index);
+                        closure->upvalues[i] = captureUpvalue(routine, frameSlot(routine, frame, index), stackOffsetOf(frame, index));
                     } else {
                         closure->upvalues[i] = frame->closure->upvalues[index];
                     }
@@ -1006,7 +1005,7 @@ InterpretResult run(ObjRoutine* routine) {
                 break;
             }
             case OP_CLOSE_UPVALUE:
-                closeUpvalues(routine, peekCell(routine, 0));
+                closeUpvalues(routine, routine->stackTopIndex - 1);
                 pop(routine);
                 break;
             case OP_YIELD: {
@@ -1019,7 +1018,7 @@ InterpretResult run(ObjRoutine* routine) {
             }
             case OP_RETURN: {
                 Value result = pop(routine);
-                closeUpvalues(routine, frame->slots);
+                closeUpvalues(routine, frame->stackEntryIndex);
                 routine->frameCount--;
                 if (routine->frameCount == 0) {
                     pop(routine);

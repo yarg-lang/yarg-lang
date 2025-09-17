@@ -11,7 +11,6 @@
 typedef struct {
     ObjClosure* closure;
     uint8_t* ip;
-    ValueCell* slots;
     size_t stackEntryIndex;
 } CallFrame;
 
@@ -58,6 +57,9 @@ void resetRoutine(ObjRoutine* routine);
 bool bindEntryFn(ObjRoutine* routine, ObjClosure* closure);
 void bindEntryArgs(ObjRoutine* routine, Value entryArg);
 void prepareRoutineStack(ObjRoutine* routine);
+ValueCell* frameSlot(ObjRoutine* routine, CallFrame* frame, size_t index);
+size_t stackOffsetOf(CallFrame* frame, size_t frameIndex);
+
 
 void markRoutine(ObjRoutine* routine);
 
