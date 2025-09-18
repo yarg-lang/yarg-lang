@@ -58,6 +58,7 @@ bool bindEntryFn(ObjRoutine* routine, ObjClosure* closure);
 void bindEntryArgs(ObjRoutine* routine, Value entryArg);
 void prepareRoutineStack(ObjRoutine* routine);
 ValueCell* frameSlot(ObjRoutine* routine, CallFrame* frame, size_t index);
+Value nativeArgument(ObjRoutine* routine, size_t argCount, size_t argument);
 size_t stackOffsetOf(CallFrame* frame, size_t frameIndex);
 
 

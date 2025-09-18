@@ -13,20 +13,22 @@
 #include <hardware/irq.h>
 #endif
 
-bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, ValueCell* args, Value* result) {
+bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* result) {
 
-    if (!IS_ADDRESS(args[1].value)) {
+    Value numVal = nativeArgument(routine, argCount, 0);
+    Value address = nativeArgument(routine, argCount, 1);
+    Value prioVal = nativeArgument(routine, argCount, 2);
+
+    if (!IS_ADDRESS(address)) {
         runtimeError(routine, "Expected an address.");
         return false;
     }
 
     *result = NIL_VAL;
-    Value numVal = args[0].value;
     unsigned int num = as_positive_integer(numVal);
 
-    uintptr_t isrRoutine = AS_ADDRESS(args[1].value);
+    uintptr_t isrRoutine = AS_ADDRESS(address);
 
-    Value prioVal = args[2].value;
     unsigned int prio = as_positive_integer(prioVal);
 
     size_t handlerIndex = pinnedRoutineIndex(isrRoutine);
@@ -41,18 +43,20 @@ bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, ValueCell* 
     return true;
 }
 
-bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, ValueCell* args, Value* result) {
+bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, Value* result) {
 
-    if (!IS_ADDRESS(args[1].value)) {
+    Value numVal = nativeArgument(routine, argCount, 0);
+    Value address = nativeArgument(routine, argCount, 1);
+
+    if (!IS_ADDRESS(address)) {
         runtimeError(routine, "Expected an address.");
         return false;
     }
 
     *result = NIL_VAL;
-    Value numVal = args[0].value;
     unsigned int num = as_positive_integer(numVal);
 
-    uintptr_t isrRoutine = AS_ADDRESS(args[1].value);
+    uintptr_t isrRoutine = AS_ADDRESS(address);
 
 #ifdef CYARG_PICO_TARGET
     irq_remove_handler(num, (irq_handler_t) isrRoutine);
@@ -65,7 +69,7 @@ bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, ValueCell* args
 }
 
 
-bool clockNative(ObjRoutine* routine, int argCount, ValueCell* args, Value* result) {
+bool clockNative(ObjRoutine* routine, int argCount, Value* result) {
     if (argCount != 0) {
         runtimeError(routine, "Expected 0 arguments but got %d.", argCount);
         return false;

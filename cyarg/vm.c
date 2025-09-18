@@ -182,7 +182,7 @@ static bool callValue(ObjRoutine* routine, Value callee, int argCount) {
                     return importBuiltin(routine, argCount);
                 } else {
                     Value result = NIL_VAL; 
-                    if (native(routine, argCount, peekCell(routine, argCount - 1), &result)) {
+                    if (native(routine, argCount, &result)) {
                         popN(routine, argCount + 1);
                         push(routine, result);
                         return true;

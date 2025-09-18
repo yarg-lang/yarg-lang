@@ -18,7 +18,7 @@
 #include "channel.h"
 #include "yargtype.h"
 
-bool importBuiltinDummy(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+bool importBuiltinDummy(ObjRoutine* routineContext, int argCount, Value* result) {
     *result = NIL_VAL;
     return true;
 }
@@ -50,7 +50,7 @@ bool importBuiltin(ObjRoutine* routineContext, int argCount) {
         push(routineContext, NIL_VAL);
         return true;
     }
-    
+
     char* source = NULL;
     char* library = libraryNameFor(AS_CSTRING(peek(routineContext, 0)));
     if (library) {
@@ -90,18 +90,18 @@ bool importBuiltin(ObjRoutine* routineContext, int argCount) {
 
 }
 
-bool makeRoutineBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+bool makeRoutineBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (argCount != 2) {
         runtimeError(routineContext, "Expected 2 arguments but got %d.", argCount);
         return false;
     }
-    if (!IS_CLOSURE(args[0].value) || !IS_BOOL(args[1].value)) {
+    if (!IS_CLOSURE(nativeArgument(routineContext, argCount, 0)) || !IS_BOOL(nativeArgument(routineContext, argCount, 1))) {
         runtimeError(routineContext, "Argument to make_routine must be a function and a boolean.");
         return false;
     }
 
-    ObjClosure* closure = AS_CLOSURE(args[0].value);
-    bool isISR = AS_BOOL(args[1].value);
+    ObjClosure* closure = AS_CLOSURE(nativeArgument(routineContext, argCount, 0));
+    bool isISR = AS_BOOL(nativeArgument(routineContext, argCount, 1));
 
     ObjRoutine* routine = newRoutine(isISR ? ROUTINE_ISR : ROUTINE_THREAD);
 
@@ -115,18 +115,18 @@ bool makeRoutineBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* arg
     }
 }
 
-bool resumeBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+bool resumeBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (argCount < 1 || argCount > 2) {
         runtimeError(routineContext, "Expected one or two arguments to resume.");
         return false;
     }
 
-    if (!IS_ROUTINE(args[0].value)) {
+    if (!IS_ROUTINE(nativeArgument(routineContext, argCount, 0))) {
         runtimeError(routineContext, "Argument to resume must be a routine.");
         return false;
     }
 
-    ObjRoutine* target = AS_ROUTINE(args[0].value);
+    ObjRoutine* target = AS_ROUTINE(nativeArgument(routineContext, argCount, 0));
 
     if (target->state != EXEC_SUSPENDED && target->state != EXEC_UNBOUND) {
         runtimeError(routineContext, "routine must be suspended or unbound to resume.");
@@ -134,7 +134,7 @@ bool resumeBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Va
     }
 
     if (argCount > 1) {
-        bindEntryArgs(target, args[1].value);
+        bindEntryArgs(target, nativeArgument(routineContext, argCount, 1));
     }
 
     if (target->state == EXEC_UNBOUND) {
@@ -180,19 +180,21 @@ void nativeCore1Entry() {
 }
 #endif
 
-bool startBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+bool startBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
 #ifdef CYARG_PICO_TARGET
     if (argCount < 1 || argCount > 2) {
         runtimeError(routineContext, "Expected one or two arguments to start.");
         return false;
     }
 
-    if (!IS_ROUTINE(args[0].value)) {
+    Value routineVal = nativeArgument(routineContext, argCount, 0);
+
+    if (!IS_ROUTINE(routineVal)) {
         runtimeError(routineContext, "Argument to start must be a routine.");
         return false;
     }
 
-    ObjRoutine* target = AS_ROUTINE(args[0].value);
+    ObjRoutine* target = AS_ROUTINE(routineVal);
 
     if (target->state != EXEC_UNBOUND) {
         runtimeError(routineContext, "routine must be unbound to start.");
@@ -205,7 +207,7 @@ bool startBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Val
     }
 
     if (argCount > 1) {
-        bindEntryArgs(target, args[1].value);
+        bindEntryArgs(target, nativeArgument(routineContext, argCount, 1));
     }
 
     prepareRoutineStack(target);
@@ -229,18 +231,20 @@ bool startBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Val
     return true;
 }
 
-bool peekBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+bool peekBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
 
-    if (!isAddressValue(args[0].value)) {
+    Value address = nativeArgument(routineContext, argCount, 0);
+
+    if (!isAddressValue(address)) {
         runtimeError(routineContext, "Expected an address or pointer.");
         return false;
     }
 
     uintptr_t nominal_address = 0;
-    if (IS_POINTER(args[0].value)) {
-        nominal_address = (uintptr_t) AS_POINTER(args[0].value)->destination;
+    if (IS_POINTER(address)) {
+        nominal_address = (uintptr_t) AS_POINTER(address)->destination;
     } else {
-        nominal_address = AS_ADDRESS(args[0].value);
+        nominal_address = AS_ADDRESS(address);
     }
     volatile uint32_t* reg = (volatile uint32_t*) nominal_address;
 
@@ -254,18 +258,20 @@ bool peekBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Valu
     return true;
 }
 
-bool lenBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+bool lenBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (argCount != 1) {
         runtimeError(routineContext, "Expected 1 argument, but got %d.", argCount);
         return false;
     }
 
-    if (IS_STRING(args[0].value)) {
-        ObjString* string = AS_STRING(args[0].value);
+    Value arg = nativeArgument(routineContext, argCount, 0);
+
+    if (IS_STRING(arg)) {
+        ObjString* string = AS_STRING(arg);
         *result = UI32_VAL(string->length);
         return true;
-    } else if (IS_UNIFORMARRAY(args[0].value)) {
-        ObjPackedUniformArray* array = AS_UNIFORMARRAY(args[0].value);
+    } else if (IS_UNIFORMARRAY(arg)) {
+        ObjPackedUniformArray* array = AS_UNIFORMARRAY(arg);
         *result = UI32_VAL(array->type->cardinality);
         return true;
     } else {
@@ -274,20 +280,22 @@ bool lenBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
     }
 }
 
-bool pinBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+bool pinBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (argCount != 1) {
         runtimeError(routineContext, "Expected 1 argument, but got %d.", argCount);
         return false;
     }
 
-    if (!IS_ROUTINE(args[0].value)) {
+    Value arg = nativeArgument(routineContext, argCount, 0);
+
+    if (!IS_ROUTINE(arg)) {
         runtimeError(routineContext, "Argument to pin must be a routine.");
         return false;
     }
 
     for (size_t i = 0; i < MAX_PINNED_ROUTINES; i++) {
         if (vm.pinnedRoutines[i] == NULL) {
-            vm.pinnedRoutines[i] = AS_ROUTINE(args[0].value);
+            vm.pinnedRoutines[i] = AS_ROUTINE(arg);
             *result = ADDRESS_VAL((uintptr_t)vm.pinnedRoutineHandlers[i]);
             return true;
         }
@@ -298,12 +306,12 @@ bool pinBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
     return false;
 }
 
-bool newBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+bool newBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
 
     Value typeToCreate = NIL_VAL;
     if (   argCount == 1
-        && IS_YARGTYPE(args[0].value)) {
-        typeToCreate = args[0].value;
+        && IS_YARGTYPE(nativeArgument(routineContext, argCount, 0))) {
+        typeToCreate = nativeArgument(routineContext, argCount, 0);
     }
 
     ConcreteYargType typeRequested = IS_NIL(typeToCreate) ? TypeAny : AS_YARGTYPE(typeToCreate)->yt;
@@ -349,142 +357,148 @@ bool newBuiltin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value
     return false;
 }
 
-bool uint64Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
-    if (IS_I8(args[0].value)) {
-        *result = UI64_VAL(AS_I8(args[0].value));
+bool uint64Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
+    Value arg = nativeArgument(routineContext, argCount, 0);
+    if (IS_I8(arg)) {
+        *result = UI64_VAL(AS_I8(arg));
         return true;
-    } else if (IS_UI8(args[0].value)) {
-        *result = UI64_VAL(AS_UI8(args[0].value));
+    } else if (IS_UI8(arg)) {
+        *result = UI64_VAL(AS_UI8(arg));
         return true;
-    } else if (IS_I32(args[0].value)) {
-        *result = UI64_VAL(AS_I32(args[0].value));
+    } else if (IS_I32(arg)) {
+        *result = UI64_VAL(AS_I32(arg));
         return true;
-    } else if (IS_UI32(args[0].value)) {
-        *result = UI64_VAL(AS_UI32(args[0].value));
+    } else if (IS_UI32(arg)) {
+        *result = UI64_VAL(AS_UI32(arg));
         return true;
-    } else if (IS_UI64(args[0].value)) {
-        *result = args[0].value;
+    } else if (IS_UI64(arg)) {
+        *result = arg;
         return true;
-    } else if (IS_I64(args[0].value) && AS_I64(args[0].value) >= 0) {
-        *result = UI64_VAL(AS_I64(args[0].value));
-        return true;
-    }
-    return false;
-}
-
-bool int64Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
-    if (IS_I8(args[0].value)) {
-        *result = I64_VAL(AS_I8(args[0].value));
-        return true;
-    } else if (IS_I32(args[0].value)) {
-        *result = I64_VAL(AS_I32(args[0].value));
-        return true;
-    } else if (IS_I64(args[0].value)) {
-        *result = args[0].value;
-        return true;
-    } else if (IS_UI8(args[0].value)) {
-        *result = I64_VAL(AS_UI8(args[0].value));
-        return true;
-    } else if (IS_UI32(args[0].value)) {
-        *result = I64_VAL(AS_UI32(args[0].value));
-        return true;
-    } else if (IS_UI64(args[0].value) && AS_UI64(args[0].value) <= INT64_MAX) {
-        *result = I64_VAL(AS_UI64(args[0].value));
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool uint32Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
-    if (IS_I8(args[0].value) && AS_I8(args[0].value) >= 0) {
-        *result = UI32_VAL(AS_I8(args[0].value));
-        return true;
-    } else if (IS_I32(args[0].value) && AS_I32(args[0].value) >= 0) {
-        *result = UI32_VAL(AS_I32(args[0].value));
-        return true;
-    } else if (IS_I64(args[0].value) && AS_I64(args[0].value) >= 0 && AS_I64(args[0].value) < UINT32_MAX) {
-        *result = UI32_VAL(AS_I64(args[0].value));
-        return true;
-    } else if (IS_UI8(args[0].value)) {
-        *result = UI32_VAL(AS_UI8(args[0].value));
-        return true;
-    } else if (IS_UI32(args[0].value)) {
-        *result = args[0].value;
-        return true;
-    } else if (IS_UI64(args[0].value) && AS_UI64(args[0].value) <= UINT32_MAX) {
-        *result = UI32_VAL(AS_UI64(args[0].value));
+    } else if (IS_I64(arg) && AS_I64(arg) >= 0) {
+        *result = UI64_VAL(AS_I64(arg));
         return true;
     }
     return false;
 }
 
-bool int32Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
-    if (IS_I8(args[0].value)) {
-        *result = I32_VAL(AS_I8(args[0].value));
+bool int64Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
+    Value arg = nativeArgument(routineContext, argCount, 0);
+    if (IS_I8(arg)) {
+        *result = I64_VAL(AS_I8(arg));
         return true;
-    } else if (IS_I32(args[0].value)) {
-        *result = args[0].value;
+    } else if (IS_I32(arg)) {
+        *result = I64_VAL(AS_I32(arg));
         return true;
-    } else if (IS_I64(args[0].value) && AS_I64(args[0].value) >= INT32_MIN && AS_I64(args[0].value) <= INT32_MAX) {
-        *result = I32_VAL(AS_I64(args[0].value));
+    } else if (IS_I64(arg)) {
+        *result = arg;
         return true;
-    } else if (IS_UI8(args[0].value)) {
-        *result = I32_VAL(AS_UI8(args[0].value));
+    } else if (IS_UI8(arg)) {
+        *result = I64_VAL(AS_UI8(arg));
         return true;
-    } else if (IS_UI32(args[0].value) && AS_UI32(args[0].value) <= INT32_MAX) {
-        *result = I32_VAL(AS_UI32(args[0].value));
+    } else if (IS_UI32(arg)) {
+        *result = I64_VAL(AS_UI32(arg));
         return true;
-    } else if (IS_UI64(args[0].value) && AS_UI64(args[0].value) <= INT32_MAX) {
-        *result = I32_VAL(AS_UI64(args[0].value));
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool uint8Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
-    if (IS_I8(args[0].value) && AS_I8(args[0].value) >= 0) {
-        *result = UI8_VAL(AS_I8(args[0].value));
-        return true;
-    } else if (IS_I32(args[0].value) && AS_I32(args[0].value) >= 0 && AS_I32(args[0].value) < UINT8_MAX) {
-        *result = UI8_VAL(AS_I32(args[0].value));
-        return true;
-    } else if (IS_I64(args[0].value) && AS_I64(args[0].value) >= 0 && AS_I64(args[0].value) < UINT8_MAX) {
-        *result = UI8_VAL(AS_I64(args[0].value));
-        return true;
-    } else if (IS_UI8(args[0].value)) {
-        *result = args[0].value;
-        return true;
-    } else if (IS_UI32(args[0].value) && AS_UI32(args[0].value) <= UINT8_MAX) {
-        *result = UI8_VAL(AS_UI32(args[0].value));
-        return true;
-    } else if (IS_UI64(args[0].value) && AS_UI64(args[0].value) <= UINT8_MAX) {
-        *result = UI8_VAL(AS_UI64(args[0].value));
+    } else if (IS_UI64(arg) && AS_UI64(arg) <= INT64_MAX) {
+        *result = I64_VAL(AS_UI64(arg));
         return true;
     } else {
         return false;
     }
 }
 
-bool int8Builtin(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
-    if (IS_I8(args[0].value)) {
-        *result = args[0].value;
+bool uint32Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
+    Value arg = nativeArgument(routineContext, argCount, 0);
+    if (IS_I8(arg) && AS_I8(arg) >= 0) {
+        *result = UI32_VAL(AS_I8(arg));
         return true;
-    } else if (IS_I32(args[0].value) && AS_I32(args[0].value) >= INT8_MIN && AS_I32(args[0].value) < INT8_MAX) {
-        *result = I8_VAL(AS_I32(args[0].value));
+    } else if (IS_I32(arg) && AS_I32(arg) >= 0) {
+        *result = UI32_VAL(AS_I32(arg));
         return true;
-    } else if (IS_I64(args[0].value) && AS_I64(args[0].value) >= INT8_MIN && AS_I64(args[0].value) < INT8_MAX) {
-        *result = I8_VAL(AS_I64(args[0].value));
+    } else if (IS_I64(arg) && AS_I64(arg) >= 0 && AS_I64(arg) < UINT32_MAX) {
+        *result = UI32_VAL(AS_I64(arg));
         return true;
-    } else if (IS_UI8(args[0].value) && AS_UI8(args[0].value) <= INT8_MAX) {
-        *result = I8_VAL(AS_UI8(args[0].value));
+    } else if (IS_UI8(arg)) {
+        *result = UI32_VAL(AS_UI8(arg));
         return true;
-    } else if (IS_UI32(args[0].value) && AS_UI32(args[0].value) <= INT8_MAX) {
-        *result = I8_VAL(AS_UI32(args[0].value));
+    } else if (IS_UI32(arg)) {
+        *result = arg;
         return true;
-    } else if (IS_UI64(args[0].value) && AS_UI64(args[0].value) <= INT8_MAX) {
-        *result = I8_VAL(AS_UI64(args[0].value));
+    } else if (IS_UI64(arg) && AS_UI64(arg) <= UINT32_MAX) {
+        *result = UI32_VAL(AS_UI64(arg));
+        return true;
+    }
+    return false;
+}
+
+bool int32Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
+    Value arg = nativeArgument(routineContext, argCount, 0);
+    if (IS_I8(arg)) {
+        *result = I32_VAL(AS_I8(arg));
+        return true;
+    } else if (IS_I32(arg)) {
+        *result = arg;
+        return true;
+    } else if (IS_I64(arg) && AS_I64(arg) >= INT32_MIN && AS_I64(arg) <= INT32_MAX) {
+        *result = I32_VAL(AS_I64(arg));
+        return true;
+    } else if (IS_UI8(arg)) {
+        *result = I32_VAL(AS_UI8(arg));
+        return true;
+    } else if (IS_UI32(arg) && AS_UI32(arg) <= INT32_MAX) {
+        *result = I32_VAL(AS_UI32(arg));
+        return true;
+    } else if (IS_UI64(arg) && AS_UI64(arg) <= INT32_MAX) {
+        *result = I32_VAL(AS_UI64(arg));
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool uint8Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
+    Value arg = nativeArgument(routineContext, argCount, 0);
+    if (IS_I8(arg) && AS_I8(arg) >= 0) {
+        *result = UI8_VAL(AS_I8(arg));
+        return true;
+    } else if (IS_I32(arg) && AS_I32(arg) >= 0 && AS_I32(arg) < UINT8_MAX) {
+        *result = UI8_VAL(AS_I32(arg));
+        return true;
+    } else if (IS_I64(arg) && AS_I64(arg) >= 0 && AS_I64(arg) < UINT8_MAX) {
+        *result = UI8_VAL(AS_I64(arg));
+        return true;
+    } else if (IS_UI8(arg)) {
+        *result = arg;
+        return true;
+    } else if (IS_UI32(arg) && AS_UI32(arg) <= UINT8_MAX) {
+        *result = UI8_VAL(AS_UI32(arg));
+        return true;
+    } else if (IS_UI64(arg) && AS_UI64(arg) <= UINT8_MAX) {
+        *result = UI8_VAL(AS_UI64(arg));
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool int8Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
+    Value arg = nativeArgument(routineContext, argCount, 0);
+    if (IS_I8(arg)) {
+        *result = arg;
+        return true;
+    } else if (IS_I32(arg) && AS_I32(arg) >= INT8_MIN && AS_I32(arg) < INT8_MAX) {
+        *result = I8_VAL(AS_I32(arg));
+        return true;
+    } else if (IS_I64(arg) && AS_I64(arg) >= INT8_MIN && AS_I64(arg) < INT8_MAX) {
+        *result = I8_VAL(AS_I64(arg));
+        return true;
+    } else if (IS_UI8(arg) && AS_UI8(arg) <= INT8_MAX) {
+        *result = I8_VAL(AS_UI8(arg));
+        return true;
+    } else if (IS_UI32(arg) && AS_UI32(arg) <= INT8_MAX) {
+        *result = I8_VAL(AS_UI32(arg));
+        return true;
+    } else if (IS_UI64(arg) && AS_UI64(arg) <= INT8_MAX) {
+        *result = I8_VAL(AS_UI64(arg));
         return true;
     } else {
         return false;

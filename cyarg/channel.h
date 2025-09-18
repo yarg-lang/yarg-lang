@@ -6,10 +6,10 @@
 
 ObjChannel* newChannel();
 
-bool makeChannelBuiltin(ObjRoutine* routine, int argCount, ValueCell* args, Value* result);
-bool sendChannelBuiltin(ObjRoutine* routine, int argCount, ValueCell* args, Value* result);
-bool receiveChannelBuiltin(ObjRoutine* routine, int argCount, ValueCell* args, Value* result);
-bool shareChannelBuiltin(ObjRoutine* routine, int argCount, ValueCell* args, Value* result);
-bool peekChannelBuiltin(ObjRoutine* routine, int argCount, ValueCell* args, Value* result);
+bool makeChannelBuiltin(ObjRoutine* routine, int argCount, Value* result);
+bool sendChannelBuiltin(ObjRoutine* routine, int argCount, Value* result);
+bool receiveChannelBuiltin(ObjRoutine* routine, int argCount, Value* result);
+bool shareChannelBuiltin(ObjRoutine* routine, int argCount, Value* result);
+bool peekChannelBuiltin(ObjRoutine* routine, int argCount, Value* result);
 
 #endif

@@ -24,7 +24,7 @@ struct ws2812pio {
 };
 #endif
 
-bool ws2812initNative(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+bool ws2812initNative(ObjRoutine* routineContext, int argCount, Value* result) {
     bool success = false;
 #ifdef CYARG_PICO_TARGET
     ObjBlob* handle = newBlob(sizeof(struct ws2812pio));
@@ -48,21 +48,24 @@ bool ws2812initNative(ObjRoutine* routineContext, int argCount, ValueCell* args,
     return success;
 }
 
-bool ws2812writepixelNative(ObjRoutine* routineContext, int argCount, ValueCell* args, Value* result) {
+bool ws2812writepixelNative(ObjRoutine* routineContext, int argCount, Value* result) {
 #ifdef CYARG_PICO_TARGET
-    if (!IS_BLOB(args[0].value)) {
+    Value blobVal = nativeArgument(routineContext, argCount, 0);
+    Value pixelVal = nativeArgument(routineContext, argCount, 1);
+
+    if (!IS_BLOB(blobVal)) {
         runtimeError(routineContext, "Expected a WS2812 handle.");
         return false;
     }
-    if (!IS_UI32(args[1].value)) {
+    if (!IS_UI32(pixelVal)) {
         runtimeError(routineContext, "Expected an unsigned integer.");
         return false;
     }
 
-    ObjBlob* blob = AS_BLOB(args[0].value);
+    ObjBlob* blob = AS_BLOB(blobVal);
     struct ws2812pio* pio = (struct ws2812pio*) blob->blob;
 
-    uint32_t pixel = AS_UI32(args[1].value);
+    uint32_t pixel = AS_UI32(pixelVal);
 
     pio_sm_put_blocking(pio->pio, pio->sm, pixel);
 #endif

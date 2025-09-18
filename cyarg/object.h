@@ -123,7 +123,7 @@ typedef struct {
     ObjString* name;
 } ObjFunction;
 
-typedef bool (*NativeFn)(ObjRoutine* routine, int argCount, ValueCell* args, Value* result);
+typedef bool (*NativeFn)(ObjRoutine* routine, int argCount, Value* result);
 
 typedef struct {
     Obj obj;
