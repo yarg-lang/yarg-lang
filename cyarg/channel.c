@@ -77,15 +77,15 @@ bool receiveChannelBuiltin(ObjRoutine* routine, int argCount, ValueCell* args, V
 
     } 
     else if (IS_ROUTINE(args[0].value)) {
-        ObjRoutine* routine = AS_ROUTINE(args[0].value);
+        ObjRoutine* routineParam = AS_ROUTINE(args[0].value);
 
 #ifdef CYARG_PICO_TARGET
-        while (routine->state == EXEC_RUNNING) {
+        while (routineParam->state == EXEC_RUNNING) {
             tight_loop_contents();
         }
 #endif    
         
-        if (routine->state == EXEC_CLOSED || routine->state == EXEC_SUSPENDED) {
+        if (routineParam->state == EXEC_CLOSED || routineParam->state == EXEC_SUSPENDED) {
             *result = routine->stackTop->value;
         } 
         else {
