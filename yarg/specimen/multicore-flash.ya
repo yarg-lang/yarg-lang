@@ -17,7 +17,7 @@ fun flash(n) {
         while (tick < n * 2) {
             state = !state;
             gpio_put(led_pin, state);
-            sleep_ms(500);
+            c_sleep_ms(500);
             tick = tick + 1;
         }
 
