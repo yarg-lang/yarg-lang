@@ -1196,8 +1196,9 @@ InterpretResult interpret(const char* source) {
     callfn(&vm.core0, closure, 0);
 
     InterpretResult result = run(&vm.core0);
-
-    pop(&vm.core0);
+    if (result == INTERPRET_OK) {
+        pop(&vm.core0);
+    }
 
     return result;
 }
