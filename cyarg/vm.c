@@ -146,7 +146,8 @@ bool callfn(ObjRoutine* routine, ObjClosure* closure, int argCount) {
     CallFrame* frame = &routine->frames[routine->frameCount++];
     frame->closure = closure;
     frame->ip = closure->function->chunk.code;
-    frame->slots = routine->stackTop - argCount - 1;
+    frame->slots = peekCell(routine, argCount);
+    frame->stackEntryIndex = routine->stackTopIndex - (argCount + 1);
     return true;
 }
 
@@ -155,14 +156,16 @@ static bool callValue(ObjRoutine* routine, Value callee, int argCount) {
         switch (OBJ_TYPE(callee)) {
             case OBJ_BOUND_METHOD: {
                 ObjBoundMethod* bound = AS_BOUND_METHOD(callee);
-                routine->stackTop[-argCount - 1].value = bound->reciever;
-                routine->stackTop[-argCount - 1].type = NIL_VAL;
+                ValueCell* target = peekCell(routine, argCount);
+                target->value = bound->reciever;
+                target->type = NIL_VAL;
                 return callfn(routine, bound->method, argCount);
             }
             case OBJ_CLASS: {
                 ObjClass* klass = AS_CLASS(callee);
-                routine->stackTop[-argCount  - 1].value = OBJ_VAL(newInstance(klass));
-                routine->stackTop[-argCount  - 1].type = NIL_VAL;
+                ValueCell* target = peekCell(routine, argCount);
+                target->value = OBJ_VAL(newInstance(klass));
+                target->type = NIL_VAL;
                 Value initializer;
                 if (tableGet(&klass->methods, vm.initString, &initializer)) {
                     return callfn(routine, AS_CLOSURE(initializer), argCount);
@@ -180,8 +183,8 @@ static bool callValue(ObjRoutine* routine, Value callee, int argCount) {
                     return importBuiltin(routine, argCount);
                 } else {
                     Value result = NIL_VAL; 
-                    if (native(routine, argCount, (routine->stackTop - argCount), &result)) {
-                        routine->stackTop -= argCount + 1;
+                    if (native(routine, argCount, peekCell(routine, argCount - 1), &result)) {
+                        popN(routine, argCount + 1);
                         push(routine, result);
                         return true;
                     } else {
@@ -219,8 +222,10 @@ static bool invoke(ObjRoutine* routine, ObjString* name, int argCount) {
 
     Value value;
     if (tableGet(&instance->fields, name, &value)) {
-        routine->stackTop[-argCount - 1].value = value;
-        routine->stackTop[-argCount - 1].type = NIL_VAL;
+        ValueCell* target = peekCell(routine, argCount);
+
+        target->value = value;
+        target->type = NIL_VAL;
         return callValue(routine, value, argCount);
     }
 
@@ -1001,7 +1006,7 @@ InterpretResult run(ObjRoutine* routine) {
                 break;
             }
             case OP_CLOSE_UPVALUE:
-                closeUpvalues(routine, routine->stackTop - 1);
+                closeUpvalues(routine, peekCell(routine, 0));
                 pop(routine);
                 break;
             case OP_YIELD: {
@@ -1022,8 +1027,8 @@ InterpretResult run(ObjRoutine* routine) {
                     routine->state = EXEC_CLOSED;
                     return INTERPRET_OK;
                 }
-
-                routine->stackTop = frame->slots;
+                
+                popFrame(routine, frame);
                 push(routine, result);
                 frame = &routine->frames[routine->frameCount - 1];
                 break;

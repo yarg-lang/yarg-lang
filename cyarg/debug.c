@@ -255,7 +255,7 @@ int disassembleInstruction(Chunk* chunk, int offset) {
 }
 
 void printValueStack(ObjRoutine* routine, const char* message) {
-    size_t stackSize = routine->stackTop - routine->stack;
+    size_t stackSize = routine->stackTopIndex;
     printf("[%2zu]", stackSize);
     printf("%6s", message);
     for (int i = stackSize - 1; i >= 0; i--) {

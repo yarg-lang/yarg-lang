@@ -6,12 +6,13 @@
 #include "object.h"
 
 #define FRAMES_MAX 20
-#define STACK_MAX (FRAMES_MAX * (UINT8_COUNT / 4))
+#define SLICE_MAX 512
 
 typedef struct {
     ObjClosure* closure;
     uint8_t* ip;
     ValueCell* slots;
+    size_t stackEntryIndex;
 } CallFrame;
 
 typedef enum {
@@ -27,14 +28,20 @@ typedef enum {
     EXEC_ERROR
 } ExecState;
 
+typedef struct StackSlice StackSlice;
+
+typedef struct StackSlice {
+    ValueCell elements[SLICE_MAX];
+} StackSlice;
+
 typedef struct ObjRoutine {
     Obj obj;
 
     CallFrame frames[FRAMES_MAX];
     int frameCount;
 
-    ValueCell stack[STACK_MAX];
-    ValueCell* stackTop;
+    StackSlice stk;
+    size_t stackTopIndex;
 
     ObjClosure* entryFunction;
     Value entryArg;
@@ -57,6 +64,8 @@ void markRoutine(ObjRoutine* routine);
 void push(ObjRoutine* routine, Value value);
 void pushTyped(ObjRoutine* routine, Value value, Value type);
 Value pop(ObjRoutine* routine);
+void popN(ObjRoutine* routine, size_t count);
+void popFrame(ObjRoutine* routine, CallFrame* frame);
 Value peek(ObjRoutine* routine, int distance);
 ValueCell* peekCell(ObjRoutine* routine, int distance);
 

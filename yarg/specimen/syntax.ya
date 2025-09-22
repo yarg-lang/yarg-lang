@@ -1,4 +1,6 @@
-import("machine");
-print 1;
-import("machine");
-print 1;
+fun pr(x, y) {
+    print x;
+    return y+2;
+}
+
+print pr(2, 10);

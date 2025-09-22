@@ -1,0 +1,12 @@
+fun input(n) {
+    print n;
+    yield n - 1;
+}
+
+var coro = make_routine(input, false);
+
+print resume(coro, 10);
+print receive(coro);
+// expect: 10
+// expect: 9
+// expect: 9

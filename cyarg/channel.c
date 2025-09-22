@@ -86,7 +86,7 @@ bool receiveChannelBuiltin(ObjRoutine* routine, int argCount, ValueCell* args, V
 #endif    
         
         if (routineParam->state == EXEC_CLOSED || routineParam->state == EXEC_SUSPENDED) {
-            *result = routine->stackTop->value;
+            *result = peek(routineParam, -1);
         } 
         else {
             *result = NIL_VAL;

@@ -20,7 +20,8 @@ void initRoutine(ObjRoutine* routine, RoutineKind type) {
 }
 
 void resetRoutine(ObjRoutine* routine) {
-    routine->stackTop = routine->stack;
+
+    routine->stackTopIndex = 0;
     routine->frameCount = 0;
 
     routine->openUpvalues = NULL;
@@ -61,8 +62,10 @@ void prepareRoutineStack(ObjRoutine* routine) {
 }
 
 void markRoutine(ObjRoutine* routine) {
-    for (ValueCell* slot = routine->stack; slot < routine->stackTop; slot++) {
-        markValueCell(slot);
+
+    size_t stackSize = routine->stackTopIndex;
+    for (int i = stackSize - 1; i >= 0; i--) {
+        markValueCell(peekCell(routine, i));
     }
 
     for (int i = 0; i < routine->frameCount; i++) {
@@ -103,12 +106,19 @@ void runtimeError(ObjRoutine* routine, const char* format, ...) {
     resetRoutine(routine);
 }
 
-void push(ObjRoutine* routine, Value value) {
-    routine->stackTop->value = value;
-    routine->stackTop->type = NIL_VAL;
-    routine->stackTop++;
+static ValueCell* slot(ObjRoutine* routine, size_t index) {
 
-    if (routine->stackTop - &routine->stack[0] > STACK_MAX) {
+    return &routine->stk.elements[index];
+}
+
+void push(ObjRoutine* routine, Value value) {
+    ValueCell* nextSlot = slot(routine, routine->stackTopIndex);
+
+    nextSlot->value = value;
+    nextSlot->type = NIL_VAL;
+    routine->stackTopIndex++;
+
+    if (routine->stackTopIndex % SLICE_MAX == 0) {
         runtimeError(routine, "Value stack size exceeded.");
     }
 }
@@ -120,14 +130,30 @@ void pushTyped(ObjRoutine* routine, Value value, Value type) {
 }
 
 Value pop(ObjRoutine* routine) {
-    routine->stackTop--;
-    return routine->stackTop->value;
+
+    Value ret = peek(routine, 0);
+    routine->stackTopIndex--;
+
+    return ret;
+}
+
+void popN(ObjRoutine* routine, size_t count) {
+    for (size_t i = 0; i < count; i++) {
+        pop(routine);
+    }
+}
+
+void popFrame(ObjRoutine* routine, CallFrame* frame) {
+    routine->stackTopIndex = frame->stackEntryIndex;
 }
 
 Value peek(ObjRoutine* routine, int distance) {
-    return routine->stackTop[-1 - distance].value;
+    return peekCell(routine, distance)->value;
 }
 
 ValueCell* peekCell(ObjRoutine* routine, int distance) {
-    return &routine->stackTop[-1 - distance];
+
+    ValueCell* targetCell = slot(routine, routine->stackTopIndex - 1 - distance);
+
+    return targetCell;
 }
