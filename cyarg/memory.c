@@ -259,6 +259,7 @@ static void blackenObject(Obj* object) {
             markObject((Obj*)type->target_type);
             break;
         }
+        case OBJ_STACKSLICE: break;
         case OBJ_AST: {
             ObjAst* ast = (ObjAst*)object;
             markObject((Obj*)ast->statements);
@@ -537,6 +538,7 @@ static void freeObject(Obj* object) {
             break;
         }
         case OBJ_YARGTYPE_POINTER: FREE(ObjConcreteYargTypePointer, object); break;
+        case OBJ_STACKSLICE: FREE(ObjStackSlice, object); break;
         case OBJ_AST: FREE(ObjAst, object); break;
         case OBJ_PLACEALIAS: FREE(ObjPlaceAlias, object); break;
         case OBJ_STMT_RETURN: // fall through

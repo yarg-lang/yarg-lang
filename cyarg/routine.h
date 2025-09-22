@@ -6,7 +6,7 @@
 #include "object.h"
 
 #define FRAMES_MAX 20
-#define SLICE_MAX 512
+#define SLICE_MAX 64
 
 typedef struct {
     ObjClosure* closure;
@@ -28,10 +28,16 @@ typedef enum {
 } ExecState;
 
 typedef struct StackSlice StackSlice;
+typedef struct ObjStackSlice ObjStackSlice;
 
 typedef struct StackSlice {
     ValueCell elements[SLICE_MAX];
 } StackSlice;
+
+typedef struct ObjStackSlice{
+    Obj obj;
+    StackSlice slice;
+} ObjStackSlice;
 
 typedef struct ObjRoutine {
     Obj obj;
@@ -46,6 +52,7 @@ typedef struct ObjRoutine {
     size_t stackTopIndex;
 
     StackSlice stk;
+    DynamicObjArray additionalSlicesArray;
 
     ObjClosure* entryFunction;
     Value entryArg;

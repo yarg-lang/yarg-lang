@@ -16,6 +16,7 @@ void initRoutine(ObjRoutine* routine, RoutineKind type) {
     routine->entryArg = NIL_VAL;
     routine->state = EXEC_UNBOUND;
     routine->sliceCount = 0;
+    initDynamicObjArray(&routine->additionalSlicesArray);
 
     routine->stackSliceCapacity = GROW_CAPACITY(0);
     routine->stackSlices = GROW_ARRAY(StackSlice*, routine->stackSlices, 0, routine->stackSliceCapacity);
@@ -31,6 +32,30 @@ void resetRoutine(ObjRoutine* routine) {
     routine->stackTopIndex = 0;
     routine->frameCount = 0;
     routine->openUpvalues = NULL;
+}
+
+bool addSlice(ObjRoutine* routine) {
+
+    ObjStackSlice* sliceObj = ALLOCATE_OBJ(ObjStackSlice, OBJ_STACKSLICE);
+    if (sliceObj == NULL) return false;
+
+    tempRootPush(OBJ_VAL(sliceObj));
+
+    if (routine->stackSliceCapacity < routine->sliceCount + 1) {
+        size_t oldCapacity = routine->stackSliceCapacity;
+        routine->stackSliceCapacity = GROW_CAPACITY(routine->stackSliceCapacity);
+        routine->stackSlices = GROW_ARRAY(StackSlice*, routine->stackSlices, oldCapacity, routine->stackSliceCapacity);
+    }
+
+    if (routine->stackSlices) {
+        routine->stackSlices[routine->sliceCount] = &sliceObj->slice;
+        routine->sliceCount++;
+        appendToDynamicObjArray(&routine->additionalSlicesArray, (Obj*)sliceObj);
+    }
+
+    tempRootPop();
+
+    return (routine->stackSlices != NULL);
 }
 
 ObjRoutine* newRoutine(RoutineKind type) {
@@ -141,8 +166,10 @@ void push(ObjRoutine* routine, Value value) {
     nextSlot->type = NIL_VAL;
     routine->stackTopIndex++;
 
-    if (routine->stackTopIndex % SLICE_MAX == 0) {
-        runtimeError(routine, "Value stack size exceeded.");
+    if (((routine->stackTopIndex / SLICE_MAX) + 1) > routine->sliceCount) {
+        if (!addSlice(routine)) {
+            runtimeError(routine, "Value stack size exceeded.");
+        }
     }
 }
 
