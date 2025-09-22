@@ -10,6 +10,8 @@
 #include "memory.h"
 #include "vm.h"
 
+bool addSlice(ObjRoutine* routine);
+
 void initRoutine(ObjRoutine* routine, RoutineKind type) {
     routine->type = type;
     routine->entryFunction = NULL;
@@ -23,6 +25,12 @@ void initRoutine(ObjRoutine* routine, RoutineKind type) {
 
     routine->stackSlices[0] = &routine->stk;
     routine->sliceCount = 1;
+
+    if (routine->type != ROUTINE_ISR) {
+        routine->addSlice = addSlice;
+    } else {
+        routine->addSlice = NULL;
+    }
 
     resetRoutine(routine);
 }
@@ -167,8 +175,12 @@ void push(ObjRoutine* routine, Value value) {
     routine->stackTopIndex++;
 
     if (((routine->stackTopIndex / SLICE_MAX) + 1) > routine->sliceCount) {
-        if (!addSlice(routine)) {
-            runtimeError(routine, "Value stack size exceeded.");
+        if (routine->addSlice) {
+            if (!routine->addSlice(routine)) {
+                runtimeError(routine, "Value stack size exceeded.");
+            }
+        } else {
+            runtimeError(routine, "Fixed Value stack size exceeded.");
         }
     }
 }

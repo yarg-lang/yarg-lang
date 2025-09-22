@@ -557,6 +557,8 @@ InterpretResult run(ObjRoutine* routine) {
     } while (false)
 
     for (;;) {
+        if (routine->state == EXEC_ERROR) return INTERPRET_RUNTIME_ERROR;
+
 #ifdef DEBUG_TRACE_EXECUTION
         printValueStack(routine, "          ");
         disassembleInstruction(&frame->closure->function->chunk, 

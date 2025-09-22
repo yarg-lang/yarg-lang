@@ -29,6 +29,7 @@ typedef enum {
 
 typedef struct StackSlice StackSlice;
 typedef struct ObjStackSlice ObjStackSlice;
+typedef bool (*AddSliceFn)(ObjRoutine* routine);
 
 typedef struct StackSlice {
     ValueCell elements[SLICE_MAX];
@@ -53,6 +54,7 @@ typedef struct ObjRoutine {
 
     StackSlice stk;
     DynamicObjArray additionalSlicesArray;
+    AddSliceFn addSlice;
 
     ObjClosure* entryFunction;
     Value entryArg;
