@@ -90,10 +90,6 @@ void runtimeError(ObjRoutine* routine, const char* format, ...) {
         CallFrame* frame = &routine->frames[i];
         ObjFunction* function = frame->closure->function;
         size_t instruction = frame->ip - function->chunk.code - 1;
-//        PRINTERR("<R%s 0x%8.x>[line %d] in ",
-//                 routine->type == ROUTINE_ISR ? "i" : "n",
-//                 routine,
-//                 function->chunk.lines[instruction]);
         PRINTERR("[line %d] in ",
                  function->chunk.lines[instruction]);
         if (function->name == NULL) {
