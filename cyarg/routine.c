@@ -15,6 +15,13 @@ void initRoutine(ObjRoutine* routine, RoutineKind type) {
     routine->entryFunction = NULL;
     routine->entryArg = NIL_VAL;
     routine->state = EXEC_UNBOUND;
+    routine->sliceCount = 0;
+
+    routine->stackSliceCapacity = GROW_CAPACITY(0);
+    routine->stackSlices = GROW_ARRAY(StackSlice*, routine->stackSlices, 0, routine->stackSliceCapacity);
+
+    routine->stackSlices[0] = &routine->stk;
+    routine->sliceCount = 1;
 
     resetRoutine(routine);
 }
@@ -23,13 +30,14 @@ void resetRoutine(ObjRoutine* routine) {
 
     routine->stackTopIndex = 0;
     routine->frameCount = 0;
-
     routine->openUpvalues = NULL;
 }
 
 ObjRoutine* newRoutine(RoutineKind type) {
     ObjRoutine* routine = ALLOCATE_OBJ(ObjRoutine, OBJ_ROUTINE);
+    tempRootPush(OBJ_VAL(routine));
     initRoutine(routine, type);
+    tempRootPop();
     return routine;
 }
 
@@ -121,8 +129,9 @@ void runtimeError(ObjRoutine* routine, const char* format, ...) {
 }
 
 static ValueCell* slot(ObjRoutine* routine, size_t index) {
+    size_t sliceIndex = index / SLICE_MAX;
 
-    return &routine->stk.elements[index];
+    return &routine->stackSlices[sliceIndex]->elements[index % SLICE_MAX];
 }
 
 void push(ObjRoutine* routine, Value value) {

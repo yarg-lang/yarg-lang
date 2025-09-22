@@ -39,8 +39,13 @@ typedef struct ObjRoutine {
     CallFrame frames[FRAMES_MAX];
     int frameCount;
 
-    StackSlice stk;
+    StackSlice** stackSlices;
+    size_t stackSliceCapacity;
+    size_t sliceCount;
+    
     size_t stackTopIndex;
+
+    StackSlice stk;
 
     ObjClosure* entryFunction;
     Value entryArg;
