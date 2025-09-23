@@ -814,8 +814,8 @@ InterpretResult run(ObjRoutine* routine) {
                     uint32_t a = AS_UI32(pop(routine));
                     push(routine, UI32_VAL(a + b));
                 } else if (IS_I8(peek(routine, 0)) && IS_I8(peek(routine, 1))) {
-                    uint8_t b = AS_I8(pop(routine));
-                    uint8_t a = AS_I8(pop(routine));
+                    int8_t b = AS_I8(pop(routine));
+                    int8_t a = AS_I8(pop(routine));
                     push(routine, I8_VAL(a + b));
                 } else if (IS_UI8(peek(routine, 0)) && IS_UI8(peek(routine, 1))) {
                     uint8_t b = AS_UI8(pop(routine));
@@ -881,7 +881,7 @@ InterpretResult run(ObjRoutine* routine) {
                 } else if (IS_UI8(peek(routine, 0)) && IS_UI8(peek(routine, 1))) {
                     uint8_t b = AS_UI8(pop(routine));
                     uint8_t a = AS_UI8(pop(routine));
-                    push(routine, UI64_VAL(a % b));
+                    push(routine, UI8_VAL(a % b));
                 } else if (IS_UI64(peek(routine, 0)) && IS_UI64(peek(routine, 1))) {
                     uint64_t b = AS_UI64(pop(routine));
                     uint64_t a = AS_UI64(pop(routine));

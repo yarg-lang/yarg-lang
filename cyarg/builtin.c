@@ -460,10 +460,10 @@ bool uint8Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (IS_I8(arg) && AS_I8(arg) >= 0) {
         *result = UI8_VAL(AS_I8(arg));
         return true;
-    } else if (IS_I32(arg) && AS_I32(arg) >= 0 && AS_I32(arg) < UINT8_MAX) {
+    } else if (IS_I32(arg) && AS_I32(arg) >= 0 && AS_I32(arg) <= UINT8_MAX) {
         *result = UI8_VAL(AS_I32(arg));
         return true;
-    } else if (IS_I64(arg) && AS_I64(arg) >= 0 && AS_I64(arg) < UINT8_MAX) {
+    } else if (IS_I64(arg) && AS_I64(arg) >= 0 && AS_I64(arg) <= UINT8_MAX) {
         *result = UI8_VAL(AS_I64(arg));
         return true;
     } else if (IS_UI8(arg)) {
@@ -485,10 +485,10 @@ bool int8Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (IS_I8(arg)) {
         *result = arg;
         return true;
-    } else if (IS_I32(arg) && AS_I32(arg) >= INT8_MIN && AS_I32(arg) < INT8_MAX) {
+    } else if (IS_I32(arg) && AS_I32(arg) >= INT8_MIN && AS_I32(arg) <= INT8_MAX) {
         *result = I8_VAL(AS_I32(arg));
         return true;
-    } else if (IS_I64(arg) && AS_I64(arg) >= INT8_MIN && AS_I64(arg) < INT8_MAX) {
+    } else if (IS_I64(arg) && AS_I64(arg) >= INT8_MIN && AS_I64(arg) <= INT8_MAX) {
         *result = I8_VAL(AS_I64(arg));
         return true;
     } else if (IS_UI8(arg) && AS_UI8(arg) <= INT8_MAX) {
