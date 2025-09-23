@@ -9,6 +9,8 @@ typedef enum {
    TypeDouble,
    TypeInt8,
    TypeUint8,
+   TypeInt16,
+   TypeUint16,
    TypeInt32,
    TypeUint32,
    TypeInt64,

@@ -257,6 +257,8 @@ Value placeObjectAt(Value placedType, Value location) {
             }
             case TypeInt8: // fall through
             case TypeUint8:
+            case TypeInt16:
+            case TypeUint16:
             case TypeUint32:
             case TypeInt64:
             case TypeUint64: {
@@ -425,6 +427,8 @@ static void printType(FILE* op, ObjConcreteYargType* type) {
         case TypeDouble: FPRINTMSG(op, "mfloat64"); break;
         case TypeInt8: FPRINTMSG(op, "int8"); break;
         case TypeUint8: FPRINTMSG(op, "uint8"); break;
+        case TypeInt16: FPRINTMSG(op, "int16"); break;
+        case TypeUint16: FPRINTMSG(op, "uint16"); break;
         case TypeInt32: FPRINTMSG(op, "int32"); break;
         case TypeUint32: FPRINTMSG(op, "uint32"); break;
         case TypeInt64: FPRINTMSG(op, "int64"); break;

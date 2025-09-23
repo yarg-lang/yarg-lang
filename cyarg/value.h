@@ -16,6 +16,8 @@ typedef union {
     double dbl;
     uint8_t ui8;
     int8_t i8;
+    uint16_t ui16;
+    int16_t i16;
     uint32_t ui32;
     int32_t i32;
     uint64_t ui64;
@@ -30,6 +32,8 @@ typedef enum {
     VAL_DOUBLE,
     VAL_I8,
     VAL_UI8,
+    VAL_I16,
+    VAL_UI16,
     VAL_I32,
     VAL_UI32,
     VAL_UI64,
@@ -48,6 +52,8 @@ typedef struct {
 #define IS_DOUBLE(value)   ((value).type == VAL_DOUBLE)
 #define IS_I8(value)       ((value).type == VAL_I8)
 #define IS_UI8(value)      ((value).type == VAL_UI8)
+#define IS_I16(value)      ((value).type == VAL_I16)
+#define IS_UI16(value)     ((value).type == VAL_UI16)
 #define IS_I32(value)      ((value).type == VAL_I32)
 #define IS_UI32(value)     ((value).type == VAL_UI32)
 #define IS_UI64(value)     ((value).type == VAL_UI64)
@@ -59,6 +65,8 @@ typedef struct {
 #define AS_BOOL(value)     ((value).as.boolean)
 #define AS_I8(value)       ((value).as.i8)
 #define AS_UI8(value)      ((value).as.ui8)
+#define AS_I16(value)      ((value).as.i16)
+#define AS_UI16(value)     ((value).as.ui16)
 #define AS_I32(value)      ((value).as.i32)
 #define AS_UI32(value)     ((value).as.ui32)
 #define AS_UI64(value)     ((value).as.ui64)
@@ -71,6 +79,8 @@ typedef struct {
 #define DOUBLE_VAL(value)   ((Value){VAL_DOUBLE, {.dbl = value }})
 #define I8_VAL(value)       ((Value){VAL_I8, {.i8 = value}})
 #define UI8_VAL(value)      ((Value){VAL_UI8, {.ui8 = value}})
+#define I16_VAL(value)      ((Value){VAL_I16, {.i16 = value}})
+#define UI16_VAL(value)     ((Value){VAL_UI16, {.ui16 = value}})
 #define I32_VAL(value)      ((Value){VAL_I32, {.i32 = value }})
 #define UI32_VAL(value)     ((Value){VAL_UI32, {.ui32 = value }})
 #define I64_VAL(a)          ((Value){VAL_I64, {.i64 = a}})

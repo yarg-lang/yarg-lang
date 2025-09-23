@@ -329,6 +329,8 @@ bool newBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         }
         case TypeInt8:  // fall through
         case TypeUint8:
+        case TypeInt16:
+        case TypeUint16:
         case TypeInt32:
         case TypeUint32:
         case TypeInt64:
@@ -365,6 +367,12 @@ bool uint64Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
     } else if (IS_UI8(arg)) {
         *result = UI64_VAL(AS_UI8(arg));
         return true;
+    } else if (IS_I16(arg)) {
+        *result = UI64_VAL(AS_I16(arg));
+        return true;
+    } else if (IS_UI16(arg)) {
+        *result = UI64_VAL(AS_UI16(arg));
+        return true;
     } else if (IS_I32(arg)) {
         *result = UI64_VAL(AS_I32(arg));
         return true;
@@ -386,6 +394,9 @@ bool int64Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (IS_I8(arg)) {
         *result = I64_VAL(AS_I8(arg));
         return true;
+    } else if (IS_I16(arg)) {
+        *result = I64_VAL(AS_I16(arg));
+        return true;
     } else if (IS_I32(arg)) {
         *result = I64_VAL(AS_I32(arg));
         return true;
@@ -394,6 +405,9 @@ bool int64Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
         return true;
     } else if (IS_UI8(arg)) {
         *result = I64_VAL(AS_UI8(arg));
+        return true;
+    } else if (IS_UI16(arg)) {
+        *result = I64_VAL(AS_UI16(arg));
         return true;
     } else if (IS_UI32(arg)) {
         *result = I64_VAL(AS_UI32(arg));
@@ -411,6 +425,9 @@ bool uint32Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (IS_I8(arg) && AS_I8(arg) >= 0) {
         *result = UI32_VAL(AS_I8(arg));
         return true;
+    } else if (IS_I16(arg) && AS_I16(arg) >= 0) {
+        *result = UI32_VAL(AS_I16(arg));
+        return true;
     } else if (IS_I32(arg) && AS_I32(arg) >= 0) {
         *result = UI32_VAL(AS_I32(arg));
         return true;
@@ -419,6 +436,9 @@ bool uint32Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
         return true;
     } else if (IS_UI8(arg)) {
         *result = UI32_VAL(AS_UI8(arg));
+        return true;
+    } else if (IS_UI16(arg)) {
+        *result = UI32_VAL(AS_UI16(arg));
         return true;
     } else if (IS_UI32(arg)) {
         *result = arg;
@@ -435,6 +455,9 @@ bool int32Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (IS_I8(arg)) {
         *result = I32_VAL(AS_I8(arg));
         return true;
+    } else if (IS_I16(arg)) {
+        *result = I32_VAL(AS_I16(arg));
+        return true;
     } else if (IS_I32(arg)) {
         *result = arg;
         return true;
@@ -443,6 +466,9 @@ bool int32Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
         return true;
     } else if (IS_UI8(arg)) {
         *result = I32_VAL(AS_UI8(arg));
+        return true;
+    } else if (IS_UI16(arg)) {
+        *result = I32_VAL(AS_UI16(arg));
         return true;
     } else if (IS_UI32(arg) && AS_UI32(arg) <= INT32_MAX) {
         *result = I32_VAL(AS_UI32(arg));
@@ -455,10 +481,75 @@ bool int32Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
     }
 }
 
+bool uint16Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
+    Value arg = nativeArgument(routineContext, argCount, 0);
+    if (IS_I8(arg) && AS_I8(arg) >= 0) {
+        *result = UI16_VAL(AS_I8(arg));
+        return true;
+    } else if (IS_I16(arg) && AS_I16(arg) >= 0) {
+        *result = UI16_VAL(AS_I16(arg));
+        return true;
+    } else if (IS_I32(arg) && AS_I32(arg) >= 0 && AS_I32(arg) <= UINT16_MAX) {
+        *result = UI16_VAL(AS_I32(arg));
+        return true;
+    } else if (IS_I64(arg) && AS_I64(arg) >= 0 && AS_I64(arg) <= UINT16_MAX) {
+        *result = UI16_VAL(AS_I64(arg));
+        return true;
+    } else if (IS_UI8(arg)) {
+        *result = UI16_VAL(AS_UI8(arg));
+        return true;
+    } else if (IS_UI16(arg)) {
+        *result = arg;
+        return true;
+    } else if (IS_UI32(arg) && AS_UI32(arg) <= UINT16_MAX) {
+        *result = UI16_VAL(AS_UI32(arg));
+        return true;
+    } else if (IS_UI64(arg) && AS_UI64(arg) <= UINT16_MAX) {
+        *result = UI16_VAL(AS_UI64(arg));
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool int16Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
+    Value arg = nativeArgument(routineContext, argCount, 0);
+    if (IS_I8(arg)) {
+        *result = I16_VAL(AS_I8(arg));
+        return true;
+    } else if (IS_I16(arg)) {
+        *result = arg;
+        return true;
+    } else if (IS_I32(arg) && AS_I32(arg) >= INT16_MIN && AS_I32(arg) <= INT16_MAX) {
+        *result = I16_VAL(AS_I32(arg));
+        return true;
+    } else if (IS_I64(arg) && AS_I64(arg) >= INT16_MIN && AS_I64(arg) <= INT16_MAX) {
+        *result = I16_VAL(AS_I64(arg));
+        return true;
+    } else if (IS_UI8(arg)) {
+        *result = I16_VAL(AS_UI8(arg));
+        return true;
+    } else if (IS_UI16(arg) && AS_UI16(arg) <= INT16_MAX) {
+        *result = I16_VAL(AS_UI16(arg));
+        return true;
+    } else if (IS_UI32(arg) && AS_UI32(arg) <= INT16_MAX) {
+        *result = I16_VAL(AS_UI32(arg));
+        return true;
+    } else if (IS_UI64(arg) && AS_UI64(arg) <= INT16_MAX) {
+        *result = I16_VAL(AS_UI64(arg));
+        return true;
+    } else {
+        return false;
+    }
+}
+
 bool uint8Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
     Value arg = nativeArgument(routineContext, argCount, 0);
     if (IS_I8(arg) && AS_I8(arg) >= 0) {
         *result = UI8_VAL(AS_I8(arg));
+        return true;
+    } else if (IS_I16(arg) && AS_I16(arg) >= 0 && AS_I16(arg) <= UINT8_MAX) {
+        *result = UI8_VAL(AS_I16(arg));
         return true;
     } else if (IS_I32(arg) && AS_I32(arg) >= 0 && AS_I32(arg) <= UINT8_MAX) {
         *result = UI8_VAL(AS_I32(arg));
@@ -471,6 +562,9 @@ bool uint8Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
         return true;
     } else if (IS_UI32(arg) && AS_UI32(arg) <= UINT8_MAX) {
         *result = UI8_VAL(AS_UI32(arg));
+        return true;
+    } else if (IS_UI16(arg) && AS_UI16(arg) <= UINT8_MAX) {
+        *result = UI8_VAL(AS_UI16(arg));
         return true;
     } else if (IS_UI64(arg) && AS_UI64(arg) <= UINT8_MAX) {
         *result = UI8_VAL(AS_UI64(arg));
@@ -485,6 +579,9 @@ bool int8Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (IS_I8(arg)) {
         *result = arg;
         return true;
+    } else if (IS_I16(arg) && AS_I16(arg) >= INT8_MIN && AS_I16(arg) <= INT8_MAX) {
+        *result = I8_VAL(AS_I16(arg));
+        return true;
     } else if (IS_I32(arg) && AS_I32(arg) >= INT8_MIN && AS_I32(arg) <= INT8_MAX) {
         *result = I8_VAL(AS_I32(arg));
         return true;
@@ -493,6 +590,9 @@ bool int8Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
         return true;
     } else if (IS_UI8(arg) && AS_UI8(arg) <= INT8_MAX) {
         *result = I8_VAL(AS_UI8(arg));
+        return true;
+    } else if (IS_UI16(arg) && AS_UI16(arg) <= INT8_MAX) {
+        *result = I8_VAL(AS_UI16(arg));
         return true;
     } else if (IS_UI32(arg) && AS_UI32(arg) <= INT8_MAX) {
         *result = I8_VAL(AS_UI32(arg));
@@ -521,6 +621,8 @@ Value getBuiltin(uint8_t builtin) {
         case BUILTIN_PIN: return OBJ_VAL(newNative(pinBuiltin));
         case BUILTIN_NEW: return OBJ_VAL(newNative(newBuiltin));
         case BUILTIN_INT8: return OBJ_VAL(newNative(int8Builtin));
+        case BUILTIN_INT16: return OBJ_VAL(newNative(int16Builtin));
+        case BUILTIN_UINT16: return OBJ_VAL(newNative(uint16Builtin));
         case BUILTIN_UINT8: return OBJ_VAL(newNative(uint8Builtin));
         case BUILTIN_INT32: return OBJ_VAL(newNative(int32Builtin));
         case BUILTIN_UINT32: return OBJ_VAL(newNative(uint32Builtin));

@@ -12,6 +12,8 @@ ObjConcreteYargType* newYargTypeFromType(ConcreteYargType yt) {
         case TypeDouble:
         case TypeInt8:
         case TypeUint8:
+        case TypeInt16:
+        case TypeUint16:
         case TypeInt32:
         case TypeUint32:
         case TypeInt64:
@@ -133,6 +135,10 @@ Value concrete_typeof(Value a) {
         return (OBJ_VAL(newYargTypeFromType(TypeInt8)));
     } else if (IS_UI8(a)) {
         return (OBJ_VAL(newYargTypeFromType(TypeUint8)));
+    } else if (IS_I16(a)) {
+        return (OBJ_VAL(newYargTypeFromType(TypeInt16)));
+    } else if (IS_UI16(a)) {
+        return (OBJ_VAL(newYargTypeFromType(TypeUint16)));
     } else if (IS_I32(a)) {
         return OBJ_VAL(newYargTypeFromType(TypeInt32));
     } else if (IS_UI32(a)) {
@@ -181,6 +187,8 @@ bool type_packs_as_obj(ObjConcreteYargType* type) {
         case TypeDouble:
         case TypeInt8:
         case TypeUint8:
+        case TypeInt16:
+        case TypeUint16:
         case TypeInt32:
         case TypeUint32:
         case TypeInt64:
@@ -208,6 +216,8 @@ bool type_packs_as_container(ObjConcreteYargType* type) {
         case TypeDouble:
         case TypeInt8:
         case TypeUint8:
+        case TypeInt16:
+        case TypeUint16:
         case TypeInt32:
         case TypeUint32:
         case TypeInt64:
@@ -238,6 +248,8 @@ bool is_nil_assignable_type(Value type) {
             case TypeDouble:
             case TypeInt8:
             case TypeUint8:
+            case TypeInt16:
+            case TypeUint16:
             case TypeInt32:
             case TypeUint32:
             case TypeInt64:
@@ -267,6 +279,8 @@ bool is_placeable_type(Value typeVal) {
         switch(AS_YARGTYPE(typeVal)->yt) {
             case TypeInt8: return true;
             case TypeUint8: return true;
+            case TypeInt16: return true;
+            case TypeUint16: return true;
             case TypeInt32: return true;
             case TypeUint32: return true;
             case TypeInt64: return true;
@@ -304,6 +318,10 @@ size_t yt_sizeof_type_storage(Value type) {
             return sizeof(int8_t);
         case TypeUint8:
             return sizeof(uint8_t);
+        case TypeInt16:
+            return sizeof(int16_t);
+        case TypeUint16:
+            return sizeof(uint16_t);
         case TypeInt32:
             return sizeof(int32_t);
         case TypeUint32:
@@ -346,6 +364,8 @@ void initialisePackedStorage(Value type, StoredValue* packedStorage) {
             case TypeDouble: packedStorage->asValue = DOUBLE_VAL(0); break;
             case TypeInt8: packedStorage->as.i8 = 0; break;
             case TypeUint8: packedStorage->as.ui8 = 0; break;
+            case TypeInt16: packedStorage->as.i16 = 0; break;
+            case TypeUint16: packedStorage->as.ui16 = 0; break;
             case TypeInt32: packedStorage->as.i32 = 0; break;
             case TypeUint32: packedStorage->as.ui32 = 0; break;
             case TypeInt64: packedStorage->as.i64 = 0; break;
@@ -395,6 +415,8 @@ Value unpackStoredValue(Value type, StoredValue* packedStorage) {
             case TypeDouble: return packedStorage->asValue;
             case TypeInt8: return I8_VAL(packedStorage->as.i8);
             case TypeUint8: return UI8_VAL(packedStorage->as.ui8);
+            case TypeInt16: return I16_VAL(packedStorage->as.i16);
+            case TypeUint16: return UI16_VAL(packedStorage->as.ui16);
             case TypeInt32: return I32_VAL(packedStorage->as.i32);
             case TypeUint32: return UI32_VAL(packedStorage->as.ui32);
             case TypeInt64: return I64_VAL(packedStorage->as.i64);
@@ -435,6 +457,8 @@ void packValueStorage(StoredValueCellTarget* packedStorageCell, Value value) {
             case TypeDouble: packedStorageCell->storedValue->asValue = value; break;
             case TypeInt8: packedStorageCell->storedValue->as.i8 = AS_I8(value); break;
             case TypeUint8: packedStorageCell->storedValue->as.ui8 = AS_UI8(value); break;
+            case TypeInt16: packedStorageCell->storedValue->as.i16 = AS_I16(value); break;
+            case TypeUint16: packedStorageCell->storedValue->as.ui16 = AS_UI16(value); break;
             case TypeInt32: packedStorageCell->storedValue->as.i32 = AS_I32(value); break;
             case TypeUint32: packedStorageCell->storedValue->as.ui32 = AS_UI32(value); break;
             case TypeInt64: packedStorageCell->storedValue->as.i64 = AS_I64(value); break;
@@ -468,6 +492,8 @@ Value defaultValue(Value type) {
             case TypeDouble: return DOUBLE_VAL(0);
             case TypeInt8: return I8_VAL(0);
             case TypeUint8: return UI8_VAL(0);
+            case TypeInt16: return I16_VAL(0);
+            case TypeUint16: return UI16_VAL(0);
             case TypeInt32: return I32_VAL(0);
             case TypeUint32: return UI32_VAL(0);
             case TypeInt64: return I64_VAL(0);

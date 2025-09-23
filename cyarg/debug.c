@@ -66,6 +66,8 @@ static int builtinInstruction(const char* name, Chunk* chunk, int offset) {
         case BUILTIN_NEW: printf("new"); break;
         case BUILTIN_INT8: printf("int8"); break;
         case BUILTIN_UINT8: printf("uint8"); break;
+        case BUILTIN_INT16: printf("int16"); break;
+        case BUILTIN_UINT16: printf("uint16"); break;
         case BUILTIN_INT32: printf("int32"); break;
         case BUILTIN_UINT32: printf("uint32"); break;
         case BUILTIN_INT64: printf("int64"); break;
@@ -83,6 +85,8 @@ static int typeLiteralInstruction(const char* name, Chunk* chunk, int offset) {
         case TYPE_LITERAL_BOOL: printf("bool"); break;
         case TYPE_LITERAL_INT8: printf("int8"); break;
         case TYPE_LITERAL_UINT8: printf("uint8"); break;
+        case TYPE_LITERAL_INT16: printf("int16"); break;
+        case TYPE_LITERAL_UINT16: printf("uint16"); break;
         case TYPE_LITERAL_INTEGER: printf("int32"); break;
         case TYPE_LITERAL_UINT32: printf("uint32"); break;
         case TYPE_LITERAL_INT64: printf("int64"); break;
@@ -224,6 +228,10 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             return byteInstruction("OP_IMMEDIATEi8", chunk, offset);
         case OP_IMMEDIATEui8:
             return byteInstruction("OP_IMMEDIATEui8", chunk, offset);
+        case OP_IMMEDIATEi16:
+            return byteInstruction("OP_IMMEDIATEi16", chunk, offset);
+        case OP_IMMEDIATEui16:
+            return byteInstruction("OP_IMMEDIATEui16", chunk, offset);
         case OP_IMMEDIATEi32:
             return byteInstruction("OP_IMMEDIATEi32", chunk, offset);
         case OP_IMMEDIATEui32:

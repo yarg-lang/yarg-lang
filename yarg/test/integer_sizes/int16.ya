@@ -1,0 +1,27 @@
+var uint16[3] code;
+code[0] = uint16(0xffff);
+print code; // expect: Type:Type:uint16[3]:[65535, 0, 0]
+
+var x = int16(10);
+x = x + int16(-10);
+print x; // expect: 0
+
+place struct {
+    int16 a;
+    int16 b;
+    } @xc0000000 test;
+
+print test.a; // expect: <*Type:int16:0xc0000000>
+print test.b; // expect: <*Type:int16:0xc0000002>
+
+var x = uint16(10);
+x = x + uint16(10);
+print x; // expect: 20
+
+place struct {
+    uint16 a;
+    uint16 b;
+    } @xd0000000 test;
+
+print test.a; // expect: <*Type:uint16:0xd0000000>
+print test.b; // expect: <*Type:uint16:0xd0000002>

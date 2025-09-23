@@ -40,6 +40,8 @@ void fprintValue(FILE* op, Value value) {
         case VAL_DOUBLE: FPRINTMSG(op, "%#g", AS_DOUBLE(value)); break;
         case VAL_I8: FPRINTMSG(op, "%d", AS_I8(value)); break;
         case VAL_UI8: FPRINTMSG(op, "%u", AS_UI8(value)); break;
+        case VAL_I16: FPRINTMSG(op, "%d", AS_I16(value)); break;
+        case VAL_UI16: FPRINTMSG(op, "%u", AS_UI16(value)); break;
         case VAL_I32: FPRINTMSG(op, "%d", AS_I32(value)); break;
         case VAL_UI32: FPRINTMSG(op, "%u", AS_UI32(value)); break;
         case VAL_I64: FPRINTMSG(op, "%lld", AS_I64(value)); break;
@@ -68,11 +70,13 @@ bool valuesEqual(Value a, Value b) {
 }
 
 bool is_positive_integer(Value a) {
-    if (IS_UI32(a) || IS_UI8(a)) {
+    if (IS_UI32(a) || IS_UI16(a) || IS_UI8(a)) {
         return true;
     } else if (IS_UI64(a) && AS_UI64(a) <= UINT32_MAX) {
         return true;
     } else if (IS_I32(a) && AS_I32(a) >= 0) {
+        return true;
+    } else if (IS_I16(a) && AS_I16(a) >= 0) {
         return true;
     } else if (IS_I8(a) && AS_I8(a) >= 0) {
         return true;
@@ -87,12 +91,16 @@ uint32_t as_positive_integer(Value a) {
         return AS_I32(a);
     } else if (IS_I8(a)) {
         return AS_I8(a);
+    } else if (IS_I16(a)) {
+        return AS_I16(a);
     } else if (IS_I64(a) && AS_I64(a) <= UINT32_MAX) {
         return AS_I64(a);
     } else if (IS_UI32(a)) {
         return AS_UI32(a);
     } else if (IS_UI8(a)) {
         return AS_UI8(a);
+    } else if (IS_UI16(a)) {
+        return AS_UI16(a);
     } else if (IS_UI64(a) && AS_UI64(a) <= UINT32_MAX) {
         return AS_UI64(a);
     }

@@ -231,6 +231,10 @@ static int emitConstant(Value value) {
         emitBytes(OP_IMMEDIATEi8, AS_I8(value));
     } else if (IS_UI8(value)) {
         emitBytes(OP_IMMEDIATEui8, AS_UI8(value));
+    } else if (IS_I16(value) && AS_I16(value) >= INT8_MIN && AS_I16(value) <= INT8_MAX) {
+        emitBytes(OP_IMMEDIATEi16, AS_I16(value));
+    } else if (IS_UI16(value) && AS_UI16(value) <= UINT8_MAX) {
+        emitBytes(OP_IMMEDIATEui16, AS_UI16(value));
     } else if (IS_I32(value) && AS_I32(value) >= INT8_MIN && AS_I32(value) <= INT8_MAX) {
         emitBytes(OP_IMMEDIATEi32, AS_I32(value));
     } else if (IS_UI32(value) && AS_UI32(value) <= UINT8_MAX) {
@@ -509,6 +513,8 @@ static void generateExprBuiltin(ObjExprBuiltin* fn) {
         case EXPR_BUILTIN_NEW: emitBytes(OP_GET_BUILTIN, BUILTIN_NEW); break;
         case EXPR_BUILTIN_INT8: emitBytes(OP_GET_BUILTIN, BUILTIN_INT8); break;
         case EXPR_BUILTIN_UINT8: emitBytes(OP_GET_BUILTIN, BUILTIN_UINT8); break;
+        case EXPR_BUILTIN_INT16: emitBytes(OP_GET_BUILTIN, BUILTIN_INT16); break;
+        case EXPR_BUILTIN_UINT16: emitBytes(OP_GET_BUILTIN, BUILTIN_UINT16); break;
         case EXPR_BUILTIN_INT32: emitBytes(OP_GET_BUILTIN, BUILTIN_INT32); break;
         case EXPR_BUILTIN_UINT32: emitBytes(OP_GET_BUILTIN, BUILTIN_UINT32); break;
         case EXPR_BUILTIN_INT64: emitBytes(OP_GET_BUILTIN, BUILTIN_INT64); break;
@@ -567,6 +573,8 @@ static void generateExprType(ObjExprTypeLiteral* type) {
         case EXPR_TYPE_LITERAL_BOOL: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_BOOL); return;
         case EXPR_TYPE_LITERAL_INT8: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_INT8); return;
         case EXPR_TYPE_LITERAL_UINT8: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_UINT8); return;
+        case EXPR_TYPE_LITERAL_INT16: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_INT16); return;
+        case EXPR_TYPE_LITERAL_UINT16: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_UINT16); return;
         case EXPR_TYPE_LITERAL_INTEGER: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_INTEGER); return;
         case EXPR_TYPE_LITERAL_MFLOAT64: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_MACHINE_FLOAT64); return;
         case EXPR_TYPE_LITERAL_UINT32: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_UINT32); return;
