@@ -1,0 +1,63 @@
+import ("machine");
+
+const reset_base = @x4000c000;
+
+place struct {
+    uint32 reset;
+    uint32 wdsel;
+    uint32 done;
+} {
+    reset_base reset;
+    reset_base + REG_ALIAS_XOR_BITS reset_xor;
+    reset_base + REG_ALIAS_SET_BITS reset_set;
+    reset_base + REG_ALIAS_CLR_BITS reset_clr;
+}
+
+const reset_usbctrl = 24;
+const reset_uart1 = 23;
+const reset_uart0 = 22;
+const reset_uart = [ reset_uart0, reset_uart1 ];
+const reset_timer = 21;
+const reset_tbman = 20;
+const reset_sysinfo = 19;
+const reset_syscfg = 18;
+const reset_spi1 = 17;
+const reset_spi0 = 16;
+const reset_spi = [ reset_spi0, reset_spi1 ];
+const reset_rtc = 15;
+const reset_pwm = 14;
+const reset_pll_usb = 13;
+const reset_pll_sys = 12;
+const reset_pio1 = 11;
+const reset_pio0 = 10;
+const reset_pio = [ reset_pio0, reset_pio1 ];
+const reset_pads_qspi = 9;
+const reset_pads_bank0 = 8;
+const reset_JTAG = 7;
+const reset_io_qspi = 6;
+const reset_io_bank0 = 5;
+const reset_i2c1 = 4;
+const reset_i2c0 = 3;
+const reset_i2c = [ reset_i2c0, reset_i2c1 ];
+const reset_dma = 2;
+const reset_busctrl = 1;
+const reset_adc = 0;
+
+fun reset_block(id) {
+    poke reset_set.reset, uint32(1) << uint32(id);
+}
+
+fun unreset_block(id) {
+    poke reset_clr.reset, uint32(1) << uint32(id);
+}
+
+fun reset_await(id) {
+    while ((peek(reset.done) & (uint32(1) << uint32(id))) == 0) {
+        // wait
+    }
+}
+
+fun reset_block_and_wait(id) {
+    reset_block(id);
+    reset_await(id);
+}

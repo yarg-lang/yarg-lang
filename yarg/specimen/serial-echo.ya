@@ -1,0 +1,14 @@
+import("uart");
+
+const device = 1;
+
+uart_init(device, 115200, false);
+
+gpio_set_function(0d8, gpio_func_uart); // TX
+gpio_set_function(0d9, gpio_func_uart); // RX
+
+while (true) {
+    var input = uart_get_byte(device);
+    print input;
+    uart_put_byte(device, input);
+}

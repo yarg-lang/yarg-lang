@@ -1,0 +1,79 @@
+
+import("machine");
+
+const clock_base = @x40008000;
+
+place struct {
+    struct {
+        uint32 ctrl;
+        uint32 div;
+        uint32 selected;
+        }[4] gpout;
+    struct {
+        uint32 ctrl;
+        uint32 div;
+        uint32 selected;
+        } ref;
+    struct {
+        uint32 ctrl;
+        uint32 div;
+        uint32 selected;
+        } sys;
+    struct {
+        uint32 ctrl;
+        uint32 div;
+        uint32 selected;
+        } peri;
+    struct {
+        uint32 ctrl;
+        uint32 div;
+        uint32 selected;
+        } usb;
+    struct {
+        uint32 ctrl;
+        uint32 div;
+        uint32 selected;
+        } adc;
+    struct {
+        uint32 ctrl;
+        uint32 div;
+        uint32 selected;
+        } rtc;
+    uint32 sys_resus_ctrl;
+    uint32 sys_resus_status;
+    uint32 fc0_ref_khz;
+    uint32 fc0_min_khz;
+    uint32 fc0_max_khz;
+    uint32 fc0_delay;
+    uint32 fc0_interval;
+    uint32 fc0_src;
+    uint32 fc0_status;
+    uint32 fc0_result;
+    uint32[2] wake_en;
+    uint32[2] sleep_en;
+    uint32[2] enabled;
+    uint32 intr;
+    uint32 inte;
+    uint32 intf;
+    uint32 ints;
+    } {
+        clock_base clock;
+        clock_base + REG_ALIAS_XOR_BITS clock_xor;
+        clock_base + REG_ALIAS_SET_BITS clock_set;
+        clock_base + REG_ALIAS_CLR_BITS clock_clr;
+    }
+
+const clock_gpout0 = 0;
+const clock_gpout1 = 1;
+const clock_gpout2 = 2;
+const clock_gpout3 = 3;
+const clock_gpout = [ clock_gpout0, clock_gpout1, clock_gpout2, clock_gpout3 ];
+const clock_ref = 4;
+const clock_sys = 5;
+const clock_peri = 6;
+const clock_usb = 7;
+const clock_adc = 8;
+const clock_rtc = 9;
+
+// native functions (so that C libs can depend on this too)
+// c_clock_get_hz

@@ -5,7 +5,20 @@ const pico_led = 0d25;
 
 const GPIO_OUT = true;
 const GPIO_IN = false;
-const GPIO_FUNC_SIO = 0d5;
+
+const gpio_func_ixp = 0d0;
+const gpio_func_spi = 0d1;
+const gpio_func_uart = 0d2;
+const gpio_func_i2c = 0d3;
+const gpio_func_pwm = 0d4;
+const gpio_func_sio = 0d5;
+const gpio_func_pio0 = 0d6;
+const gpio_func_pio1 = 0d7;
+const gpio_func_pio = [ gpio_func_pio0, gpio_func_pio1 ];
+const gpio_func_clock = 0d8;
+const gpio_func_usb = 0d9;
+const gpio_func_null = 0d31;
+
 const GPIO_IRQ_EDGE_FALL = 0x4;
 const GPIO_IRQ_EDGE_RISE = 0x8;
 const NUM_BANK0_GPIOS = 0d30;
@@ -52,11 +65,6 @@ place struct {
         pads_bank0_base + REG_ALIAS_CLR_BITS pads_bank0_clr;
     }
 
-fun write_masked(rw, xor, val, mask) { 
-    const uint32 reg = peek(rw);
-    poke xor, (reg ^ val) & mask;
-}
-
 fun gpio_set_direction(gpio, dir) {
 
     if (dir) {
@@ -80,7 +88,7 @@ fun gpio_put(gpio, value) {
 fun gpio_init(gpio) {
     gpio_set_direction(gpio, GPIO_IN);
     gpio_put(gpio, false);
-    gpio_set_function(gpio, GPIO_FUNC_SIO);
+    gpio_set_function(gpio, gpio_func_sio);
 }
 
 fun gpio_set_function(gpio, function) {
@@ -89,9 +97,6 @@ fun gpio_set_function(gpio, function) {
     write_masked(pads_bank0.gpio[gpio], pads_bank0_xor.gpio[gpio], 
                  PADS_BANK0_GPIO_IE_BITS, PADS_BANK0_GPIO_IE_BITS | PADS_BANK0_GPIO_OD_BITS);
 
-
-    // Zero all fields apart from fsel; we want this IO to do what the peripheral tells it.
-    // This doesn't affect e.g. pullup/pulldown, as these are in pad controls.
     poke io_bank0.gpio[gpio].ctrl, function;
 }
 
