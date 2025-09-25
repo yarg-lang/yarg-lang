@@ -11,6 +11,7 @@
 #ifdef CYARG_PICO_TARGET
 #include <hardware/gpio.h>
 #include <hardware/irq.h>
+#include <hardware/clocks.h>
 #endif
 
 bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* result) {
@@ -96,5 +97,27 @@ bool sleepNative(ObjRoutine* routine, int argCount, Value* result) {
 #endif
 
     *result = NIL_VAL;
+    return true;
+}
+
+bool clock_get_hzNative(ObjRoutine* routine, int argCount, Value* result) {
+    if (argCount != 1) {
+        runtimeError(routine, "Expected 1 arguments but got %d.", argCount);
+        return false;
+    }
+    Value numVal = nativeArgument(routine, argCount, 0);
+
+    if (!is_positive_integer(numVal)) {
+        runtimeError(routine, "Argument must be a positive integer");
+        return false;
+    }
+
+#ifdef CYARG_PICO_TARGET
+    int res = clock_get_hz(as_positive_integer(numVal));
+#else
+    int res = 0;
+#endif
+
+    *result = I32_VAL(res);
     return true;
 }

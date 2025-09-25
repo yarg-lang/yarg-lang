@@ -116,6 +116,7 @@ void initVM() {
 
     defineNative("clock", clockNative);
     defineNative("c_sleep_ms", sleepNative);
+    defineNative("c_clock_get_hz", clock_get_hzNative);
     defineNative("ws2812_init", ws2812initNative);
     defineNative("ws2812_write_pixel", ws2812writepixelNative);
 
