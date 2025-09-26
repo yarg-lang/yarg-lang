@@ -1,0 +1,165 @@
+import("uart");
+
+const device = 1;
+var input_channel = make_channel(5);
+var overflow = false;
+
+fun input_routine() {
+
+    fun irq_response() {
+        var input = peek(uart[device].dr) & 0xff; 
+        overflow = share(input_channel, input);
+    }
+
+    return make_routine(irq_response, true);
+}
+
+var input_handler_routine = input_routine();
+var input_handler_address = pin(input_handler_routine);
+
+// connect gpio before init to avoid spurious 0 byte appearing.
+gpio_set_function(0d8, gpio_func_uart); // TX
+gpio_set_function(0d9, gpio_func_uart); // RX
+
+uart_init(device, 115200, true);
+
+irq_add_shared_handler(uart_irq[device], input_handler_address, 0d0);
+irq_set_enabled(uart_irq[device], true);
+
+write_masked(uart[device].ifls, uart_xor[device].ifls,
+             0,
+             0b111000
+             );
+
+write_masked(uart[device].imsc, uart_xor[device].imsc,
+             0b1010000,
+             0b1010000
+             );
+
+const scanning = 1;
+const esc_seen = 2;
+const start_command = 3;
+const command_seen = 4;
+const eol_expected = 5;
+const eol_seen = 6;
+
+var state = scanning;
+
+fun next_state(input) {
+    if (state == scanning and input == 0x1b) {
+        return esc_seen;
+    } else if (state == scanning and input == 0xd) {
+        return eol_expected;
+    } else if (state == scanning and input == 0x08) {
+        return command_seen;
+    } else if (state == scanning) {
+        return scanning;
+    }
+
+    if (state == esc_seen and input == 0x5b) {
+        return start_command;
+    } else if (state == esc_seen) {
+        return scanning;
+    }
+
+    if (state == eol_expected and input == 0x0a) {
+        return eol_seen;
+    } else if (state == eol_expected) {
+        return scanning;
+    }
+
+    if (state == start_command and input == 0x41) {
+        return command_seen;
+    } else if (state == start_command and input == 0x42) {
+        return command_seen;
+    } else if (state == start_command and input == 0x43) {
+        return command_seen;
+    } else if (state == start_command and input == 0x44) {
+        return command_seen;
+    } else if (state == start_command) {
+        return scanning;
+    }
+}
+
+uart_put_byte(device, 0x1b);
+uart_put_byte(device, 0x63);
+
+fun write_prompt() {
+
+    uart_put_byte(device, 0x79);
+    uart_put_byte(device, 0x61);
+    uart_put_byte(device, 0x72);
+    uart_put_byte(device, 0x67);
+
+    uart_put_byte(device, 0x3e);
+    uart_put_byte(device, 0x20);
+}
+
+write_prompt();
+
+var uint8[5] lineBuffer;
+var cursor = 0;
+var length = 0;
+
+while (true) {
+    const uint32 input = receive(input_channel);
+    if (overflow) {
+        print "overflow";
+    }
+
+    var next = next_state(input);
+
+    if (next == scanning) {
+        if (cursor < 5) {
+            lineBuffer[cursor] = uint8(input);
+            cursor = cursor + 1;
+            if (cursor == length + 1) {
+                length = length + 1;
+            }
+            uart_put_byte(device, input);
+        }
+    }
+    if (next == command_seen and input == 0x41) {
+        print "up";
+        next = scanning;
+    } else if (next == command_seen and input == 0x42) {
+        print "down";
+        next = scanning;
+    } else if (next == command_seen and input == 0x43) {
+        if (cursor < length) {
+            uart_put_byte(device, 0x1b);
+            uart_put_byte(device, 0x5b);
+            uart_put_byte(device, 0x43);
+            cursor = cursor + 1;
+        }
+        next = scanning;
+    } else if (next == command_seen and input == 0x44) {
+        if (cursor > 0) {
+            uart_put_byte(device, 0x1b);
+            uart_put_byte(device, 0x5b);
+            uart_put_byte(device, 0x44);
+            cursor = cursor - 1;
+        }
+        next = scanning;
+    } else if (next == command_seen and input == 0x08) {
+        if (cursor == length and length > 0) {
+            uart_put_byte(device, 0x08);
+            uart_put_byte(device, 0x20);
+            uart_put_byte(device, 0x08);
+            cursor = cursor - 1;
+            length = length - 1;
+        }
+        next = scanning;
+    } else if (next == eol_seen) {
+        uart_put_byte(device, 0x0d);
+        uart_put_byte(device, 0x0a);
+
+        write_prompt();
+
+        cursor = 0;
+        length = 0;
+
+        next = scanning;
+    }
+    state = next;
+}

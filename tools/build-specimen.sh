@@ -27,6 +27,7 @@ fi
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add ws2812.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add button.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add serial-echo.ya
+../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add serial-input.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add main.ya
 
 popd > /dev/null
