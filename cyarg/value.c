@@ -59,6 +59,8 @@ bool valuesEqual(Value a, Value b) {
         case VAL_DOUBLE:   return AS_DOUBLE(a) == AS_DOUBLE(b);
         case VAL_I8:       return AS_I8(a) == AS_I8(b);
         case VAL_UI8:      return AS_UI8(a) == AS_UI8(b);
+        case VAL_I16:      return AS_I16(a) == AS_I16(b);
+        case VAL_UI16:     return AS_UI16(a) == AS_UI16(b);
         case VAL_I32:      return AS_I32(a) == AS_I32(b);
         case VAL_UI32:     return AS_UI32(a) == AS_UI32(b);
         case VAL_I64:      return AS_I64(a) == AS_I64(b);
