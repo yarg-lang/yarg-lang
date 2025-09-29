@@ -1,4 +1,4 @@
 var uint32[] test = new(uint32[10]);
-print test; // expect: Type:Type:uint32[10]:[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+print test; // expect: Type:uint32[10]:[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 test = false; // expect runtime error: Cannot set global variable to incompatible type.

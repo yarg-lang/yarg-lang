@@ -19,4 +19,4 @@ location.loc.x = 10; // set x to 10
 print location.loc.x; // expect: 10
 location.cpu_registers.registers[1] = 0d42; // set first register to 42
 print location.cpu_registers.registers[1]; // expect: 42
-print location.cpu_registers; // expect: struct{|2:28|Type:Type:uint32[3]:[0, 42, 0]; nil; }
+print location.cpu_registers; // expect: struct{|2:28|Type:uint32[3]:[0, 42, 0]; nil; }

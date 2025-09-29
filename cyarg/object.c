@@ -415,9 +415,7 @@ static void printArray(FILE* op, ObjPackedUniformArray* array) {
     FPRINTMSG(op, "]");
 }
 
-static void printType(FILE* op, ObjConcreteYargType* type) {
-    FPRINTMSG(op, "Type:");
-
+static void printTypeLiteral(FILE* op, ObjConcreteYargType* type) {
     if (type->isConst) {
         FPRINTMSG(op, "const ");
     }
@@ -439,14 +437,15 @@ static void printType(FILE* op, ObjConcreteYargType* type) {
         case TypeFunction: FPRINTMSG(op, "Function"); break;
         case TypeNativeBlob: FPRINTMSG(op, "NativeBlob"); break;
         case TypeRoutine: FPRINTMSG(op, "Routine"); break;
-        case TypeChannel: FPRINTMSG(op, "Channel"); break;
+        case TypeChannel: FPRINTMSG(op, "Channel"); break;  
+        case TypeYargType: FPRINTMSG(op, "Type"); break;
         case TypeArray: {
             ObjConcreteYargTypeArray* array = (ObjConcreteYargTypeArray*) type;
             Value type = arrayElementType(array);
             if (IS_NIL(type)) {
                 FPRINTMSG(op, "any");
             } else {
-                printType(op, array->element_type);
+                printTypeLiteral(op, array->element_type);
             }
             FPRINTMSG(op, "[");
             if (array->cardinality > 0) {
@@ -459,15 +458,33 @@ static void printType(FILE* op, ObjConcreteYargType* type) {
             ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*) type;
             FPRINTMSG(op, "struct{|%zu:%zu| ", st->field_count, st->storage_size);
             for (size_t i = 0; i < st->field_count; i++) {
-                fprintValue(op, st->field_types[i]);
+                ObjConcreteYargType* field_type = AS_YARGTYPE(st->field_types[i]);
+                printTypeLiteral(op, field_type);
                 FPRINTMSG(op, "; ");
             }
             FPRINTMSG(op, "}");
             break;
         }
-        case TypeYargType: FPRINTMSG(op, "Type"); break;
+        case TypePointer: {
+            ObjConcreteYargTypePointer* st = (ObjConcreteYargTypePointer*) type;
+            if (type->isConst) {
+                FPRINTMSG(op, "const ");
+            }
+            FPRINTMSG(op, "*");
+            if (st->target_type) {
+                printTypeLiteral(op, st->target_type);
+            } else {
+                FPRINTMSG(op, "any");
+            }
+            break;
+        }
         default: FPRINTMSG(op, "Unknown"); break;
     }
+}
+
+static void printType(FILE* op, ObjConcreteYargType* type) {
+    FPRINTMSG(op, "Type:");
+    printTypeLiteral(op, type);
 }
 
 static void printPointer(FILE* op, ObjPackedPointer* ptr) {

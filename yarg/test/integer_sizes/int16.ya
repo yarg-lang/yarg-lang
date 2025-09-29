@@ -1,6 +1,6 @@
 var uint16[3] code;
 code[0] = uint16(0xffff);
-print code; // expect: Type:Type:uint16[3]:[65535, 0, 0]
+print code; // expect: Type:uint16[3]:[65535, 0, 0]
 
 var x = int16(10);
 x = x + int16(-10);
