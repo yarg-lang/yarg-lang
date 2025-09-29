@@ -241,21 +241,9 @@ Value placeObjectAt(Value placedType, Value location) {
         ObjConcreteYargType* concrete_type = AS_YARGTYPE(placedType);
         StoredValue* locationPtr = (StoredValue*) AS_ADDRESS(location);
         switch (concrete_type->yt) {
-            case TypeArray: {
-                ObjPackedUniformArray* target_array = newPackedUniformArrayAt((ObjConcreteYargTypeArray*)concrete_type, locationPtr);
-                tempRootPush(OBJ_VAL(target_array));
-                ObjPackedPointer* result = newPointerAtHeapCell(placedType, locationPtr);
-                tempRootPop();
-                return OBJ_VAL(result);
-            }
-            case TypeStruct: {
-                ObjPackedStruct* target_struct = newPackedStructAt((ObjConcreteYargTypeStruct*)concrete_type, locationPtr);
-                tempRootPush(OBJ_VAL(target_struct));
-                ObjPackedPointer* result = newPointerAtHeapCell(placedType, locationPtr);
-                tempRootPop();
-                return OBJ_VAL(result);
-            }
-            case TypeInt8: // fall through
+            case TypeArray:  // fall through
+            case TypeStruct:
+            case TypeInt8:
             case TypeUint8:
             case TypeInt16:
             case TypeUint16:
