@@ -247,6 +247,7 @@ Value placeObjectAt(Value placedType, Value location) {
             case TypeUint8:
             case TypeInt16:
             case TypeUint16:
+            case TypeInt32:
             case TypeUint32:
             case TypeInt64:
             case TypeUint64: {
