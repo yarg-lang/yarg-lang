@@ -21,8 +21,7 @@ place struct {
         } sys;
     struct {
         uint32 ctrl;
-        uint32 div;
-        uint32 selected;
+        uint32@8 selected;
         } peri;
     struct {
         uint32 ctrl;
