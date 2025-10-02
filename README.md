@@ -10,6 +10,21 @@ Yarg aims to be a dedicated language for Microcontroller firmware development. I
   - Modern language conveniences
   - Intended for production deployment
 
+## Installing Yarg
+
+Download the latest release from [releases](https://github.com/jhmcaleely/yarg-lang/releases), and follow the README instructions in the tar file.
+
+## Using Yarg
+
+Connect your Pico to your favourite serial terminal. Minicom and Putty are popular choices. Connect to the USB serial device, which will have a name specific to your board and host. Connect at 115200, 8N1. Use a VT100 or ANSI compatible terminal emulation.
+
+
+## Building Yarg
+
+Building yarg from source is required for some ports of Yarg, and to contribute to the language itself. See [BUILD.md](BUILD.md) for details.
+
+# About Yarg
+
 Microcontrollers (such as the $4 Raspberry Pi Pico, or the ESP32 family) are powerful computers, supporting multiple cores, many peripherals, and interrupts from those peripherals arriving at any time. We commonly develop software for them with languages like C or Python. C offers complete access to the system, but was designed when resources were very scarce, and it leaves a lot of work to the developer. Languages like Python offer more to the developer, but were designed with a general purpose computer in mind, and make access to hardware awkward (often they require a C driver). Yarg aims to provide the conveniences of languages like Python, alongside features that allow full access to hardware, so that C is not required to complete a project.
 
 Of course, if you want to use modern language features, many general purpose languages are available in 'Micro', 'Tiny' or other cut-down versions of their implementation for microcontroller use. These implementations are faced with choices when the resources available do not support the same implementation possible in their original form. Do they try to be compatible (at what cost, if that is even possible?), or do they document a limitation compared to the original language? Yarg always prioritises microcontroller development, so all of the implementation choices suit production use for firmware.
