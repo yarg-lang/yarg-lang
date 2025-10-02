@@ -32,6 +32,12 @@ void initRoutine(ObjRoutine* routine, RoutineKind type) {
         routine->addSlice = NULL;
     }
 
+#ifdef DEBUG_TRACE_EXECUTION
+    routine->traceExecution = true;
+#else
+    routine->traceExecution = false;
+#endif
+
     resetRoutine(routine);
 }
 

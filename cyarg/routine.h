@@ -63,6 +63,7 @@ typedef struct ObjRoutine {
 
     RoutineKind type;
     volatile ExecState state;
+    bool traceExecution;
 } ObjRoutine;
 
 void initRoutine(ObjRoutine* routine, RoutineKind type);

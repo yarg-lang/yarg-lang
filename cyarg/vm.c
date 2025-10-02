@@ -582,11 +582,14 @@ InterpretResult run(ObjRoutine* routine) {
     for (;;) {
         if (routine->state == EXEC_ERROR) return INTERPRET_RUNTIME_ERROR;
 
-#ifdef DEBUG_TRACE_EXECUTION
-        printValueStack(routine, "          ");
-        disassembleInstruction(&frame->closure->function->chunk, 
-                               (int)(frame->ip - frame->closure->function->chunk.code));
-#endif
+        if (routine->traceExecution) {
+            PRINTERR("[%p]", routine);
+            printValueStack(routine, "          ");
+            PRINTERR("[%p]", routine);
+            disassembleInstruction(&frame->closure->function->chunk, 
+                                (int)(frame->ip - frame->closure->function->chunk.code));
+        }
+
         uint8_t instruction;
         switch (instruction = READ_BYTE()) {
             case OP_CONSTANT: {
