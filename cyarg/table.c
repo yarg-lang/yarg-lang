@@ -144,8 +144,10 @@ void tableRemoveWhite(ValueTable* table) {
 void markTable(ValueTable* table) {
     for (int i = 0; i < table->capacity; i++) {
         Entry* entry = &table->entries[i];
-        markObject((Obj*)entry->key);
-        markValue(entry->value);
+        if (entry->key != NULL) {
+            markObject((Obj*)entry->key);
+            markValue(entry->value);
+        }
     }
 }
 
@@ -299,8 +301,10 @@ void tableCellRemoveWhite(ValueCellTable* table) {
 void markCellTable(ValueCellTable* table) {
     for (int i = 0; i < table->capacity; i++) {
         EntryCell* entry = &table->entries[i];
-        markObject((Obj*)entry->key);
-        markValueCell(&entry->cell);
+        if (entry->key != NULL) {
+            markObject((Obj*)entry->key);
+            markValueCell(&entry->cell);
+        }
     }
 }
 
