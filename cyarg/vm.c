@@ -133,6 +133,26 @@ void freeVM() {
     freeObjects();
 }
 
+void markVMRoots() {
+    
+    // Don't use markObject, as this is not on the heap.
+    markRoutine(&vm.core0);
+    
+    markObject((Obj*)vm.core1);
+
+    for (int i = 0; i < MAX_PINNED_ROUTINES; i++) {
+        markObject((Obj*)vm.pinnedRoutines[i]);
+    }
+
+    for (Value* slot = vm.tempRoots; slot < vm.tempRootsTop; slot++) {
+        markValue(*slot);
+    }
+
+    markTable(&vm.imports);
+    markCellTable(&vm.globals);
+    markObject((Obj*)vm.initString);
+}
+
 bool callfn(ObjRoutine* routine, ObjClosure* closure, int argCount) {
     if (argCount != closure->function->arity) {
         runtimeError(routine, "Expected %d arguments but got %d.",

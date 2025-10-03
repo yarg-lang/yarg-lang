@@ -48,6 +48,7 @@ extern VM vm;
 
 void initVM();
 void freeVM();
+void markVMRoots();
 InterpretResult interpret(const char* source);
 
 InterpretResult run(ObjRoutine* routine);

@@ -605,22 +605,8 @@ static void freeObject(Obj* object) {
 }
 
 static void markRoots() {
-
-    // Don't use markObject, as this is not on the heap.
-    markRoutine(&vm.core0);
-    
-    markObject((Obj*)vm.core1);
-    for (int i = 0; i < MAX_PINNED_ROUTINES; i++) {
-        markObject((Obj*)vm.pinnedRoutines[i]);
-    }
-
-    for (Value* slot = vm.tempRoots; slot < vm.tempRootsTop; slot++) {
-        markValue(*slot);
-    }
-
-    markCellTable(&vm.globals);
+    markVMRoots();
     markCompilerRoots();
-    markObject((Obj*)vm.initString);
 }
 
 static void traceReferences() {
