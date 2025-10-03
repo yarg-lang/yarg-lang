@@ -133,6 +133,8 @@ void markRoutine(ObjRoutine* routine) {
         markObject((Obj*)upvalue);
     }
 
+    markDynamicObjArray(&routine->additionalSlicesArray);
+
     markObject((Obj*)routine->entryFunction);
     markValue(routine->entryArg);
 }
