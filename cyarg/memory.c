@@ -133,11 +133,11 @@ static void markStoredValue(Value type, StoredValue* stored) {
     if (IS_NIL(type)) {
         markValue(stored->asValue);
         return;
-    } else if (type_packs_as_obj(AS_YARGTYPE(type))) {
-        markObject(stored->as.obj);
-        return;
     } else if (type_packs_as_container(AS_YARGTYPE(type))) {
         markStoredContainerElements(AS_YARGTYPE(type), stored);
+        return;
+    } else if (type_packs_as_obj(AS_YARGTYPE(type))) {
+        markObject(stored->as.obj);
         return;
     }
 }
