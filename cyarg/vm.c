@@ -25,6 +25,7 @@ void vmPinnedRoutineHandler(size_t handler) {
     run(routine);
 
     Value result = pop(routine); // unused.
+    pop(routine);
 
     prepareRoutineStack(routine);
 
