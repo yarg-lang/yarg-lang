@@ -7,6 +7,7 @@
 #include "value.h"
 #include "vm.h"
 #include "yargtype.h"
+#include "channel.h"
 
 #define ALLOCATE_OBJ(type, objectType) \
     (type*)allocateObject(sizeof(type), objectType)
@@ -379,17 +380,6 @@ static void printRoutine(FILE* op, ObjRoutine* routine) {
           , routine);
 }
 
-static void printChannel(FILE* op, ObjChannel* channel) {
-    FPRINTMSG(op, "<ch ");
-    if (channel->present) {
-        fprintValue(op, channel->data);
-    }
-    else {
-        FPRINTMSG(op, " NIL");
-    }
-    FPRINTMSG(op, ">");
-}
-
 static void printArray(FILE* op, ObjPackedUniformArray* array) {
     printType(op, (ObjConcreteYargType*) array->type);
     FPRINTMSG(op, ":[");
@@ -519,7 +509,7 @@ void fprintObject(FILE* op, Value value) {
         case OBJ_ROUTINE:
             printRoutine(op, AS_ROUTINE(value));
             break;
-        case OBJ_CHANNEL:
+        case OBJ_CHANNELCONTAINER:
             printChannel(op, AS_CHANNEL(value));
             break;
         case OBJ_STRING:

@@ -22,7 +22,7 @@ typedef struct ObjConcreteYargTypeStruct ObjConcreteYargTypeStruct;
 #define IS_NATIVE(value)       isObjType(value, OBJ_NATIVE)
 #define IS_BLOB(value)         isObjType(value, OBJ_BLOB)
 #define IS_ROUTINE(value)      isObjType(value, OBJ_ROUTINE)
-#define IS_CHANNEL(value)      isObjType(value, OBJ_CHANNEL)
+#define IS_CHANNEL(value)      isObjType(value, OBJ_CHANNELCONTAINER)
 #define IS_STRING(value)       isObjType(value, OBJ_STRING)
 #define IS_UNIFORMARRAY(value) (isObjType(value, OBJ_PACKEDUNIFORMARRAY)|| isObjType(value, OBJ_UNOWNED_UNIFORMARRAY))
 #define IS_YARGTYPE(value)     (isObjType(value, OBJ_YARGTYPE) || isObjType(value, OBJ_YARGTYPE_ARRAY) || isObjType(value, OBJ_YARGTYPE_STRUCT) || isObjType(value, OBJ_YARGTYPE_POINTER))
@@ -38,7 +38,7 @@ typedef struct ObjConcreteYargTypeStruct ObjConcreteYargTypeStruct;
     (((ObjNative*)AS_OBJ(value))->function)
 #define AS_BLOB(value)         ((ObjBlob*)AS_OBJ(value))
 #define AS_ROUTINE(value)      ((ObjRoutine*)AS_OBJ(value))
-#define AS_CHANNEL(value)      ((ObjChannel*)AS_OBJ(value))
+#define AS_CHANNEL(value)      ((ObjChannelContainer*)AS_OBJ(value))
 #define AS_STRING(value)       ((ObjString*)AS_OBJ(value))
 #define AS_CSTRING(value)      (((ObjString*)AS_OBJ(value))->chars)
 #define AS_UNIFORMARRAY(value) ((ObjPackedUniformArray*)AS_OBJ(value))
@@ -55,7 +55,7 @@ typedef enum {
     OBJ_NATIVE,
     OBJ_BLOB,
     OBJ_ROUTINE,
-    OBJ_CHANNEL,
+    OBJ_CHANNELCONTAINER,
     OBJ_STRING,
     OBJ_UPVALUE,
     OBJ_UNOWNED_UNIFORMARRAY,
@@ -175,13 +175,6 @@ typedef struct {
     Value reciever;
     ObjClosure* method;
 } ObjBoundMethod;
-
-typedef struct {
-    Obj obj;
-    volatile bool present;
-    bool overflow;
-    Value data;
-} ObjChannel;
 
 typedef struct {
     Obj obj;

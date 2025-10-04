@@ -1,4 +1,10 @@
 #include <stdio.h>
+#ifdef CYARG_PICO_TARGET
+#include <pico/sync.h>
+#else
+#include <semaphore.h>
+#include <pthread.h>
+#endif
 
 #include "common.h"
 
@@ -7,144 +13,179 @@
 #include "vm.h"
 #include "debug.h"
 
-ObjChannel* newChannel() {
-    ObjChannel* channel = ALLOCATE_OBJ(ObjChannel, OBJ_CHANNEL);
-    channel->data = NIL_VAL;
-    channel->present = false;
+typedef struct ObjChannelContainer {
+    Obj obj;
+    bool overflow;
+    size_t writeCursor;
+#ifdef CYARG_PICO_TARGET
+    critical_section_t lock;
+#else
+    pthread_mutex_t lock;
+    sem_t* access;
+#endif
+
+    Value* buffer;
+    size_t bufferSize;
+    volatile size_t occupied;
+} ObjChannelContainer;
+
+ObjChannelContainer* newChannel(ObjRoutine* routine, size_t capacity) {
+    ObjChannelContainer* channel = ALLOCATE_OBJ(ObjChannelContainer, OBJ_CHANNELCONTAINER);
+    tempRootPush(OBJ_VAL(channel));
     channel->overflow = false;
+
+    channel->buffer = ALLOCATE(Value, capacity);
+    channel->bufferSize = capacity;
+
+    for (int i = 0; i < capacity; i++) {
+        channel->buffer[i] = NIL_VAL;
+    }
+#ifdef CYARG_PICO_TARGET
+    critical_section_init(&channel->lock);
+#else
+    channel->access = sem_open("/semaphore", O_CREAT, S_IRUSR | S_IWUSR, 0);
+    if (channel->access == SEM_FAILED) {
+        tempRootPop();
+        runtimeError(routine, "Semaphore open failed.");
+    }
+
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&channel->lock, &attr);
+    pthread_mutexattr_destroy(&attr);
+#endif
+    tempRootPop();
     return channel;
 }
 
-bool makeChannelBuiltin(ObjRoutine* routine, int argCount, Value* result) {
-    if (argCount != 0) {
-        runtimeError(routine, "Expected 0 arguments but got %d.", argCount);
-        return false;
-    }
+void freeChannelObject(Obj* object) {
+    ObjChannelContainer* channel = (ObjChannelContainer*)object;
+#ifdef CYARG_PICO_TARGET
+#else
+    pthread_mutex_destroy(&channel->lock);
+    sem_close(channel->access);
+#endif
 
-    ObjChannel* channel = newChannel();
-
-    *result = OBJ_VAL(channel);
-    return true;
+    FREE_ARRAY(Value, channel->buffer, channel->bufferSize);
+    FREE(ObjChannelContainer, object); 
 }
 
-bool sendChannelBuiltin(ObjRoutine* routine, int argCount, Value* result) {
-    if (argCount != 2) {
-        runtimeError(routine, "Expected 2 arguments, got %d.", argCount);
-        return false;
-    }
+size_t readCursor(ObjChannelContainer* channel) {
+    size_t count = channel->occupied;
+    size_t size = channel->bufferSize;
+    size_t cursor = (channel->writeCursor + size - count) % size;
+    return cursor;
+}
 
-    Value channelVal = nativeArgument(routine, argCount, 0);
-
-    if (!IS_CHANNEL(channelVal)) {
-        runtimeError(routine, "Argument must be a channel.");
-        return false;
-    }
-
-    ObjChannel* channel = AS_CHANNEL(channelVal);
+static void channelMutexEnter(ObjChannelContainer* channel) {
 #ifdef CYARG_PICO_TARGET
-    while (channel->present) {
+    critical_section_enter_blocking(&channel->lock);
+#else
+    pthread_mutex_lock(&channel->lock);
+#endif
+}
+
+static void channelMutexLeave(ObjChannelContainer* channel) {
+#ifdef CYARG_PICO_TARGET
+    critical_section_exit(&channel->lock);
+#else
+    pthread_mutex_unlock(&channel->lock);
+#endif
+}
+ 
+void markChannel(ObjChannelContainer* channel) {
+    size_t cursor = readCursor(channel);
+    for (int i = 0; i < channel->occupied; i++) {
+        markValue(channel->buffer[cursor]);
+        cursor = (cursor + 1) % channel->bufferSize;
+    }
+}
+
+void printChannel(FILE* op, ObjChannelContainer* channel) {
+    FPRINTMSG(op, "channel{");
+    size_t cursor = readCursor(channel);
+    for (int i = 0; i < channel->occupied; i++) {
+        fprintValue(op, channel->buffer[cursor]);
+        if (i < channel->occupied - 1) {
+            FPRINTMSG(op, ", ");
+        }
+        cursor = (cursor + 1) % channel->bufferSize;
+    }
+    FPRINTMSG(op, "}");
+}
+
+void sendChannel(ObjChannelContainer* channel, Value data) {
+#ifdef CYARG_PICO_TARGET
+    while (channel->occupied == channel->bufferSize) {
         // stall/block until space
         tight_loop_contents();
     }
 #endif
-
-    channel->data = nativeArgument(routine, argCount, 1);
-    channel->present = true;
+    channelMutexEnter(channel);
+    channel->buffer[channel->writeCursor] = data;
+    channel->occupied++;
+    channel->writeCursor = (channel->writeCursor + 1) % channel->bufferSize;
     channel->overflow = false;
-    *result = BOOL_VAL(channel->overflow);
+    channelMutexLeave(channel);
 
-    return true;
-}
-
-bool receiveChannelBuiltin(ObjRoutine* routine, int argCount, Value* result) {
-    if (argCount != 1) {
-        runtimeError(routine, "Expected 1 arguments, got %d.", argCount);
-        return false;
-    }
-
-    Value channelVal = nativeArgument(routine, argCount, 0);
-
-    if (!IS_CHANNEL(channelVal) && !IS_ROUTINE(channelVal)) {
-        runtimeError(routine, "Argument must be a channel or a routine.");
-        return false;
-    }
-
-    if (IS_CHANNEL(channelVal)) {
-        ObjChannel* channel = AS_CHANNEL(channelVal);
-#ifdef CYARG_PICO_TARGET
-        while (!channel->present) {
-            // stall/block until space
-            tight_loop_contents();
-        }
+#ifndef CYARG_PICO_TARGET
+    sem_post(channel->access);
 #endif
-        *result = channel->data;
-        channel->present = false;
-        channel->overflow = false;
+}
 
-    } 
-    else if (IS_ROUTINE(channelVal)) {
-        ObjRoutine* routineParam = AS_ROUTINE(channelVal);
+Value receiveChannel(ObjChannelContainer* channel) {
+    Value result = NIL_VAL;
 
 #ifdef CYARG_PICO_TARGET
-        while (routineParam->state == EXEC_RUNNING) {
-            tight_loop_contents();
-        }
-#endif    
-        
-        if (routineParam->state == EXEC_CLOSED || routineParam->state == EXEC_SUSPENDED) {
-            *result = peek(routineParam, -1);
-        } 
-        else {
-            *result = NIL_VAL;
-        }
+    while (channel->occupied == 0) {
+        // stall/block until data
+        tight_loop_contents();
     }
-    return true;
+#else
+    sem_wait(channel->access);
+#endif
+
+    channelMutexEnter(channel);
+    size_t cursor = readCursor(channel);
+    result = channel->buffer[cursor];
+    channel->occupied--;
+    channel->overflow = false;
+    channelMutexLeave(channel);
+
+    return result;
 }
 
-bool shareChannelBuiltin(ObjRoutine* routine, int argCount, Value* result) {
-    if (argCount != 2) {
-        runtimeError(routine, "Expected 2 arguments, got %d.", argCount);
-        return false;
-    }
+bool shareChannel(ObjChannelContainer* channel, Value data) {
+    bool result = false;
 
-    Value channelVal = nativeArgument(routine, argCount, 0);
-    
-    if (!IS_CHANNEL(channelVal)) {
-        runtimeError(routine, "Argument must be a channel.");
-        return false;
-    }
-
-    ObjChannel* channel = AS_CHANNEL(channelVal);
-    if (channel->present) {
+    channelMutexEnter(channel);
+    channel->buffer[channel->writeCursor] = data;
+    channel->occupied++;
+    channel->writeCursor = (channel->writeCursor + 1) % channel->bufferSize;
+    if (channel->occupied > channel->bufferSize) {
         channel->overflow = true;
+        channel->occupied = channel->bufferSize;
     }
-    channel->data = nativeArgument(routine, argCount, 1);
-    channel->present = true;
-    *result = BOOL_VAL(channel->overflow);
+    result = channel->overflow;
+    channelMutexLeave(channel);
 
-    return true;
+#ifdef CYARG_PICO_TARGET
+#else    
+    if (!result) {
+        sem_post(channel->access);
+    }
+#endif
+
+    return result;
 }
 
-bool peekChannelBuiltin(ObjRoutine* routine, int argCount, Value* result) {
-    if (argCount != 1) {
-        runtimeError(routine, "Expected 1 arguments, got %d.", argCount);
-        return false;
+Value peekChannel(ObjChannelContainer* channel) {
+    Value result = NIL_VAL;
+
+    if (channel->occupied > 0) {
+        result = channel->buffer[readCursor(channel)];
     }
 
-    Value channelVal = nativeArgument(routine, argCount, 0);
-
-    if (!IS_CHANNEL(channelVal)) {
-        runtimeError(routine, "Argument must be a channel.");
-        return false;
-    }
-
-    ObjChannel* channel = AS_CHANNEL(channelVal);
-    if (channel->present) {
-        *result = channel->data;
-    }
-    else {
-        *result = NIL_VAL;
-    }
-
-    return true;
+    return result;
 }

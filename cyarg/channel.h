@@ -1,15 +1,25 @@
 #ifndef cyarg_channel_h
 #define cyarg_channel_h
 
+#include <stdio.h>
 #include "value.h"
 #include "object.h"
 
-ObjChannel* newChannel();
+typedef struct ObjChannelContainer ObjChannelContainer;
 
-bool makeChannelBuiltin(ObjRoutine* routine, int argCount, Value* result);
-bool sendChannelBuiltin(ObjRoutine* routine, int argCount, Value* result);
-bool receiveChannelBuiltin(ObjRoutine* routine, int argCount, Value* result);
-bool shareChannelBuiltin(ObjRoutine* routine, int argCount, Value* result);
-bool peekChannelBuiltin(ObjRoutine* routine, int argCount, Value* result);
+ObjChannelContainer* newChannel(ObjRoutine* routine, size_t capacity);
+
+void freeChannelObject(Obj* channel);
+void markChannel(ObjChannelContainer* channel);
+
+void printChannel(FILE* op, ObjChannelContainer* channel);
+
+void sendChannel(ObjChannelContainer* channel, Value data);
+Value receiveChannel(ObjChannelContainer* channel);
+Value peekChannel(ObjChannelContainer* channel);
+bool shareChannel(ObjChannelContainer* channel, Value data);
+
+
+
 
 #endif

@@ -2,5 +2,35 @@
 var c = make_channel();
 send(c, 10);
 print receive(c);   // expect: 10
-share(c, 11);
-print cpeek(c);      // expect: 11
+var overflow = share(c, 11);
+print overflow;     // expect: false
+print cpeek(c);     // expect: 11
+overflow = share(c, 12);
+print overflow;     // expect: true
+print cpeek(c);     // expect: 12
+
+var buffer = make_channel(3);
+send(buffer, "hello");
+send(buffer, true);
+send(buffer, 20);
+print receive(buffer);  // expect: hello
+print receive(buffer);  // expect: true
+print receive(buffer);  // expect: 20
+overflow = share(buffer, 30);
+print overflow;         // expect: false
+overflow = share(buffer, 40);
+print overflow;         // expect: false
+overflow = share(buffer, 50);
+print overflow;         // expect: false
+overflow = share(buffer, 60);
+print overflow;         // expect: true
+overflow = share(buffer, 70);
+print overflow;         // expect: true
+overflow = share(buffer, 80);
+print overflow;         // expect: true
+overflow = share(buffer, 90);
+print overflow;         // expect: true
+print cpeek(buffer);    // expect: 70
+print receive(buffer);  // expect: 70
+print receive(buffer);  // expect: 80
+print receive(buffer);  // expect: 90

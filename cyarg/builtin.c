@@ -90,6 +90,90 @@ bool importBuiltin(ObjRoutine* routineContext, int argCount) {
 
 }
 
+bool makeChannelBuiltin(ObjRoutine* routine, int argCount, Value* result) {
+    if (argCount >= 2) {
+        runtimeError(routine, "Expected 0 or 1 arguments but got %d.", argCount);
+        return false;
+    }
+    Value valCapacity;
+    if (argCount == 0) {
+        valCapacity = UI32_VAL(1);
+    } else {
+        Value arg1 = nativeArgument(routine, argCount, 0);
+        if (!is_positive_integer(arg1)) {
+            runtimeError(routine, "Expected a positive integer");
+        }
+        valCapacity = arg1;
+    }
+
+    size_t capacity = as_positive_integer(valCapacity);
+
+    ObjChannelContainer* channel = newChannel(routine, capacity);
+
+    *result = OBJ_VAL((Obj*)channel);
+    return true;
+}
+
+bool sendChannelBuiltin(ObjRoutine* routine, int argCount, Value* result) {
+    if (argCount != 2) {
+        runtimeError(routine, "Expected 2 arguments, got %d.", argCount);
+        return false;
+    }
+
+    Value channelVal = nativeArgument(routine, argCount, 0);
+
+    if (!IS_CHANNEL(channelVal)) {
+        runtimeError(routine, "Argument must be a channel.");
+        return false;
+    }
+
+    ObjChannelContainer* channel = AS_CHANNEL(channelVal);
+    Value data = nativeArgument(routine, argCount, 1);
+    sendChannel(channel, data);
+
+    return true;
+}
+
+bool shareChannelBuiltin(ObjRoutine* routine, int argCount, Value* result) {
+    if (argCount != 2) {
+        runtimeError(routine, "Expected 2 arguments, got %d.", argCount);
+        return false;
+    }
+
+    Value channelVal = nativeArgument(routine, argCount, 0);
+    
+    if (!IS_CHANNEL(channelVal)) {
+        runtimeError(routine, "Argument must be a channel.");
+        return false;
+    }
+
+    ObjChannelContainer* channel = AS_CHANNEL(channelVal);
+    Value data = nativeArgument(routine, argCount, 1);
+    bool overflow = shareChannel(channel, data);
+    *result = BOOL_VAL(overflow);
+
+    return true;
+}
+
+bool cpeekBuiltin(ObjRoutine* routine, int argCount, Value* result) {
+    if (argCount != 1) {
+        runtimeError(routine, "Expected 1 arguments, got %d.", argCount);
+        return false;
+    }
+
+    Value channelVal = nativeArgument(routine, argCount, 0);
+
+    if (!IS_CHANNEL(channelVal)) {
+        runtimeError(routine, "Argument must be a channel.");
+        return false;
+    }
+
+    ObjChannelContainer* channel = AS_CHANNEL(channelVal);
+    *result = peekChannel(channel);
+
+    return true;
+}
+
 bool makeRoutineBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (argCount != 2) {
         runtimeError(routineContext, "Expected 2 arguments but got %d.", argCount);
@@ -228,6 +312,41 @@ bool startBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
 
 #endif
     *result = NIL_VAL;
+    return true;
+}
+
+bool receiveBuiltin(ObjRoutine* routine, int argCount, Value* result) {
+    if (argCount != 1) {
+        runtimeError(routine, "Expected 1 arguments, got %d.", argCount);
+        return false;
+    }
+
+    Value channelVal = nativeArgument(routine, argCount, 0);
+
+    if (!IS_CHANNEL(channelVal) && !IS_ROUTINE(channelVal)) {
+        runtimeError(routine, "Argument must be a channel or a routine.");
+        return false;
+    }
+
+    if (IS_CHANNEL(channelVal)) {
+        *result = receiveChannel(AS_CHANNEL(channelVal));
+    } 
+    else if (IS_ROUTINE(channelVal)) {
+        ObjRoutine* routineParam = AS_ROUTINE(channelVal);
+
+#ifdef CYARG_PICO_TARGET
+        while (routineParam->state == EXEC_RUNNING) {
+            tight_loop_contents();
+        }
+#endif    
+        
+        if (routineParam->state == EXEC_CLOSED || routineParam->state == EXEC_SUSPENDED) {
+            *result = peek(routineParam, -1);
+        } 
+        else {
+            *result = NIL_VAL;
+        }
+    }
     return true;
 }
 
@@ -614,9 +733,9 @@ Value getBuiltin(uint8_t builtin) {
         case BUILTIN_START: return OBJ_VAL(newNative(startBuiltin));
         case BUILTIN_MAKE_CHANNEL: return OBJ_VAL(newNative(makeChannelBuiltin));
         case BUILTIN_SEND: return OBJ_VAL(newNative(sendChannelBuiltin));
-        case BUILTIN_RECEIVE: return OBJ_VAL(newNative(receiveChannelBuiltin));
+        case BUILTIN_RECEIVE: return OBJ_VAL(newNative(receiveBuiltin));
         case BUILTIN_SHARE: return OBJ_VAL(newNative(shareChannelBuiltin));
-        case BUILTIN_CPEEK: return OBJ_VAL(newNative(peekChannelBuiltin));
+        case BUILTIN_CPEEK: return OBJ_VAL(newNative(cpeekBuiltin));
         case BUILTIN_LEN: return OBJ_VAL(newNative(lenBuiltin));
         case BUILTIN_PIN: return OBJ_VAL(newNative(pinBuiltin));
         case BUILTIN_NEW: return OBJ_VAL(newNative(newBuiltin));

@@ -6,6 +6,7 @@
 #include "vm.h"
 #include "yargtype.h"
 #include "ast.h"
+#include "channel.h"
 
 #ifdef DEBUG_LOG_GC
 #include "debug.h"
@@ -237,7 +238,11 @@ static void blackenObject(Obj* object) {
         }
         case OBJ_NATIVE: break;
         case OBJ_BLOB: break;
-        case OBJ_CHANNEL: break;
+        case OBJ_CHANNELCONTAINER: {
+            ObjChannelContainer* channel = (ObjChannelContainer*)object;
+            markChannel(channel);
+            break;
+        }
         case OBJ_STRING: break;
         case OBJ_YARGTYPE: break;
         case OBJ_YARGTYPE_ARRAY: {
@@ -504,7 +509,7 @@ static void freeObject(Obj* object) {
             break;
         }
         case OBJ_UPVALUE: FREE(ObjUpvalue, object); break;
-        case OBJ_CHANNEL: FREE(ObjChannel, object); break;
+        case OBJ_CHANNELCONTAINER: freeChannelObject(object); break;
         case OBJ_UNOWNED_PACKEDPOINTER: FREE(ObjPackedPointer, object); break;
         case OBJ_PACKEDPOINTER: {
             ObjPackedPointer* ptr = (ObjPackedPointer*) object;
