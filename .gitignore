@@ -6,3 +6,4 @@ bin
 *.code-workspace
 *.vsix
 release
+yarg/specimen/syntax.ya
