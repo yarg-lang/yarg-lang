@@ -2,10 +2,11 @@ import("uart");
 
 const device = 1;
 
-uart_init(device, 115200, false);
-
+// connect gpio before init to avoid spurious 0 byte appearing.
 gpio_set_function(0d8, gpio_func_uart); // TX
 gpio_set_function(0d9, gpio_func_uart); // RX
+
+uart_init(device, 115200, false);
 
 while (true) {
     var input = uart_get_byte(device);
