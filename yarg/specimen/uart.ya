@@ -83,7 +83,6 @@ fun uart_init(id, baud, fifo_enable) {
     uart_unreset(id);
 
     var set_baud = uart_set_baudrate(id, baud);
-    print set_baud;
 
     uint32 data_bits = uint32(8);
     uint32 stop_bits = uint32(1);
