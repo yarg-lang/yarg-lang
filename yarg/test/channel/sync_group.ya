@@ -1,0 +1,11 @@
+var any[2] channels;
+for (var uint32 i; i < len(channels); i = i + 0d1) {
+    channels[i] = make_channel();
+}
+var group = make_sync_group(channels);
+send(channels[1], 11);
+send(channels[0], 10);
+print receive(group);   // expect: Type:any[2]:[10, 11]
+send(channels[0], 9);
+print receive(group);   // expect: Type:any[2]:[9, nil]
+print group;            // expect: sync_group{Type:any[2]:[9, nil]}

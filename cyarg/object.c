@@ -8,6 +8,7 @@
 #include "vm.h"
 #include "yargtype.h"
 #include "channel.h"
+#include "sync_group.h"
 
 #define ALLOCATE_OBJ(type, objectType) \
     (type*)allocateObject(sizeof(type), objectType)
@@ -446,6 +447,9 @@ void fprintObject(FILE* op, Value value) {
             break;
         case OBJ_CHANNELCONTAINER:
             printChannel(op, AS_CHANNEL(value));
+            break;
+        case OBJ_SYNCGROUP:
+            printSyncGroup(op, AS_SYNCGROUP(value));
             break;
         case OBJ_STRING:
             FPRINTMSG(op, "%s", AS_CSTRING(value));

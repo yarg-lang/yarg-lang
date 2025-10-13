@@ -7,6 +7,7 @@
 #include "yargtype.h"
 #include "ast.h"
 #include "channel.h"
+#include "sync_group.h"
 
 #ifdef DEBUG_LOG_GC
 #include "debug.h"
@@ -207,6 +208,7 @@ static void blackenObject(Obj* object) {
             markObject((Obj*)type->target_type);
             break;
         }
+        case OBJ_SYNCGROUP: markSyncGroup((ObjSyncGroup*)object); break;
         case OBJ_STACKSLICE: break;
         case OBJ_AST: {
             ObjAst* ast = (ObjAst*)object;
@@ -488,6 +490,7 @@ static void freeObject(Obj* object) {
             break;
         }
         case OBJ_YARGTYPE_POINTER: FREE(ObjConcreteYargTypePointer, object); break;
+        case OBJ_SYNCGROUP: freeSyncGroup(object); break;
         case OBJ_STACKSLICE: FREE(ObjStackSlice, object); break;
         case OBJ_AST: FREE(ObjAst, object); break;
         case OBJ_PLACEALIAS: FREE(ObjPlaceAlias, object); break;

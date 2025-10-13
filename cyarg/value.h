@@ -112,6 +112,8 @@ bool assignToPackedValue(PackedValue lhs, Value rhsValue);
 
 bool is_uniformarray(PackedValue val);
 bool is_struct(PackedValue val);
+bool is_nil(PackedValue val);
+bool is_channel(PackedValue val);
 
 typedef struct {
     Value value;

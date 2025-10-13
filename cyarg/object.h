@@ -28,6 +28,7 @@ typedef struct ObjConcreteYargTypePointer ObjConcreteYargTypePointer;
 #define IS_YARGTYPE(value)     (isObjType(value, OBJ_YARGTYPE) || isObjType(value, OBJ_YARGTYPE_ARRAY) || isObjType(value, OBJ_YARGTYPE_STRUCT) || isObjType(value, OBJ_YARGTYPE_POINTER))
 #define IS_POINTER(value)      (isObjType(value, OBJ_PACKEDPOINTER) || isObjType(value, OBJ_UNOWNED_PACKEDPOINTER))
 #define IS_STRUCT(value)       (isObjType(value, OBJ_PACKEDSTRUCT) || isObjType(value, OBJ_UNOWNED_PACKEDSTRUCT))
+#define IS_SYNCGROUP(value)    isObjType(value, OBJ_SYNCGROUP)
 
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
 #define AS_CLASS(value)        ((ObjClass*)AS_OBJ(value))
@@ -45,6 +46,7 @@ typedef struct ObjConcreteYargTypePointer ObjConcreteYargTypePointer;
 #define AS_YARGTYPE(value)     ((ObjConcreteYargType*)AS_OBJ(value))
 #define AS_POINTER(value)      ((ObjPackedPointer*)AS_OBJ(value))
 #define AS_STRUCT(value)       ((ObjPackedStruct*)AS_OBJ(value))
+#define AS_SYNCGROUP(value)    ((ObjSyncGroup*)AS_OBJ(value))
 
 typedef enum {
     OBJ_BOUND_METHOD,
@@ -68,6 +70,7 @@ typedef enum {
     OBJ_UNOWNED_PACKEDPOINTER,
     OBJ_UNOWNED_PACKEDSTRUCT,
     OBJ_PACKEDSTRUCT,
+    OBJ_SYNCGROUP,
     OBJ_STACKSLICE,
     OBJ_AST,
     OBJ_PLACEALIAS,

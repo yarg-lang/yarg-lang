@@ -6,6 +6,7 @@
 #include "object.h"
 
 typedef struct ObjChannelContainer ObjChannelContainer;
+typedef struct ObjSyncGroup ObjSyncGroup;
 
 ObjChannelContainer* newChannel(ObjRoutine* routine, size_t capacity);
 
@@ -19,7 +20,8 @@ Value receiveChannel(ObjChannelContainer* channel);
 Value peekChannel(ObjChannelContainer* channel);
 bool shareChannel(ObjChannelContainer* channel, Value data);
 
-
-
+Value collectFromChannel(ObjChannelContainer* channel);
+void joinSyncGroup(ObjChannelContainer* channel, ObjSyncGroup* group);
+void leaveSyncGroup(ObjChannelContainer* channel, ObjSyncGroup* group);
 
 #endif

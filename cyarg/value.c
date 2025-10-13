@@ -280,6 +280,29 @@ bool is_struct(PackedValue val) {
     }
 }
 
+bool is_nil(PackedValue val) {
+    if (val.storedType == NULL) {
+        return IS_NIL(val.storedValue->asValue);
+    } else if (val.storedType->yt == TypeAny) {
+        return IS_NIL(val.storedValue->asValue);
+    } else if (type_packs_as_obj(val.storedType)
+               && val.storedValue == NULL) {
+        return true;
+    } else {
+        return false; 
+    }
+}
+
+bool is_channel(PackedValue val) {
+    if (val.storedType == NULL) {
+        return IS_CHANNEL(val.storedValue->asValue);
+    } else if (val.storedType->yt == TypeChannel) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void initDynamicValueArray(DynamicValueArray* array) {
     array->values = NULL;
     array->capacity = 0;

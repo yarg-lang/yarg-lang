@@ -13,6 +13,7 @@
 #include "compiler.h"
 #include "channel.h"
 #include "yargtype.h"
+#include "sync_group.h"
 
 bool importBuiltinDummy(ObjRoutine* routineContext, int argCount, Value* result) {
     *result = NIL_VAL;
@@ -171,7 +172,34 @@ bool cpeekBuiltin(ObjRoutine* routine, int argCount, Value* result) {
 }
 
 bool makeSyncGroupBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
-    return false;
+    if (argCount != 1) {
+        runtimeError(routineContext, "Expected 1 argument but got %d.", argCount);
+        return false;
+    }
+    Value items = nativeArgument(routineContext, argCount, 0);
+    if (!IS_UNIFORMARRAY(items)) {
+        runtimeError(routineContext, "Expected an array.");
+        return false;
+    }
+    ObjPackedUniformArray* array = AS_UNIFORMARRAY(items);
+    ObjConcreteYargTypeArray* t = (ObjConcreteYargTypeArray*)array->store.storedType;
+    if (t->element_type == NULL) {
+        for (size_t i = 0; i < arrayCardinality(array->store); i++) {
+            Value element = unpackValue(arrayElement(array->store, i));
+            if (!IS_CHANNEL(element)) {
+                runtimeError(routineContext, "Array must contain only channel items.");
+                return false;
+            }
+        }
+    } else if (t->element_type->yt != TypeArray) {
+        runtimeError(routineContext, "Array must contain only channel items.");
+        return false;
+    }
+
+    ObjSyncGroup* group = newSyncGroup(routineContext, AS_UNIFORMARRAY(items));
+
+    *result = OBJ_VAL((Obj*)group);
+    return true;
 }
 
 bool makeRoutineBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
@@ -256,8 +284,8 @@ bool receiveBuiltin(ObjRoutine* routine, int argCount, Value* result) {
 
     Value targetVal = nativeArgument(routine, argCount, 0);
 
-    if (!IS_CHANNEL(targetVal) && !IS_ROUTINE(targetVal)) {
-        runtimeError(routine, "Argument must be a channel or a routine.");
+    if (!IS_CHANNEL(targetVal) && !IS_ROUTINE(targetVal) && !IS_SYNCGROUP(targetVal)) {
+        runtimeError(routine, "Argument must be a channel, a routine or a sync group.");
         return false;
     }
 
@@ -266,6 +294,9 @@ bool receiveBuiltin(ObjRoutine* routine, int argCount, Value* result) {
     } 
     else if (IS_ROUTINE(targetVal)) {
         return receiveFromRoutine(AS_ROUTINE(targetVal), result);
+    } else if (IS_SYNCGROUP(targetVal)) {
+        *result = receiveSyncGroup(AS_SYNCGROUP(targetVal));
+        return true;
     }
     return true;
 }
