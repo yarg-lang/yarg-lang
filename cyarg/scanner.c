@@ -235,6 +235,7 @@ static TokenType identifierType() {
                             switch (scanner.start[5]) {
                                 case 'c': return checkKeyword(6, 6, "hannel", TOKEN_MAKE_CHANNEL);
                                 case 'r': return checkKeyword(6, 6, "outine", TOKEN_MAKE_ROUTINE);
+                                case 's': return checkKeyword(6, 9, "ync_group", TOKEN_MAKE_SYNCGROUP);
                             }
                         }
                         break;

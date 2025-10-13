@@ -170,6 +170,10 @@ bool cpeekBuiltin(ObjRoutine* routine, int argCount, Value* result) {
     return true;
 }
 
+bool makeSyncGroupBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
+    return false;
+}
+
 bool makeRoutineBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (argCount != 2) {
         runtimeError(routineContext, "Expected 2 arguments but got %d.", argCount);
@@ -652,6 +656,7 @@ Value getBuiltin(uint8_t builtin) {
         case BUILTIN_RECEIVE: return OBJ_VAL(newNative(receiveBuiltin));
         case BUILTIN_SHARE: return OBJ_VAL(newNative(shareChannelBuiltin));
         case BUILTIN_CPEEK: return OBJ_VAL(newNative(cpeekBuiltin));
+        case BUILTIN_MAKE_SYNCGROUP: return OBJ_VAL(newNative(makeSyncGroupBuiltin));
         case BUILTIN_LEN: return OBJ_VAL(newNative(lenBuiltin));
         case BUILTIN_PIN: return OBJ_VAL(newNative(pinBuiltin));
         case BUILTIN_NEW: return OBJ_VAL(newNative(newBuiltin));

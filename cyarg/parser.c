@@ -345,6 +345,7 @@ static ObjExpr* builtin(bool canAssign) {
         case TOKEN_IMPORT: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_IMPORT, 1);
         case TOKEN_MAKE_ROUTINE: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_MAKE_ROUTINE, 1);
         case TOKEN_MAKE_CHANNEL: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_MAKE_CHANNEL, 1);
+        case TOKEN_MAKE_SYNCGROUP: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_MAKE_SYNCGROUP, 1);
         case TOKEN_RESUME: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_RESUME, 1);
         case TOKEN_SEND: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_SEND, 1);
         case TOKEN_RECEIVE: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_RECEIVE, 1);      
@@ -668,6 +669,7 @@ static AstParseRule rules[] = {
     [TOKEN_MACHINE_FLOAT64]      = {type,      NULL,   PREC_NONE},
     [TOKEN_MAKE_CHANNEL]         = {builtin,   NULL,   PREC_NONE},
     [TOKEN_MAKE_ROUTINE]         = {builtin,   NULL,   PREC_NONE},
+    [TOKEN_MAKE_SYNCGROUP]       = {builtin,   NULL,   PREC_NONE},
     [TOKEN_NEW]                  = {builtin,   NULL,   PREC_NONE},
     [TOKEN_NIL]                  = {literal,   NULL,   PREC_NONE},
     [TOKEN_OR]                   = {NULL,      or_,    PREC_OR},
