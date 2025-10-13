@@ -62,6 +62,7 @@ ObjChannelContainer* newChannel(ObjRoutine* routine, size_t capacity) {
 void freeChannelObject(Obj* object) {
     ObjChannelContainer* channel = (ObjChannelContainer*)object;
 #ifdef CYARG_PICO_TARGET
+    critical_section_deinit(&channel->lock);
 #else
     pthread_mutex_destroy(&channel->lock);
     sem_close(channel->access);
