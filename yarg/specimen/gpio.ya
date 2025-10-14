@@ -85,6 +85,10 @@ fun gpio_put(gpio, value) {
     }
 }
 
+fun gpio_get(gpio) {
+    return ((peek(sio_hw.gpio_in) >> gpio) & 0x1) == 0x1;
+}
+
 fun gpio_init(gpio) {
     gpio_set_direction(gpio, GPIO_IN);
     gpio_put(gpio, false);
