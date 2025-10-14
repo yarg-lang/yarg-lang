@@ -1,0 +1,53 @@
+import("timer");
+import("gpio");
+
+const gpio_button1 = 0d2;
+
+const gpio_led1 = 0d3;
+const gpio_led2 = 0d5;
+
+var any[2] events;
+for (var i = 0d0; i < len(events); i = i + 0d1) {
+    events[i] = make_channel();
+}
+
+var all_events = make_sync_group(events);
+
+gpio_init(gpio_led1);
+gpio_set_direction(gpio_led1, true);
+
+gpio_init(gpio_led2);
+gpio_set_direction(gpio_led2, true);
+
+gpio_init(gpio_button1);
+
+fun alarm_toggle() {
+    share(events[0], true);
+}
+
+fun gpio_response(num, gpio_events) {
+    if ((gpio_events == GPIO_IRQ_EDGE_FALL) or (gpio_events == GPIO_IRQ_EDGE_RISE)) {
+        share(events[1], uint32(num));
+    }
+}
+
+gpio_set_irq_routine(gpio_response);
+
+gpio_set_irq_enabled(gpio_button1, GPIO_IRQ_EDGE_FALL, true);
+irq_set_enabled(io_irq_bank0, true);
+
+repeating_alarm_ms(0d0, 500, alarm_toggle);
+var led = gpio_led1;
+
+while (true) {
+    var e = receive(all_events);
+    if (e[0]) {
+        gpio_put(led, !gpio_get(led));
+    }
+    if (e[1] == gpio_button1 and led == gpio_led1) {
+        led = gpio_led2;
+    } else if (e[1] == gpio_button1 and led == gpio_led2) {
+        led = gpio_led1;
+    }
+}
+
