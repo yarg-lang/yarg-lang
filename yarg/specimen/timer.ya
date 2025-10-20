@@ -1,8 +1,6 @@
 import("machine");
 import("irq");
 
-const timer_base = @x40054000;
-
 place struct {
     uint32 timehw;
     uint32 timelw;
@@ -18,12 +16,7 @@ place struct {
     uint32 inte;
     uint32 intf;
     uint32 ints;
-    } {
-        timer_base timer;
-        timer_base + REG_ALIAS_XOR_BITS timer_xor;
-        timer_base + REG_ALIAS_SET_BITS timer_set;
-        timer_base + REG_ALIAS_CLR_BITS timer_clr;
-    }
+    } @x40054000 timer;
 
 fun get_time_latched() {
     var current_time = uint64(peek(timer.timelr));
@@ -80,11 +73,11 @@ fun alarm_in_us(al, delay_us, response) {
     var target = get_time() + uint64(delay_us);
 
     fun alarm_irq_respsonse() {
-        poke timer_clr.intr, 0x1 << al;
+        poke timer.intr, REG_ALIAS_CLR_BITS, 0x1 << al;
         response();
     }
 
-    poke timer_set.inte, 0x1 << al;
+    poke timer.inte, REG_ALIAS_SET_BITS, 0x1 << al;
 
     enable_alarm_handler(al, alarm_irq_respsonse);
 
@@ -104,7 +97,7 @@ fun repeating_alarm_us(alarm, repeat_us, response) {
     }
 
     fun alarm_irq_respsonse() {
-        poke timer_clr.intr, 0x1 << alarm;
+        poke timer.intr, REG_ALIAS_CLR_BITS, 0x1 << alarm;
         var next = next_target();
 
         response();
@@ -112,7 +105,7 @@ fun repeating_alarm_us(alarm, repeat_us, response) {
         poke timer.alarm[alarm], next;
     }
 
-    poke timer_set.inte, 0x1 << alarm;
+    poke timer.inte, REG_ALIAS_SET_BITS, 0x1 << alarm;
 
     enable_alarm_handler(alarm, alarm_irq_respsonse);
 
@@ -128,7 +121,7 @@ fun repeating_alarm_s(alarm, repeat_s, response) {
 }
 
 fun cancel_alarm(alarm) {
-    poke timer_clr.intr, 0x1 << alarm;
+    poke timer.intr, REG_ALIAS_CLR_BITS, 0x1 << alarm;
 
     if (alarm_handlers[alarm].irq_routine != nil) {
         irq_remove_handler(timer_irq[alarm], alarm_handlers[alarm].pinned_routine);
@@ -138,7 +131,7 @@ fun cancel_alarm(alarm) {
 }
 
 fun cancel_repeating_alarm(alarm) {
-    poke timer_clr.inte, 0x1 << alarm;
+    poke timer.inte, REG_ALIAS_CLR_BITS, 0x1 << alarm;
 
     cancel_alarm(alarm);
 }

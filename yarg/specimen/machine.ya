@@ -25,7 +25,7 @@ const REG_ALIAS_XOR_BITS = 0x1 << 0d12;
 const REG_ALIAS_SET_BITS = 0x2 << 0d12;
 const REG_ALIAS_CLR_BITS = 0x3 << 0d12;
 
-fun write_masked(rw, xor, val, mask) { 
+fun reg_write_masked(rw, val, mask) { 
     const uint32 reg = peek(rw);
-    poke xor, (reg ^ uint32(val)) & uint32(mask);
+    poke rw, REG_ALIAS_XOR_BITS, (reg ^ uint32(val)) & uint32(mask);
 }

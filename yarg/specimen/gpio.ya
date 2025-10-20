@@ -26,8 +26,6 @@ const NUM_BANK0_GPIOS = 0d30;
 const PADS_BANK0_GPIO_IE_BITS = 0x00000040;
 const PADS_BANK0_GPIO_OD_BITS = 0x00000080;
 
-const io_bank0_base = @x40014000;
-
 place struct {
     struct {
         uint32 status;
@@ -44,26 +42,14 @@ place struct {
         uint32[4] intf;
         uint32[4] ints;
         } dormant_wake;
-    } {
-    io_bank0_base io_bank0;
-    io_bank0_base + REG_ALIAS_XOR_BITS io_bank0_xor;
-    io_bank0_base + REG_ALIAS_SET_BITS io_bank0_set;
-    io_bank0_base + REG_ALIAS_CLR_BITS io_bank0_clr;
-    }
-
-const pads_bank0_base = @x4001c000;
+    } @x40014000 io_bank0;
 
 place struct {
     uint32 voltage_select;
     uint32[NUM_BANK0_GPIOS] gpio;
     uint32 swclk;
     uint32 swd;
-    } {
-        pads_bank0_base pads_bank0;
-        pads_bank0_base + REG_ALIAS_XOR_BITS pads_bank0_xor;
-        pads_bank0_base + REG_ALIAS_SET_BITS pads_bank0_set;
-        pads_bank0_base + REG_ALIAS_CLR_BITS pads_bank0_clr;
-    }
+    } @x4001c000 pads_bank0;
 
 fun gpio_set_direction(gpio, dir) {
 
@@ -98,7 +84,7 @@ fun gpio_init(gpio) {
 fun gpio_set_function(gpio, function) {
 
     // Set input enable on, output disable off
-    write_masked(pads_bank0.gpio[gpio], pads_bank0_xor.gpio[gpio], 
+    reg_write_masked(pads_bank0.gpio[gpio], 
                  PADS_BANK0_GPIO_IE_BITS, PADS_BANK0_GPIO_IE_BITS | PADS_BANK0_GPIO_OD_BITS);
 
     poke io_bank0.gpio[gpio].ctrl, function;
@@ -157,10 +143,10 @@ fun gpio_set_irq_enabled(gpio, events, enabled) {
     events = events << (0d4 * (gpio % 0d8));
 
     if (enabled) {
-        poke io_bank0_set.proc[coreNum()].inte[gpio >> 0d3], events;
+        poke io_bank0.proc[coreNum()].inte[gpio >> 0d3], REG_ALIAS_SET_BITS, events;
     }
     else {
-        poke io_bank0_clr.proc[coreNum()].inte[gpio >> 0d3], events;
+        poke io_bank0.proc[coreNum()].inte[gpio >> 0d3], REG_ALIAS_CLR_BITS, events;
     }
 }
 

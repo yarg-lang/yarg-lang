@@ -1,17 +1,11 @@
 import ("machine");
 
-const reset_base = @x4000c000;
-
 place struct {
     uint32 reset;
     uint32 wdsel;
     uint32 done;
-} {
-    reset_base reset;
-    reset_base + REG_ALIAS_XOR_BITS reset_xor;
-    reset_base + REG_ALIAS_SET_BITS reset_set;
-    reset_base + REG_ALIAS_CLR_BITS reset_clr;
-}
+} @x4000c000 reset;
+
 
 const reset_usbctrl = 24;
 const reset_uart1 = 23;
@@ -44,11 +38,11 @@ const reset_busctrl = 1;
 const reset_adc = 0;
 
 fun reset_block(id) {
-    poke reset_set.reset, uint32(1) << uint32(id);
+    poke reset.reset, REG_ALIAS_SET_BITS, uint32(1) << uint32(id);
 }
 
 fun unreset_block(id) {
-    poke reset_clr.reset, uint32(1) << uint32(id);
+    poke reset.reset, REG_ALIAS_CLR_BITS, uint32(1) << uint32(id);
 }
 
 fun reset_await(id) {

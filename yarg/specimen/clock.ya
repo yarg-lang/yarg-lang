@@ -1,8 +1,6 @@
 
 import("machine");
 
-const clock_base = @x40008000;
-
 place struct {
     struct {
         uint32 ctrl;
@@ -55,12 +53,7 @@ place struct {
     uint32 inte;
     uint32 intf;
     uint32 ints;
-    } {
-        clock_base clock;
-        clock_base + REG_ALIAS_XOR_BITS clock_xor;
-        clock_base + REG_ALIAS_SET_BITS clock_set;
-        clock_base + REG_ALIAS_CLR_BITS clock_clr;
-    }
+    } @x40008000 clock;
 
 const clock_gpout0 = 0;
 const clock_gpout1 = 1;

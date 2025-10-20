@@ -26,15 +26,9 @@ uart_init(device, 115200, true);
 irq_add_shared_handler(uart_irq[device], input_handler_address, 0d0);
 irq_set_enabled(uart_irq[device], true);
 
-write_masked(uart[device].ifls, uart_xor[device].ifls,
-             0,
-             0b111000
-             );
+reg_write_masked(uart[device].ifls, 0, 0b111000);
 
-write_masked(uart[device].imsc, uart_xor[device].imsc,
-             0b1010000,
-             0b1010000
-             );
+reg_write_masked(uart[device].imsc, 0b1010000, 0b1010000);
 
 const scanning = 1;
 const esc_seen = 2;

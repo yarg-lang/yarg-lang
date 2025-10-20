@@ -3,9 +3,6 @@ import("reset");
 import("clock");
 import("gpio");
 
-const uart0_base = @x40034000;
-const uart1_base = @x40038000;
-
 place struct {
     uint32 dr;
     uint32 rsr;
@@ -24,19 +21,11 @@ place struct {
     uint32[4]@0xfe0 periphid;
     uint32[4]@0xff0 pcellid;
     } {
-        uart0_base uart0;
-        uart1_base + REG_ALIAS_XOR_BITS uart0_xor;
-        uart1_base + REG_ALIAS_SET_BITS uart0_set;
-        uart1_base + REG_ALIAS_CLR_BITS uart0_clr;
-
-        uart1_base uart1;
-        uart1_base + REG_ALIAS_XOR_BITS uart1_xor;
-        uart1_base + REG_ALIAS_SET_BITS uart1_set;
-        uart1_base + REG_ALIAS_CLR_BITS uart1_clr;
+        @x40034000 uart0;
+        @x40038000 uart1;
     }
 
 const uart = [ uart0, uart1 ];
-const uart_xor = [uart0_xor, uart1_xor ];
 
 fun uart_reset(id) {
     reset_block(reset_uart[id]);
@@ -71,7 +60,7 @@ fun uart_set_baudrate(id, baudrate) {
 
     // PL011 needs a (dummy) LCR_H write to latch in the divisors.
     // We don't want to actually change LCR_H contents here.    
-    write_masked(uart[id].lcr_h, uart_xor[id].lcr_h, 0, 0);
+    reg_write_masked(uart[id].lcr_h, 0, 0);
 
     return (uint32(4) * uart_clock_get_hz(id)) / (uint32(64) * baud_ibrd + baud_fbrd);
 }
@@ -93,13 +82,13 @@ fun uart_init(id, baud, fifo_enable) {
         FEN = 0x10;
     }
 
-    write_masked(uart[id].lcr_h, uart_xor[id].lcr_h,
-                ((data_bits - uint32(5)) << uint32(5)) |
-                ((stop_bits - uint32(1)) << uint32(3)) |
-                0x0|
-                FEN,
-                0x00000060 | 0x00000008 | 0x00000002 | 0x00000004 | 0x00000010
-                );
+    reg_write_masked(uart[id].lcr_h,
+                    ((data_bits - uint32(5)) << uint32(5)) |
+                    ((stop_bits - uint32(1)) << uint32(3)) |
+                    0x0|
+                    FEN,
+                    0x00000060 | 0x00000008 | 0x00000002 | 0x00000004 | 0x00000010
+                    );
     
     poke uart[id].cr, 0x00000001 | 0x00000100 | 0x00000200;
 }
