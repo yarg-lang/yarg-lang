@@ -141,6 +141,7 @@ void initVM() {
     vm.pinnedRoutineHandlers[9] = pinnedRoutine9;
 
     platform_mutex_init(&vm.heap);
+    platform_mutex_init(&vm.env);
 
     vm.tempRootsTop = vm.tempRoots;
 
@@ -690,22 +691,28 @@ InterpretResult run(ObjRoutine* routine) {
                 break;
             }
             case OP_GET_GLOBAL: {
+                platform_mutex_enter(&vm.env);
                 ObjString* name = READ_STRING();
                 ValueCell cell;
                 if (!tableCellGet(&vm.globals, name, &cell)) {
                     runtimeError(routine, "Undefined variable (OP_GET_GLOBAL) '%s'.", name->chars);
+                    platform_mutex_leave(&vm.env);
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 push(routine, cell.value);
+                platform_mutex_leave(&vm.env);
                 break;
             }
             case OP_DEFINE_GLOBAL: {
+                platform_mutex_enter(&vm.env);
                 ObjString* name = READ_STRING();
                 tableCellSet(&vm.globals, name, *peekCell(routine, 0));
                 pop(routine);
+                platform_mutex_leave(&vm.env);
                 break;
             }
             case OP_SET_GLOBAL: {
+                platform_mutex_enter(&vm.env);
                 ObjString* name = READ_STRING();
                 ValueCell* lhs = NULL;
                 if (tableCellGetPlace(&vm.globals, name, &lhs)) {
@@ -714,12 +721,15 @@ InterpretResult run(ObjRoutine* routine) {
 
                     if (!assignToValueCellTarget(lhsTrg, rhs->value)) {
                         runtimeError(routine, "Cannot set global variable to incompatible type.");
+                        platform_mutex_leave(&vm.env);
                         return INTERPRET_RUNTIME_ERROR;
                     }
                 } else {
                     runtimeError(routine, "Undefined variable (OP_SET_GLOBAL) '%s'.", name->chars);
+                    platform_mutex_leave(&vm.env);
                     return INTERPRET_RUNTIME_ERROR;
                 }
+                platform_mutex_leave(&vm.env);
                 break;
             }
             case OP_INITIALISE: {
