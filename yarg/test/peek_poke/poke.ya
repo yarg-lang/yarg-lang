@@ -1,0 +1,7 @@
+poke @xd0000000, 0x1 << 0d12, 0;    // expect: poke 0xd0001000, 0x00000000
+poke @xd0000000, 0;                 // expect: poke 0xd0000000, 0x00000000
+poke @xd0000000, 255;               // expect: poke 0xd0000000, 0x000000ff
+poke @xd0000000, 0d255;             // expect: poke 0xd0000000, 0x000000ff
+poke @xd0000004, 0xFF;              // expect: poke 0xd0000004, 0x000000ff
+var offset = 0d8;
+poke @xd0000000, offset, 0xff;      // expect: poke 0xd0000008, 0x000000ff

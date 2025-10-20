@@ -583,6 +583,10 @@ void printStmtExpression(ObjStmtExpression* stmt) {
 void printStmtPoke(ObjStmtPoke* stmt) {
     printf("poke ");
     printExpr(stmt->location);
+    if (stmt->offset) {
+        printf(", ");
+        printExpr(stmt->offset);
+    }
     printf(", ");
     printExpr(stmt->assignment);
     printf(";");

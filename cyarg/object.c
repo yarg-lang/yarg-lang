@@ -198,6 +198,12 @@ ObjPackedPointer* newPointerAtHeapCell(PackedValue location) {
     return ptr;
 }
 
+void offsetPointerDestination(ObjPackedPointer* pointer, size_t offset) {
+    uintptr_t addr = (uintptr_t)(pointer->destination);
+    addr += offset;
+    pointer->destination = (PackedValueStore*) addr;
+}
+
 bool isAddressValue(Value val) {
     if (IS_ADDRESS(val)) {
         return true;

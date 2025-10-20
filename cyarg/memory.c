@@ -248,6 +248,7 @@ static void blackenObject(Obj* object) {
             markStmt(object);
             ObjStmtPoke* stmt = (ObjStmtPoke*)object;
             markObject((Obj*)stmt->location);
+            markObject((Obj*)stmt->offset);
             markObject((Obj*)stmt->assignment);
             break;
         }

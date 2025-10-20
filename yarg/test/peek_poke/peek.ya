@@ -1,0 +1,1 @@
+peek (@xd0000000);    // expect: peek(0xd0000000)

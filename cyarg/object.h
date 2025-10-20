@@ -229,6 +229,7 @@ ObjPackedPointer* newPointerForHeapCell(PackedValue location);
 ObjPackedPointer* newPointerAtHeapCell(PackedValue location);
 
 Obj* destinationObject(Value pointer);
+void offsetPointerDestination(ObjPackedPointer* pointer, size_t offset);
 
 ObjPackedUniformArray* newPackedUniformArrayAt(PackedValue location);
 

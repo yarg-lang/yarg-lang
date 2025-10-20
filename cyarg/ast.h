@@ -218,6 +218,7 @@ typedef struct  {
 typedef struct {
     ObjStmt stmt;
     ObjExpr* location;
+    ObjExpr* offset;
     ObjExpr* assignment;
 } ObjStmtPoke;
 

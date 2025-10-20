@@ -908,6 +908,11 @@ InterpretResult run(ObjRoutine* routine) {
                     uint32_t b = AS_UI32(pop(routine));
                     uintptr_t a = AS_ADDRESS(pop(routine));
                     push(routine, ADDRESS_VAL(a + b));
+                } else if (IS_POINTER(peek(routine, 1)) && IS_UI32(peek(routine, 0))) {
+                    uint32_t b = AS_UI32(pop(routine));
+                    ObjPackedPointer* pointer = AS_POINTER(pop(routine));
+                    offsetPointerDestination(pointer, b);
+                    push(routine, OBJ_VAL(pointer));
                 } else if (IS_STRING(peek(routine, 0)) && IS_STRING(peek(routine, 1))) {
                     concatenate(routine);
                 } else {
@@ -1006,8 +1011,8 @@ InterpretResult run(ObjRoutine* routine) {
                     runtimeError(routine, "Location must be a pointer to an uint32 or address.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                if (!IS_UI32(assignment)) {
-                    runtimeError(routine, "Value must be an uint32.");
+                if (!is_positive_integer(assignment)) {
+                    runtimeError(routine, "Value must be a positive integer.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
 
@@ -1019,11 +1024,11 @@ InterpretResult run(ObjRoutine* routine) {
                 }
                 volatile uint32_t* reg = (volatile uint32_t*) nominal_address;
 
-                uint32_t val = AS_UI32(assignment);
+                uint32_t val = as_positive_integer(assignment);
 #ifdef CYARG_PICO_TARGET
                 *reg = val;
 #else
-                printf("poke %08lx, %08x\n", nominal_address, val);
+                printf("poke 0x%08lx, 0x%08x\n", nominal_address, val);
 #endif
 
                 pop(routine);

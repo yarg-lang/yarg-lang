@@ -755,6 +755,12 @@ static ObjStmtPoke* pokeStatement() {
     stmt->location = expression();
     consume(TOKEN_COMMA, "Expect ',' after location.");
     stmt->assignment = expression();
+    if (check(TOKEN_COMMA)) {
+        consume(TOKEN_COMMA, "Expect ',' after offset.");
+        stmt->offset = stmt->assignment;
+        stmt->assignment = NULL;
+        stmt->assignment = expression();
+    }
     consume(TOKEN_SEMICOLON, "Expect ';' after value.");
     popWorkingNode();
     return stmt;

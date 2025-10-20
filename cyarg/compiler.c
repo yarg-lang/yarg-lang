@@ -721,6 +721,10 @@ static void defineVariable(uint8_t global) {
 static void generateStmtPoke(ObjStmtPoke* stmt) {
     generateExpr(stmt->assignment);
     generateExpr(stmt->location);
+    if (stmt->offset) {
+        generateExpr(stmt->offset);
+        emitByte(OP_ADD);
+    }
     emitByte(OP_POKE);
 }
 
