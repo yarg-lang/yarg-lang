@@ -173,10 +173,12 @@ static void blackenObject(Obj* object) {
         case OBJ_PACKEDPOINTER: {
             ObjPackedPointer* ptr = (ObjPackedPointer*)object;
             markObject((Obj*)ptr->type);
-            PackedValue dest;
-            dest.storedType = ptr->type->target_type;
-            dest.storedValue = ptr->destination;
-            markPackedValue(dest);
+            if (ptr->type && ptr->destination) {
+                PackedValue dest;
+                dest.storedType = ptr->type->target_type;
+                dest.storedValue = ptr->destination;
+                markPackedValue(dest);
+            }
             break;
         }
         case OBJ_UNOWNED_UNIFORMARRAY:
