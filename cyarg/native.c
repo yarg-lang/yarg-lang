@@ -91,12 +91,11 @@ bool clock_get_hzNative(ObjRoutine* routine, int argCount, Value* result) {
         return false;
     }
 
+    uint32_t res = 0;
 #ifdef CYARG_PICO_TARGET
-    int res = clock_get_hz(as_positive_integer(numVal));
-#else
-    int res = 0;
+    res = clock_get_hz(as_positive_integer(numVal));
 #endif
 
-    *result = I32_VAL(res);
+    *result = UI32_VAL(res);
     return true;
 }
