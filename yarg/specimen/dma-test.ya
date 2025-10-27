@@ -1,0 +1,38 @@
+import("dma");
+import("machine");
+
+var uint32[64] raw_pixels;
+for (var i = 0d0; i < len(raw_pixels); i = i + 0d1) {
+    raw_pixels[i] = 0x11882244;
+}
+
+var uint32[64] target_pixels;
+
+// configure
+
+
+poke dma.channel[0].read_addr, raw_pixels;
+poke dma.channel[0].write_addr, target_pixels;
+
+reg_write_masked(dma.channel[0].al1_ctrl, 0x10, 0x10); // increment read addr
+reg_write_masked(dma.channel[0].al1_ctrl, 0x20, 0x20); // increment write addr
+reg_write_masked(dma.channel[0].al1_ctrl, 0x8, 0xc); // 32 bit
+
+print peek(dma.channel[0].read_addr);
+print peek(dma.channel[0].write_addr);
+print peek(dma.channel[0].al1_ctrl);
+
+poke dma.channel[0].trans_count, len(raw_pixels);
+print peek(dma.channel[0].trans_count);
+
+
+// enable
+reg_write_masked(dma.channel[0].ctrl_trig, 0x1, 0x1);
+
+
+while(peek(dma.channel[0].ctrl_trig) & 0x01000000 != 0x01000000) {
+}
+
+for (var i = 0d0; i < len(target_pixels); i = i + 0d1) {
+    print target_pixels[i];
+}
