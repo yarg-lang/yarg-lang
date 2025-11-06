@@ -1,0 +1,145 @@
+import("gpio");
+
+const direction = 0d5;
+const step = 0d6;
+const enable = 0d7;
+const index = 0d8;
+const diag = 0d9;
+
+const ms1 = 0d14;
+const ms2 = 0d15;
+
+const uart = 0d10;
+
+gpio_init(direction);
+gpio_set_direction(direction, GPIO_OUT);
+gpio_put(direction, false);
+
+gpio_init(step);
+gpio_set_direction(step, GPIO_OUT);
+gpio_put(step, false);
+
+gpio_init(enable);
+gpio_set_direction(enable, GPIO_OUT);
+gpio_put(enable, false);
+
+gpio_init(index);
+gpio_set_direction(index, GPIO_IN);
+
+gpio_init(diag);
+gpio_set_direction(diag, GPIO_IN);
+
+gpio_init(ms1);
+gpio_set_direction(ms1, GPIO_OUT);
+gpio_put(ms1, false);
+
+gpio_init(ms2);
+gpio_set_direction(ms2, GPIO_OUT);
+gpio_put(ms2, false);
+
+var micro_steps = 8;
+
+const away = false;
+const toward = true;
+
+fun enable_motor() {
+    gpio_put(enable, false);
+}
+
+fun disable_motor() {
+    gpio_put(enable, true);
+}
+
+fun set_micro_steps(steps) {
+    if (steps == 8) {
+        gpio_put(ms1, false);
+        gpio_put(ms2, false);
+        micro_steps = 8;
+    } else if (steps == 16) {
+        gpio_put(ms1, true);
+        gpio_put(ms2, true);
+        micro_steps = 16;
+    } else if (steps == 32) {
+        gpio_put(ms1, true);
+        gpio_put(ms2, false);
+        micro_steps = 32;
+    } else if (steps == 64) {
+        gpio_put(ms1, false);
+        gpio_put(ms2, true);
+        micro_steps = 64;
+    } else {
+        print "invalid step selection";
+    }
+}
+
+fun step_motor() {
+    gpio_put(step, false);
+    gpio_put(step, true);
+    if (gpio_get(diag)) {
+        print "help!";
+    }
+}
+
+fun move(dir, distance, delay) {
+    gpio_put(direction, dir);
+
+    var micro_steps_taken = 0;
+    var cycles = 0;
+
+    for (var i = 0; i < distance * micro_steps; i = i + 1) {
+        step_motor();
+        for (var j = 0; j < delay; j = j + 1) {
+        }
+        if (gpio_get(index)) {
+            cycles = cycles + 1;
+        }
+        micro_steps_taken = micro_steps_taken + 1;
+    }
+
+    var full_steps = micro_steps_taken / micro_steps;
+    var rotations = full_steps / 200;
+    print micro_steps_taken;
+    print cycles;
+    print full_steps;
+    print rotations;
+}
+
+fun rotate(dir) {
+    gpio_put(direction, dir);
+
+    for (var i = 0; i < 200; i = i + 1) {
+        for (var micro = 0; micro < micro_steps; micro = micro + 1) {
+            step_motor();
+        }
+    }
+}
+
+fun dance() {
+    move(away, 1000, 10);
+    move(toward, 1000, 1);
+}
+
+gpio_init(uart);
+gpio_set_direction(uart, GPIO_OUT);
+
+gpio_put(uart, true); // idle
+
+uint8 payload = 0x05;
+
+
+gpio_put(uart, false); // start
+
+var transmit = payload & 0x1 == 0x1;
+payload = payload >> 0d1;
+
+gpio_put(uart, true);
+gpio_put(uart, false);
+gpio_put(uart, true);
+gpio_put(uart, false);
+
+gpio_put(uart, false);
+gpio_put(uart, false);
+gpio_put(uart, false);
+gpio_put(uart, false);
+
+gpio_put(uart, true); // stop
