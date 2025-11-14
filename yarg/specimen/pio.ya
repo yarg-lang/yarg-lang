@@ -1,0 +1,86 @@
+import("machine");
+
+place struct {
+    uint32 ctrl;
+    uint32 fstat;
+    uint32 fdebug;
+    uint32 flevel;
+    uint32[4] txf;
+    uint32[4] rxf;
+    uint32 sm_irq;
+    uint32 irq_force;
+    uint32 input_sync_bypass;
+    uint32 dbg_padout;
+    uint32 dbg_padoe;
+    uint32 dbg_cfginfo;
+    uint32[32] instr_mem;
+    struct {
+        uint32 clkdiv;
+        uint32 execctrl;
+        uint32 shiftctrl;
+        uint32 addr;
+        uint32 instr;
+        uint32 pinctrl;
+        }[4] sm;
+    uint32 intr;
+    struct {
+        uint32 inte;
+        uint32 intf;
+        uint32 ints;
+        }[2] irq;
+} {
+    @x50200000 pio0;
+    @x50300000 pio1;
+}
+
+const pio = [pio0, pio1];
+
+fun pio_add_program_at_offset(pio_num, program, offset) {
+    for (var i = 0d0; i < len(program); i = i + 0d1) {
+        poke pio[pio_num].instr_mem[offset + i], uint32(program[i]);
+    }
+}
+
+const PIO_EXECCTRL_OUT_STICKY_LSB = 0d17;
+const PIO_PINCTRL_SET_COUNT_LSB = 0d26;
+const PIO_PINCTRL_SET_BASE_LSB = 0d5;
+const PIO_SM_SHIFTCTRL_IN_SHIFTDIR_LSB = 0d18;
+const PIO_SM_SHIFTCTRL_AUTOPUSH_LSB = 0d16;
+const PIO_SM_SHIFTCTRL_PUSH_THRESH_LSB = 0d20;
+const PIO_SM_EXECCTRL_WRAP_BOTTOM_LSB = 0d7;
+const PIO_SM_EXECCTRL_WRAP_TOP_LSB  = 0d12;
+const PIO_SM_PINCTRL_SIDESET_COUNT_LSB = 0d29;
+const PIO_SM_EXECCTRL_SIDE_EN_LSB = 0d30;
+const PIO_SM_EXECCTRL_SIDE_PINDIR_LSB = 0d29;
+const PIO_SM_EXECCTRL_SIDE_EN_BITS = 0x40000000;
+const PIO_SM_EXECCTRL_SIDE_PINDIR_BITS = 0x20000000;
+const PIO_SM_PINCTRL_SIDESET_BASE_LSB = 0d10;
+const PIO_SM_PINCTRL_SIDESET_BASE_BITS = 0x00007c00;
+const PIO_SM_SHIFTCTRL_OUT_SHIFTDIR_BITS = 0x00080000;
+const PIO_SM_SHIFTCTRL_OUT_SHIFTDIR_LSB = 0d19;
+const PIO_SM_SHIFTCTRL_AUTOPULL_BITS = 0x00020000;
+const PIO_SM_SHIFTCTRL_AUTOPULL_LSB = 0d17;
+const PIO_SM_SHIFTCTRL_PULL_THRESH_BITS = 0x3e000000;
+const PIO_SM_SHIFTCTRL_PULL_THRESH_LSB = 0d25;
+
+const PIO_SM_SHIFTCTRL_FJOIN_TX_BITS = 0x40000000;
+const PIO_SM_SHIFTCTRL_FJOIN_TX_LSB = 0d30;
+const PIO_SM_SHIFTCTRL_FJOIN_RX_BITS = 0x80000000;
+const PIO_SM_SHIFTCTRL_FJOIN_RX_LSB = 0d31;
+
+const PIO_SM_CLKDIV_FRAC_LSB = 0d8;
+const PIO_SM_CLKDIV_INT_LSB = 0d16;
+
+const PIO_FIFO_JOIN_NONE = 0d0;
+const PIO_FIFO_JOIN_TX = 0d1;
+const PIO_FIFO_JOIN_RX = 0d2;
+
+const PIO_FDEBUG_TXOVER_LSB = 0d16;
+const PIO_FDEBUG_RXUNDER_LSB = 0d8;
+const PIO_FDEBUG_TXSTALL_LSB = 0d24;
+const PIO_FDEBUG_RXSTALL_LSB = 0d0;
+
+const PIO_CTRL_SM_RESTART_LSB = 0d4;
+const PIO_CTRL_CLKDIV_RESTART_LSB = 0d8;
+
+const PIO_FSTAT_TXFULL_LSB = 0d16;

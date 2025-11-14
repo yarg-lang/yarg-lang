@@ -1,0 +1,29 @@
+const uint16 pio_instr_bits_jmp = uint16(0x0000);
+const uint16 pio_instr_bits_wait = uint16(0x2000);
+const uint16 pio_instr_bits_in = uint16(0x4000);
+const uint16 pio_instr_bits_out = uint16(0x6000);
+const uint16 pio_instr_bits_push = uint16(0x8000);
+const uint16 pio_instr_bits_pull = uint16(0x8080);
+const uint16 pio_instr_bits_mov = uint16(0xa000);
+const uint16 pio_instr_bits_irq = uint16(0xc000);
+const uint16 pio_instr_bits_set = uint16(0xe000);
+
+const _PIO_INVALID_IN_SRC = 0x8;
+const _PIO_INVALID_MOV_SRC = 0x40;
+const _PIO_INVALID_MOV_DEST = 0x80;
+const pio_pins = 0d0;
+const pio_x = 0d1;
+const pio_y = 0d2;
+const pio_null = 0d3;
+const pio_pindirs = 0d4;
+const pio_exec_mov = 0d4;
+const pio_status = 0d5;
+const pio_pc = 0d5;
+const pio_isr = 0d6;
+const pio_osr = 0d7;
+const pio_exec_out = 0d7;
+
+fun pio_encode_instr_and_args(instruction, arg1, arg2) {
+    var uint16 instr = uint16(instruction) | (uint16(arg1) << uint16(5)) | (uint16(arg2) & uint16(0x1f));
+    return instr;
+}
