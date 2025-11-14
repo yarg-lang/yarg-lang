@@ -14,6 +14,10 @@ fi
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add uart.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add reset.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add clock.ya
+../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add pio.ya
+../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add pio-instructions.ya
+../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add dma.ya
+../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add ws2812.ya
 
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add alarm.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add blinky.ya
@@ -24,11 +28,11 @@ fi
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add multicore-flash.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add scone.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add timed-flash.ya
-../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add ws2812.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add button.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add serial-echo.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add serial-input.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add button_flash.ya
+../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add dma-test.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add main.ya
 
 popd > /dev/null
