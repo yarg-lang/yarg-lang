@@ -1,16 +1,137 @@
+import("pio");
+import("pio-instructions");
+import("clock");
+import("gpio");
+import("dma");
 
-var leds = ws2812_init();
+const uint16[4] ws2812_program;
+const ws2812_wrap_target = 0d0;
+ws2812_program[0] = uint16(0x6321); // out    x, 1            side 0 [3]
+ws2812_program[1] = uint16(0x1223); // jmp    !x, 3           side 1 [2]
+ws2812_program[2] = uint16(0x1200); // jmp    0               side 1 [2]
+ws2812_program[3] = uint16(0xa242); // nop                    side 0 [2]
+const ws2812_wrap = 0d3;
 
-var any[64] pixels;
+const ws2812_T1 = 0d3;
+const ws2812_T2 = 0d3;
+const ws2812_T3 = 0d4;
 
-for (var i = 0d0; i < len(pixels); i = i + 0d1) {
-    pixels[i] = [0x88, 0x00, 0x44];
+const ws2812freq = 0d800000;
+const rgbw = false;
+
+fun local_write_masked(variable, val, mask) {
+    uint32 reg = uint32(variable) ^ ((uint32(variable) ^ uint32(val)) & uint32(mask));
+    return reg;
 }
 
-// at the moment, this is performance sensitive. len() pulled out of the loop, pixel creation in one expression.
-var l = len(pixels);
-for (var i = 0d0; i < l; i = i + 0d1) {
-    var pixel = pixels[i][1] << 0d24 | pixels[i][0] << 0d16 | pixels[i][2] << 0d8;
+fun ws2812_init(gpio_pin, pio_num, sm_num, offset) {
 
-    ws2812_write_pixel(leds, pixel);
+    pio_add_program_at_offset(pio_num, ws2812_program, 0d0);
+    gpio_set_function(gpio_pin, gpio_func_pio[pio_num]);
+
+    poke pio[pio_num].sm[sm_num].execctrl, REG_ALIAS_CLR_BITS, 0x1 << PIO_EXECCTRL_OUT_STICKY_LSB;
+
+    poke pio[pio_num].sm[sm_num].pinctrl, (0d1 << PIO_PINCTRL_SET_COUNT_LSB) | (gpio_pin << PIO_PINCTRL_SET_BASE_LSB);
+    uint16 instruction = pio_encode_instr_and_args(pio_instr_bits_set, pio_pindirs & 0d7, 0x1f);
+    poke pio[pio_num].sm[sm_num].instr, uint32(instruction);
+
+    uint32 shiftctrl = (0d1 << PIO_SM_SHIFTCTRL_IN_SHIFTDIR_LSB) |
+                   (0d0 << PIO_SM_SHIFTCTRL_AUTOPUSH_LSB) |
+                   ((0d32 & 0x1f) << PIO_SM_SHIFTCTRL_PUSH_THRESH_LSB);
+
+    uint32 execctrl = (offset + ws2812_wrap_target << PIO_SM_EXECCTRL_WRAP_BOTTOM_LSB) |
+                 (offset + ws2812_wrap << PIO_SM_EXECCTRL_WRAP_TOP_LSB);
+
+    uint32 pinctrl = (0d1 << PIO_SM_PINCTRL_SIDESET_COUNT_LSB);
+
+    execctrl = local_write_masked(execctrl, 0x0 << PIO_SM_EXECCTRL_SIDE_EN_LSB | 0x0 << PIO_SM_EXECCTRL_SIDE_PINDIR_LSB
+                                , PIO_SM_EXECCTRL_SIDE_EN_BITS | PIO_SM_EXECCTRL_SIDE_PINDIR_BITS);
+
+    pinctrl = local_write_masked(pinctrl, gpio_pin << PIO_SM_PINCTRL_SIDESET_BASE_LSB
+                                , PIO_SM_PINCTRL_SIDESET_BASE_BITS);
+
+    uint32 rgbval = 0d32;
+    if (!rgbw) {
+        rgbval = 0d24;
+    }
+    
+    shiftctrl = local_write_masked(shiftctrl, (0x0 << PIO_SM_SHIFTCTRL_OUT_SHIFTDIR_LSB) |
+                (0x1 << PIO_SM_SHIFTCTRL_AUTOPULL_LSB) |
+                ((rgbval & 0x1f) << PIO_SM_SHIFTCTRL_PULL_THRESH_LSB),
+                PIO_SM_SHIFTCTRL_OUT_SHIFTDIR_BITS |
+                    PIO_SM_SHIFTCTRL_AUTOPULL_BITS |
+                    PIO_SM_SHIFTCTRL_PULL_THRESH_BITS);
+    
+    shiftctrl = local_write_masked(shiftctrl, 
+                        PIO_FIFO_JOIN_TX << PIO_SM_SHIFTCTRL_FJOIN_TX_LSB
+                        , PIO_SM_SHIFTCTRL_FJOIN_TX_BITS | PIO_SM_SHIFTCTRL_FJOIN_RX_BITS);
+
+    const uint32 sm_cycles_per_bit = ws2812_T1 + ws2812_T2 + ws2812_T3;
+    const uint32 sm_target_freq = ws2812freq * sm_cycles_per_bit;
+    const uint32 sys_clock_hz = c_clock_get_hz(clock_sys);
+    const uint32 clkdiv_int_target = sys_clock_hz / sm_target_freq;
+    uint32 clkdiv_frac_target = 0d0;
+    if (clkdiv_int_target != 0d0) {
+        clkdiv_frac_target = ((0d256 * sys_clock_hz) - (0d256 * sm_target_freq * clkdiv_int_target)) / sm_target_freq;
+    }
+    
+    const uint16 clkdiv_int = uint16(clkdiv_int_target);
+    const uint8 clkdiv_frac = uint8(clkdiv_frac_target);
+
+    uint32 clkdiv = (uint32(clkdiv_frac) << PIO_SM_CLKDIV_FRAC_LSB) |
+                (uint32(clkdiv_int) << PIO_SM_CLKDIV_INT_LSB);
+
+    const uint32 expected_ws2182_freq = sys_clock_hz / (uint32(clkdiv_int) + (uint32(clkdiv_frac) / 0d256)) / sm_cycles_per_bit;
+
+    reg_write_masked(pio[pio_num].ctrl, 0d0 << sm_num, 0d1 << sm_num);
+
+    poke pio[pio_num].sm[sm_num].clkdiv, clkdiv;
+    poke pio[pio_num].sm[sm_num].shiftctrl, shiftctrl;
+    poke pio[pio_num].sm[sm_num].execctrl, execctrl;
+    poke pio[pio_num].sm[sm_num].pinctrl, pinctrl;
+
+    // pio_sm_clear_fifos. why do it twice? mean TX?
+    poke pio[pio_num].sm[sm_num].shiftctrl, REG_ALIAS_XOR_BITS, PIO_SM_SHIFTCTRL_FJOIN_RX_BITS;
+    poke pio[pio_num].sm[sm_num].shiftctrl, REG_ALIAS_XOR_BITS, PIO_SM_SHIFTCTRL_FJOIN_RX_BITS;
+
+    // Clear FIFO debug flags
+    const uint32 fdebug_sm_mask =
+            (0d1 << PIO_FDEBUG_TXOVER_LSB) |
+            (0d1 << PIO_FDEBUG_RXUNDER_LSB) |
+            (0d1 << PIO_FDEBUG_TXSTALL_LSB) |
+            (0d1 << PIO_FDEBUG_RXSTALL_LSB);
+    poke pio[pio_num].fdebug, fdebug_sm_mask << sm_num;
+
+    poke pio[pio_num].ctrl, REG_ALIAS_SET_BITS, 0d1 << (PIO_CTRL_SM_RESTART_LSB + sm_num);
+    poke pio[pio_num].ctrl, REG_ALIAS_SET_BITS, 0d1 << (PIO_CTRL_CLKDIV_RESTART_LSB + sm_num);
+
+
+    uint16 instr = pio_encode_instr_and_args(pio_instr_bits_jmp, 0d0, offset);
+    poke pio[pio_num].sm[sm_num].instr, instr;
+
+    reg_write_masked(pio[pio_num].ctrl, 0d1 << sm_num, 0d1 << sm_num);
+}
+
+fun ws2812_set_pixels(channel, pixels) {
+
+    var l = len(pixels);
+    var uint32[len(pixels)] raw_pixels;
+    for (var i = 0d0; i < l; i = i + 0d1) {
+        raw_pixels[i] = pixels[i][1] << 0d24 | pixels[i][0] << 0d16 | pixels[i][2] << 0d8;
+    }
+
+    // configure
+    poke dma.channel[channel].trans_count, len(raw_pixels);
+    poke dma.channel[channel].read_addr, raw_pixels;
+    poke dma.channel[channel].write_addr, pio[ws2812_pio].txf[ws2812_sm];
+
+    reg_write_masked(dma.channel[channel].al1_ctrl, 0x10, 0x10); // increment read addr
+    reg_write_masked(dma.channel[channel].al1_ctrl, 0xc, 0xc); // 32 bit
+
+    // enable
+    reg_write_masked(dma.channel[channel].ctrl_trig, 0x1, 0x1);
+
+    while(peek(dma.channel[channel].ctrl_trig) & 0x1000000 != 0x1000000) {
+    }
+
 }
