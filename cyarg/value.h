@@ -138,4 +138,6 @@ void initDynamicValueArray(DynamicValueArray* array);
 void appendToDynamicValueArray(DynamicValueArray* array, Value value);
 void freeDynamicValueArray(DynamicValueArray* array);
 
+PackedValueStore* storedAddressof(Value value);
+
 #endif

@@ -1007,12 +1007,16 @@ InterpretResult run(ObjRoutine* routine) {
             case OP_POKE: {
                 Value location = peek(routine, 0);
                 Value assignment = peek(routine, 1);
+                Value assignment_type = concrete_typeof(assignment);
+                tempRootPush(assignment_type);
                 if (!isAddressValue(location) && !isUint32Pointer(location)) {
+                    tempRootPop();
                     runtimeError(routine, "Location must be a pointer to an uint32 or address.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                if (!is_positive_integer(assignment)) {
-                    runtimeError(routine, "Value must be a positive integer.");
+                if (!is_positive_integer(assignment) && !is_stored_type(assignment_type)) {
+                    tempRootPop();
+                    runtimeError(routine, "Value must be a positive integer or a placeable type.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
 
@@ -1024,13 +1028,21 @@ InterpretResult run(ObjRoutine* routine) {
                 }
                 volatile uint32_t* reg = (volatile uint32_t*) nominal_address;
 
-                uint32_t val = as_positive_integer(assignment);
+                uint32_t val = 0;
+
+                if (is_positive_integer(assignment)) {
+                    val = as_positive_integer(assignment);
+                } else if (is_stored_type(assignment_type)) {
+                    val = (uintptr_t)storedAddressof(assignment);
+                }
+
+
 #ifdef CYARG_PICO_TARGET
                 *reg = val;
 #else
                 printf("poke 0x%08lx, 0x%08x\n", nominal_address, val);
 #endif
-
+                tempRootPop();
                 pop(routine);
                 pop(routine);
 

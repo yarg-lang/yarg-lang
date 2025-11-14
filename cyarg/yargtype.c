@@ -305,6 +305,20 @@ bool is_placeable_type(Value typeVal) {
     return false;
 }
 
+bool is_stored_type(Value type) {
+    if (IS_YARGTYPE(type)) {
+        switch(AS_YARGTYPE(type)->yt) {
+            case TypeArray:
+            case TypeStruct:
+            case TypePointer:
+                return true;
+            default:
+                return false;
+        }
+    }
+    return false;
+}
+
 size_t yt_sizeof_type_storage(Value type) {
     if (IS_NIL(type)) {
         return sizeof(Value);

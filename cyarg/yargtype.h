@@ -74,6 +74,7 @@ bool type_packs_as_obj(ObjConcreteYargType* type);
 bool type_packs_as_container(ObjConcreteYargType* type);
 bool is_nil_assignable_type(Value type);
 bool is_placeable_type(Value type);
+bool is_stored_type(Value type);
 size_t yt_sizeof_type_storage(Value type);
 
 Value defaultValue(Value type);

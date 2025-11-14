@@ -406,3 +406,17 @@ uint32_t as_positive_integer(Value a) {
     }
     return 0;
 }
+
+PackedValueStore* storedAddressof(Value value) {
+    if (IS_POINTER(value)) {
+        ObjPackedPointer* pointer = AS_POINTER(value);
+        return pointer->destination;
+    } else if (IS_STRUCT(value)) {
+        ObjPackedStruct* structObj = AS_STRUCT(value);
+        return structObj->store.storedValue;
+    } else if (IS_UNIFORMARRAY(value)) {
+        ObjPackedUniformArray* arrayObj = AS_UNIFORMARRAY(value);
+        return arrayObj->store.storedValue;
+    }
+    return NULL;
+}
