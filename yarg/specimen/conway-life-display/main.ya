@@ -10,13 +10,13 @@ var surface_world = make_world(56);
 // RGB array of two pixels. 0 for dead, 1 for live
 var display_pixels = [ [0d0, 0d255, 0d0], [0d255, 0d0, 0d0] ];
 
-fun display_on_surface(world, leds) {
+fun display_on_surface(world) {
 
     for (var k = 0d0; k < len(world); k = k + 0d1) {
         set_pixel(surface_leds[k], display_pixels[world[k]]);
     }
     
-    write_pixels(leds);
+    write_pixels();
 }
 
 fun surface_neighbour_of(cell, neighbour) {
@@ -28,11 +28,11 @@ fun surface_neighbour_of(cell, neighbour) {
     }
 }
 
-var leds = ws2812_init();
+cube_bit_init();
 
 while (true) {
 
-    display_on_surface(surface_world, leds);
+    display_on_surface(surface_world);
     surface_world = next_generation(surface_world, surface_neighbour_of);
 }
     

@@ -2,12 +2,14 @@
 // LEDs) that are arranged off of pin 0 of the Pico:ed connector, and 
 // pin 12 (GPIO 18) of the 40-pin Pi connector.
 
-const uint32 max_brightness = 0d127;
+import("ws2812");
 
-var any[64] cube_display_pixels;
-for (var i = 0d0; i < len(cube_display_pixels); i = i + 0d1) {
-    cube_display_pixels[i] = [0d0, 0d0, 0d0];
-}
+const ws2812_pio = 0d0;
+const ws2812_sm = 0d0;
+const ws2812_offset = 0d0;
+const ws2812_dma_channel = 0d0;
+
+var uint32[64] cube_pixels;
 
 // the leds that are on the surface of the cube.
 const surface_leds = [  0,  1,  2,  3,  4,  5,  6,  7, 
@@ -86,10 +88,16 @@ const surface_neighbourhoods = [ [  7,  6,  1,  7,  1, 29, 28, 27 ],  // Led: 0 
                    [ 47, 40, 39, 63, 61, 56, 57, 58 ],
                    [ 40, 47, 46, 62, 56, 62, 57, 56 ] ]; // Led: 63 (corner)
 
+fun cube_bit_init() {
+    ws2812_init(0d18, ws2812_pio, ws2812_sm, ws2812_offset);
+}
 
 fun clamp_brightness(channel) {
-    if (max_brightness < 0d255) {
-        var divider = 0d256 / (max_brightness + 0d1);
+    
+    const uint32 max = 0d127;
+    
+    if (max < 0d255) {
+        var divider = 0d256 / (max + 0d1);
         return channel / divider;
     }
     else {
@@ -97,23 +105,16 @@ fun clamp_brightness(channel) {
     }
 }
 
-
 fun set_pixel(k, colour) {
 
     var clamped = [ clamp_brightness(colour[0]),
                     clamp_brightness(colour[1]),
                     clamp_brightness(colour[2]) ];
 
-    cube_display_pixels[k] = clamped;
+    cube_pixels[k] = clamped[1] << 0d24 | clamped[0] << 0d16 | clamped[2] << 0d8;
 }
 
-fun write_pixels(leds) {
+fun write_pixels() {
 
-    // at the moment, this is performance sensitive. len() pulled out of the loop, pixel creation in one expression.
-    const l = len(cube_display_pixels);
-    for (var i = 0d0; i < l; i = i + 0d1) {
-        const pixel = cube_display_pixels[i][1] << 0d24 | cube_display_pixels[i][0] << 0d16 | cube_display_pixels[i][2] << 0d8;
-
-        ws2812_write_pixel(leds, pixel);
-    }
+    ws2812_set_pixels(ws2812_dma_channel, cube_pixels);
 }
