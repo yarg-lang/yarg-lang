@@ -55,8 +55,7 @@ add_executable(cyarg
     channel.c
     yargtype.c
     platform_hal.c
-    sync_group.c
-    ws2812_native.c)
+    sync_group.c)
 
 if (PICO_BOARD)
 target_sources(cyarg

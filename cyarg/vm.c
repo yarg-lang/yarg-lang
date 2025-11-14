@@ -16,7 +16,6 @@
 #include "builtin.h"
 #include "routine.h"
 #include "channel.h"
-#include "ws2812_native.h"
 #include "yargtype.h"
 
 VM vm;
@@ -162,8 +161,6 @@ void initVM() {
 
     defineNative("clock", clockNative);
     defineNative("c_clock_get_hz", clock_get_hzNative);
-    defineNative("ws2812_init", ws2812initNative);
-    defineNative("ws2812_write_pixel", ws2812writepixelNative);
 
     defineNative("irq_remove_handler", irq_remove_handlerNative);
     defineNative("irq_add_shared_handler", irq_add_shared_handlerNative);
