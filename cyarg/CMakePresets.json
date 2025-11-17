@@ -43,6 +43,18 @@
             "description": "Using the Pico SDK ARM toolchain",
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
+                "PICO_BOARD": "pico",
+                "PICO_SDK_PATH": "$env{HOME}/.pico-sdk/sdk/2.2.0",
+                "PICO_TOOLCHAIN_PATH": "$env{HOME}/.pico-sdk/toolchain/14_2_Rel1",
+                "CMAKE_BUILD_TYPE": "Debug"
+            } 
+        },
+        {
+            "name": "pico-interactive-debug",
+            "displayName": "Pico Interactive Debug (SDK 2.2.0, 14_2_Rel1 for Pico/RP2040)",
+            "description": "Using the Pico SDK ARM toolchain",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
                 "HOST_TYPE": "Interactive",
                 "PICO_BOARD": "pico",
                 "PICO_SDK_PATH": "$env{HOME}/.pico-sdk/sdk/2.2.0",

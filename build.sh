@@ -16,6 +16,9 @@ cmake --build build/pico
 cmake --preset pico-debug .
 cmake --build build/pico-debug
 
+cmake --preset pico-interactive-debug .
+cmake --build build/pico-interactive-debug
+
 cmake --preset host
 cmake --build build/host
 
