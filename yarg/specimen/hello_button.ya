@@ -1,5 +1,9 @@
 import("gpio");
 
+// GPIO pins to use
+const led_io = 0d12;
+const button_io = 0d11;
+
 fun button_routine(gpio, chan) {
 
     const core = coreNum();
@@ -20,12 +24,10 @@ fun button_routine(gpio, chan) {
 }
 
 // intialise a GPIO for an LED.
-const led_io = 0d12;
 gpio_init(led_io);
 gpio_set_direction(led_io, GPIO_OUT);
 
 // set up the response routine as an address we can install in the IRQ peripheral
-const button_io = 0d11;
 var button_channel = make_channel();
 
 var button_handler_routine = button_routine(button_io, button_channel);
