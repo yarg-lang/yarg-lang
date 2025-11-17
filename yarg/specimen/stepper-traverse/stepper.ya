@@ -119,27 +119,60 @@ fun dance() {
     move(toward, 1000, 1);
 }
 
-gpio_init(uart);
-gpio_set_direction(uart, GPIO_OUT);
+import("uart");
 
-gpio_put(uart, true); // idle
+// connect gpio before init to avoid spurious 0 byte appearing.
+gpio_set_function(0d20, gpio_func_uart); // TX
+gpio_set_function(0d21, gpio_func_uart); // RX
 
-uint8 payload = 0x05;
+uart_init(1, 10000, false);
 
+fun tmc2209_put_byte(val) {
+    uart_put_byte(1, val);
+    uart_get_byte(1); // discard echo
+}
 
-gpio_put(uart, false); // start
+fun tmc2209_get_byte() {
+    return uart_get_byte(1);
+}
 
-var transmit = payload & 0x1 == 0x1;
-payload = payload >> 0d1;
+fun tmcCRCaccumulate(data, crc) {
+    for (var i = 0; i < 8; i = i + 1) {
+        if ((uint8(crc) >> uint8(7)) ^ (uint8(data) & uint8(0x1)) != uint8(0)) {
+            crc = (uint8(crc) << uint8(1)) ^ uint8(0x07);
+        } else {
+            crc = uint8(crc) << uint8(1);
+        }
+        data = data >> uint8(1);
+    }
+    return uint8(crc);
+}
 
-gpio_put(uart, true);
-gpio_put(uart, false);
-gpio_put(uart, true);
-gpio_put(uart, false);
+fun tmc_read_register(reg_addr) {
 
-gpio_put(uart, false);
-gpio_put(uart, false);
-gpio_put(uart, false);
-gpio_put(uart, false);
+    const wire_addr = uint8(reg_addr) & uint8(0x7);
+    uint8[4] request;
+    request[0] = uint8(0x5);
+    request[1] = uint8(0x0);
+    request[2] = wire_addr;
+    request[3] = uint8(0);
 
-gpio_put(uart, true); // stop
+    for (var i = 0; i < 3; i = i + 1) {
+        request[3] = tmcCRCaccumulate(request[i], request[3]);
+    }
+
+    print request;
+
+    tmc2209_put_byte(request[0]);
+    tmc2209_put_byte(request[1]);
+    tmc2209_put_byte(request[2]);
+    tmc2209_put_byte(request[3]);
+
+    print "awaiting";
+    uint8[8] response;
+    for (var i = 0; i < 8; i = i + 1) {
+        response[i] = tmc2209_get_byte();
+        print response[i];
+    }
+    print response;
+}
