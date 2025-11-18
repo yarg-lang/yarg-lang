@@ -63,13 +63,14 @@ ObjRoutine* newRoutine();
 void resetRoutine(ObjRoutine* routine);
 bool bindEntryFn(ObjRoutine* routine, ObjClosure* closure);
 void bindEntryArgs(ObjRoutine* routine, Value entryArg);
-void prepareRoutineStack(ObjRoutine* routine);
+void pushEntryElements(ObjRoutine* routine);
+void enterEntryFunction(ObjRoutine* routine);
 ValueCell* frameSlot(ObjRoutine* routine, CallFrame* frame, size_t index);
 Value nativeArgument(ObjRoutine* routine, size_t argCount, size_t argument);
 size_t stackOffsetOf(CallFrame* frame, size_t frameIndex);
 
 bool pinRoutine(ObjRoutine* routine, uintptr_t* address);
-void runAndPrepare(ObjRoutine* routine);
+void runAndRenter(ObjRoutine* routine);
 
 bool resumeRoutine(ObjRoutine* context, ObjRoutine* target, size_t argCount, Value argument, Value* result);
 void yieldFromRoutine(ObjRoutine* routine);

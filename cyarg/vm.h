@@ -57,7 +57,6 @@ InterpretResult run(ObjRoutine* routine);
 bool callfn(ObjRoutine* routine, ObjClosure* closure, int argCount);
 void fatalVMError(const char* format, ...);
 
-size_t pinnedRoutineIndex(uintptr_t handler);
 bool installPinnedRoutine(ObjRoutine* pinnedRoutine, uintptr_t* address);
 bool removePinnedRoutine(uintptr_t address);
 

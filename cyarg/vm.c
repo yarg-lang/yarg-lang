@@ -22,7 +22,7 @@ VM vm;
 
 void vmPinnedRoutineHandler(size_t handler) {
     ObjRoutine* routine = vm.pinnedRoutines[handler];
-    runAndPrepare(routine);
+    runAndRenter(routine);
 }
 
 
@@ -72,7 +72,7 @@ void vmCore1Entry() {
 #endif
 
     ObjRoutine* core = vm.core1;
-    runAndPrepare(core);
+    runAndRenter(core);
     vm.core1 = NULL;
 }
 
@@ -1296,9 +1296,9 @@ InterpretResult interpret(const char* source) {
     tempRootPop();
 
     bindEntryFn(&vm.core0, closure);
+    pushEntryElements(&vm.core0);
 
-    prepareRoutineStack(&vm.core0);
-
+    enterEntryFunction(&vm.core0);
     InterpretResult result = run(&vm.core0);
     if (result == INTERPRET_OK) {
         pop(&vm.core0);

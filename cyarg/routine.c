@@ -77,10 +77,10 @@ ObjRoutine* newRoutine() {
     return routine;
 }
 
-void runAndPrepare(ObjRoutine* routine) {
+void runAndRenter(ObjRoutine* routine) {
     run(routine);
     pop(routine);
-    prepareRoutineStack(routine);
+    enterEntryFunction(routine);
 }
 
 bool pinRoutine(ObjRoutine* routine, uintptr_t* address) {
@@ -89,14 +89,11 @@ bool pinRoutine(ObjRoutine* routine, uintptr_t* address) {
     assert(IS_NIL(routine->entryArg));
     assert(routine->entryFunction->function->arity == 0);
 
-    for (size_t i = 0; i < MAX_PINNED_ROUTINES; i++) {
-        if (vm.pinnedRoutines[i] == NULL) {
-            vm.pinnedRoutines[i] = routine;
-            prepareRoutineStack(routine);
-            routine->addSlice = NULL;
-            *address = (uintptr_t)vm.pinnedRoutineHandlers[i];
-            return true;
-        }
+    if (installPinnedRoutine(routine, address)) {
+        pushEntryElements(routine);
+        enterEntryFunction(routine);
+        routine->addSlice = NULL;
+        return true;
     }
     return false;
 }
@@ -118,14 +115,15 @@ void bindEntryArgs(ObjRoutine* routine, Value entryArg) {
     routine->entryArg = entryArg;
 }
 
-void prepareRoutineStack(ObjRoutine* routine) {
-
+void pushEntryElements(ObjRoutine* routine) {
     push(routine, OBJ_VAL(routine->entryFunction));
 
     if (routine->entryFunction->function->arity == 1) {
         push(routine, routine->entryArg);
     }
-    
+}
+
+void enterEntryFunction(ObjRoutine* routine) {
     callfn(routine, routine->entryFunction, routine->entryFunction->function->arity);
 }
 
@@ -180,9 +178,11 @@ bool startRoutine(ObjRoutine* context, ObjRoutine* target, size_t argCount, Valu
         bindEntryArgs(target, argument);
     }
 
-    prepareRoutineStack(target);
+    pushEntryElements(target);
 
+    enterEntryFunction(target);
     runOnCore1(target);
+    
     return true;
 }
 
