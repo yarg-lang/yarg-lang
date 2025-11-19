@@ -1,0 +1,129 @@
+import("pio");
+import("pio-instructions");
+import("clock");
+import("gpio");
+import("dma");
+
+const uint16[2] apa102_program;
+const apa102_wrap_target = 0d0;
+apa102_program[0] = uint16(0x6001); //  0: out    pins, 1         side 0
+apa102_program[1] = uint16(0xb042); //  1: nop                    side 1
+const apa102_wrap = 0d1;
+const apa102_cycles_per_bit = 0d2;
+
+const apa102freq = 0d5 * 0d1000 * 0d1000; // 5 MHz
+
+var apa102_pixels;
+
+fun local_write_masked(variable, val, mask) {
+    uint32 reg = uint32(variable) ^ ((uint32(variable) ^ uint32(val)) & uint32(mask));
+    return reg;
+}
+
+fun apa102_init(pixel_count, gpio_tx, gpio_clk, pio_num, sm_num, offset) {
+
+    pio_add_program_at_offset(pio_num, apa102_program, offset);
+
+    apa102_pixels = new(uint32[pixel_count + 2]);
+    apa102_pixels[0] = 0d0;
+    apa102_pixels[pixel_count + 1] = 0xffffffff;
+
+    // SET instructions to set pin directions
+    poke pio[pio_num].sm[sm_num].pinctrl, (0d1 << PIO_SM_PINCTRL_SET_COUNT_LSB) | (gpio_tx << PIO_SM_PINCTRL_SET_BASE_LSB);
+    uint16 instruction = pio_encode_instr_and_args(pio_instr_bits_set, pio_pindirs & 0d7, 0x1f);
+    poke pio[pio_num].sm[sm_num].instr, instruction;
+
+    poke pio[pio_num].sm[sm_num].pinctrl, (0d1 << PIO_SM_PINCTRL_SET_COUNT_LSB) | (gpio_clk << PIO_SM_PINCTRL_SET_BASE_LSB);
+    instruction = pio_encode_instr_and_args(pio_instr_bits_set, pio_pindirs & 0d7, 0x1f);
+    poke pio[pio_num].sm[sm_num].instr, instruction;
+
+    gpio_set_function(gpio_tx, gpio_func_pio[pio_num]);
+    gpio_set_function(gpio_clk, gpio_func_pio[pio_num]);
+
+    // PINCTRL:
+    // SIDESET_COUNT: 1
+    // SET_COUNT: 0
+    // OUT_COUNT: 1
+    // IN_BASE: 0
+    // SIDESET_BASE: gpio_clk
+    // SET_BASE: 0
+    // OUT_BASE: gpio_tx
+    uint32 pinctrl;
+    pinctrl = local_write_masked(pinctrl, 0d1 << PIO_SM_PINCTRL_SIDESET_COUNT_LSB, PIO_SM_PINCTRL_SIDESET_COUNT_BITS);
+    pinctrl = local_write_masked(pinctrl, gpio_clk << PIO_SM_PINCTRL_SIDESET_BASE_LSB, PIO_SM_PINCTRL_SIDESET_BASE_BITS);
+    pinctrl = local_write_masked(pinctrl, 0d1 << PIO_SM_PINCTRL_OUT_COUNT_LSB, PIO_SM_PINCTRL_OUT_COUNT_BITS);
+    pinctrl = local_write_masked(pinctrl, gpio_tx << PIO_SM_PINCTRL_OUT_BASE_LSB, PIO_SM_PINCTRL_OUT_BASE_BITS);
+
+    // EXECCTRL:
+    // EXEC_STALLED: 0
+    // SIDE_EN: 0
+    // SIDE_PINDIR: 0
+    // JMP_PIN: 0
+    // OUT_EN_SEL: 0
+    // INLINE_OUT_EN: 0
+    // OUT_STICKY: 0
+    // WRAP_TOP: wrap + offset
+    // WRAP_BOTTOM: wrap_target + offset
+    // STATUS_SEL: 0
+    // STATUS_N: 0
+    uint32 execctrl;
+    execctrl = local_write_masked(execctrl, (offset + apa102_wrap_target) << PIO_SM_EXECCTRL_WRAP_BOTTOM_LSB, PIO_SM_EXECCTRL_WRAP_BOTTOM_BITS);
+    execctrl = local_write_masked(execctrl, (offset + apa102_wrap) << PIO_SM_EXECCTRL_WRAP_TOP_LSB, PIO_SM_EXECCTRL_WRAP_TOP_BITS);
+
+    // SHIFTCTRL:
+    // FJOIN_RX: 0
+    // FJOIN_TX: 1
+    // PULL_THRESH: 0 (32 bits)
+    // PUSH_THRESH: 0 (32 bits)
+    // OUT_SHIFTDIR: 0
+    // IN_SHIFTDIR: 1
+    // AUTOPULL: 1
+    // AUTOPUSH: 0
+    uint32 shiftctrl;
+    shiftctrl = local_write_masked(shiftctrl, 0b1 << PIO_SM_SHIFTCTRL_FJOIN_TX_LSB, PIO_SM_SHIFTCTRL_FJOIN_TX_BITS);
+    shiftctrl = local_write_masked(shiftctrl, 0b1 << PIO_SM_SHIFTCTRL_IN_SHIFTDIR_LSB, PIO_SM_SHIFTCTRL_IN_SHIFTDIR_BITS);
+    shiftctrl = local_write_masked(shiftctrl, 0b1 << PIO_SM_SHIFTCTRL_AUTOPULL_LSB, PIO_SM_SHIFTCTRL_AUTOPULL_BITS);
+
+    // CLKDIV
+    // INT and FRAC to achieve apa102freq
+    const uint32 sm_target_freq = apa102freq * apa102_cycles_per_bit;
+    const uint32 sys_clock_hz = c_clock_get_hz(clock_sys);
+    const uint32 clkdiv_int_target = sys_clock_hz / sm_target_freq;
+    uint32 clkdiv_frac_target = 0d0;
+    if (clkdiv_int_target != 0d0) {
+        clkdiv_frac_target = ((0d256 * sys_clock_hz) - (0d256 * sm_target_freq * clkdiv_int_target)) / sm_target_freq;
+    }
+
+    uint32 clkdiv;
+    clkdiv = local_write_masked(clkdiv, clkdiv_frac_target << PIO_SM_CLKDIV_FRAC_LSB, PIO_SM_CLKDIV_FRAC_BITS);
+    clkdiv = local_write_masked(clkdiv, clkdiv_int_target << PIO_SM_CLKDIV_INT_LSB, PIO_SM_CLKDIV_INT_BITS);
+
+    pio_sm_init(pio_num, sm_num, offset, clkdiv, execctrl, shiftctrl, pinctrl);
+
+    pio_sm_set_enabled(pio_num, sm_num, true);
+}
+
+fun apa102_show_pixels(channel, pio_num, sm_num) {
+
+    // configure
+    poke dma.channel[channel].trans_count, len(apa102_pixels);
+    poke dma.channel[channel].read_addr, apa102_pixels;
+    poke dma.channel[channel].write_addr, pio[pio_num].txf[sm_num];
+
+    reg_write_masked(dma.channel[channel].al1_ctrl, 0x10, 0x10); // increment read addr
+    reg_write_masked(dma.channel[channel].al1_ctrl, 0x8, 0xc); // 32 bit
+
+    // enable
+    reg_write_masked(dma.channel[channel].ctrl_trig, 0x1, 0x1);
+
+    while((peek(dma.channel[channel].al1_ctrl) & 0x1000000) == 0x1000000) {
+    }
+}
+
+fun apa102_set_pixel(index, rgb, brightness) {
+    apa102_pixels[index + 1] = local_write_masked(apa102_pixels[index + 1], 0b111 << 0d29, 0b111 << 0d29);
+    apa102_pixels[index + 1] = local_write_masked(apa102_pixels[index + 1], (uint32(brightness) & 0x1f) << 0d24, 0b11111 << 0d24);
+    apa102_pixels[index + 1] = local_write_masked(apa102_pixels[index + 1], uint32(rgb[0]), 0xff);
+    apa102_pixels[index + 1] = local_write_masked(apa102_pixels[index + 1], uint32(rgb[1]) << 0d8, 0xff << 0d8);
+    apa102_pixels[index + 1] = local_write_masked(apa102_pixels[index + 1], uint32(rgb[2]) << 0d16, 0xff << 0d16);
+}

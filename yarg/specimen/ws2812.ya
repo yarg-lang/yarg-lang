@@ -29,9 +29,9 @@ fun ws2812_init(gpio_pin, pio_num, sm_num, offset) {
     pio_add_program_at_offset(pio_num, ws2812_program, 0d0);
     gpio_set_function(gpio_pin, gpio_func_pio[pio_num]);
 
-    poke pio[pio_num].sm[sm_num].execctrl, REG_ALIAS_CLR_BITS, 0x1 << PIO_EXECCTRL_OUT_STICKY_LSB;
+    poke pio[pio_num].sm[sm_num].execctrl, REG_ALIAS_CLR_BITS, 0x1 << PIO_SM_EXECCTRL_OUT_STICKY_LSB;
 
-    poke pio[pio_num].sm[sm_num].pinctrl, (0d1 << PIO_PINCTRL_SET_COUNT_LSB) | (gpio_pin << PIO_PINCTRL_SET_BASE_LSB);
+    poke pio[pio_num].sm[sm_num].pinctrl, (0d1 << PIO_SM_PINCTRL_SET_COUNT_LSB) | (gpio_pin << PIO_SM_PINCTRL_SET_BASE_LSB);
     uint16 instruction = pio_encode_instr_and_args(pio_instr_bits_set, pio_pindirs & 0d7, 0x1f);
     poke pio[pio_num].sm[sm_num].instr, uint32(instruction);
 
@@ -81,35 +81,9 @@ fun ws2812_init(gpio_pin, pio_num, sm_num, offset) {
     uint32 clkdiv = (uint32(clkdiv_frac) << PIO_SM_CLKDIV_FRAC_LSB) |
                 (uint32(clkdiv_int) << PIO_SM_CLKDIV_INT_LSB);
 
-    const uint32 expected_ws2182_freq = sys_clock_hz / (uint32(clkdiv_int) + (uint32(clkdiv_frac) / 0d256)) / sm_cycles_per_bit;
+    pio_sm_init(pio_num, sm_num, offset, clkdiv, execctrl, shiftctrl, pinctrl);
 
-    reg_write_masked(pio[pio_num].ctrl, 0d0 << sm_num, 0d1 << sm_num);
-
-    poke pio[pio_num].sm[sm_num].clkdiv, clkdiv;
-    poke pio[pio_num].sm[sm_num].shiftctrl, shiftctrl;
-    poke pio[pio_num].sm[sm_num].execctrl, execctrl;
-    poke pio[pio_num].sm[sm_num].pinctrl, pinctrl;
-
-    // pio_sm_clear_fifos. why do it twice? mean TX?
-    poke pio[pio_num].sm[sm_num].shiftctrl, REG_ALIAS_XOR_BITS, PIO_SM_SHIFTCTRL_FJOIN_RX_BITS;
-    poke pio[pio_num].sm[sm_num].shiftctrl, REG_ALIAS_XOR_BITS, PIO_SM_SHIFTCTRL_FJOIN_RX_BITS;
-
-    // Clear FIFO debug flags
-    const uint32 fdebug_sm_mask =
-            (0d1 << PIO_FDEBUG_TXOVER_LSB) |
-            (0d1 << PIO_FDEBUG_RXUNDER_LSB) |
-            (0d1 << PIO_FDEBUG_TXSTALL_LSB) |
-            (0d1 << PIO_FDEBUG_RXSTALL_LSB);
-    poke pio[pio_num].fdebug, fdebug_sm_mask << sm_num;
-
-    poke pio[pio_num].ctrl, REG_ALIAS_SET_BITS, 0d1 << (PIO_CTRL_SM_RESTART_LSB + sm_num);
-    poke pio[pio_num].ctrl, REG_ALIAS_SET_BITS, 0d1 << (PIO_CTRL_CLKDIV_RESTART_LSB + sm_num);
-
-
-    uint16 instr = pio_encode_instr_and_args(pio_instr_bits_jmp, 0d0, offset);
-    poke pio[pio_num].sm[sm_num].instr, instr;
-
-    reg_write_masked(pio[pio_num].ctrl, 0d1 << sm_num, 0d1 << sm_num);
+    pio_sm_set_enabled(pio_num, sm_num, true);
 }
 
 fun ws2812_set_pixels(channel, pixels) {
@@ -125,7 +99,7 @@ fun ws2812_set_pixels(channel, pixels) {
     // enable
     reg_write_masked(dma.channel[channel].ctrl_trig, 0x1, 0x1);
 
-    while(peek(dma.channel[channel].ctrl_trig) & 0x1000000 != 0x1000000) {
+    while((peek(dma.channel[channel].ctrl_trig) & 0x1000000) == 0x1000000) {
     }
 
 }

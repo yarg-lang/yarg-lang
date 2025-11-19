@@ -41,35 +41,52 @@ fun pio_add_program_at_offset(pio_num, program, offset) {
     }
 }
 
-const PIO_EXECCTRL_OUT_STICKY_LSB = 0d17;
-const PIO_PINCTRL_SET_COUNT_LSB = 0d26;
-const PIO_PINCTRL_SET_BASE_LSB = 0d5;
-const PIO_SM_SHIFTCTRL_IN_SHIFTDIR_LSB = 0d18;
-const PIO_SM_SHIFTCTRL_AUTOPUSH_LSB = 0d16;
-const PIO_SM_SHIFTCTRL_PUSH_THRESH_LSB = 0d20;
-const PIO_SM_EXECCTRL_WRAP_BOTTOM_LSB = 0d7;
-const PIO_SM_EXECCTRL_WRAP_TOP_LSB  = 0d12;
 const PIO_SM_PINCTRL_SIDESET_COUNT_LSB = 0d29;
+const PIO_SM_PINCTRL_SIDESET_COUNT_BITS = 0x7 << PIO_SM_PINCTRL_SIDESET_COUNT_LSB;
+const PIO_SM_PINCTRL_SET_COUNT_LSB = 0d26;
+const PIO_SM_PINCTRL_SET_COUNT_BITS = 0x7 << PIO_SM_PINCTRL_SET_COUNT_LSB;
+const PIO_SM_PINCTRL_OUT_COUNT_LSB = 0d20;
+const PIO_SM_PINCTRL_OUT_COUNT_BITS = 0x3F << PIO_SM_PINCTRL_OUT_COUNT_LSB;
+const PIO_SM_PINCTRL_IN_BASE_LSB = 0d15;
+const PIO_SM_PINCTRL_IN_BASE_BITS = 0x1F << PIO_SM_PINCTRL_IN_BASE_LSB;
+const PIO_SM_PINCTRL_SIDESET_BASE_LSB = 0d10;
+const PIO_SM_PINCTRL_SIDESET_BASE_BITS = 0x1F << PIO_SM_PINCTRL_SIDESET_BASE_LSB;
+const PIO_SM_PINCTRL_SET_BASE_LSB = 0d5;
+const PIO_SM_PINCTRL_SET_BASE_BITS = 0x1F << PIO_SM_PINCTRL_SET_BASE_LSB;
+const PIO_SM_PINCTRL_OUT_BASE_LSB = 0d0;
+const PIO_SM_PINCTRL_OUT_BASE_BITS = 0x1F << PIO_SM_PINCTRL_OUT_BASE_LSB;
+
+
+const PIO_SM_EXECCTRL_OUT_STICKY_LSB = 0d17;
+const PIO_SM_EXECCTRL_OUT_STICKY_BITS = 0b1 << PIO_SM_EXECCTRL_OUT_STICKY_LSB;
+const PIO_SM_EXECCTRL_WRAP_BOTTOM_LSB = 0d7;
+const PIO_SM_EXECCTRL_WRAP_BOTTOM_BITS = 0b11111 << PIO_SM_EXECCTRL_WRAP_BOTTOM_LSB;
+const PIO_SM_EXECCTRL_WRAP_TOP_LSB  = 0d12;
+const PIO_SM_EXECCTRL_WRAP_TOP_BITS = 0b11111 << PIO_SM_EXECCTRL_WRAP_TOP_LSB;
 const PIO_SM_EXECCTRL_SIDE_EN_LSB = 0d30;
 const PIO_SM_EXECCTRL_SIDE_PINDIR_LSB = 0d29;
 const PIO_SM_EXECCTRL_SIDE_EN_BITS = 0x40000000;
 const PIO_SM_EXECCTRL_SIDE_PINDIR_BITS = 0x20000000;
-const PIO_SM_PINCTRL_SIDESET_BASE_LSB = 0d10;
-const PIO_SM_PINCTRL_SIDESET_BASE_BITS = 0x00007c00;
-const PIO_SM_SHIFTCTRL_OUT_SHIFTDIR_BITS = 0x00080000;
+
+const PIO_SM_SHIFTCTRL_IN_SHIFTDIR_LSB = 0d18;
+const PIO_SM_SHIFTCTRL_IN_SHIFTDIR_BITS = 0b1 << PIO_SM_SHIFTCTRL_IN_SHIFTDIR_LSB;
+const PIO_SM_SHIFTCTRL_AUTOPUSH_LSB = 0d16;
+const PIO_SM_SHIFTCTRL_PUSH_THRESH_LSB = 0d20;
 const PIO_SM_SHIFTCTRL_OUT_SHIFTDIR_LSB = 0d19;
+const PIO_SM_SHIFTCTRL_OUT_SHIFTDIR_BITS = 0b1 << PIO_SM_SHIFTCTRL_OUT_SHIFTDIR_LSB;
 const PIO_SM_SHIFTCTRL_AUTOPULL_BITS = 0x00020000;
 const PIO_SM_SHIFTCTRL_AUTOPULL_LSB = 0d17;
 const PIO_SM_SHIFTCTRL_PULL_THRESH_BITS = 0x3e000000;
 const PIO_SM_SHIFTCTRL_PULL_THRESH_LSB = 0d25;
-
 const PIO_SM_SHIFTCTRL_FJOIN_TX_BITS = 0x40000000;
 const PIO_SM_SHIFTCTRL_FJOIN_TX_LSB = 0d30;
 const PIO_SM_SHIFTCTRL_FJOIN_RX_BITS = 0x80000000;
 const PIO_SM_SHIFTCTRL_FJOIN_RX_LSB = 0d31;
 
 const PIO_SM_CLKDIV_FRAC_LSB = 0d8;
+const PIO_SM_CLKDIV_FRAC_BITS = 0xff << PIO_SM_CLKDIV_FRAC_LSB;
 const PIO_SM_CLKDIV_INT_LSB = 0d16;
+const PIO_SM_CLKDIV_INT_BITS = 0xffff << PIO_SM_CLKDIV_INT_LSB;
 
 const PIO_FIFO_JOIN_NONE = 0d0;
 const PIO_FIFO_JOIN_TX = 0d1;
@@ -84,3 +101,39 @@ const PIO_CTRL_SM_RESTART_LSB = 0d4;
 const PIO_CTRL_CLKDIV_RESTART_LSB = 0d8;
 
 const PIO_FSTAT_TXFULL_LSB = 0d16;
+
+fun pio_sm_set_enabled(pio_num, sm_num, enabled) {
+    if (enabled) {
+        reg_write_masked(pio[pio_num].ctrl, 0d1 << sm_num, 0d1 << sm_num);
+    } else {
+        reg_write_masked(pio[pio_num].ctrl, 0d0 << sm_num, 0d1 << sm_num);
+    }
+}
+
+fun pio_sm_init(pio_num, sm_num, initial_pc, clkdiv, execctrl, shiftctrl, pinctrl) {
+    pio_sm_set_enabled(pio_num, sm_num, false);
+
+    poke pio[pio_num].sm[sm_num].clkdiv, clkdiv;
+    poke pio[pio_num].sm[sm_num].shiftctrl, shiftctrl;
+    poke pio[pio_num].sm[sm_num].execctrl, execctrl;
+    poke pio[pio_num].sm[sm_num].pinctrl, pinctrl;
+
+    // pio_sm_clear_fifos. why do it twice? mean TX?
+    poke pio[pio_num].sm[sm_num].shiftctrl, REG_ALIAS_XOR_BITS, PIO_SM_SHIFTCTRL_FJOIN_RX_BITS;
+    poke pio[pio_num].sm[sm_num].shiftctrl, REG_ALIAS_XOR_BITS, PIO_SM_SHIFTCTRL_FJOIN_RX_BITS;
+
+    // Clear FIFO debug flags
+    const uint32 fdebug_sm_mask =
+            (0d1 << PIO_FDEBUG_TXOVER_LSB) |
+            (0d1 << PIO_FDEBUG_RXUNDER_LSB) |
+            (0d1 << PIO_FDEBUG_TXSTALL_LSB) |
+            (0d1 << PIO_FDEBUG_RXSTALL_LSB);
+    poke pio[pio_num].fdebug, fdebug_sm_mask << sm_num;
+
+    poke pio[pio_num].ctrl, REG_ALIAS_SET_BITS, 0d1 << (PIO_CTRL_SM_RESTART_LSB + sm_num);
+    poke pio[pio_num].ctrl, REG_ALIAS_SET_BITS, 0d1 << (PIO_CTRL_CLKDIV_RESTART_LSB + sm_num);
+
+
+    uint16 instr = pio_encode_instr_and_args(pio_instr_bits_jmp, 0d0, initial_pc);
+    poke pio[pio_num].sm[sm_num].instr, instr;
+}

@@ -18,6 +18,7 @@ fi
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add pio-instructions.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add dma.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add ws2812.ya
+../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add apa102.ya
 
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add alarm.ya
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add blinky.ya

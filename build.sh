@@ -45,6 +45,7 @@ pushd yarg/specimen
 ../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add pio-instructions.ya
 ../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add dma.ya
 ../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add ws2812.ya
+../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add apa102.ya
 popd
 
 cp cyarg/build/pico-debug/cyarg.uf2 build/yarg-lang-debug.uf2
