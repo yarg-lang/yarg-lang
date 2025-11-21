@@ -29,7 +29,7 @@ fun apa102_init(gpio_tx, gpio_clk, pio_num, sm_num, offset) {
     gpio_set_function(gpio_clk, gpio_func_pio[pio_num]);
 
     // PINCTRL:
-    // SIDESET_COUNT: 5
+    // SIDESET_COUNT: 1
     // SET_COUNT: 0
     // OUT_COUNT: 1
     // IN_BASE: 0
@@ -37,7 +37,7 @@ fun apa102_init(gpio_tx, gpio_clk, pio_num, sm_num, offset) {
     // SET_BASE: 0
     // OUT_BASE: gpio_tx
     uint32 pinctrl;
-    pinctrl = local_write_masked(pinctrl, 0d5 << PIO_SM_PINCTRL_SIDESET_COUNT_LSB, PIO_SM_PINCTRL_SIDESET_COUNT_BITS);
+    pinctrl = local_write_masked(pinctrl, 0d1 << PIO_SM_PINCTRL_SIDESET_COUNT_LSB, PIO_SM_PINCTRL_SIDESET_COUNT_BITS);
     pinctrl = local_write_masked(pinctrl, gpio_clk << PIO_SM_PINCTRL_SIDESET_BASE_LSB, PIO_SM_PINCTRL_SIDESET_BASE_BITS);
     pinctrl = local_write_masked(pinctrl, 0d1 << PIO_SM_PINCTRL_OUT_COUNT_LSB, PIO_SM_PINCTRL_OUT_COUNT_BITS);
     pinctrl = local_write_masked(pinctrl, gpio_tx << PIO_SM_PINCTRL_OUT_BASE_LSB, PIO_SM_PINCTRL_OUT_BASE_BITS);
