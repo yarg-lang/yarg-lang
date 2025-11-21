@@ -29,7 +29,7 @@ fun ws2812_init(gpio_pin, pio_num, sm_num, offset) {
     pio_add_program_at_offset(pio_num, ws2812_program, 0d0);
     gpio_set_function(gpio_pin, gpio_func_pio[pio_num]);
 
-    poke pio[pio_num].sm[sm_num].execctrl, REG_ALIAS_CLR_BITS, 0x1 << PIO_EXECCTRL_OUT_STICKY_LSB;
+    poke pio[pio_num].sm[sm_num].execctrl, REG_ALIAS_CLR_BITS, 0x1 << PIO_SM_EXECCTRL_OUT_STICKY_LSB;
 
     poke pio[pio_num].sm[sm_num].pinctrl, (0d1 << PIO_SM_PINCTRL_SET_COUNT_LSB) | (gpio_pin << PIO_SM_PINCTRL_SET_BASE_LSB);
     uint16 instruction = pio_encode_instr_and_args(pio_instr_bits_set, pio_pindirs & 0d7, 0x1f);
