@@ -270,6 +270,7 @@ static TokenType identifierType() {
                     case 'e': 
                         if (scanner.current - scanner.start > 2) {
                             switch (scanner.start[2]) {
+                                case 'a': return checkKeyword(3, 8, "d_source", TOKEN_READ_SOURCE);
                                 case 'c': return checkKeyword(3, 4, "eive", TOKEN_RECEIVE);                                
                                 case 's': return checkKeyword(3, 3, "ume", TOKEN_RESUME);
                                 case 't': return checkKeyword(3, 3, "urn", TOKEN_RETURN);

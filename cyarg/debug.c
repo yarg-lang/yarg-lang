@@ -54,6 +54,7 @@ static int builtinInstruction(const char* name, Chunk* chunk, int offset) {
     switch (slot) {
         case BUILTIN_PEEK: printf("peek"); break;
         case BUILTIN_IMPORT: printf("import"); break;
+        case BUILTIN_READ_SOURCE: printf("read_source"); break;
         case BUILTIN_MAKE_ROUTINE: printf("make_routine"); break;
         case BUILTIN_MAKE_CHANNEL: printf("make_channel"); break;
         case BUILTIN_MAKE_SYNCGROUP: printf("make_sync_group"); break;

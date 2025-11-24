@@ -87,6 +87,30 @@ bool importBuiltin(ObjRoutine* routineContext, int argCount) {
 
 }
 
+bool readSourceBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
+    if (argCount != 1) {
+        runtimeError(routineContext, "Expected 1 argument but got %d.", argCount);
+        return false;
+    }
+    if (!IS_STRING(nativeArgument(routineContext, argCount, 0))) {
+        runtimeError(routineContext, "Argument to read_source must be string.");
+        return false;
+    }
+
+    const char* filename = AS_CSTRING(nativeArgument(routineContext, argCount, 0));
+    char* source = readFile(filename);
+    if (source == NULL) {
+        runtimeError(routineContext, "Could not read source file '%s'.", filename);
+        return false;
+    }
+
+    ObjString* sourceString = copyString(source, (int)strlen(source));
+    free(source);
+
+    *result = OBJ_VAL(sourceString);
+    return true;
+}
+
 bool makeChannelBuiltin(ObjRoutine* routine, int argCount, Value* result) {
     if (argCount >= 2) {
         runtimeError(routine, "Expected 0 or 1 arguments but got %d.", argCount);
@@ -679,6 +703,7 @@ Value getBuiltin(uint8_t builtin) {
     switch (builtin) {
         case BUILTIN_PEEK: return OBJ_VAL(newNative(peekBuiltin));
         case BUILTIN_IMPORT: return OBJ_VAL(newNative(importBuiltinDummy));
+        case BUILTIN_READ_SOURCE: return OBJ_VAL(newNative(readSourceBuiltin));
         case BUILTIN_MAKE_ROUTINE: return OBJ_VAL(newNative(makeRoutineBuiltin));
         case BUILTIN_RESUME: return OBJ_VAL(newNative(resumeBuiltin));
         case BUILTIN_START: return OBJ_VAL(newNative(startBuiltin));
