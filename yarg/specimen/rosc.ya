@@ -1,0 +1,11 @@
+place struct {
+    uint32 ctrl;
+    uint32 freqa;
+    uint32 freqb;
+    uint32 dormant;
+    uint32 div;
+    uint32 phase;
+    uint32 status;
+    uint32 randombit;
+    uint32 count;
+} @x40060000 rosc;
