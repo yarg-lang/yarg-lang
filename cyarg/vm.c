@@ -244,6 +244,8 @@ static bool callValue(ObjRoutine* routine, Value callee, int argCount) {
                 NativeFn native = AS_NATIVE(callee);
                 if (native == importBuiltinDummy) {
                     return importBuiltin(routine, argCount);
+                } else if (native == execBuiltinDummy) {
+                    return execBuiltin(routine, argCount);
                 } else {
                     Value result = NIL_VAL; 
                     if (native(routine, argCount, &result)) {

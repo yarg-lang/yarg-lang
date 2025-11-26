@@ -341,6 +341,7 @@ void printExprBuiltin(ObjExprBuiltin* fn) {
     switch (fn->builtin) {
         case EXPR_BUILTIN_IMPORT: printf("import"); break;
         case EXPR_BUILTIN_READ_SOURCE: printf("read_source"); break;
+        case EXPR_BUILTIN_EXEC: printf("exec"); break;
         case EXPR_BUILTIN_MAKE_ROUTINE: printf("make_routine"); break;
         case EXPR_BUILTIN_MAKE_CHANNEL: printf("make_channel"); break;
         case EXPR_BUILTIN_MAKE_SYNCGROUP: printf("make_sync_group"); break;
