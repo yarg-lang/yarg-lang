@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "files.h"
 #include "print.h"
@@ -8,6 +9,10 @@ char* readFile(const char* path) {
     FILE* file = fopen(path, "rb");
     if (file == NULL) {
         FPRINTMSG(stderr, "Could not open file \"%s\".\n", path);
+        char cwdpath[1024];
+        if (getcwd(cwdpath, sizeof(cwdpath)) != NULL) {
+            FPRINTMSG(stderr, "Current working directory: \"%s\"\n", cwdpath);
+        }
         exit(74);
     }
 
