@@ -1,5 +1,7 @@
 #!/bin/bash
 
+VSCODEEXTENSION_VERSION=0.2.1
+
 mkdir bin
 cp tools/pico-reset bin/
 
@@ -71,5 +73,5 @@ popd
 
 pushd vscode-yarg
 vsce package
-mv yarg-lang-0.1.0.vsix ../build/
+mv yarg-lang-$VSCODEEXTENSION_VERSION.vsix ../build/
 popd
