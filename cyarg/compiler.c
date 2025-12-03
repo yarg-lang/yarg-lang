@@ -501,6 +501,7 @@ static void generateExprBuiltin(ObjExprBuiltin* fn) {
         case EXPR_BUILTIN_IMPORT: emitBytes(OP_GET_BUILTIN, BUILTIN_IMPORT); break;
         case EXPR_BUILTIN_READ_SOURCE: emitBytes(OP_GET_BUILTIN, BUILTIN_READ_SOURCE); break;
         case EXPR_BUILTIN_EXEC: emitBytes(OP_GET_BUILTIN, BUILTIN_EXEC); break;
+        case EXPR_BUILTIN_COMPILE: emitBytes(OP_GET_BUILTIN, BUILTIN_COMPILE); break;
         case EXPR_BUILTIN_MAKE_ROUTINE: emitBytes(OP_GET_BUILTIN, BUILTIN_MAKE_ROUTINE); break;
         case EXPR_BUILTIN_MAKE_CHANNEL: emitBytes(OP_GET_BUILTIN, BUILTIN_MAKE_CHANNEL); break;
         case EXPR_BUILTIN_MAKE_SYNCGROUP: emitBytes(OP_GET_BUILTIN, BUILTIN_MAKE_SYNCGROUP); break;
