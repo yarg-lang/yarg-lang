@@ -147,45 +147,32 @@ bool execBuiltin(ObjRoutine* routineContext, int argCount) {
         runtimeError(routineContext, "Expected 1 arguments but got %d.", argCount);
         return false;
     }
-    if (!IS_STRING(peek(routineContext, 0)) && !IS_FUNCTION(peek(routineContext, 0))) {
-        runtimeError(routineContext, "Argument to exec must be string or function.");
+    if (!IS_STRING(peek(routineContext, 0))) {
+        runtimeError(routineContext, "Argument to exec must be string.");
         return false;
     }
 
-    if (IS_STRING(peek(routineContext, 0))) {
-
-        char* source = AS_CSTRING(peek(routineContext, 0));
-        ObjFunction* function = compile(source);
-        if (function == NULL) {
-            runtimeError(routineContext, "Interpret error; compiling source failed.");
-            return false;
-        }
-
-        tempRootPush(OBJ_VAL(function));
-
-        Value sourceVal = pop(routineContext);
-        tempRootPush(sourceVal);
-        pop(routineContext);
-
-        ObjClosure* closure = newClosure(function);
-        push(routineContext, OBJ_VAL(closure));
-
-        tempRootPop();
-        tempRootPop();
-
-        callfn(routineContext, closure, 0);
-        return true;
-    } else if (IS_FUNCTION(peek(routineContext, 0))) {
-        ObjFunction* function = AS_FUNCTION(peek(routineContext, 0));
-        ObjClosure* closure = newClosure(function);
-        pop(routineContext);
-        push(routineContext, OBJ_VAL(closure));
-        callfn(routineContext, closure, 0);
-        return true;
-    } else {
-        runtimeError(routineContext, "Argument to exec must be string or function.");
+    char* source = AS_CSTRING(peek(routineContext, 0));
+    ObjFunction* function = compile(source);
+    if (function == NULL) {
+        runtimeError(routineContext, "Interpret error; compiling source failed.");
         return false;
     }
+
+    tempRootPush(OBJ_VAL(function));
+
+    Value sourceVal = pop(routineContext);
+    tempRootPush(sourceVal);
+    pop(routineContext);
+
+    ObjClosure* closure = newClosure(function);
+    push(routineContext, OBJ_VAL(closure));
+
+    tempRootPop();
+    tempRootPop();
+
+    callfn(routineContext, closure, 0);
+    return true;
 }
 
 bool makeChannelBuiltin(ObjRoutine* routine, int argCount, Value* result) {
