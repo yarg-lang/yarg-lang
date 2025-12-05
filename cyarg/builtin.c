@@ -134,7 +134,11 @@ bool compileBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         return false;
     }
 
-    *result = OBJ_VAL(function);
+    tempRootPush(OBJ_VAL(function));
+    ObjClosure* closure = newClosure(function);
+    tempRootPop();
+
+    *result = OBJ_VAL(closure);
     return true;
 }
 
