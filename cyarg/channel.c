@@ -2,6 +2,7 @@
 #ifdef CYARG_PICO_TARGET
 #include <pico/sync.h>
 #else
+#include <fcntl.h>
 #include <semaphore.h>
 #include <pthread.h>
 #endif
