@@ -112,4 +112,7 @@ target_include_directories(cyarg PRIVATE
 pico_set_linker_script(cyarg ${CMAKE_SOURCE_DIR}/memmap_custom.ld)
 
 pico_add_extra_outputs(cyarg)
+else()
+# Add the math library for the definition of pow()
+target_link_libraries(cyarg m)
 endif()
