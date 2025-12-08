@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "object.h"
 #include "memory.h"
@@ -342,8 +343,8 @@ void fprintValue(FILE* op, Value value) {
         case VAL_UI16: FPRINTMSG(op, "%u", AS_UI16(value)); break;
         case VAL_I32: FPRINTMSG(op, "%d", AS_I32(value)); break;
         case VAL_UI32: FPRINTMSG(op, "%u", AS_UI32(value)); break;
-        case VAL_I64: FPRINTMSG(op, "%ld", AS_I64(value)); break;
-        case VAL_UI64: FPRINTMSG(op, "%lu", AS_UI64(value)); break;
+        case VAL_I64: FPRINTMSG(op, "%" PRId64, AS_I64(value)); break;
+        case VAL_UI64: FPRINTMSG(op, "%" PRIu64, AS_UI64(value)); break;
         case VAL_ADDRESS: FPRINTMSG(op, "%p", (void*) AS_ADDRESS(value)); break;
         case VAL_OBJ: fprintObject(op, value); break;
     }

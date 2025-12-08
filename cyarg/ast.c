@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <inttypes.h>
 
 #include "ast.h"
 #include "memory.h"
@@ -436,7 +437,7 @@ void printExpr(ObjExpr* expr) {
                         printf("u%u", num->val.uinteger32);
                         break;
                     case NUMBER_UINTEGER64:
-                        printf("u%lu", num->val.ui64);
+                        printf("u%" PRIu64, num->val.ui64);
                         break;
                     case NUMBER_ADDRESS:
                         printf("@x%lx", num->val.address);
