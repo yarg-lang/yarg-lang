@@ -35,9 +35,11 @@ public:
 public:
     static void simulateInterrupt(uint32_t id) // thread entry
     {
-        unique_lock<mutex> lock(::testSystem->simulateCondition);
-        ::testSystem->simulate.wait(lock);
-
+        {
+            unique_lock<mutex> lock(::testSystem->simulateCondition);
+            ::testSystem->simulate.wait(lock);
+        } // release lock here allows all interrupts to run simultaneously
+        
         auto &ih{testSystem->interruptHandlers};
         auto entry{ih.find(id)};
         if (entry != ih.end())
@@ -46,7 +48,7 @@ public:
         }
         else
         {
-            printf("ts double remove handler\n");
+            printf("ts no handler for simulated interrupt - %d\n", static_cast<int>(id));
             // todo log double remove handler
         }
     }
@@ -169,14 +171,18 @@ void tsRemoveInterruptHandler(uint32_t intId, void (*address)(void))
 // test code interface
 void tsSync()
 {
-    std::unique_lock<std::mutex> lock(self()->simulateCondition);
-    self()->simulate.notify_all();
-
+    {
+        std::unique_lock<std::mutex> lock(self()->simulateCondition);
+        self()->simulate.notify_all();
+    } // release lock here allows all simulateInterrupt to continue
+    
     auto &ints{self()->interrupts};
+    printf("Waiting for interrupts to be simulated - ");
     for (auto &th : ints)
     {
         th.join();
     }
+    printf("done\n");
     ints.clear();
     
     auto &exps{self()->expected};

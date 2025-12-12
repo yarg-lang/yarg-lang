@@ -144,5 +144,5 @@ bool interruptBuiltin(ObjRoutine*routineContext, int argCount, Value *result) {
 
 bool syncBuiltin(ObjRoutine*routineContext, int argCount, Value *result) {
     tsSync();
-    return true;
+    return true; // todo convert log to array of strings
 }
