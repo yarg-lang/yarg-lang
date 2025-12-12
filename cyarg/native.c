@@ -12,6 +12,8 @@
 #include <hardware/gpio.h>
 #include <hardware/irq.h>
 #include <hardware/clocks.h>
+#else
+#include "testSystem.h"
 #endif
 
 bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* result) {
@@ -39,6 +41,8 @@ bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* resu
 
 #ifdef CYARG_PICO_TARGET
     irq_add_shared_handler(num, (irq_handler_t) isrRoutine, prio);
+#else
+    tsAddInterruptHandler(num, isrRoutine);
 #endif
 
     return true;
@@ -63,7 +67,10 @@ bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, Value* result) 
 
 #ifdef CYARG_PICO_TARGET
     irq_remove_handler(num, (irq_handler_t) isrRoutine);
+#else
+    tsRemoveInterruptHandler(num, isrRoutine);
 #endif
+
     removePinnedRoutine(isrRoutine);
     return true;
 }

@@ -37,6 +37,11 @@ typedef enum {
     TOKEN_VAR, 
     TOKEN_WHILE, 
     TOKEN_YIELD,
+    // Test System
+    TOKEN_TS_SET,
+    TOKEN_TS_READ, TOKEN_TS_WRITE,
+    TOKEN_TS_INTERRUPT,
+    TOKEN_TS_SYNC,
 
     TOKEN_ERROR, TOKEN_EOF
 } TokenType;
