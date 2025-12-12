@@ -366,6 +366,11 @@ static ObjExpr* builtin(bool canAssign) {
         case TOKEN_UINT32: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_UINT32, 1);
         case TOKEN_INT64: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_INT64, 1);
         case TOKEN_UINT64: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_UINT64, 1);
+        case TOKEN_TS_SET: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_TS_SET, 1);
+        case TOKEN_TS_READ: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_TS_READ, 1);
+        case TOKEN_TS_WRITE: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_TS_WRITE, 1);
+        case TOKEN_TS_INTERRUPT: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_TS_INTERRUPT, 1);
+        case TOKEN_TS_SYNC: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_TS_SYNC, 1);
         default: return NULL; // Unreachable.
     } 
 }
@@ -702,6 +707,12 @@ static AstParseRule rules[] = {
     [TOKEN_VAR]                  = {NULL,      NULL,   PREC_NONE},
     [TOKEN_WHILE]                = {NULL,      NULL,   PREC_NONE},
     [TOKEN_YIELD]                = {NULL,      NULL,   PREC_NONE},
+    [TOKEN_TS_SET]               = {builtin,   NULL,   PREC_NONE},
+    [TOKEN_TS_READ]              = {builtin,   NULL,   PREC_NONE},
+    [TOKEN_TS_WRITE]             = {builtin,   NULL,   PREC_NONE},
+    [TOKEN_TS_INTERRUPT]         = {builtin,   NULL,   PREC_NONE},
+    [TOKEN_TS_SYNC]              = {builtin,   NULL,   PREC_NONE},
+
     [TOKEN_ERROR]                = {NULL,      NULL,   PREC_NONE},
     [TOKEN_EOF]                  = {NULL,      NULL,   PREC_NONE},
 };

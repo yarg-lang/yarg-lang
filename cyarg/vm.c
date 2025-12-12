@@ -4,6 +4,8 @@
 #include <string.h>
 #ifdef CYARG_PICO_TARGET
 #include <pico/multicore.h>
+#else
+#include "testSystem.h"
 #endif
 
 #include "common.h"
@@ -1039,6 +1041,7 @@ InterpretResult run(ObjRoutine* routine) {
 #ifdef CYARG_PICO_TARGET
                 *reg = val;
 #else
+                tsWrite((uint32_t)nominal_address, val);
                 printf("poke 0x%08lx, 0x%08x\n", nominal_address, val);
 #endif
                 tempRootPop();

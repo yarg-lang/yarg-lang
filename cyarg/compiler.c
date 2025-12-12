@@ -523,7 +523,12 @@ static void generateExprBuiltin(ObjExprBuiltin* fn) {
         case EXPR_BUILTIN_UINT32: emitBytes(OP_GET_BUILTIN, BUILTIN_UINT32); break;
         case EXPR_BUILTIN_INT64: emitBytes(OP_GET_BUILTIN, BUILTIN_INT64); break;
         case EXPR_BUILTIN_UINT64: emitBytes(OP_GET_BUILTIN, BUILTIN_UINT64); break;
-    }    
+        case EXPR_BUILTIN_TS_SET: emitBytes(OP_GET_BUILTIN, BUILTIN_TS_SET); break;
+        case EXPR_BUILTIN_TS_READ: emitBytes(OP_GET_BUILTIN, BUILTIN_TS_READ); break;
+        case EXPR_BUILTIN_TS_WRITE: emitBytes(OP_GET_BUILTIN, BUILTIN_TS_WRITE); break;
+        case EXPR_BUILTIN_TS_INTERRUPT: emitBytes(OP_GET_BUILTIN, BUILTIN_TS_INTERRUPT); break;
+        case EXPR_BUILTIN_TS_SYNC: emitBytes(OP_GET_BUILTIN, BUILTIN_TS_SYNC); break;
+    }
 }
 
 static void generateExprDot(ObjExprDot* dot) {

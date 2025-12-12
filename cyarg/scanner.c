@@ -326,6 +326,21 @@ static TokenType identifierType() {
         case 't':
             if (scanner.current - scanner.start > 1) {
                 switch (scanner.start[1]) {
+                    case 'e':
+                        if (scanner.current - scanner.start > 7
+                            && memcmp(scanner.start + 2, "st_", 3) == 0) {
+                            switch (scanner.start[5]) {
+                                case 'i': return checkKeyword(6, 8, "nterrupt", TOKEN_TS_INTERRUPT);
+                                case 'r': return checkKeyword(6, 3, "ead", TOKEN_TS_READ);
+                                case 's':
+                                    switch (scanner.start[6]) {
+                                        case 'e': return checkKeyword(7, 1, "t", TOKEN_TS_SET);
+                                        case 'y': return checkKeyword(7, 2, "nc", TOKEN_TS_SYNC);
+                                    }
+                                    break;
+                                case 'w': return checkKeyword(6, 4, "rite", TOKEN_TS_WRITE);
+                            }
+                        }
                     case 'h': return checkKeyword(2, 2, "is", TOKEN_THIS);
                     case 'r': return checkKeyword(2, 2, "ue", TOKEN_TRUE);
                 }
