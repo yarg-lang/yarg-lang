@@ -7,13 +7,17 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
-// test code interface
-void tsSync(void);
-void tsExpectRead(uint32_t address, uint32_t value);
-void tsExpectReadAnyValue(uint32_t address);
-void tsExpectWrite(uint32_t address, uint32_t value);
-void tsExpectWriteAnyValue(uint32_t address);
-void tsSetMemory(uint32_t address, uint32_t value);
-void tsTriggerInterrupt(uint32_t intId);
-void tsTriggerInterruptByName(std::string interruptName);
+class TestIntrinsics
+{
+public:
+    static std::vector<std::string> &sync();
+    static void expectRead(uint32_t address, uint32_t value);
+    static void expectReadAnyValue(uint32_t address);
+    static void expectWrite(uint32_t address, uint32_t value);
+    static void expectWriteAnyValue(uint32_t address);
+    static void setMemory(uint32_t address, uint32_t value);
+    static void triggerInterrupt(uint32_t intId);
+    static void triggerInterrupt(std::string const&);
+};
