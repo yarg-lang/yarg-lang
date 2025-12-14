@@ -6,7 +6,7 @@
 //
 
 #include "testSystem.h"
-#include "testSystem.hpp"
+#include "testIntrinsics.hpp"
 
 #include <cassert>
 #include <thread>
