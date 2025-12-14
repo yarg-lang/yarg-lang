@@ -7,13 +7,18 @@
 
 #include "testBuiltin.h"
 
-#include "testSystem.hpp"
-
 extern "C" {
 #include "chunk.h"
 #include "object.h"
 #include "routine.h"
 }
+
+#include "testSystem.hpp"
+#include <map>
+#include <vector>
+#include <print>
+
+using namespace std;
 
 static bool setBuiltin(ObjRoutine *, int, Value *);
 static bool readBuiltin(ObjRoutine *, int, Value *);
@@ -45,7 +50,7 @@ bool setBuiltin(ObjRoutine *routineContext, int argCount, Value* result)
             uint32_t address = AS_UI32(arg0);
             uint32_t value = AS_UI32(arg1);
             
-            tsSetMemory(address, value);
+            TestIntrinsics::setMemory(address, value);
             ok = true;
         }
     }
@@ -64,7 +69,7 @@ bool readBuiltin(ObjRoutine *routineContext, int argCount, Value *result) {
         uint32_t address = AS_UI32(arg0);
         if (argCount == 1 && !IS_OBJ(arg0))
         {
-            tsExpectReadAnyValue(address);
+            TestIntrinsics::expectReadAnyValue(address);
             ok = true;
         }
         else if (argCount == 2)
@@ -73,7 +78,7 @@ bool readBuiltin(ObjRoutine *routineContext, int argCount, Value *result) {
             if (!IS_OBJ(arg0) && ! IS_OBJ(arg1))
             {
                 uint32_t value = AS_UI32(arg1);
-                tsExpectRead(address, value);
+                TestIntrinsics::expectRead(address, value);
                 ok = true;
             }
         }
@@ -85,7 +90,7 @@ bool readBuiltin(ObjRoutine *routineContext, int argCount, Value *result) {
     return false;
 }
 
-bool writeBuiltin(ObjRoutine*routineContext, int argCount, Value *result) {
+bool writeBuiltin(ObjRoutine *routineContext, int argCount, Value *result) {
     bool ok = false;
     if (argCount >= 1)
     {
@@ -93,7 +98,7 @@ bool writeBuiltin(ObjRoutine*routineContext, int argCount, Value *result) {
         uint32_t address = AS_UI32(arg0);
         if (argCount == 1 && !IS_OBJ(arg0))
         {
-            tsExpectWriteAnyValue(address);
+            TestIntrinsics::expectWriteAnyValue(address);
             ok = true;
         }
         else if (argCount == 2)
@@ -102,7 +107,7 @@ bool writeBuiltin(ObjRoutine*routineContext, int argCount, Value *result) {
             if (!IS_OBJ(arg0) && ! IS_OBJ(arg1))
             {
                 uint32_t value = AS_UI32(arg1);
-                tsExpectWrite(address, value);
+                TestIntrinsics::expectWrite(address, value);
                 ok = true;
             }
         }
@@ -114,25 +119,22 @@ bool writeBuiltin(ObjRoutine*routineContext, int argCount, Value *result) {
     return false;
 }
 
-bool interruptBuiltin(ObjRoutine*routineContext, int argCount, Value *result) {
+bool interruptBuiltin(ObjRoutine *routineContext, int argCount, Value *result) {
     bool ok = false;
     if (argCount == 1)
     {
-        if (argCount == 1)
+        Value arg0 = nativeArgument(routineContext, argCount, 0);
+        if (!IS_OBJ(arg0))
         {
-            Value arg0 = nativeArgument(routineContext, argCount, 0);
-            if (!IS_OBJ(arg0))
-            {
-                uint32_t interruptNumber = AS_UI32(arg0);
-                tsTriggerInterrupt(interruptNumber);
-                ok = true;
-            }
-            else if (IS_STRING(arg0))
-            {
-                ObjString *name = (ObjString *)AS_OBJ(arg0);
-                tsTriggerInterruptByName(std::string(name->chars, name->length));
-                ok = true;
-            }
+            uint32_t interruptNumber = AS_UI32(arg0);
+            TestIntrinsics::triggerInterrupt(interruptNumber);
+            ok = true;
+        }
+        else if (IS_STRING(arg0))
+        {
+            ObjString *name = (ObjString *)AS_OBJ(arg0);
+            TestIntrinsics::triggerInterrupt(string(name->chars, name->length));
+            ok = true;
         }
     }
     if (!ok)
@@ -142,7 +144,17 @@ bool interruptBuiltin(ObjRoutine*routineContext, int argCount, Value *result) {
     return false;
 }
 
-bool syncBuiltin(ObjRoutine*routineContext, int argCount, Value *result) {
-    tsSync();
-    return true; // todo convert log to array of strings
+bool syncBuiltin(ObjRoutine *routineContext, int argCount, Value *result)
+{
+    vector<string> &log = TestIntrinsics::sync();
+    
+    for (auto const &i : log)
+    {
+        println("{}", i); // until log gets coppied to *result
+    }
+    *result = NIL_VAL; // until log gets coppied to *result
+    
+    log.clear();
+    
+    return true; // todo convert log to array of strings (result)
 }
