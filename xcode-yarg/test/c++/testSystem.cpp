@@ -334,16 +334,15 @@ std::vector<std::string> &TestIntrinsics::sync()
         unique_lock<std::mutex> lock(ts.simulateInterruptsMutex_);
         ts.simulateInterrupts_.notify_all();
     } // release lock here allows all simulateInterrupt to continue
-    
-    auto &ints{ts.interrupts_};
-    for (auto &th : ints)
+
+    for (auto &th : ts.interrupts_)
     {
         th.join();
     }
     println("done");
-    
-    ints.clear();
-    
+
+    ts.interrupts_.clear();
+
     // todo: mutex
     size_t numUnfulfilledExpectations{ts.expected_.size()};
     if (numUnfulfilledExpectations != 0)
