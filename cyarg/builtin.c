@@ -409,9 +409,9 @@ bool peekBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     } else {
         nominal_address = AS_ADDRESS(address);
     }
-    volatile uint32_t* reg = (volatile uint32_t*) nominal_address;
 
 #ifdef CYARG_PICO_TARGET
+    volatile uint32_t* reg = (volatile uint32_t*) nominal_address;
     uint32_t res = *reg;
     *result = UI32_VAL(res);
 #else

@@ -79,7 +79,8 @@ ObjRoutine* newRoutine() {
 
 void runAndRenter(ObjRoutine* routine) {
     run(routine);
-    pop(routine);
+// jhm patch e69caa4, defers a crash after two interrupts
+//    pop(routine);
     enterEntryFunction(routine);
 }
 

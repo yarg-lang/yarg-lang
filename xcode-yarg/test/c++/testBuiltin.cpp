@@ -11,6 +11,9 @@ extern "C" {
 #include "chunk.h"
 #include "object.h"
 #include "routine.h"
+#include "yargtype.h"
+#include "object.h"
+#include "memory.h"
 }
 
 #include "testIntrinsics.hpp"
@@ -147,13 +150,24 @@ bool interruptBuiltin(ObjRoutine *routineContext, int argCount, Value *result) {
 bool syncBuiltin(ObjRoutine *routineContext, int argCount, Value *result)
 {
     vector<string> &log = TestIntrinsics::sync();
-    
+        
+    Obj emptyString;
+    ObjConcreteYargType *array{newYargArrayTypeFromType(OBJ_VAL(&emptyString))};
+    ObjConcreteYargTypeArray *arrayAsArray{reinterpret_cast<ObjConcreteYargTypeArray *>(array)};
+    arrayAsArray->cardinality = log.size();
+    ObjPackedUniformArray* result_array{newPackedUniformArray(arrayAsArray)};
+
+    size_t index{0};
     for (auto const &i : log)
     {
-        println("{}", i); // until log gets coppied to *result
+//        println("{}", i); // until log gets coppied to *result
+        ObjString *s{copyString(&i[0], static_cast<int>(i.size()))};
+        PackedValue p{arrayElement(result_array->store, index)};
+        assignToPackedValue(p, OBJ_VAL(s));
+        index++;
     }
-    *result = NIL_VAL; // until log gets coppied to *result
-    
+
+    *result = OBJ_VAL(result_array);
     log.clear();
     
     return true; // todo convert log to array of strings (result)
