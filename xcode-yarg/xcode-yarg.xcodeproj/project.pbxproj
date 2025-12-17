@@ -81,11 +81,6 @@
 			path = test;
 			sourceTree = "<group>";
 		};
-		5AE147A32EDDBA8F00CBDF09 /* simulate */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = simulate;
-			sourceTree = "<group>";
-		};
 		5AE149EA2EDDBB7400CBDF09 /* cyarg */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -146,7 +141,6 @@
 			children = (
 				5ADA7C9D2EE8CB8F00319EC0 /* xcode-yarg.xcodeproj */,
 				5AE149B42EDDBB4800CBDF09 /* yarg */,
-				5AE147A32EDDBA8F00CBDF09 /* simulate */,
 				5AE1479D2EDDBA7B00CBDF09 /* test */,
 				5AB15E9B2EF2214000FEB3F7 /* host-file-system */,
 				5A8D28332EDDB59F0068C8C3 /* Products */,
