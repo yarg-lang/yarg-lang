@@ -38,18 +38,19 @@
 			);
 			target = 5A8D28312EDDB59F0068C8C3 /* xcode-yarg */;
 		};
+		5AB15E9E2EF274EF00FEB3F7 /* Exceptions for "hostyarg" folder in "xcode-yarg" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				bdfs_lfs_hal.c,
+			);
+			target = 5A8D28312EDDB59F0068C8C3 /* xcode-yarg */;
+		};
 		5ADA7CA02EE8CCA800319EC0 /* Exceptions for "cyarg" folder in "xcode-yarg" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				files_littlefs.c,
 				files_stdlib.c,
-			);
-			target = 5A8D28312EDDB59F0068C8C3 /* xcode-yarg */;
-		};
-		5ADA7CA32EE8CD2A00319EC0 /* Exceptions for "simulate" folder in "xcode-yarg" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				pico/missing.c,
+				pico_lfs_hal.c,
 			);
 			target = 5A8D28312EDDB59F0068C8C3 /* xcode-yarg */;
 		};
@@ -82,9 +83,6 @@
 		};
 		5AE147A32EDDBA8F00CBDF09 /* simulate */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				5ADA7CA32EE8CD2A00319EC0 /* Exceptions for "simulate" folder in "xcode-yarg" target */,
-			);
 			path = simulate;
 			sourceTree = "<group>";
 		};
@@ -105,6 +103,9 @@
 		};
 		5AE14A002EDDBB7400CBDF09 /* hostyarg */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5AB15E9E2EF274EF00FEB3F7 /* Exceptions for "hostyarg" folder in "xcode-yarg" target */,
+			);
 			name = hostyarg;
 			path = ../hostyarg;
 			sourceTree = SOURCE_ROOT;

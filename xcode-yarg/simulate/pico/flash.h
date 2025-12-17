@@ -13,3 +13,6 @@ void flash_range_program(uint32_t, const uint8_t *, size_t);
 void flash_range_erase(uint32_t, uint32_t);
 
 int flash_safe_execute(flash_fn, void *, uint32_t);
+
+#error What!
+
