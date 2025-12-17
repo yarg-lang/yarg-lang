@@ -30,7 +30,7 @@ bool execBuiltinDummy(ObjRoutine* routineContext, int argCount, Value* result) {
     return true;
 }
 
-
+#ifdef CYARG_PICO_TARGET
 static char* libraryNameFor(const char* importname) {
     size_t namelen = strlen(importname);
     char* filename = malloc(namelen + 3 + 1);
@@ -40,6 +40,19 @@ static char* libraryNameFor(const char* importname) {
     }
     return filename;
 }
+#else
+static char* libraryNameFor(const char* importname) {
+    // prepend "yarg/specimen/"
+    size_t pathlen = 14 + strlen(importname) + 3 + 1;
+    char* filepath = malloc(pathlen);
+    if (filepath) {
+        strcpy(filepath, "yarg/specimen/");
+        strcat(filepath, importname);
+        strcat(filepath, ".ya");
+    }
+    return filepath;
+}
+#endif
 
 bool importBuiltin(ObjRoutine* routineContext, int argCount) {
     if (argCount != 1) {

@@ -31,9 +31,17 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		5AB15E9D2EF221CF00FEB3F7 /* Exceptions for "host-file-system" folder in "xcode-yarg" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				hostfs.cpp,
+			);
+			target = 5A8D28312EDDB59F0068C8C3 /* xcode-yarg */;
+		};
 		5ADA7CA02EE8CCA800319EC0 /* Exceptions for "cyarg" folder in "xcode-yarg" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				files_littlefs.c,
 				files_stdlib.c,
 			);
 			target = 5A8D28312EDDB59F0068C8C3 /* xcode-yarg */;
@@ -56,6 +64,14 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		5AB15E9B2EF2214000FEB3F7 /* host-file-system */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5AB15E9D2EF221CF00FEB3F7 /* Exceptions for "host-file-system" folder in "xcode-yarg" target */,
+			);
+			path = "host-file-system";
+			sourceTree = "<group>";
+		};
 		5AE1479D2EDDBA7B00CBDF09 /* test */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -131,6 +147,7 @@
 				5AE149B42EDDBB4800CBDF09 /* yarg */,
 				5AE147A32EDDBA8F00CBDF09 /* simulate */,
 				5AE1479D2EDDBA7B00CBDF09 /* test */,
+				5AB15E9B2EF2214000FEB3F7 /* host-file-system */,
 				5A8D28332EDDB59F0068C8C3 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -306,6 +323,10 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"--define-macro=PROJECT_DIR=$(PROJECT_DIR)",
+				);
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -361,6 +382,10 @@
 				MACOSX_DEPLOYMENT_TARGET = 15.7;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"--define-macro=PROJECT_DIR=$(PROJECT_DIR)",
+				);
 				SDKROOT = macosx;
 			};
 			name = Release;
