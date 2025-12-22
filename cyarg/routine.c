@@ -80,6 +80,7 @@ ObjRoutine* newRoutine() {
 void runAndRenter(ObjRoutine* routine) {
     run(routine);
     pop(routine);
+    pushEntryElements(routine);
     enterEntryFunction(routine);
 }
 
@@ -158,9 +159,7 @@ void yieldFromRoutine(ObjRoutine* context) {
 
 void returnFromRoutine(ObjRoutine* context, Value result) {
     assert(context->frameCount == 0);
-    pop(context);
     context->result = result;
-    push(context, result);
     context->state = EXEC_CLOSED;
 }
 

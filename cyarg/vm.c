@@ -1118,15 +1118,16 @@ InterpretResult run(ObjRoutine* routine) {
             }
             case OP_RETURN: {
                 Value result = pop(routine);
+                tempRootPush(result);
                 closeUpvalues(routine, frame->stackEntryIndex);
                 routine->frameCount--;
+                popFrame(routine, frame);
+                push(routine, result);
+                tempRootPop();
                 if (routine->frameCount == 0) {
                     returnFromRoutine(routine, result);
                     return INTERPRET_OK;
                 }
-                
-                popFrame(routine, frame);
-                push(routine, result);
                 frame = &routine->frames[routine->frameCount - 1];
                 break;
             }
