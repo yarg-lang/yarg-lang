@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VSCODEEXTENSION_VERSION=0.2.1
+VSCODEEXTENSION_VERSION=0.3.0
 
 mkdir -p bin
 cp tools/pico-reset bin/
