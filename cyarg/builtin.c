@@ -15,6 +15,11 @@
 #include "yargtype.h"
 #include "sync_group.h"
 
+#ifndef CYARG_PICO_TARGET
+#include "testSystem.h"
+#include "testBuiltin.h"
+#endif
+
 bool importBuiltinDummy(ObjRoutine* routineContext, int argCount, Value* result) {
     *result = NIL_VAL;
     return true;
@@ -25,7 +30,7 @@ bool execBuiltinDummy(ObjRoutine* routineContext, int argCount, Value* result) {
     return true;
 }
 
-
+#ifdef CYARG_PICO_TARGET
 static char* libraryNameFor(const char* importname) {
     size_t namelen = strlen(importname);
     char* filename = malloc(namelen + 3 + 1);
@@ -35,6 +40,19 @@ static char* libraryNameFor(const char* importname) {
     }
     return filename;
 }
+#else
+static char* libraryNameFor(const char* importname) {
+    // prepend "yarg/specimen/"
+    size_t pathlen = 14 + strlen(importname) + 3 + 1;
+    char* filepath = malloc(pathlen);
+    if (filepath) {
+        strcpy(filepath, "yarg/specimen/");
+        strcat(filepath, importname);
+        strcat(filepath, ".ya");
+    }
+    return filepath;
+}
+#endif
 
 bool importBuiltin(ObjRoutine* routineContext, int argCount) {
     if (argCount != 1) {
@@ -404,14 +422,14 @@ bool peekBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     } else {
         nominal_address = AS_ADDRESS(address);
     }
-    volatile uint32_t* reg = (volatile uint32_t*) nominal_address;
 
 #ifdef CYARG_PICO_TARGET
+    volatile uint32_t* reg = (volatile uint32_t*) nominal_address;
     uint32_t res = *reg;
     *result = UI32_VAL(res);
 #else
-    printf("peek(%p)\n", (void*)nominal_address);
-    *result = UI32_VAL(0);
+    *result = UI32_VAL(tsRead((uint32_t)nominal_address));
+    printf("peek(%p) -> %x\n", (void*)nominal_address, AS_UI32(*result));
 #endif
     return true;
 }
@@ -790,6 +808,10 @@ Value getBuiltin(uint8_t builtin) {
         case BUILTIN_UINT32: return OBJ_VAL(newNative(uint32Builtin));
         case BUILTIN_INT64: return OBJ_VAL(newNative(int64Builtin));
         case BUILTIN_UINT64: return OBJ_VAL(newNative(uint64Builtin));
+#ifdef CYARG_PICO_TARGET
         default: return NIL_VAL;
+#else
+        default: return getTestSystemBuiltin(builtin);
+#endif
     }
 }
