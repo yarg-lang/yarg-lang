@@ -79,8 +79,8 @@ ObjRoutine* newRoutine() {
 
 void runAndRenter(ObjRoutine* routine) {
     run(routine);
-// jhm patch e69caa4, defers a crash after two interrupts
-//    pop(routine);
+    pop(routine);
+    pushEntryElements(routine);
     enterEntryFunction(routine);
 }
 
@@ -159,9 +159,7 @@ void yieldFromRoutine(ObjRoutine* context) {
 
 void returnFromRoutine(ObjRoutine* context, Value result) {
     assert(context->frameCount == 0);
-    pop(context);
     context->result = result;
-    push(context, result);
     context->state = EXEC_CLOSED;
 }
 
