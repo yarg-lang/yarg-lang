@@ -313,7 +313,8 @@ void popFrame(ObjRoutine* routine, CallFrame* frame) {
 }
 
 Value peek(ObjRoutine* routine, int distance) {
-    return peekCell(routine, distance)->value;
+    ValueCell* cell = peekCell(routine, distance);
+    return cell->value;
 }
 
 ValueCell* peekCell(ObjRoutine* routine, int distance) {
