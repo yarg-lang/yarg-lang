@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
@@ -91,7 +91,9 @@ target_sources(cyarg
 else()
 target_sources(cyarg
     PRIVATE
-      files_stdlib.c)
+      files_stdlib.c
+      ../xcode-yarg/test/c++/testBuiltin.cpp
+      ../xcode-yarg/test/c++/testSystem.cpp)
 endif()
 
 if (HOST_TYPE STREQUAL "Interactive")
@@ -139,4 +141,11 @@ pico_add_extra_outputs(cyarg)
 else()
 # Add the math library for the definition of pow()
 target_link_libraries(cyarg m)
+
+# simulated interrupts
+target_include_directories(cyarg PRIVATE
+  ../xcode-yarg/test/c++
+  ../cyarg
+)
+
 endif()
