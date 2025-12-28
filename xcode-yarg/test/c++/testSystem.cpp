@@ -63,7 +63,7 @@ public:
     vector<string> log_;
 };
 
-const map<std::string const, uint32_t> lut
+const map<string const, uint32_t> lut
 {
     {"TIMER_IRQ_0", 0},
     {"TIMER_IRQ_1", 1},
@@ -202,7 +202,7 @@ uint32_t TestSystem::read(uint32_t address)
     bool writtenOrSet;
     uint32_t valueWrittenOrSet;
     {
-        std::unique_lock<std::mutex> lock(memoryMutex_);
+        unique_lock<mutex> lock(memoryMutex_);
         auto i{memory_.find(address)};
         writtenOrSet = i != memory_.end();
         valueWrittenOrSet = i->second;
@@ -212,7 +212,7 @@ uint32_t TestSystem::read(uint32_t address)
         bool read;
         auto explicitExpectedRead{make_tuple(TestSystem::Expected::Read, address, valueWrittenOrSet)};
         {
-            std::unique_lock<std::mutex> lock(expectedMutex_);
+            unique_lock<mutex> lock(expectedMutex_);
             auto er{expected_.find(explicitExpectedRead)};
             read = er != expected_.end();
             if (read)
@@ -224,7 +224,7 @@ uint32_t TestSystem::read(uint32_t address)
         {
             auto anyExpectedRead{make_tuple(TestSystem::Expected::ReadAny, address, 0u)};
             {
-                std::unique_lock<std::mutex> lock(expectedMutex_);
+                unique_lock<mutex> lock(expectedMutex_);
                 auto ar{expected_.find(anyExpectedRead)};
                 read = ar != expected_.end();
                 if (read)
@@ -249,14 +249,14 @@ uint32_t TestSystem::read(uint32_t address)
 void TestSystem::write(uint32_t address, uint32_t value)
 {
     {
-        std::unique_lock<std::mutex> lock(memoryMutex_);
+        unique_lock<mutex> lock(memoryMutex_);
         memory_[address] = value;
     }
 
     bool written;
     auto explicitExpectedWrite{make_tuple(TestSystem::Expected::Write, address, value)};
     {
-        std::unique_lock<std::mutex> lock(expectedMutex_);
+        unique_lock<mutex> lock(expectedMutex_);
         auto ew{expected_.find(explicitExpectedWrite)};
         written = ew != expected_.end();
         if (written)
@@ -268,7 +268,7 @@ void TestSystem::write(uint32_t address, uint32_t value)
     {
         auto anyExpectedWrite{make_tuple(TestSystem::Expected::WriteAny, address, 0u)};
         {
-            std::unique_lock<std::mutex> lock(expectedMutex_);
+            unique_lock<mutex> lock(expectedMutex_);
             auto aw{expected_.find(anyExpectedWrite)};
             written = aw != expected_.end();
             if (written)
@@ -287,7 +287,7 @@ void TestSystem::addInterruptHandler(uint32_t intId, void (*address)(void))
 {
     bool removed;
     {
-        std::unique_lock<std::mutex> lock(interruptHandlersMutex_);
+        unique_lock<mutex> lock(interruptHandlersMutex_);
         auto ih{interruptHandlers_.find(intId)};
         removed = ih == interruptHandlers_.end();
         if (removed)
@@ -305,7 +305,7 @@ void TestSystem::removeInterruptHandler(uint32_t intId, void (*address)(void))
 {
     bool added;
     {
-        std::unique_lock<std::mutex> lock(interruptHandlersMutex_);
+        unique_lock<mutex> lock(interruptHandlersMutex_);
         auto ih{interruptHandlers_.find(intId)};
         added = ih != interruptHandlers_.end();
         if (added)
@@ -321,17 +321,17 @@ void TestSystem::removeInterruptHandler(uint32_t intId, void (*address)(void))
 
 void TestSystem::log(string const &s)
 {
-    unique_lock<std::mutex> lock(logMutex_);
+    unique_lock<mutex> lock(logMutex_);
     log_.push_back(s);
 }
 
 // test code interface
-std::vector<std::string> &TestIntrinsics::sync()
+vector<string> &TestIntrinsics::sync()
 {
     print("Waiting for interrupts to be simulated - ");
     TestSystem &ts{TestSystem::self()};
     {
-        unique_lock<std::mutex> lock(ts.simulateInterruptsMutex_);
+        unique_lock<mutex> lock(ts.simulateInterruptsMutex_);
         ts.simulateInterrupts_.notify_all();
     } // release lock here allows all simulateInterrupt to continue
 
@@ -380,7 +380,7 @@ void TestIntrinsics::expectRead(uint32_t address, uint32_t value)
 {
     TestSystem &ts{TestSystem::self()};
     {
-        unique_lock<std::mutex> lock(ts.expectedMutex_);
+        unique_lock<mutex> lock(ts.expectedMutex_);
         ts.expected_.emplace(TestSystem::Expected::Read, address, value);
     }
 }
@@ -389,7 +389,7 @@ void TestIntrinsics::expectReadAnyValue(uint32_t address)
 {
     TestSystem &ts{TestSystem::self()};
     {
-        unique_lock<std::mutex> lock(ts.expectedMutex_);
+        unique_lock<mutex> lock(ts.expectedMutex_);
         ts.expected_.emplace(TestSystem::Expected::ReadAny, address, 0u);
     }
 }
@@ -398,7 +398,7 @@ void TestIntrinsics::expectWrite(uint32_t address, uint32_t value)
 {
     TestSystem &ts{TestSystem::self()};
     {
-        unique_lock<std::mutex> lock(ts.expectedMutex_);
+        unique_lock<mutex> lock(ts.expectedMutex_);
         ts.expected_.emplace(TestSystem::Expected::Write, address, value);
     }
 }
@@ -407,7 +407,7 @@ void TestIntrinsics::expectWriteAnyValue(uint32_t address)
 {
     TestSystem &ts{TestSystem::self()};
     {
-        unique_lock<std::mutex> lock(ts.expectedMutex_);
+        unique_lock<mutex> lock(ts.expectedMutex_);
         ts.expected_.emplace(TestSystem::Expected::WriteAny, address, 0u);
     }
 }
@@ -416,7 +416,7 @@ void TestIntrinsics::setMemory(uint32_t address, uint32_t value)
 {
     TestSystem &ts{TestSystem::self()};
     {
-        unique_lock<std::mutex> lock(ts.memoryMutex_);
+        unique_lock<mutex> lock(ts.memoryMutex_);
         ts.memory_[address] = value;
     }
 }
@@ -425,7 +425,7 @@ void TestIntrinsics::triggerInterrupt(uint32_t intId)
 {
     TestSystem &ts{TestSystem::self()};
     {
-        unique_lock<std::mutex> lock(ts.interruptsMutex_);
+        unique_lock<mutex> lock(ts.interruptsMutex_);
         ts.interrupts_.emplace_back(thread{TestSystem::simulateInterrupt, intId});
     }
 }
@@ -437,7 +437,7 @@ void TestIntrinsics::triggerInterrupt(string const &s)
     if (ini != lut.end())
     {
         {
-            unique_lock<std::mutex> lock(ts.interruptsMutex_);
+            unique_lock<mutex> lock(ts.interruptsMutex_);
             ts.interrupts_.emplace_back(thread{TestSystem::simulateInterrupt, ini->second});
         }
     }

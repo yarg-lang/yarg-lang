@@ -57,5 +57,5 @@ Should the test system enforce
 Simulate file system using xcode project
 
 //
-import "machine";
+import("machine");
 var source = read_source("yarg/test/read_source/sample.ya");
