@@ -8,8 +8,8 @@ void plaform_hal_init();
 
 typedef recursive_mutex_t platform_mutex;
 #else
-// currently the host platform is single-threaded.
-typedef int platform_mutex;
+#include <pthread.h>
+typedef pthread_mutex_t platform_mutex;
 #endif
 
 void platform_mutex_init(platform_mutex* mutex);
