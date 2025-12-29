@@ -56,3 +56,6 @@ Should interrupts be started in order of lowest to highest priority to better si
 Should the test system enforce
 Simulate file system using xcode project
 
+//
+import("machine");
+var source = read_source("yarg/test/read_source/sample.ya");
