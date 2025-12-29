@@ -31,13 +31,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		5AB15E9D2EF221CF00FEB3F7 /* Exceptions for "host-file-system" folder in "xcode-yarg" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				hostfs.cpp,
-			);
-			target = 5A8D28312EDDB59F0068C8C3 /* xcode-yarg */;
-		};
 		5AB15E9E2EF274EF00FEB3F7 /* Exceptions for "hostyarg" folder in "xcode-yarg" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -49,7 +42,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				files_littlefs.c,
-				files_stdlib.c,
 				pico_lfs_hal.c,
 			);
 			target = 5A8D28312EDDB59F0068C8C3 /* xcode-yarg */;
