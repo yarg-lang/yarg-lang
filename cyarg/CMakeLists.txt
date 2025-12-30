@@ -67,9 +67,9 @@ target_sources(cyarg
 else()
 target_sources(cyarg
     PRIVATE
-      files_stdlib.c
       ../xcode-yarg/test/c++/testBuiltin.cpp
-      ../xcode-yarg/test/c++/testSystem.cpp)
+      ../xcode-yarg/test/c++/testSystem.cpp
+      ../xcode-yarg/host-file-system/hostfs.cpp)
 endif()
 
 if (HOST_TYPE STREQUAL "Interactive")
