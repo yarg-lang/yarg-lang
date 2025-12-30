@@ -124,6 +124,10 @@ void initVM() {
     vm.core0.obj.type = OBJ_ROUTINE;
     vm.core0.obj.isMarked = false;
     vm.core0.obj.next = NULL;
+
+    platform_mutex_init(&vm.heap);
+    platform_mutex_init(&vm.env);
+    
     initRoutine(&vm.core0);
 
     vm.core1 = NULL;
@@ -140,9 +144,6 @@ void initVM() {
     vm.pinnedRoutineHandlers[7] = pinnedRoutine7;
     vm.pinnedRoutineHandlers[8] = pinnedRoutine8;
     vm.pinnedRoutineHandlers[9] = pinnedRoutine9;
-
-    platform_mutex_init(&vm.heap);
-    platform_mutex_init(&vm.env);
 
     vm.tempRootsTop = vm.tempRoots;
 

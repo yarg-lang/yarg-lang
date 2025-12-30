@@ -7,6 +7,7 @@
 
 extern "C" {
 #include "files.h"
+#include "string.h"
 }
 
 #include <string>
