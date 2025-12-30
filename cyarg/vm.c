@@ -120,12 +120,16 @@ static void defineNative(const char* name, NativeFn function) {
 
 void initVM() {
     
+    // must be done before initRoutine as initRoutine does a realloc
+    platform_mutex_init(&vm.heap);
+    platform_mutex_init(&vm.env);
+
     // We have an Obj here not on the heap. hack up its init.
     vm.core0.obj.type = OBJ_ROUTINE;
     vm.core0.obj.isMarked = false;
     vm.core0.obj.next = NULL;
     initRoutine(&vm.core0);
-
+l:
     vm.core1 = NULL;
     for (int i = 0; i < MAX_PINNED_ROUTINES; i++) {
         vm.pinnedRoutines[i] = NULL;
@@ -140,9 +144,6 @@ void initVM() {
     vm.pinnedRoutineHandlers[7] = pinnedRoutine7;
     vm.pinnedRoutineHandlers[8] = pinnedRoutine8;
     vm.pinnedRoutineHandlers[9] = pinnedRoutine9;
-
-    platform_mutex_init(&vm.heap);
-    platform_mutex_init(&vm.env);
 
     vm.tempRootsTop = vm.tempRoots;
 

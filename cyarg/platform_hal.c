@@ -1,3 +1,4 @@
+#include <stdio.h>
 
 #ifdef CYARG_PICO_TARGET
 #include <pico/stdlib.h>
@@ -22,7 +23,8 @@ void platform_mutex_init(platform_mutex* mutex) {
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
     int i = pthread_mutex_init(mutex, &attr); // not recursive
-    while (i);
+    if (i != 0)
+	printf("pthread_mutex_init %d\n", i);
 #endif
 }
 
