@@ -97,9 +97,9 @@ target_sources(cyarg
 endif()
 
 if (HOST_TYPE STREQUAL "Interactive")
-add_compile_definitions(DEBUG_TRACE_EXECUTION)
-add_compile_definitions(DEBUG_AST_PARSE)
-add_compile_definitions(DEBUG_STRESS_GC)
+#add_compile_definitions(DEBUG_TRACE_EXECUTION)
+#add_compile_definitions(DEBUG_AST_PARSE)
+#add_compile_definitions(DEBUG_STRESS_GC)
 endif()
 #add_compile_definitions(DEBUG_LOG_GC)
 

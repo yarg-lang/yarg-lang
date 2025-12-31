@@ -14,7 +14,7 @@
 const char* defaultScript = "main.ya";
 
 static void repl() {
-    char line[1024];
+    char line[4096];
     printf("> ");
     for (;;) {
         if (fgets(line, sizeof(line), stdin) != 0) {
