@@ -61,7 +61,7 @@ bool setBuiltin(ObjRoutine *routineContext, int argCount, Value* result)
     {
         runtimeError(routineContext, "Expected an address and a value.");
     }
-    return false;
+    return ok;
 }
 
 bool readBuiltin(ObjRoutine *routineContext, int argCount, Value *result) {
@@ -90,7 +90,7 @@ bool readBuiltin(ObjRoutine *routineContext, int argCount, Value *result) {
     {
         runtimeError(routineContext, "Expected an address to peek or and address and a value.");
     }
-    return false;
+    return ok;
 }
 
 bool writeBuiltin(ObjRoutine *routineContext, int argCount, Value *result) {
@@ -119,7 +119,7 @@ bool writeBuiltin(ObjRoutine *routineContext, int argCount, Value *result) {
     {
         runtimeError(routineContext, "Expected an address to poke or and address and a value.");
     }
-    return false;
+    return ok;
 }
 
 bool interruptBuiltin(ObjRoutine *routineContext, int argCount, Value *result) {
@@ -130,21 +130,19 @@ bool interruptBuiltin(ObjRoutine *routineContext, int argCount, Value *result) {
         if (!IS_OBJ(arg0))
         {
             uint32_t interruptNumber = AS_UI32(arg0);
-            TestIntrinsics::triggerInterrupt(interruptNumber);
-            ok = true;
+            ok = TestIntrinsics::triggerInterrupt(interruptNumber);
         }
         else if (IS_STRING(arg0))
         {
             ObjString *name = (ObjString *)AS_OBJ(arg0);
-            TestIntrinsics::triggerInterrupt(string(name->chars, name->length));
-            ok = true;
+            ok = TestIntrinsics::triggerInterrupt(string(name->chars, name->length));
         }
     }
     if (!ok)
     {
         runtimeError(routineContext, "Expected an interrupt name or number.");
     }
-    return false;
+    return ok;
 }
 
 bool syncBuiltin(ObjRoutine *routineContext, int argCount, Value *result)
@@ -170,5 +168,5 @@ bool syncBuiltin(ObjRoutine *routineContext, int argCount, Value *result)
     *result = OBJ_VAL(result_array);
     log.clear();
     
-    return true; // todo convert log to array of strings (result)
+    return true;
 }

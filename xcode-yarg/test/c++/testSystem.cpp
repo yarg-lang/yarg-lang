@@ -35,6 +35,9 @@ public:
     };
     
 public:
+    ~TestSystem();
+
+public:
     static void simulateInterrupt(uint32_t id); // thread entry
     static TestSystem &self()
     {
@@ -54,6 +57,7 @@ public:
 public:
     mutex simulateInterruptsMutex_;
     condition_variable simulateInterrupts_;
+    bool simulateInterruptsNow_;
     mutex expectedMutex_;
     multiset<tuple<Expected, uint32_t, uint32_t> > expected_; // address, value - value == 0 if WriteAny or ReadAny
     mutex memoryMutex_;
@@ -170,13 +174,24 @@ void tsRemoveInterruptHandler(uint32_t intId, void (*address)(void))
     TestSystem::self().removeInterruptHandler(intId, address);
 }
 
+TestSystem::~TestSystem()
+{
+    for (auto &th : interrupts_)
+    {
+        if (th.joinable())
+        {
+            th.detach();
+        }
+    }
+}
+
 void TestSystem::simulateInterrupt(uint32_t id) // thread entry
 {
     TestSystem &self{TestSystem::self()};
     {
         unique_lock<mutex> lock(self.simulateInterruptsMutex_);
-        self.simulateInterrupts_.wait(lock);
-    } // release lock here allows all interrupts to run simultaneously
+        self.simulateInterrupts_.wait(lock, [&] {return self.simulateInterruptsNow_;}); // unlocks simulateInterruptsMutex_
+    }
     
     bool ihFound;
     void (*foundIsr)(){0};
@@ -335,6 +350,7 @@ vector<string> &TestIntrinsics::sync()
     TestSystem &ts{TestSystem::self()};
     {
         unique_lock<mutex> lock(ts.simulateInterruptsMutex_);
+        ts.simulateInterruptsNow_ = true;
         ts.simulateInterrupts_.notify_all();
     } // release lock here allows all simulateInterrupt to continue
 
@@ -345,6 +361,7 @@ vector<string> &TestIntrinsics::sync()
     println("done");
 
     ts.interrupts_.clear();
+    ts.simulateInterruptsNow_ = false;
 
     // todo: mutex
     size_t numUnfulfilledExpectations{ts.expected_.size()};
@@ -424,16 +441,17 @@ void TestIntrinsics::setMemory(uint32_t address, uint32_t value)
     }
 }
 
-void TestIntrinsics::triggerInterrupt(uint32_t intId)
+bool TestIntrinsics::triggerInterrupt(uint32_t intId)
 {
     TestSystem &ts{TestSystem::self()};
     {
         unique_lock<mutex> lock(ts.interruptsMutex_);
         ts.interrupts_.emplace_back(thread{TestSystem::simulateInterrupt, intId});
     }
+    return true;
 }
 
-void TestIntrinsics::triggerInterrupt(string const &s)
+bool TestIntrinsics::triggerInterrupt(string const &s)
 {
     TestSystem &ts{TestSystem::self()};
     auto ini{lut.find(s)};
@@ -447,5 +465,7 @@ void TestIntrinsics::triggerInterrupt(string const &s)
     else
     {
         ts.log(format("Unable to simulate an interrupt named {}", s));
+        return false;
     }
+    return true;
 }

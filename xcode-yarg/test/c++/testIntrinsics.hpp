@@ -18,6 +18,6 @@ public:
     static void expectWrite(uint32_t address, uint32_t value);
     static void expectWriteAnyValue(uint32_t address);
     static void setMemory(uint32_t address, uint32_t value);
-    static void triggerInterrupt(uint32_t intId);
-    static void triggerInterrupt(std::string const&);
+    static bool triggerInterrupt(uint32_t intId);
+    static bool triggerInterrupt(std::string const&);
 };
