@@ -37,30 +37,54 @@ pico_sdk_init()
 endif()
 
 add_executable(cyarg 
+    common.h
+    print.h
+    chunk.h
     chunk.c
     main.c
+    memory.h
     memory.c
+    debug.h
     debug.c
+    value.h
     value.c
+    routine.h
     routine.c
+    vm.h
     vm.c
+    ast.h
     ast.c
+    parser.h
     parser.c
+    compiler.h
     compiler.c
+    scanner.h
     scanner.c
+    object.h
     object.c
+    table.h
     table.c
+    native.h
     native.c
+    builtin.h
     builtin.c
+    channel.h
     channel.c
+    yargtype.h
     yargtype.c
+    platform_hal.h
     platform_hal.c
-    sync_group.c)
+    sync_group.h
+    sync_group.c
+    files.h
+    )
 
 if (PICO_BOARD)
 target_sources(cyarg
     PRIVATE
+      pico_flash_fs.h
       files_littlefs.c
+      pico_lfs_hal.h
       pico_lfs_hal.c
         ../hostyarg/littlefs/lfs.c
         ../hostyarg/littlefs/lfs_util.c)

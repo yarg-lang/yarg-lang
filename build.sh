@@ -78,3 +78,11 @@ then
     mv yarg-lang-$VSCODEEXTENSION_VERSION.vsix ../build/
     popd
 fi
+
+if which xcodebuild > /dev/null
+then
+    pushd cyarg
+    cmake --preset xcode-host
+    cmake --build build/xcode-host
+    popd
+fi

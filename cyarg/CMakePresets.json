@@ -26,6 +26,17 @@
             }
         },
         {
+            "name": "xcode-host",
+            "displayName": "Xcode Host",
+            "description": "Using defaults for your Xcode install",
+            "generator": "Xcode",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "HOST_TYPE": "Test",
+                "CMAKE_TOOLCHAIN_FILE": ""
+            }
+        },
+        {
             "name": "pico",
             "displayName": "Pico (SDK 2.2.0, 14_2_Rel1 for Pico/RP2040)",
             "description": "Using the Pico SDK ARM toolchain",
