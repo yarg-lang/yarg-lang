@@ -92,8 +92,12 @@ else()
 target_sources(cyarg
     PRIVATE
       files_stdlib.c
-      ../xcode-yarg/test/c++/testBuiltin.cpp
-      ../xcode-yarg/test/c++/testSystem.cpp)
+      test-system/testBuiltin.h
+      test-system/testBuiltin.cpp
+      test-system/testSystem.h
+      test-system/testSystem.cpp
+      test-system/testIntrinsics.hpp
+      )
 endif()
 
 if (HOST_TYPE STREQUAL "Interactive")
@@ -141,11 +145,5 @@ pico_add_extra_outputs(cyarg)
 else()
 # Add the math library for the definition of pow()
 target_link_libraries(cyarg m)
-
-# simulated interrupts
-target_include_directories(cyarg PRIVATE
-  ../xcode-yarg/test/c++
-  ../cyarg
-)
 
 endif()

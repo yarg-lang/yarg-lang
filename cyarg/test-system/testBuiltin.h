@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#include "value.h"
+#include "../value.h"
 
 Value getTestSystemBuiltin(uint8_t builtin);
 

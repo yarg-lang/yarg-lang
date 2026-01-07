@@ -16,8 +16,8 @@
 #include "sync_group.h"
 
 #ifndef CYARG_PICO_TARGET
-#include "testSystem.h"
-#include "testBuiltin.h"
+#include "test-system/testSystem.h"
+#include "test-system/testBuiltin.h"
 #endif
 
 bool importBuiltinDummy(ObjRoutine* routineContext, int argCount, Value* result) {

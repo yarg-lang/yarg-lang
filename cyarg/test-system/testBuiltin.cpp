@@ -8,12 +8,12 @@
 #include "testBuiltin.h"
 
 extern "C" {
-#include "chunk.h"
-#include "object.h"
-#include "routine.h"
-#include "yargtype.h"
-#include "object.h"
-#include "memory.h"
+#include "../chunk.h"
+#include "../object.h"
+#include "../routine.h"
+#include "../yargtype.h"
+#include "../object.h"
+#include "../memory.h"
 }
 
 #include "testIntrinsics.hpp"

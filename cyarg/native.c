@@ -13,7 +13,7 @@
 #include <hardware/irq.h>
 #include <hardware/clocks.h>
 #else
-#include "testSystem.h"
+#include "test-system/testSystem.h"
 #endif
 
 bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* result) {

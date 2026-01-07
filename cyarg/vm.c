@@ -5,7 +5,7 @@
 #ifdef CYARG_PICO_TARGET
 #include <pico/multicore.h>
 #else
-#include "testSystem.h"
+#include "test-system/testSystem.h"
 #endif
 
 #include "common.h"
