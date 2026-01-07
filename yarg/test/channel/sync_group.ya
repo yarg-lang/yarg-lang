@@ -1,5 +1,5 @@
 var any[2] channels;
-for (var uint32 i; i < len(channels); i = i + 0d1) {
+for (var uint32 i; i < uint32(len(channels)); i = i + 0d1) {
     channels[i] = make_channel();
 }
 var group = make_sync_group(channels);

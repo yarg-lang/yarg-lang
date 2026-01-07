@@ -102,7 +102,7 @@ ObjConcreteYargType* newYargPointerType(Value targetType) {
 
 size_t addFieldType(ObjConcreteYargTypeStruct* st, size_t index, size_t fieldOffset, Value type, Value offset, Value name) {
     st->field_types[index] = IS_NIL(type) ? NULL : AS_YARGTYPE(type);
-    tableSet(&st->field_names, AS_STRING(name), UI32_VAL(index));
+    tableSet(&st->field_names, AS_STRING(name), SIZE_T_UI_VAL(index));
     if (IS_NIL(offset)) {
         st->field_indexes[index] = fieldOffset;
     } else if (is_positive_integer(offset)) {

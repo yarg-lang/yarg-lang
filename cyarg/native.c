@@ -75,7 +75,7 @@ bool clockNative(ObjRoutine* routine, int argCount, Value* result) {
         return false;
     }
 
-    *result = UI32_VAL(clock() / CLOCKS_PER_SEC);
+    *result = SIZE_T_UI_VAL(clock() / CLOCKS_PER_SEC);
     return true;
 }
 

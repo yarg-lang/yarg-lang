@@ -430,7 +430,7 @@ bool lenBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         return true;
     } else if (IS_UNIFORMARRAY(arg)) {
         ObjPackedUniformArray* array = AS_UNIFORMARRAY(arg);
-        *result = UI32_VAL(arrayCardinality(array->store));
+        *result = SIZE_T_UI_VAL(arrayCardinality(array->store));
         return true;
     } else {
         runtimeError(routineContext, "Expected a string or array.");

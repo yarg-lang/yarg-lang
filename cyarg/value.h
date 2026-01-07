@@ -47,6 +47,14 @@ typedef struct {
     AnyValue as;
 } Value;
 
+#if defined(__LP64__) || defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
+#define IS_64BIT 1
+#define IS_32BIT 0
+#else
+#define IS_64BIT 0
+#define IS_32BIT 1
+#endif
+
 #define IS_BOOL(value)     ((value).type == VAL_BOOL)
 #define IS_NIL(value)      ((value).type == VAL_NIL)
 #define IS_DOUBLE(value)   ((value).type == VAL_DOUBLE)
@@ -87,6 +95,12 @@ typedef struct {
 #define UI64_VAL(a)         ((Value){VAL_UI64, {.ui64 = a}})
 #define ADDRESS_VAL(value)  ((Value){VAL_ADDRESS, { .address = value}})
 #define OBJ_VAL(object)     ((Value){VAL_OBJ, {.obj = (Obj*)object}})
+
+#if IS_64BIT
+#define SIZE_T_UI_VAL(value)   UI64_VAL(value)
+#elif IS_32BIT
+#define SIZE_T_UI_VAL(value)   UI32_VAL(value)
+#endif
 
 bool is_positive_integer(Value a);
 uint32_t as_positive_integer(Value a);
