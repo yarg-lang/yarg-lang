@@ -271,7 +271,7 @@ void printValueStack(ObjRoutine* routine, const char* message) {
     size_t stackSize = routine->stackTopIndex;
     printf("%6s", message);
     printf("%3zu:", stackSize);
-    for (int i = stackSize - 1; i >= 0; i--) {
+    for (int i = (int)(stackSize - 1); i >= 0; i--) {
         ValueCell* slot = peekCell(routine, i);
         printf("[ ");
         printValue(slot->value);

@@ -205,11 +205,11 @@ bool receiveFromRoutine(ObjRoutine* routine, Value* result) {
 ValueCell* frameSlot(ObjRoutine* routine, CallFrame* frame, size_t index) {
     size_t stackElementIndex = frame->stackEntryIndex + index;
 
-    return peekCell(routine, routine->stackTopIndex - (stackElementIndex + 1));
+    return peekCell(routine, (int) (routine->stackTopIndex - (stackElementIndex + 1)));
 }
 
 Value nativeArgument(ObjRoutine* routine, size_t argCount, size_t argument) {
-    return peek(routine, argCount - 1 - argument);
+    return peek(routine, (int)argCount - 1 - (int)argument);
 }
 
 size_t stackOffsetOf(CallFrame* frame, size_t frameIndex) {
@@ -219,7 +219,7 @@ size_t stackOffsetOf(CallFrame* frame, size_t frameIndex) {
 void markRoutine(ObjRoutine* routine) {
 
     size_t stackSize = routine->stackTopIndex;
-    for (int i = stackSize - 1; i >= 0; i--) {
+    for (int i = (int)(stackSize - 1); i >= 0; i--) {
         markValueCell(peekCell(routine, i));
     }
 
