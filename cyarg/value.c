@@ -395,7 +395,7 @@ uint32_t as_positive_integer(Value a) {
     } else if (IS_I16(a)) {
         return AS_I16(a);
     } else if (IS_I64(a) && AS_I64(a) <= UINT32_MAX) {
-        return AS_I64(a);
+        return AS_I32(a);
     } else if (IS_UI32(a)) {
         return AS_UI32(a);
     } else if (IS_UI8(a)) {
@@ -403,7 +403,7 @@ uint32_t as_positive_integer(Value a) {
     } else if (IS_UI16(a)) {
         return AS_UI16(a);
     } else if (IS_UI64(a) && AS_UI64(a) <= UINT32_MAX) {
-        return AS_UI64(a);
+        return AS_UI32(a);
     }
     return 0;
 }
