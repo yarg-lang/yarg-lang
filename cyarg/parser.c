@@ -606,7 +606,7 @@ static ObjExpr* number(bool canAssign) {
     else {
         uint64_t value = strtoNum(number_start, number_len, radix);
         if (value <= UINT32_MAX) {
-            val = newExprNumberUInteger32(value);
+            val = newExprNumberUInteger32((uint32_t)value);
         } else {
             val = newExprNumberUInteger64(value);
         }

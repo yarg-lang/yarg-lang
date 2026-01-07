@@ -590,7 +590,7 @@ bool uint32Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
         *result = UI32_VAL(AS_I32(arg));
         return true;
     } else if (IS_I64(arg) && AS_I64(arg) >= 0 && AS_I64(arg) < UINT32_MAX) {
-        *result = UI32_VAL(AS_I64(arg));
+        *result = UI32_VAL((uint32_t)AS_I64(arg));
         return true;
     } else if (IS_UI8(arg)) {
         *result = UI32_VAL(AS_UI8(arg));
@@ -602,7 +602,7 @@ bool uint32Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
         *result = arg;
         return true;
     } else if (IS_UI64(arg) && AS_UI64(arg) <= UINT32_MAX) {
-        *result = UI32_VAL(AS_UI64(arg));
+        *result = UI32_VAL((uint32_t)AS_UI64(arg));
         return true;
     }
     return false;
@@ -620,7 +620,7 @@ bool int32Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
         *result = arg;
         return true;
     } else if (IS_I64(arg) && AS_I64(arg) >= INT32_MIN && AS_I64(arg) <= INT32_MAX) {
-        *result = I32_VAL(AS_I64(arg));
+        *result = I32_VAL((int32_t)AS_I64(arg));
         return true;
     } else if (IS_UI8(arg)) {
         *result = I32_VAL(AS_UI8(arg));
@@ -632,7 +632,7 @@ bool int32Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
         *result = I32_VAL(AS_UI32(arg));
         return true;
     } else if (IS_UI64(arg) && AS_UI64(arg) <= INT32_MAX) {
-        *result = I32_VAL(AS_UI64(arg));
+        *result = I32_VAL((int32_t)AS_UI64(arg));
         return true;
     } else {
         return false;
