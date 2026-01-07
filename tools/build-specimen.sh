@@ -37,4 +37,3 @@ fi
 ../../bin/hostyarg addfile -fs ../../build/specimen-fs.uf2 -add main.ya
 
 popd > /dev/null
-

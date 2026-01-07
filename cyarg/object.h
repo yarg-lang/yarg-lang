@@ -250,5 +250,4 @@ bool isAddressValue(Value value);
 bool isArrayPointer(Value value);
 bool isStructPointer(Value value);
 
-
 #endif
