@@ -1,0 +1,16 @@
+test_set(@x1, 1);
+test_set(@x2, 2);
+test_write(@x3);
+test_write(@x3, 3);
+test_write(@x4);
+test_read(@x5, 5);
+test_read(0x5);
+test_read(0x5);
+peek(@x1);      // expect: peek(0x1) -> 1
+poke @x3, 3;    // expect: poke 0x00000003, 0x00000003
+poke @x3, 4;    // expect: poke 0x00000003, 0x00000004
+peek(@x5);      // expect: peek(0x5) -> a5a5a5
+poke @x5, 5;    // expect: poke 0x00000005, 0x00000005
+peek(@x5);      // expect: peek(0x5) -> 5
+var res = test_sync(); // expect: Waiting for interrupts to be simulated - done
+print res;      // expect: Type:any[7]:[missing test_read(@x000001);, missing poke/test_set @x000005, missing test_write(@x000005, 5);, 3 unfulfilled expectations:, test_read(@x000005);, test_read(@x000005);, test_write(@x000004);]

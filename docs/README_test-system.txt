@@ -8,7 +8,7 @@ test_write(address, [opt] value) // fails if value
 test_interrupt(number|string)
 array[string] test_sync() // fails if unexpected peek/poke or missing read/write, returns empty if tests pass
 
-So tests in yarg might be:
+So tests in yarg might be: (see yarg/test/test_system/test_interrupts.ya)
 ==============
 test_set(@x1, 1);
 test_set(@x2, 2);
@@ -33,9 +33,10 @@ print res;
 //  poke 0x00000003, 0x00000004
 //  peek(0x5) -> a5a5a5
 //  poke 0x00000005, 0x00000005
+//  peek(0x5) -> 5
 //  Waiting for interrupts to be simulated - done
 //  Type:any[7]:[missing test_read(@x000001);, missing poke/test_set @x000005, missing test_write(@x000005, 5);, 3 unfulfilled expectations:, test_read(@x000005);, test_read(@x000005); test_write(@x000004);]
-==============
+============== (see yarg/tests/test_system/test_handler.ya)
 fun handler1() {print "handle1";}
 var handler_routine1 = make_routine(handler1, true);
 var handler_address1 = pin(handler_routine1);
