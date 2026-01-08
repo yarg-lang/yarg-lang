@@ -7,5 +7,3 @@ bin
 *.vsix
 release
 yarg/specimen/syntax.ya
-xcode-yarg/xcode-yarg.xcodeproj/xcuserdata/
-xcode-yarg/xcode-yarg.xcodeproj/project.xcworkspace/xcuserdata/
