@@ -366,8 +366,8 @@ void printExprBuiltin(ObjExprBuiltin* fn) {
         case EXPR_BUILTIN_UINT64: printf("uint64"); break;
         case EXPR_BUILTIN_TS_SET: printf("test_set"); break;
         case EXPR_BUILTIN_TS_READ: printf("test_read"); break;
-        case EXPR_BUILTIN_TS_WRITE: printf("uint64"); break;
-        case EXPR_BUILTIN_TS_INTERRUPT: printf("test_write"); break;
+        case EXPR_BUILTIN_TS_WRITE: printf("test_write"); break;
+        case EXPR_BUILTIN_TS_INTERRUPT: printf("test_interrupt"); break;
         case EXPR_BUILTIN_TS_SYNC: printf("test_sync"); break;
     }
 }
