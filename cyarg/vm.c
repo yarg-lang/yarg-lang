@@ -129,7 +129,7 @@ void initVM() {
     vm.core0.obj.isMarked = false;
     vm.core0.obj.next = NULL;
     initRoutine(&vm.core0);
-l:
+
     vm.core1 = NULL;
     for (int i = 0; i < MAX_PINNED_ROUTINES; i++) {
         vm.pinnedRoutines[i] = NULL;
