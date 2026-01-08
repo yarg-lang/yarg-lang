@@ -1,15 +1,15 @@
 place uint32 @xd0000000 hardware_register;
-peek(hardware_register);  // expect: peek(0xd0000000)
+peek(hardware_register);  // expect: peek(0xd0000000) -> a5a5a5
 
 place uint32[4] @xe0000000 hardware_registers;
-peek(hardware_registers[0]);  // expect: peek(0xe0000000)
-peek(hardware_registers[1]);  // expect: peek(0xe0000004)
-peek(hardware_registers[2]);  // expect: peek(0xe0000008)
-peek(hardware_registers[3]);  // expect: peek(0xe000000c)
+peek(hardware_registers[0]);  // expect: peek(0xe0000000) -> a5a5a5
+peek(hardware_registers[1]);  // expect: peek(0xe0000004) -> a5a5a5
+peek(hardware_registers[2]);  // expect: peek(0xe0000008) -> a5a5a5
+peek(hardware_registers[3]);  // expect: peek(0xe000000c) -> a5a5a5
 
 place struct { 
     uint32 ctrl;
     uint32 flags;
     } @xc0000000 more_registers;
-peek(more_registers.ctrl);     // expect: peek(0xc0000000)
-peek(more_registers.flags);    // expect: peek(0xc0000004)
+peek(more_registers.ctrl);     // expect: peek(0xc0000000) -> a5a5a5
+peek(more_registers.flags);    // expect: peek(0xc0000004) -> a5a5a5

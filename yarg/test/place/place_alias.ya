@@ -3,21 +3,21 @@ place uint32 {
     @xe0000000 hardware_register2;
     }
 
-peek(hardware_register);  // expect: peek(0xd0000000)
-peek(hardware_register2);  // expect: peek(0xe0000000)
+peek(hardware_register);  // expect: peek(0xd0000000) -> a5a5a5
+peek(hardware_register2);  // expect: peek(0xe0000000) -> a5a5a5
 
 place uint32[4] {
     @xe0000000 hardware_registers;
     @xc0000000 hardware_registers2;
     }
-peek(hardware_registers[0]);  // expect: peek(0xe0000000)
-peek(hardware_registers[1]);  // expect: peek(0xe0000004)
-peek(hardware_registers[2]);  // expect: peek(0xe0000008)
-peek(hardware_registers[3]);  // expect: peek(0xe000000c)
-peek(hardware_registers2[0]);  // expect: peek(0xc0000000)
-peek(hardware_registers2[1]);  // expect: peek(0xc0000004)
-peek(hardware_registers2[2]);  // expect: peek(0xc0000008)
-peek(hardware_registers2[3]);  // expect: peek(0xc000000c)
+peek(hardware_registers[0]);  // expect: peek(0xe0000000) -> a5a5a5
+peek(hardware_registers[1]);  // expect: peek(0xe0000004) -> a5a5a5
+peek(hardware_registers[2]);  // expect: peek(0xe0000008) -> a5a5a5
+peek(hardware_registers[3]);  // expect: peek(0xe000000c) -> a5a5a5
+peek(hardware_registers2[0]);  // expect: peek(0xc0000000) -> a5a5a5
+peek(hardware_registers2[1]);  // expect: peek(0xc0000004) -> a5a5a5
+peek(hardware_registers2[2]);  // expect: peek(0xc0000008) -> a5a5a5
+peek(hardware_registers2[3]);  // expect: peek(0xc000000c) -> a5a5a5
 
 place struct { 
     uint32 ctrl;
@@ -26,7 +26,7 @@ place struct {
         @xc0000000 more_registers;
         @xe0000000 more_registers2;
     }
-peek(more_registers.ctrl);     // expect: peek(0xc0000000)
-peek(more_registers.flags);    // expect: peek(0xc0000004)
-peek(more_registers2.ctrl);     // expect: peek(0xe0000000)
-peek(more_registers2.flags);    // expect: peek(0xe0000004)
+peek(more_registers.ctrl);     // expect: peek(0xc0000000) -> a5a5a5
+peek(more_registers.flags);    // expect: peek(0xc0000004) -> a5a5a5
+peek(more_registers2.ctrl);     // expect: peek(0xe0000000) -> a5a5a5
+peek(more_registers2.flags);    // expect: peek(0xe0000004) -> a5a5a5
