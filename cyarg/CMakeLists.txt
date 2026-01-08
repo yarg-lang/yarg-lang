@@ -101,9 +101,9 @@ target_sources(cyarg
 endif()
 
 if (HOST_TYPE STREQUAL "Interactive")
-#add_compile_definitions(DEBUG_TRACE_EXECUTION)
-#add_compile_definitions(DEBUG_AST_PARSE)
-#add_compile_definitions(DEBUG_STRESS_GC)
+add_compile_definitions(DEBUG_TRACE_EXECUTION)
+add_compile_definitions(DEBUG_AST_PARSE)
+add_compile_definitions(DEBUG_STRESS_GC)
 endif()
 #add_compile_definitions(DEBUG_LOG_GC)
 
@@ -145,5 +145,4 @@ pico_add_extra_outputs(cyarg)
 else()
 # Add the math library for the definition of pow()
 target_link_libraries(cyarg m)
-
 endif()
