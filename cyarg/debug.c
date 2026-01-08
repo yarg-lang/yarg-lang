@@ -77,6 +77,11 @@ static int builtinInstruction(const char* name, Chunk* chunk, int offset) {
         case BUILTIN_UINT32: printf("uint32"); break;
         case BUILTIN_INT64: printf("int64"); break;
         case BUILTIN_UINT64: printf("uint64"); break;
+        case BUILTIN_TS_SET: printf("ts_set"); break;
+        case BUILTIN_TS_READ: printf("ts_read"); break;
+        case BUILTIN_TS_WRITE: printf("ts_write"); break;
+        case BUILTIN_TS_INTERRUPT: printf("ts_interrupt"); break;
+        case BUILTIN_TS_SYNC: printf("ts_sync"); break;
         default: printf("<unknown %4d>", slot); break;
     }
     printf("\n");
