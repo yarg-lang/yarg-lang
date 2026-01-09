@@ -12,26 +12,23 @@ popd
 cp hostyarg/hostyarg bin/
 
 pushd cyarg
-cmake --preset pico .
-cmake --build build/pico
+cmake --preset target-pico .
+cmake --build build/target-pico
 
-cmake --preset pico-debug .
-cmake --build build/pico-debug
-
-cmake --preset pico-interactive-debug .
-cmake --build build/pico-interactive-debug
+cmake --preset target-pico-debug .
+cmake --build build/target-pico-debug
 
 cmake --preset host
 cmake --build build/host
 
-cmake --preset hosttest
-cmake --build build/hosttest
+cmake --preset host-test
+cmake --build build/host-test
 popd
 
-cp cyarg/build/hosttest/cyarg bin/
+cp cyarg/build/host-test/cyarg bin/
 
 mkdir -p build
-cp cyarg/build/pico/cyarg.uf2 build/yarg-lang.uf2
+cp cyarg/build/target-pico/cyarg.uf2 build/yarg-lang.uf2
 
 ./bin/hostyarg format -fs build/yarg-lang.uf2
 
@@ -51,7 +48,7 @@ pushd yarg/specimen
 ../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add apa102.ya
 popd
 
-cp cyarg/build/pico-debug/cyarg.uf2 build/yarg-lang-debug.uf2
+cp cyarg/build/target-pico-debug/cyarg.uf2 build/yarg-lang-debug.uf2
 
 ./bin/hostyarg format -fs build/yarg-lang-debug.uf2
 
