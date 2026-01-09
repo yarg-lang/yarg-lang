@@ -1,0 +1,73 @@
+name: Pico Yarg Target Build and Test on Ubuntu
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Yarg Pico Targets on Ubuntu (gnu ARM toolchain)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '>=1.21'
+
+      - name: Fetch Raspberry Pi Pico SDK dependencies
+        run: |
+          wget https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz
+
+      - name: Install Raspberry Pi Pico SDK dependencies
+        run: |
+          uname -m
+          tar -xJf arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz -C $HOME
+          echo "$HOME/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin" >> $GITHUB_PATH
+
+      - name: Test Raspberry Pi Pico SDK dependencies
+        run: |
+          arm-none-eabi-gcc -v
+
+      - name: Set up Pico SDK
+        run: |
+          cd $HOME
+          git clone --recurse-submodules https://github.com/raspberrypi/pico-sdk.git \
+            --branch 2.2.0 --single-branch --depth 1
+          echo "PICO_SDK_PATH=$HOME/pico-sdk" >> $GITHUB_ENV
+
+      - name: Install picotool
+        run: |
+          cd $HOME
+          git clone https://github.com/raspberrypi/picotool.git \
+            --branch 2.2.0-a4 --single-branch --depth 1
+          cd picotool
+          mkdir build
+          cd build
+          cmake ..
+          cmake --build .
+          sudo cmake --install .
+
+      - name: Run build script
+        run: ./tools/build-target-pico.sh
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: yarg-target-pico-ubuntu-build
+          path: |
+            build/*.uf2
+            bin/hostyarg
+
