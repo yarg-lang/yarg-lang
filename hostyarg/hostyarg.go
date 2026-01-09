@@ -145,7 +145,8 @@ func main() {
 		cmdLs(*fs, *lsDirFS, *lsDirEntry)
 	case "runtests":
 		testRunCmd.Parse(os.Args[2:])
-		cmdRunTests(*testRunInterpreter, *testRunTests)
+		exit_code := cmdRunTests(*testRunInterpreter, *testRunTests)
+		os.Exit(exit_code)
 	default:
 		fmt.Println("unknown command")
 		os.Exit(64)

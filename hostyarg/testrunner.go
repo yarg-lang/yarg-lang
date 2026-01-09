@@ -43,7 +43,7 @@ func interpreterAvailable(interpreter string) (ok bool) {
 	return ok
 }
 
-func cmdRunTests(interpreter string, test string) {
+func cmdRunTests(interpreter string, test string) (exitcode int) {
 
 	test = filepath.Clean(test)
 	interpreter = filepath.Clean(interpreter)
@@ -90,6 +90,8 @@ func cmdRunTests(interpreter string, test string) {
 	fmt.Printf("Interpreter: %v\n", interpreter)
 	fmt.Printf("Tests: %v\n", test)
 	fmt.Printf("Total tests: %v, passed: %v\n", grandtotal, grandpass)
+
+	return grandtotal - grandpass
 }
 
 func testFriendlyName(testfile string) string {
