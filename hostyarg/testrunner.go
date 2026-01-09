@@ -51,12 +51,12 @@ func cmdRunTests(interpreter string, test string) (exitcode int) {
 	isDir, ok := testsAvailable(test)
 	if !ok {
 		fmt.Printf("Could not stat %v, nothing to test\n", test)
-		return
+		return 1
 	}
 	ok = interpreterAvailable(interpreter)
 	if !ok {
 		fmt.Printf("Could not stat %v, no interpreter to run\n", interpreter)
-		return
+		return 1
 	}
 
 	var grandtotal, grandpass int
