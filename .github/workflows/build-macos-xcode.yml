@@ -1,0 +1,51 @@
+name: Build on macOS
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Xcode on macOS
+    runs-on: macos-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '>=1.21'
+    
+      - name: Build hostyarg
+        run: |
+          cd hostyarg
+          go build -o ../bin/hostyarg .
+
+      - name: Build Xcode project
+        run: |
+          cd cyarg
+          cmake --preset xcode-host
+          cmake --build build/xcode-host
+
+      - name: Run test suite
+        run: |
+          ./bin/hostyarg runtests -tests "yarg/test" -interpreter "cyarg/build/xcode-host/Debug/cyarg"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: yarg-lang-macos-build
+          path: |
+            bin/hostyarg
+            cyarg/build/xcode-host/cyarg
