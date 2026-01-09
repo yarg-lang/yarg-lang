@@ -32,10 +32,6 @@ jobs:
           brew install --cask gcc-arm-embedded
           arm-none-eabi-gcc -v
 
-      - name: Install VSCode dependencies
-        run: |
-          brew install vsce
-
       - name: Set up Pico SDK
         run: |
           cd $HOME

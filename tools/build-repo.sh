@@ -69,12 +69,4 @@ popd
 
 ./tools/build-specimen.sh
 
-if which vsce > /dev/null
-then
-    pushd vscode-yarg
-    vsce package || BUILD_ERROR=1
-    mv yarg-lang-$VSCODEEXTENSION_VERSION.vsix ../build/
-    popd
-fi
-
 exit $BUILD_ERROR

@@ -1,0 +1,42 @@
+name: VSCode Extension Build on Ubuntu
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build VSCE on Ubuntu
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+    
+      - name: Install npm
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install VSCode dependencies
+        run: npm install -g @vscode/vsce
+
+      - name: Build VSCode Extension
+        run: |
+          pushd vscode-yarg
+          vsce package
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vscode-ext-ubuntu-build
+          path: vscode-yarg/*.vsix
