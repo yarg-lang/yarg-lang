@@ -27,29 +27,6 @@ jobs:
         with:
           go-version: '>=1.21'
 
-      - name: Install Raspberry Pi Pico SDK dependencies
-        run: |
-          brew install --cask gcc-arm-embedded
-          arm-none-eabi-gcc -v
-
-      - name: Set up Pico SDK
-        run: |
-          cd $HOME
-          git clone --recurse-submodules https://github.com/raspberrypi/pico-sdk.git \
-            --branch 2.2.0
-          echo "PICO_SDK_PATH=$HOME/pico-sdk" >> $GITHUB_ENV
-
-      - name: Install picotool
-        run: |
-          cd $HOME
-          git clone https://github.com/raspberrypi/picotool.git --depth 1
-          cd picotool
-          mkdir build
-          cd build
-          cmake ..
-          make
-          sudo cmake --install .
-
       - name: Run build script
         run: ./tools/build-repo.sh
 
