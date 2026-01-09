@@ -1,4 +1,4 @@
-name: Build on macOS
+name: Yarg Repo Build and Test on macOS
 
 on:
   push:
