@@ -1,17 +1,47 @@
 # Building Yarg
 
-Note that using yarg on a device does not require building it from source. Installing the uf2 on the device, and installing hostyarg is sufficient. Even new board variations will often use an existing binary build of Yarg. Grab a build from [releases][rel], and follow the README instructions within. 
+Note: Using Yarg on a device, and wrting new Yarg for a device does not require building Yarg from source. Yarg usage only requires a binary of hostyarg (currently built by go on your host PC), and an image file for your target board (currently a .uf2 for the Pico). Grab a build from [releases][rel], and follow the README instructions within. 
 
-With that said, some ports will require work with the yarg runtime, and contributing to Yarg itself is also appreciated!
+With that said, contributing to Yarg itself is appreciated!
 
 ## Machine Setup
 
 The host machine requires:
 
-  * A C development toolchain, eg Xcode commandline tools.
-  * The [Raspberry Pi Pico SDK][picosdk] (currently v2.2.0), and it's dependencies (notably picotool).
+  * A C development toolchain, eg Xcode commandline tools, or a GCC based toolchain
+  * The [Raspberry Pi Pico SDK][picosdk] (currently v2.2.0), and it's dependencies (notably picotool), if you want to build for the Pico.
 
-Currently this repo is only tested on Mac OS and the [Raspberry Pi Pico][pico1] (not Pico W or Pico 2).
+## Pico SDK dependency
+
+The build needs to locate the Pico SDK and associated tools when it builds targets for the Pico. You can supply an environment with PICO_SDK_PATH set and picotool fully installed. Alternatively, you can use CMakeUserPresets.json to supply the necessary information. On my machine, I use cyarg\CMakeUserPresets.json with these entries:
+
+```
+{
+    "version": 8,
+    "configurePresets": [
+        {
+            "name": "pico",
+            "displayName": "Local Pico (SDK 2.2.0, 14_2_Rel1 for Pico/RP2040)",
+            "inherits": "target-pico",
+            "cacheVariables": {
+                "PICO_SDK_PATH": "$env{HOME}/.pico-sdk/sdk/2.2.0",
+                "PICO_TOOLCHAIN_PATH": "$env{HOME}/.pico-sdk/toolchain/14_2_Rel1"
+            } 
+        },
+        {
+            "name": "pico-debug",
+            "displayName": "Pico Debug (SDK 2.2.0, 14_2_Rel1 for Pico/RP2040)",
+            "inherits": "target-pico-debug",
+            "cacheVariables": {
+                "PICO_SDK_PATH": "$env{HOME}/.pico-sdk/sdk/2.2.0",
+                "PICO_TOOLCHAIN_PATH": "$env{HOME}/.pico-sdk/toolchain/14_2_Rel1"
+            } 
+        }
+    ]
+}
+```
+
+In my case the Raspberry Pi Pico extension for VSCode manages the dependencies in ~/.pico-sdk for me.
 
 ## First time build:
 
@@ -42,7 +72,7 @@ Will run the Yarg test suite. A sample (good) output looks like:
 % ./test.sh 
 Interpreter: bin/cyarg
 Tests: yarg/test
-Total tests: 1002, passed: 1002
+Total tests: 1044, passed: 1044
 ```
 
 ## Cleanup
