@@ -5,6 +5,8 @@ cyarg can (in theory) be built by any reasonable C toolchain, and Xcode is one s
 If you want to use Xcode, the prerequistes are:
 
   - A Mac, with Xcode installed
+  - CMake installed (eg, brew install cmake)
+  - go installed (eg, brew install go)
   - Xcode selected as a default toolchain on the command line:
 
 ```
@@ -40,3 +42,7 @@ Note that if you have hostyarg successfully built (you should!), then the test s
 ```
 $ ./bin/hostyarg runtests -tests "yarg/test" -interpreter "cyarg/build/xcode-host/Debug/cyarg"
 ```
+
+This behaviour can be captured on the command line with:
+
+$ ./tools/build-xcode.sh

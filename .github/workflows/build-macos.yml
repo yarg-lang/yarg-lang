@@ -55,7 +55,7 @@ jobs:
           sudo cmake --install .
 
       - name: Run build script
-        run: ./build.sh
+        run: ./tools/build-repo.sh
 
       - name: Run test suite
         run: ./test.sh
