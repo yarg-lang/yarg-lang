@@ -8,8 +8,10 @@ With that said, contributing to Yarg itself is appreciated!
 
 The host machine requires:
 
-  * A C development toolchain, eg Xcode commandline tools, or a GCC based toolchain
+  * A C development toolchain, eg Xcode commandline tools, or a GCC based toolchain (gcc must be v14 or higher)
+  * go (golang), for the test harness and target image generation tools (`hostyarg`)
   * The [Raspberry Pi Pico SDK][picosdk] (currently v2.2.0), and it's dependencies (notably picotool), if you want to build for the Pico.
+  * ./tools/setup-ubuntu.sh is a specimen script to configure an Ubuntu 25.10 VM
 
 ## Pico SDK dependency
 

@@ -1,17 +1,14 @@
-name: Pico Yarg Target Build and Test on Ubuntu
+name: Core (inc Pico)
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Build Yarg Pico Targets on Ubuntu (gnu ARM toolchain)
+  build-pico:
+    name: Pico (tools/build-target-pico.sh)
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -25,13 +22,14 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '>=1.21'
+          go-version: '>=1.21.4'
+          cache: false
 
       - name: Fetch Raspberry Pi Pico SDK dependencies
         run: |
           wget https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz
 
-      - name: Install Raspberry Pi Pico SDK dependencies
+      - name: Install x86_64 Raspberry Pi Pico SDK dependencies
         run: |
           uname -m
           tar -xJf arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz -C $HOME
@@ -66,8 +64,62 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: yarg-target-pico-ubuntu-build
+          name: yarg-target-pico-ubuntu
           path: |
             build/*.uf2
             bin/hostyarg
 
+  build-host:
+    name: Host (tools/build-host.sh)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '>=1.21.4'
+          cache: false
+
+      - name: Build hostyarg
+        run: |
+          cd hostyarg
+          go build -o ../bin/hostyarg .
+      
+      - name: Setup GCC
+        run: |
+          gcc --version
+          sudo apt install -y gcc-14 g++-14
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 1
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 1
+          gcc --version
+
+      - name: Build host target
+        run: |
+          cd cyarg
+          cmake --preset host
+          cmake --build build/host
+
+      - name: Build host-test target
+        run: |
+          cd cyarg
+          cmake --preset host-test
+          cmake --build build/host-test
+
+      - name: Run test suite
+        run: ./bin/hostyarg runtests -tests "yarg/test" -interpreter "cyarg/build/host-test/cyarg"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: yarg-host-ubuntu
+          path: |
+            bin/hostyarg
+            cyarg/build/host-test/cyarg
+            cyarg/build/host/cyarg
