@@ -47,7 +47,9 @@ jobs:
       - name: Fetch Raspberry Pi Pico SDK dependencies
         run: |
           if [ ! -d "$HOME/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi" ]; then
-            wget https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz
+            if [ ! -f "arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz" ]; then
+              wget https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz
+            fi
           fi
 
       - name: Install x86_64 Raspberry Pi Pico SDK dependencies
@@ -83,7 +85,7 @@ jobs:
             cmake ..
             cmake --build . --parallel $(nproc)
             sudo cmake --install .
-          else
+          elif [ -d "$HOME/picotool/build" ]; then
             cd $HOME/picotool/build
             sudo cmake --install .
           fi
@@ -124,7 +126,7 @@ jobs:
           path: |
             cyarg/build/host
             cyarg/build/host-test
-          key: cmake-build-${{ runner.os }}-${{ hashFiles('cyarg/**/*.cpp', 'cyarg/**/*.h', 'cyarg/**/CMakeLists.txt') }}
+          key: cmake-build-${{ runner.os }}-${{ hashFiles('cyarg/**/*.cpp', 'cyarg/**/*.h', 'cyarg/**/CMakeLists.txt', 'cyarg/CMakePresets.json') }}
           restore-keys: |
             cmake-build-${{ runner.os }}-
 
