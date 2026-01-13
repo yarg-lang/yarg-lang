@@ -1,0 +1,167 @@
+name: Release (Pico)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-pico:
+    name: Release Pico (tools/build-release.sh)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '>=1.21.4'
+          cache: false
+
+      - name: Cache ARM GNU Toolchain
+        uses: actions/cache@v4
+        with:
+          path: ~/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi
+          key: arm-toolchain-14.2.rel1-x86_64-arm-none-eabi
+
+      - name: Cache Pico SDK
+        uses: actions/cache@v4
+        with:
+          path: ~/pico-sdk
+          key: pico-sdk-2.2.0
+
+      - name: Cache picotool
+        uses: actions/cache@v4
+        with:
+          path: ~/picotool
+          key: picotool-2.2.0-a4
+
+      - name: Fetch Raspberry Pi Pico SDK dependencies
+        run: |
+          if [ ! -d "$HOME/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi" ]; then
+            if [ ! -f "arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz" ]; then
+              wget https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz
+            fi
+          fi
+
+      - name: Install x86_64 Raspberry Pi Pico SDK dependencies
+        run: |
+          uname -m
+          if [ ! -d "$HOME/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi" ]; then
+            tar -xJf arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz -C $HOME
+          fi
+          echo "$HOME/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin" >> $GITHUB_PATH
+
+      - name: Test Raspberry Pi Pico SDK dependencies
+        run: arm-none-eabi-gcc -v
+
+      - name: Set up Pico SDK
+        run: |
+          if [ ! -d "$HOME/pico-sdk" ]; then
+            cd $HOME
+            git clone --recurse-submodules https://github.com/raspberrypi/pico-sdk.git \
+              --branch 2.2.0 --single-branch --depth 1
+          fi
+          echo "PICO_SDK_PATH=$HOME/pico-sdk" >> $GITHUB_ENV
+
+      - name: Fetch picotool
+        run: |
+          if [ ! -d "$HOME/picotool" ]; then
+            cd $HOME
+            git clone https://github.com/raspberrypi/picotool.git \
+              --branch 2.2.0-a4 --single-branch --depth 1
+            cd picotool
+            mkdir build
+            cd build
+            cmake ..
+            cmake --build . --parallel $(nproc)
+          fi
+
+      - name: Install picotool
+        run: |
+          cd $HOME/picotool/build
+          sudo cmake --install .
+
+      - name: Install npm
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install VSCode dependencies
+        run: npm install -g @vscode/vsce
+
+      - name: Build VSCode Extension
+        run: |
+          pushd vscode-yarg
+          vsce package
+          mkdir ../build
+          cp *.vsix ../build/
+
+      - name: Run build script
+        run: ./tools/build-target-pico.sh
+      
+      - name: Run Release script
+        run: ./tools/build-release.sh
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: yarg-release-pico
+          path: |
+            release/*.tgz
+  
+  build-conway:
+    name: Build Conway with Release (tools/build-conway.sh)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    needs: build-pico
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '>=1.21.4'
+          cache: false
+    
+      - name: Build hostyarg
+        run: |
+          cd hostyarg
+          go build -o ../bin/hostyarg .
+
+      - name:  Download release artifact
+        uses: actions/download-artifact@v5
+        with:
+          name:  yarg-release-pico
+          path: build
+
+      - name: Assemble release for Conway
+        run: |
+          tar xvzf ${GITHUB_WORKSPACE}/build/*.tgz -C ${GITHUB_WORKSPACE}/build/
+          cp ${GITHUB_WORKSPACE}/build/yarg-lang-pico-*.tgz ${GITHUB_WORKSPACE}/build/yarg-lang.uf2
+
+      - name: Run Conway build script
+        run: ./tools/build-conway.sh
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: conway-release
+          path: build/conway.uf2
