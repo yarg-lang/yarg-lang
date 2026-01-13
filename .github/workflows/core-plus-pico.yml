@@ -24,13 +24,13 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '>=1.21.4'
-          cache: true
+          cache: false
 
       - name: Cache ARM GNU Toolchain
         uses: actions/cache@v4
         with:
           path: ~/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi
-          key: arm-toolchain-14.2.rel1
+          key: arm-toolchain-14.2.rel1-x86_64-arm-none-eabi
 
       - name: Cache Pico SDK
         uses: actions/cache@v4
@@ -54,15 +54,14 @@ jobs:
 
       - name: Install x86_64 Raspberry Pi Pico SDK dependencies
         run: |
+          uname -m
           if [ ! -d "$HOME/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi" ]; then
-            uname -m
             tar -xJf arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz -C $HOME
           fi
           echo "$HOME/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin" >> $GITHUB_PATH
 
       - name: Test Raspberry Pi Pico SDK dependencies
-        run: |
-          arm-none-eabi-gcc -v
+        run: arm-none-eabi-gcc -v
 
       - name: Set up Pico SDK
         run: |
@@ -73,7 +72,7 @@ jobs:
           fi
           echo "PICO_SDK_PATH=$HOME/pico-sdk" >> $GITHUB_ENV
 
-      - name: Install picotool
+      - name: Fetch picotool
         run: |
           if [ ! -d "$HOME/picotool" ]; then
             cd $HOME
@@ -84,11 +83,12 @@ jobs:
             cd build
             cmake ..
             cmake --build . --parallel $(nproc)
-            sudo cmake --install .
-          elif [ -d "$HOME/picotool/build" ]; then
-            cd $HOME/picotool/build
-            sudo cmake --install .
           fi
+
+      - name: Install picotool
+        run: |
+          cd $HOME/picotool/build
+          sudo cmake --install .
 
       - name: Run build script
         run: ./tools/build-target-pico.sh
@@ -118,17 +118,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '>=1.21.4'
-          cache: true
-
-      - name: Cache CMake builds
-        uses: actions/cache@v4
-        with:
-          path: |
-            cyarg/build/host
-            cyarg/build/host-test
-          key: cmake-build-${{ runner.os }}-${{ hashFiles('cyarg/**/*.cpp', 'cyarg/**/*.h', 'cyarg/**/CMakeLists.txt', 'cyarg/CMakePresets.json') }}
-          restore-keys: |
-            cmake-build-${{ runner.os }}-
+          cache: false
 
       - name: Build hostyarg
         run: |
