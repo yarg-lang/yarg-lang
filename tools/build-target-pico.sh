@@ -17,40 +17,12 @@ mkdir -p build
 cp cyarg/build/target-pico/cyarg.uf2 build/yarg-lang.uf2 || BUILD_ERROR=1
 
 ./bin/hostyarg format -fs build/yarg-lang.uf2
-
-pushd yarg/specimen
-../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add machine.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add gpio.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add irq.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add timer.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add uart.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add reset.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add clock.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add rosc.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add pio.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add pio-instructions.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add dma.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add ws2812.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang.uf2 -add apa102.ya
-popd
+./tools/add-yarg-stdlib.sh build/yarg-lang.uf2
 
 cp cyarg/build/target-pico-debug/cyarg.uf2 build/yarg-lang-debug.uf2 || BUILD_ERROR=1
 
 ./bin/hostyarg format -fs build/yarg-lang-debug.uf2
-
-pushd yarg/specimen
-../../bin/hostyarg addfile -fs ../../build/yarg-lang-debug.uf2 -add machine.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang-debug.uf2 -add gpio.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang-debug.uf2 -add irq.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang-debug.uf2 -add timer.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang-debug.uf2 -add uart.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang-debug.uf2 -add reset.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang-debug.uf2 -add clock.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang-debug.uf2 -add pio.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang-debug.uf2 -add pio-instructions.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang-debug.uf2 -add dma.ya
-../../bin/hostyarg addfile -fs ../../build/yarg-lang-debug.uf2 -add ws2812.ya
-popd
+./tools/add-yarg-stdlib.sh build/yarg-lang-debug.uf2
 
 ./tools/build-specimen.sh
 

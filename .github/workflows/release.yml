@@ -107,12 +107,23 @@ jobs:
           vsce package
           mkdir ../build
           cp *.vsix ../build/
-
-      - name: Run build script
-        run: ./tools/build-target-pico.sh
       
-      - name: Run Release script
-        run: ./tools/build-release.sh
+      - name: Build hostyarg
+        run: |
+          cd hostyarg
+          go build -o ../bin/hostyarg .
+
+      - name: Build target pico
+        run: |
+          cd cyarg
+          cmake --preset target-pico
+          cmake --build build/target-pico --parallel $(nproc)
+      
+      - name: Build release images
+        run: ./tools/build-release-images.sh
+
+      - name: Build release tarball
+        run: ./tools/build-release-tarball.sh
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

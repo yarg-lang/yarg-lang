@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RELEASE_VERSION=0.3.0
+RELEASE_VERSION=$(git describe --tags --dirty=M --always)
 VSCODEEXTENSION_VERSION=0.3.0
 TARGETUF2=build/yarg-lang-pico-$RELEASE_VERSION.uf2
 
@@ -19,39 +19,20 @@ then
     rm -Rf build/release
 fi
 
-mkdir build/release
-mkdir build/release/extras
+mkdir -p build/release
+mkdir -p build/release/extras
 
-cp build/yarg-lang.uf2 $TARGETUF2
-
-
-
-pushd yarg/specimen
-../../bin/hostyarg addfile -fs ../../$TARGETUF2 -add hello_led.ya
-../../bin/hostyarg addfile -fs ../../$TARGETUF2 -add hello_button.ya
-../../bin/hostyarg addfile -fs ../../$TARGETUF2 -add alarm.ya
-../../bin/hostyarg addfile -fs ../../$TARGETUF2 -add blinky.ya
-../../bin/hostyarg addfile -fs ../../$TARGETUF2 -add button.ya
-../../bin/hostyarg addfile -fs ../../$TARGETUF2 -add button_flash.ya
-../../bin/hostyarg addfile -fs ../../$TARGETUF2 -add cheese.ya
-../../bin/hostyarg addfile -fs ../../$TARGETUF2 -add coroutine-flash.ya
-../../bin/hostyarg addfile -fs ../../$TARGETUF2 -add multicore-flash.ya
-../../bin/hostyarg addfile -fs ../../$TARGETUF2 -add scone.ya
-../../bin/hostyarg addfile -fs ../../$TARGETUF2 -add serial-echo.ya
-../../bin/hostyarg addfile -fs ../../$TARGETUF2 -add serial-input.ya
-../../bin/hostyarg addfile -fs ../../$TARGETUF2 -add timed-flash.ya
-../../bin/hostyarg addfile -fs ../../$TARGETUF2 -add ws2812.ya
+pushd hostyarg
+go build -o ../bin/hostyarg .
 popd
 
-if [ ! -e release ]
-then
-    mkdir release
-fi
-
-cp $TARGETUF2 build/release
-cp docs/release_README build/release/README
-cp build/yarg-lang-$VSCODEEXTENSION_VERSION.vsix build/release/extras/
-
-pushd build/release
-tar -cvzf ../../release/yarg-lang-pico-$RELEASE_VERSION.tgz .
+pushd cyarg
+cmake --preset target-pico . || BUILD_ERROR=1
+cmake --build build/target-pico || BUILD_ERROR=1
 popd
+
+./tools/build-vscode-yarg.sh || BUILD_ERROR=1
+./tools/build-release-images.sh || BUILD_ERROR=1
+./tools/build-release-tarball.sh || BUILD_ERROR=1
+
+exit $BUILD_ERROR
