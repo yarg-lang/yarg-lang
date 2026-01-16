@@ -9,7 +9,7 @@
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
                 "YARG_FEATURE_INTERACTIVE_TRACE": "TRUE",
-                "CYARG_FEATURE_SIMULATE_IO_INTERRUPTS": "TRUE",
+                "CYARG_FEATURE_TEST_SYSTEM": "TRUE",
                 "CYARG_FEATURE_FILESYSTEM": "CSTDLIB",
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_TOOLCHAIN_FILE": ""
@@ -23,7 +23,7 @@
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
-                "CYARG_FEATURE_SIMULATE_IO_INTERRUPTS": "TRUE",
+                "CYARG_FEATURE_TEST_SYSTEM": "TRUE",
                 "CYARG_FEATURE_FILESYSTEM": "CSTDLIB",
                 "CMAKE_TOOLCHAIN_FILE": ""
             }
@@ -35,7 +35,7 @@
             "generator": "Xcode",
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
-                "CYARG_FEATURE_SIMULATE_IO_INTERRUPTS": "TRUE",
+                "CYARG_FEATURE_TEST_SYSTEM": "TRUE",
                 "CYARG_FEATURE_FILESYSTEM": "CSTDLIB",
                 "CMAKE_TOOLCHAIN_FILE": ""
             },

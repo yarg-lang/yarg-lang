@@ -98,7 +98,7 @@ target_sources(cyarg
       fs/fs_stdlib.c)
 endif()
 
-if (CYARG_FEATURE_SIMULATE_IO_INTERRUPTS)
+if (CYARG_FEATURE_TEST_SYSTEM)
 target_sources(cyarg
     PRIVATE
       test-system/testBuiltin.h
@@ -108,7 +108,7 @@ target_sources(cyarg
       test-system/testIntrinsics.hpp
       )
 
-add_compile_definitions(CYARG_FEATURE_SIMULATE_IO_INTERRUPTS)
+add_compile_definitions(CYARG_FEATURE_TEST_SYSTEM)
 endif()
 
 if (YARG_FEATURE_INTERACTIVE_TRACE)

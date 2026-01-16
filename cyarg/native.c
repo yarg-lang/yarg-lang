@@ -14,7 +14,7 @@
 #include <hardware/clocks.h>
 #endif
 
-#ifdef CYARG_FEATURE_SIMULATE_IO_INTERRUPTS
+#ifdef CYARG_FEATURE_TEST_SYSTEM
 #include "test-system/testSystem.h"
 #endif
 
@@ -43,7 +43,7 @@ bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* resu
 
 #if defined(CYARG_PICO_TARGET)
     irq_add_shared_handler(num, (irq_handler_t) isrRoutine, prio);
-#elif defined(CYARG_FEATURE_SIMULATE_IO_INTERRUPTS)
+#elif defined(CYARG_FEATURE_TEST_SYSTEM)
     tsAddInterruptHandler(num, (void *) isrRoutine);
 #endif
 
@@ -69,7 +69,7 @@ bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, Value* result) 
 
 #if defined(CYARG_PICO_TARGET)
     irq_remove_handler(num, (irq_handler_t) isrRoutine);
-#elif defined(CYARG_FEATURE_SIMULATE_IO_INTERRUPTS)
+#elif defined(CYARG_FEATURE_TEST_SYSTEM)
     tsRemoveInterruptHandler(num, (void *) isrRoutine);
 #endif
 
