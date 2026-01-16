@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#ifdef CYARG_PICO_TARGET
+#ifdef CYARG_PICO_STDLIB
 
 #define PRINTERR(...) printf(__VA_ARGS__)
 #define FPRINTMSG(STREAM_, ...) printf(__VA_ARGS__)

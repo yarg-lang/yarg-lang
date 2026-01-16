@@ -114,6 +114,7 @@ if (PICO_BOARD)
 set(PICO_USE_FASTEST_SUPPORTED_CLOCK 1)
 
 add_compile_definitions(CYARG_PICO_TARGET)
+add_compile_definitions(CYARG_PICO_STDLIB)
 add_compile_definitions(PICO_STACK_SIZE=0x1000)
 endif()
 
