@@ -9,7 +9,6 @@
 #include "vm.h"
 
 #ifdef CYARG_PICO_TARGET
-#include <hardware/gpio.h>
 #include <hardware/irq.h>
 #include <hardware/clocks.h>
 #endif
