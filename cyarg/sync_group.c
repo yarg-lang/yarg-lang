@@ -1,9 +1,4 @@
 #include <stdio.h>
-#ifdef CYARG_PICO_TARGET
-#include <pico/sync.h>
-#else
-#include <pthread.h>
-#endif
 
 #include "sync_group.h"
 
@@ -17,11 +12,7 @@
 
 typedef struct ObjSyncGroup {
     Obj obj;
-#ifdef CYARG_PICO_TARGET
-    critical_section_t group_lock;
-#else
-    pthread_mutex_t group_lock;
-#endif
+    platform_critical_section group_lock;
     ObjPackedUniformArray* channel_array;
     ObjPackedUniformArray* result_array;
 } ObjSyncGroup;
@@ -29,15 +20,7 @@ typedef struct ObjSyncGroup {
 ObjSyncGroup* newSyncGroup(ObjRoutine* routine, ObjPackedUniformArray* items) {
     ObjSyncGroup* group = ALLOCATE_OBJ(ObjSyncGroup, OBJ_SYNCGROUP);
     push(routine, OBJ_VAL(group));
-#ifdef CYARG_PICO_TARGET
-    critical_section_init(&group->group_lock);
-#else
-    pthread_mutexattr_t attr;
-    pthread_mutexattr_init(&attr);
-    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-    pthread_mutex_init(&group->group_lock, &attr);
-    pthread_mutexattr_destroy(&attr);
-#endif
+    platform_critical_section_init(&group->group_lock);
     group->channel_array = items;
     ObjConcreteYargTypeArray* t = (ObjConcreteYargTypeArray*)newYargArrayTypeFromType(NIL_VAL);
     push(routine, OBJ_VAL(t));
@@ -50,12 +33,7 @@ ObjSyncGroup* newSyncGroup(ObjRoutine* routine, ObjPackedUniformArray* items) {
 
 void freeSyncGroup(Obj* obj) {
     ObjSyncGroup* group = (ObjSyncGroup*)obj;
-
-#ifdef CYARG_PICO_TARGET
-    critical_section_deinit(&group->group_lock);
-#else
-    pthread_mutex_destroy(&group->group_lock);
-#endif
+    platform_critical_section_deinit(&group->group_lock);
     FREE(ObjSyncGroup, obj);
 }
 
@@ -77,9 +55,7 @@ Value receiveSyncGroup(ObjSyncGroup* group) {
     bool wait_complete = false;
     while (!wait_complete && num_channels > 0) {
         wait_complete = false;
-#ifdef CYARG_PICO_TARGET
-        critical_section_enter_blocking(&group->group_lock);
-#endif
+        platform_critical_section_enter_blocking(&group->group_lock);
         for (size_t i = 0; i < num_channels; i++) {
             PackedValue channel_cursor = arrayElement(group->channel_array->store, i);
             Value channelVal = unpackValue(channel_cursor);
@@ -94,19 +70,11 @@ Value receiveSyncGroup(ObjSyncGroup* group) {
             PackedValue trg = arrayElement(group->result_array->store, i);
             assignToPackedValue(trg, data);
         }
-#ifdef CYARG_PICO_TARGET
-        critical_section_exit(&group->group_lock);
-#endif
+        platform_critical_section_exit(&group->group_lock);
     }
     return OBJ_VAL(group->result_array);
 }
 
-#ifdef CYARG_PICO_TARGET
-critical_section_t* getSyncGroupLock(ObjSyncGroup* group) {
+platform_critical_section* getSyncGroupLock(ObjSyncGroup* group) {
     return &group->group_lock;
 }
-#else
-pthread_mutex_t* getSyncGroupLock(ObjSyncGroup* group) {
-    return &group->group_lock;
-}
-#endif

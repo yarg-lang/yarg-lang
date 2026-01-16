@@ -53,3 +53,48 @@ void platform_mutex_leave(platform_mutex* mutex) {
     #error "No platform mutex implementation defined."
 #endif
 }
+
+void platform_critical_section_init(platform_critical_section* cs) {
+#if defined(CYARG_PICO_SDK_SYNC)
+    critical_section_init(cs);
+#elif defined(CYARG_PTHREADS_SYNC)
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(cs, &attr);
+    pthread_mutexattr_destroy(&attr);
+#else
+    #error "No platform critical section implementation defined."
+#endif
+}
+
+void platform_critical_section_deinit(platform_critical_section* cs) {
+#if defined(CYARG_PICO_SDK_SYNC)
+    critical_section_deinit(cs);
+#elif defined(CYARG_PTHREADS_SYNC)
+    pthread_mutex_destroy(cs);
+#else
+    #error "No platform critical section implementation defined."
+#endif
+}
+
+void platform_critical_section_enter_blocking(platform_critical_section* cs) {
+#if defined(CYARG_PICO_SDK_SYNC)
+    critical_section_enter_blocking(cs);
+#elif defined(CYARG_PTHREADS_SYNC)
+    // currently using nop pthread mutex for critical section
+#else
+    #error "No platform critical section implementation defined."
+#endif
+
+}
+
+void platform_critical_section_exit(platform_critical_section* cs) {
+#if defined(CYARG_PICO_SDK_SYNC)
+    critical_section_exit(cs);
+#elif defined(CYARG_PTHREADS_SYNC)
+    // currently using nop pthread mutex for critical section
+#else
+    #error "No platform critical section implementation defined."
+#endif
+}
