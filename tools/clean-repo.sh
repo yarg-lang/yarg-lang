@@ -4,6 +4,7 @@ if [ -d bin ]
 then
     rm -R bin
 fi
+
 if [ -d build ]
 then
     rm -R build
@@ -22,4 +23,9 @@ fi
 if [ -d cyarg/build ]
 then
     rm -R cyarg/build
+fi
+
+if [ -d release ]
+then
+    rm -R release
 fi
