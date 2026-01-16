@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
@@ -128,6 +125,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
+          if-no-files-found: error
           name: yarg-release-pico
           path: |
             release/*.tgz
@@ -166,7 +164,7 @@ jobs:
       - name: Assemble release for Conway
         run: |
           tar xvzf ${GITHUB_WORKSPACE}/build/*.tgz -C ${GITHUB_WORKSPACE}/build/
-          cp ${GITHUB_WORKSPACE}/build/yarg-lang-pico-*.tgz ${GITHUB_WORKSPACE}/build/yarg-lang.uf2
+          cp ${GITHUB_WORKSPACE}/build/yarg-lang-pico-*.uf2 ${GITHUB_WORKSPACE}/build/yarg-lang.uf2
 
       - name: Run Conway build script
         run: ./tools/build-conway.sh
@@ -174,5 +172,6 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
+          if-no-files-found: error
           name: conway-release
           path: build/conway.uf2
