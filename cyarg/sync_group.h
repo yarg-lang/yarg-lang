@@ -8,7 +8,7 @@
 #ifdef CYARG_PICO_TARGET
 #include <pico/sync.h>
 #else
-#include <semaphore.h>
+#include <pthread.h>
 #endif
 
 typedef struct ObjSyncGroup ObjSyncGroup;
