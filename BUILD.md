@@ -106,6 +106,11 @@ All of the offered tests must pass for the PR to be tested before merge.
 
 Releases are made from pushes to main, which is a repeat of some of the CI tests, but only those parts needed for a release tarball to be created. Again, `tools/build-release.sh` is a local equaivalent.
 
+### Locally building as much of the repo as the CI does
+
+use `tools/build-repo.sh` to build as many targets as your environment supports. It is assumed hosts will always build. if this script runs cleanly, so should both CI suites. Requires MacOS to target Xcode.
+
+
 [rel]: https://github.com/jhmcaleely/yarg-lang/releases
 [picosdk]: https://www.raspberrypi.com/documentation/microcontrollers/c_sdk.html
 [pico1]: https://datasheets.raspberrypi.com/pico/pico-product-brief.pdf
