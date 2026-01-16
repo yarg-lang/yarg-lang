@@ -49,7 +49,8 @@ In my case the Raspberry Pi Pico extension for VSCode manages the dependencies i
 
 ```
 $ git clone --recurse-submodules git@github.com:jhmcaleely/yarg-lang.git
-$ ./build.sh
+$ ./tools/build-host.sh
+$ ./tools/build-target-pico.sh
 ```
 
 or, if you've already cloned the repo:
@@ -57,21 +58,24 @@ or, if you've already cloned the repo:
 ```
 $ cd yarg-lang
 $ git submodule update --init --recursive
-$ ./build.sh
+$ ./tools/build-host.sh
+$ ./tools/build-target-pico.sh
 ```
 
 This produces uf2 files and host binaries in bin/ and build/
+
+if you don't want a pico target (then skip ./tools/build-target-pico.sh)
 
 ## Testing
 
 The script:
 
-`$ ./test.sh`
+`$ ./tools/test.sh`
 
 Will run the Yarg test suite. A sample (good) output looks like:
 
 ```
-% ./test.sh 
+% ./tools/test.sh 
 Interpreter: bin/cyarg
 Tests: yarg/test
 Total tests: 1044, passed: 1044
@@ -81,7 +85,16 @@ Total tests: 1044, passed: 1044
 
 To clear all build atrefacts from the source tree:
 
-`$ ./clean.sh`
+`$ ./tools/clean-repo.sh`
+
+## CI Builds
+
+When you push to the upstream yarg-lang repo, the CI will run a suite of tests on your code, which all have
+shell scripts in their name. These scripts will do the local equivalent, if you call them from a shell on host.
+
+All of the offered tests must pass for the PR to be tested before merge.
+
+Releases are made from pushes to main, which is a repeat of some of the CI tests, but only those parts needed for a release tarball to be created. Again, `tools/build-release.sh` is a local equaivalent.
 
 [rel]: https://github.com/jhmcaleely/yarg-lang/releases
 [picosdk]: https://www.raspberrypi.com/documentation/microcontrollers/c_sdk.html
