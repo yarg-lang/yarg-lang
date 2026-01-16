@@ -91,13 +91,20 @@ target_sources(cyarg
 else()
 target_sources(cyarg
     PRIVATE
-      files_stdlib.c
+      files_stdlib.c)
+endif()
+
+if (CYARG_FEATURE_SIMULATE_IO_INTERRUPTS)
+target_sources(cyarg
+    PRIVATE
       test-system/testBuiltin.h
       test-system/testBuiltin.cpp
       test-system/testSystem.h
       test-system/testSystem.cpp
       test-system/testIntrinsics.hpp
       )
+
+add_compile_definitions(CYARG_FEATURE_SIMULATE_IO_INTERRUPTS)
 endif()
 
 if (YARG_FEATURE_INTERACTIVE_TRACE)

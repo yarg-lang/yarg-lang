@@ -15,7 +15,7 @@
 #include "yargtype.h"
 #include "sync_group.h"
 
-#ifndef CYARG_PICO_TARGET
+#ifdef CYARG_FEATURE_SIMULATE_IO_INTERRUPTS
 #include "test-system/testSystem.h"
 #include "test-system/testBuiltin.h"
 #endif
@@ -410,11 +410,11 @@ bool peekBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         nominal_address = AS_ADDRESS(address);
     }
 
-#ifdef CYARG_PICO_TARGET
+#if defined(CYARG_PICO_TARGET)
     volatile uint32_t* reg = (volatile uint32_t*) nominal_address;
     uint32_t res = *reg;
     *result = UI32_VAL(res);
-#else
+#elif defined(CYARG_FEATURE_SIMULATE_IO_INTERRUPTS)
     *result = UI32_VAL(tsRead((uint32_t)nominal_address));
     printf("peek(%p) -> %x\n", (void*)nominal_address, AS_UI32(*result));
 #endif
@@ -795,7 +795,7 @@ Value getBuiltin(uint8_t builtin) {
         case BUILTIN_UINT32: return OBJ_VAL(newNative(uint32Builtin));
         case BUILTIN_INT64: return OBJ_VAL(newNative(int64Builtin));
         case BUILTIN_UINT64: return OBJ_VAL(newNative(uint64Builtin));
-#ifdef CYARG_PICO_TARGET
+#ifndef CYARG_FEATURE_SIMULATE_IO_INTERRUPTS
         default: return NIL_VAL;
 #else
         default: return getTestSystemBuiltin(builtin);

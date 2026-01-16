@@ -12,7 +12,9 @@
 #include <hardware/gpio.h>
 #include <hardware/irq.h>
 #include <hardware/clocks.h>
-#else
+#endif
+
+#ifdef CYARG_FEATURE_SIMULATE_IO_INTERRUPTS
 #include "test-system/testSystem.h"
 #endif
 
@@ -39,9 +41,9 @@ bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* resu
     uintptr_t isrRoutine = AS_ADDRESS(address);
     unsigned int prio = as_positive_integer(prioVal);
 
-#ifdef CYARG_PICO_TARGET
+#if defined(CYARG_PICO_TARGET)
     irq_add_shared_handler(num, (irq_handler_t) isrRoutine, prio);
-#else
+#elif defined(CYARG_FEATURE_SIMULATE_IO_INTERRUPTS)
     tsAddInterruptHandler(num, (void *) isrRoutine);
 #endif
 
@@ -65,9 +67,9 @@ bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, Value* result) 
     unsigned int num = as_positive_integer(numVal);
     uintptr_t isrRoutine = AS_ADDRESS(address);
 
-#ifdef CYARG_PICO_TARGET
+#if defined(CYARG_PICO_TARGET)
     irq_remove_handler(num, (irq_handler_t) isrRoutine);
-#else
+#elif defined(CYARG_FEATURE_SIMULATE_IO_INTERRUPTS)
     tsRemoveInterruptHandler(num, (void *) isrRoutine);
 #endif
 

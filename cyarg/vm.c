@@ -4,7 +4,9 @@
 #include <string.h>
 #ifdef CYARG_PICO_TARGET
 #include <pico/multicore.h>
-#else
+#endif
+
+#ifdef CYARG_FEATURE_SIMULATE_IO_INTERRUPTS
 #include "test-system/testSystem.h"
 #endif
 
@@ -1044,9 +1046,9 @@ InterpretResult run(ObjRoutine* routine) {
                 }
 
 
-#ifdef CYARG_PICO_TARGET
+#if defined(CYARG_PICO_TARGET)
                 *reg = val;
-#else
+#elif defined(CYARG_FEATURE_SIMULATE_IO_INTERRUPTS)
                 tsWrite((uint32_t)nominal_address, val);
                 printf("poke 0x%08lx, 0x%08x\n", nominal_address, val);
 #endif
