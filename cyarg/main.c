@@ -61,7 +61,7 @@ static void disassembleFile(const char* path) {
     }
 }
 
-#ifdef CYARG_PICO_TARGET
+#if defined(CYARG_FEATURE_SELF_HOSTED_REPL)
 int main() {
     plaform_hal_init();
 
@@ -73,7 +73,7 @@ int main() {
     freeVM();
     return 0;
 }
-#else
+#elif defined(CYARG_FEATURE_HOSTED_REPL)
 int main(int argc, const char* argv[]) {
     plaform_hal_init();
     initVM();
