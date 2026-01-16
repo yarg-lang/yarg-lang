@@ -1037,9 +1037,9 @@ InterpretResult run(ObjRoutine* routine) {
                 if (is_positive_integer(assignment)) {
                     val = as_positive_integer(assignment);
                 } else if (is_stored_type(assignment_type)) {
-#ifdef CYARG_PICO_TARGET
+#if IS_32BIT
                     val = (uintptr_t)storedAddressof(assignment);
-#else
+#elif IS_64BIT
                     // this is a bug on a 64bit addressed image.
                     val = (uint32_t)(uintptr_t)storedAddressof(assignment);
 #endif
