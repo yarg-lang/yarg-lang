@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "files.h"
-#include "print.h"
+#include "fs.h"
+#include "../print.h"
 
 char* readFile(const char* path) {
     FILE* file = fopen(path, "rb");

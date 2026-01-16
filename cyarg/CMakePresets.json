@@ -10,6 +10,7 @@
             "cacheVariables": {
                 "YARG_FEATURE_INTERACTIVE_TRACE": "TRUE",
                 "CYARG_FEATURE_SIMULATE_IO_INTERRUPTS": "TRUE",
+                "CYARG_FEATURE_FILESYSTEM": "CSTDLIB",
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_TOOLCHAIN_FILE": ""
             }
@@ -23,6 +24,7 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CYARG_FEATURE_SIMULATE_IO_INTERRUPTS": "TRUE",
+                "CYARG_FEATURE_FILESYSTEM": "CSTDLIB",
                 "CMAKE_TOOLCHAIN_FILE": ""
             }
         },
@@ -34,6 +36,7 @@
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
                 "CYARG_FEATURE_SIMULATE_IO_INTERRUPTS": "TRUE",
+                "CYARG_FEATURE_FILESYSTEM": "CSTDLIB",
                 "CMAKE_TOOLCHAIN_FILE": ""
             },
             "condition": {
@@ -49,7 +52,8 @@
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
                 "PICO_BOARD": "pico",
-                "CMAKE_BUILD_TYPE": "Release"
+                "CMAKE_BUILD_TYPE": "Release",
+                "CYARG_FEATURE_FILESYSTEM": "LITTLEFS"
             } 
         },
         {
@@ -59,7 +63,8 @@
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
                 "PICO_BOARD": "pico",
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CYARG_FEATURE_FILESYSTEM": "LITTLEFS"
             } 
         }
     ]

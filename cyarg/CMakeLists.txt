@@ -76,22 +76,26 @@ add_executable(cyarg
     platform_hal.c
     sync_group.h
     sync_group.c
-    files.h
+    fs/fs.h
     )
 
+if (CYARG_FEATURE_FILESYSTEM STREQUAL "LITTLEFS")
+target_sources(cyarg
+    PRIVATE
+      fs/fs_littlefs.c
+      ../hostyarg/littlefs/lfs.c
+      ../hostyarg/littlefs/lfs_util.c)
 if (PICO_BOARD)
 target_sources(cyarg
     PRIVATE
-      pico_flash_fs.h
-      files_littlefs.c
-      pico_lfs_hal.h
-      pico_lfs_hal.c
-        ../hostyarg/littlefs/lfs.c
-        ../hostyarg/littlefs/lfs_util.c)
-else()
+      fs/pico_flash_fs.h
+      fs/pico_lfs_hal.h
+      fs/pico_lfs_hal.c)
+endif()
+elseif(CYARG_FEATURE_FILESYSTEM STREQUAL "CSTDLIB")
 target_sources(cyarg
     PRIVATE
-      files_stdlib.c)
+      fs/fs_stdlib.c)
 endif()
 
 if (CYARG_FEATURE_SIMULATE_IO_INTERRUPTS)

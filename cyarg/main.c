@@ -8,7 +8,7 @@
 #include "chunk.h"
 #include "debug.h"
 #include "vm.h"
-#include "files.h"
+#include "fs/fs.h"
 #include "compiler.h"
 
 const char* defaultScript = "main.ya";

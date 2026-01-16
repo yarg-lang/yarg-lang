@@ -9,7 +9,7 @@
 #include "routine.h"
 #include "vm.h"
 #include "debug.h"
-#include "files.h"
+#include "fs/fs.h"
 #include "compiler.h"
 #include "channel.h"
 #include "yargtype.h"

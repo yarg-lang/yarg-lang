@@ -1,7 +1,7 @@
-#include "../hostyarg/littlefs/lfs.h"
+#include "../../hostyarg/littlefs/lfs.h"
 #include "pico_lfs_hal.h"
 #include "pico_flash_fs.h"
-#include "print.h"
+#include "../print.h"
 
 static struct lfs_config cfg = {
     .read = pico_read_flash_block,

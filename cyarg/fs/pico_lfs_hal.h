@@ -1,7 +1,7 @@
 #ifndef pico_lfs_hal_h
 #define pico_lfs_hal_h
 
-#include "../hostyarg/littlefs/lfs.h"
+#include "../../hostyarg/littlefs/lfs.h"
 
 // block device functions required for littlefs
 int pico_read_flash_block(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size);
