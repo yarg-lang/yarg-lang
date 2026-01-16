@@ -3,11 +3,10 @@
 
 void plaform_hal_init();
 
-#ifdef CYARG_PICO_TARGET
+#if defined(CYARG_PICO_SDK_SYNC)
 #include <pico/sync.h>
-
 typedef recursive_mutex_t platform_mutex;
-#else
+#elif defined(CYARG_PTHREADS_SYNC)
 #include <pthread.h>
 typedef pthread_mutex_t platform_mutex;
 #endif
