@@ -100,12 +100,15 @@ target_sources(cyarg
       )
 endif()
 
-if (HOST_TYPE STREQUAL "Interactive")
+if (YARG_FEATURE_INTERACTIVE_TRACE)
 add_compile_definitions(DEBUG_TRACE_EXECUTION)
 add_compile_definitions(DEBUG_AST_PARSE)
 add_compile_definitions(DEBUG_STRESS_GC)
 endif()
-#add_compile_definitions(DEBUG_LOG_GC)
+
+if (YARG_FEATURE_DEBUG_LOG_GC)
+add_compile_definitions(DEBUG_LOG_GC)
+endif()
 
 if (PICO_BOARD)
 set(PICO_USE_FASTEST_SUPPORTED_CLOCK 1)
