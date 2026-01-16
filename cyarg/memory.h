@@ -6,11 +6,7 @@
 
 #define TEMP_ROOTS_MAX 8
 #define FIRST_GC_AT 50 * 1024
-#ifdef CYARG_PICO_TARGET
 #define ALWAYS_GC_ABOVE 100 * 1024
-#else
-#define ALWAYS_GC_ABOVE 1024 * 1024
-#endif
 
 #define ALLOCATE(type, count) \
     (type*)reallocate(NULL, 0, sizeof(type) * (count))
