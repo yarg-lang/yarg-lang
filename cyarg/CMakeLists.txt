@@ -120,13 +120,13 @@ target_sources(cyarg
 add_compile_definitions(CYARG_FEATURE_TEST_SYSTEM)
 endif()
 
-if (YARG_FEATURE_INTERACTIVE_TRACE)
+if (CYARG_FEATURE_INTERACTIVE_TRACE STREQUAL "TRUE")
 add_compile_definitions(DEBUG_TRACE_EXECUTION)
 add_compile_definitions(DEBUG_AST_PARSE)
 add_compile_definitions(DEBUG_STRESS_GC)
 endif()
 
-if (YARG_FEATURE_DEBUG_LOG_GC)
+if (CYARG_FEATURE_DEBUG_LOG_GC STREQUAL "TRUE")
 add_compile_definitions(DEBUG_LOG_GC)
 endif()
 
