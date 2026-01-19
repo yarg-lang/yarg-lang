@@ -8,7 +8,7 @@
 #include "routine.h"
 #include "vm.h"
 
-#ifdef CYARG_PICO_TARGET
+#ifdef CYARG_PICO_SDK_TARGET
 #include <hardware/irq.h>
 #include <hardware/clocks.h>
 #endif
@@ -40,10 +40,12 @@ bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* resu
     uintptr_t isrRoutine = AS_ADDRESS(address);
     unsigned int prio = as_positive_integer(prioVal);
 
-#if defined(CYARG_PICO_TARGET)
+#if defined(CYARG_PICO_SDK_TARGET)
     irq_add_shared_handler(num, (irq_handler_t) isrRoutine, prio);
 #elif defined(CYARG_FEATURE_TEST_SYSTEM)
     tsAddInterruptHandler(num, (void *) isrRoutine);
+#else
+    #error "No IRQ handler implementation for this build."
 #endif
 
     return true;
@@ -66,10 +68,12 @@ bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, Value* result) 
     unsigned int num = as_positive_integer(numVal);
     uintptr_t isrRoutine = AS_ADDRESS(address);
 
-#if defined(CYARG_PICO_TARGET)
+#if defined(CYARG_PICO_SDK_TARGET)
     irq_remove_handler(num, (irq_handler_t) isrRoutine);
 #elif defined(CYARG_FEATURE_TEST_SYSTEM)
     tsRemoveInterruptHandler(num, (void *) isrRoutine);
+#else
+    #error "No IRQ handler implementation for this build."
 #endif
 
     removePinnedRoutine(isrRoutine);
@@ -100,7 +104,8 @@ bool clock_get_hzNative(ObjRoutine* routine, int argCount, Value* result) {
     }
 
     uint32_t res = 0;
-#ifdef CYARG_PICO_TARGET
+
+#ifdef CYARG_PICO_SDK_TARGET
     res = clock_get_hz(as_positive_integer(numVal));
 #endif
 

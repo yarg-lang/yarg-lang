@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef CYARG_PICO_TARGET
+#ifdef CYARG_PICO_SDK_TARGET
 #include <pico/multicore.h>
 #endif
 
@@ -66,7 +66,7 @@ bool removePinnedRoutine(uintptr_t address) {
 #define FLAG_VALUE 0x79617267
 
 void vmCore1Entry() {
-#ifdef CYARG_PICO_TARGET
+#ifdef CYARG_PICO_SDK_TARGET
     multicore_fifo_push_blocking(FLAG_VALUE);
     uint32_t g = multicore_fifo_pop_blocking();
 
@@ -81,7 +81,7 @@ void vmCore1Entry() {
 }
 
 void runOnCore1(ObjRoutine* routine) {
-#ifdef CYARG_PICO_TARGET
+#ifdef CYARG_PICO_SDK_TARGET
     vm.core1 = routine;
 
     vm.core1->state = EXEC_RUNNING;
