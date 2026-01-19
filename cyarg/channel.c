@@ -1,13 +1,10 @@
 #include <stdio.h>
-#ifdef CYARG_PICO_TARGET
-#include <pico/sync.h>
-#else
-#include <fcntl.h>
+#ifndef CYARG_PICO_TARGET
 #include <semaphore.h>
-#include <pthread.h>
 #endif
 
 #include "common.h"
+#include "platform_hal.h"
 
 #include "channel.h"
 #include "memory.h"
@@ -20,13 +17,9 @@ typedef struct ObjChannelContainer {
     Obj obj;
     bool overflow;
     size_t writeCursor;
-#ifdef CYARG_PICO_TARGET
-    critical_section_t lock;
-    critical_section_t* lock_access;
-#else
-    pthread_mutex_t lock;
-    pthread_mutex_t* lock_access;
-
+    platform_critical_section lock;
+    platform_critical_section* lock_access;
+#ifndef CYARG_PICO_TARGET
     sem_t* access;
 #endif
 
@@ -46,22 +39,14 @@ ObjChannelContainer* newChannel(ObjRoutine* routine, size_t capacity) {
     for (int i = 0; i < capacity; i++) {
         channel->buffer[i] = NIL_VAL;
     }
-#ifdef CYARG_PICO_TARGET
-    critical_section_init(&channel->lock);
+    platform_critical_section_init(&channel->lock);
     channel->lock_access = &channel->lock;
-#else
+#ifndef CYARG_PICO_TARGET
     channel->access = sem_open("/semaphore", O_CREAT, S_IRUSR | S_IWUSR, 0);
     if (channel->access == SEM_FAILED) {
         tempRootPop();
         runtimeError(routine, "Semaphore open failed.");
     }
-
-    pthread_mutexattr_t attr;
-    pthread_mutexattr_init(&attr);
-    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-    pthread_mutex_init(&channel->lock, &attr);
-    pthread_mutexattr_destroy(&attr);
-    channel->lock_access = &channel->lock;
 #endif
     tempRootPop();
     return channel;
@@ -69,14 +54,8 @@ ObjChannelContainer* newChannel(ObjRoutine* routine, size_t capacity) {
 
 void freeChannelObject(Obj* object) {
     ObjChannelContainer* channel = (ObjChannelContainer*)object;
-#ifdef CYARG_PICO_TARGET
-    if (channel->lock_access != NULL) {
-        critical_section_deinit(&channel->lock);
-    }
-#else
-    if (channel->lock_access != NULL) {
-        pthread_mutex_destroy(&channel->lock);
-    }
+    platform_critical_section_deinit(&channel->lock);
+#ifndef CYARG_PICO_TARGET    
     sem_close(channel->access);
 #endif
 
@@ -92,19 +71,11 @@ size_t readCursor(ObjChannelContainer* channel) {
 }
 
 static void channelMutexEnter(ObjChannelContainer* channel) {
-#ifdef CYARG_PICO_TARGET
-    critical_section_enter_blocking(channel->lock_access);
-#else
-    pthread_mutex_lock(channel->lock_access);
-#endif
+    platform_critical_section_enter_blocking(channel->lock_access);
 }
 
 static void channelMutexLeave(ObjChannelContainer* channel) {
-#ifdef CYARG_PICO_TARGET
-    critical_section_exit(channel->lock_access);
-#else
-    pthread_mutex_unlock(channel->lock_access);
-#endif
+    platform_critical_section_exit(channel->lock_access);
 }
  
 void markChannel(ObjChannelContainer* channel) {
@@ -208,25 +179,11 @@ Value peekChannel(ObjChannelContainer* channel) {
 }
 
 void joinSyncGroup(ObjChannelContainer* channel, ObjSyncGroup* group) {
-#ifdef CYARG_PICO_TARGET
-    critical_section_deinit(&channel->lock);
+    platform_critical_section_deinit(&channel->lock);
     channel->lock_access = getSyncGroupLock(group);
-#else
-    pthread_mutex_destroy(&channel->lock);
-    channel->lock_access = getSyncGroupLock(group);
-#endif
 }
 
 void leaveSyncGroup(ObjChannelContainer* channel, ObjSyncGroup* group) {
-#ifdef CYARG_PICO_TARGET
-    critical_section_init(&channel->lock);
+    platform_critical_section_init(&channel->lock);
     channel->lock_access = &channel->lock;
-#else
-    pthread_mutexattr_t attr;
-    pthread_mutexattr_init(&attr);
-    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-    pthread_mutex_init(&channel->lock, &attr);
-    pthread_mutexattr_destroy(&attr);
-    channel->lock_access = &channel->lock;
-#endif
 }
