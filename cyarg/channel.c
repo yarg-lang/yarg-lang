@@ -1,5 +1,5 @@
 #include <stdio.h>
-#ifndef CYARG_PICO_TARGET
+#ifdef CYARG_PTHREADS_SYNC
 #include <semaphore.h>
 #endif
 
@@ -19,7 +19,7 @@ typedef struct ObjChannelContainer {
     size_t writeCursor;
     platform_critical_section lock;
     platform_critical_section* lock_access;
-#ifndef CYARG_PICO_TARGET
+#ifdef CYARG_PTHREADS_SYNC
     sem_t* access;
 #endif
 
@@ -41,7 +41,7 @@ ObjChannelContainer* newChannel(ObjRoutine* routine, size_t capacity) {
     }
     platform_critical_section_init(&channel->lock);
     channel->lock_access = &channel->lock;
-#ifndef CYARG_PICO_TARGET
+#ifdef CYARG_PTHREADS_SYNC
     channel->access = sem_open("/semaphore", O_CREAT, S_IRUSR | S_IWUSR, 0);
     if (channel->access == SEM_FAILED) {
         tempRootPop();
@@ -55,7 +55,7 @@ ObjChannelContainer* newChannel(ObjRoutine* routine, size_t capacity) {
 void freeChannelObject(Obj* object) {
     ObjChannelContainer* channel = (ObjChannelContainer*)object;
     platform_critical_section_deinit(&channel->lock);
-#ifndef CYARG_PICO_TARGET    
+#ifdef CYARG_PTHREADS_SYNC    
     sem_close(channel->access);
 #endif
 
@@ -100,12 +100,13 @@ void printChannel(FILE* op, ObjChannelContainer* channel) {
 }
 
 void sendChannel(ObjChannelContainer* channel, Value data) {
-#ifdef CYARG_PICO_TARGET
+#ifdef CYARG_PICO_BUSY_SYNC
     while (channel->occupied == channel->bufferSize) {
         // stall/block until space
         tight_loop_contents();
     }
 #endif
+
     channelMutexEnter(channel);
     channel->buffer[channel->writeCursor] = data;
     channel->occupied++;
@@ -113,7 +114,7 @@ void sendChannel(ObjChannelContainer* channel, Value data) {
     channel->overflow = false;
     channelMutexLeave(channel);
 
-#ifndef CYARG_PICO_TARGET
+#ifdef CYARG_PTHREADS_SYNC
     sem_post(channel->access);
 #endif
 }
@@ -133,13 +134,15 @@ Value collectFromChannel(ObjChannelContainer* channel) {
 
 Value receiveChannel(ObjChannelContainer* channel) {
 
-#ifdef CYARG_PICO_TARGET
+#if defined (CYARG_PICO_BUSY_SYNC)
     while (channel->occupied == 0) {
         // stall/block until data
         tight_loop_contents();
     }
-#else
+#elif defined(CYARG_PTHREADS_SYNC)
     sem_wait(channel->access);
+#else
+#error "No channel synchronization implementation for this build."
 #endif
     return collectFromChannel(channel);
 }
@@ -158,8 +161,7 @@ bool shareChannel(ObjChannelContainer* channel, Value data) {
     result = channel->overflow;
     channelMutexLeave(channel);
 
-#ifdef CYARG_PICO_TARGET
-#else    
+#ifdef CYARG_PTHREADS_SYNC
     if (!result) {
         sem_post(channel->access);
     }

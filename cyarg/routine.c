@@ -187,7 +187,7 @@ bool startRoutine(ObjRoutine* context, ObjRoutine* target, size_t argCount, Valu
 
 bool receiveFromRoutine(ObjRoutine* routine, Value* result) {
 
-#ifdef CYARG_PICO_TARGET
+#ifdef CYARG_PICO_BUSY_SYNC
     while (routine->state == EXEC_RUNNING) {
         tight_loop_contents();
     }
