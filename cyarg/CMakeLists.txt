@@ -20,6 +20,12 @@ if (EXISTS ${picoVscode})
 endif()
 # ====================================================================================
 
+if (CYARG_HOSTING STREQUAL "SELF_HOSTED")
+add_compile_definitions(CYARG_SELF_HOSTED)
+elseif(CYARG_HOSTING STREQUAL "HOSTED")
+add_compile_definitions(CYARG_OS_HOSTED)
+endif()
+
 if(PICO_BOARD)
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)

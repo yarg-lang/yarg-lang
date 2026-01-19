@@ -410,12 +410,16 @@ bool peekBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         nominal_address = AS_ADDRESS(address);
     }
 
-#if defined(CYARG_PICO_TARGET)
+#if defined(CYARG_SELF_HOSTED)
     volatile uint32_t* reg = (volatile uint32_t*) nominal_address;
     uint32_t res = *reg;
     *result = UI32_VAL(res);
-#elif defined(CYARG_FEATURE_TEST_SYSTEM)
+#elif defined(CYARG_OS_HOSTED)
+#ifdef CYARG_FEATURE_TEST_SYSTEM
     *result = UI32_VAL(tsRead((uint32_t)nominal_address));
+#else
+    *result = UI32_VAL(0);
+#endif
     printf("peek(%p) -> %x\n", (void*)nominal_address, AS_UI32(*result));
 #endif
     return true;
