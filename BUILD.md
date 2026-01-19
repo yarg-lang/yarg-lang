@@ -95,6 +95,16 @@ To clear all build atrefacts from the source tree:
 
 `$ ./tools/clean-repo.sh`
 
+## Configuration
+
+This repo contains Yarg and various supporting tools and tests. These are built for Microcontroller devices (currently Raspberry Pi Pico), with supporting tools on a host PC (currently MacOS or Ubuntu, with Windows and other Distros in future). Additionally, Yarg itself can be built for use on host, for convenient development and testing.
+
+You can build a target/device build (names used interchangably). A full build will also include support tooling (notably hostyarg) for the PC. If you want, you can build exclusively for host, producing a version of yarg that can be used from a command line. Tools such as xcode project files are available to support this.
+
+Set YARG_DEVICE in your environment or similar (eg CMakePresets.json or CMakeUserPresets.json).
+
+Use YARG_DEVICE="RASPBERRY_PI_PICO" for a Pico build, and YARG_DEVICE="GENERIC_HOST" for a build for use on a PC.
+
 ## CI Builds
 
 [![Release (Pico)](https://github.com/yarg-lang/yarg-lang/actions/workflows/release.yml/badge.svg)](https://github.com/yarg-lang/yarg-lang/actions/workflows/release.yml)

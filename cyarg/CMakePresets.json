@@ -3,12 +3,12 @@
     "configurePresets": [
         {
             "name": "host",
-            "displayName": "Host (default build for VS Code)",
+            "displayName": "Host (default build for use on host system)",
             "description": "Using defaults for your cmake install",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
-                "CYARG_HOSTING": "HOSTED",
+                "YARG_DEVICE": "GENERIC_HOST",
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_TOOLCHAIN_FILE": "",
                 "CYARG_FEATURE_INTERACTIVE_TRACE": "TRUE"
@@ -21,7 +21,7 @@
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
-                "CYARG_HOSTING": "HOSTED",
+                "YARG_DEVICE": "GENERIC_HOST",
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_TOOLCHAIN_FILE": ""
             }
@@ -33,7 +33,7 @@
             "generator": "Xcode",
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
-                "CYARG_HOSTING": "HOSTED",
+                "YARG_DEVICE": "GENERIC_HOST",
                 "CMAKE_TOOLCHAIN_FILE": ""
             },
             "condition": {
@@ -48,8 +48,7 @@
             "description": "Using the Pico SDK ARM toolchain",
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
-                "CYARG_HOSTING": "SELF_HOSTED",
-                "PICO_BOARD": "pico",
+                "YARG_DEVICE": "RASPBERRY_PI_PICO",
                 "CMAKE_BUILD_TYPE": "Release"
             } 
         },
@@ -59,8 +58,7 @@
             "description": "Using the Pico SDK ARM toolchain",
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
-                "CYARG_HOSTING": "SELF_HOSTED",
-                "PICO_BOARD": "pico",
+                "YARG_DEVICE": "RASPBERRY_PI_PICO",
                 "CMAKE_BUILD_TYPE": "Debug"
             } 
         }
