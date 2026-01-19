@@ -1,0 +1,39 @@
+
+fun setup_interrupt(number) {
+    var count = 0;
+
+    fun handler() {
+        fun display_count(count) {
+            print count;
+        }
+
+        print "handler";
+        print number;
+        count = count + 1;
+        display_count(count);
+    }
+
+    var handler_routine = make_routine(handler, true);
+    var handler_address = pin(handler_routine);
+    irq_add_shared_handler(number, handler_address, 1);
+
+    return handler_address;
+}
+
+var handler_address1 = setup_interrupt(1);
+
+test_interrupt(1);
+print test_sync();  // expect: Waiting for interrupts to be simulated - handler
+// expect: 1
+// expect: 1
+// expect: done
+// expect: Type:any[]:[]
+
+test_interrupt(1);
+print test_sync();  // expect: Waiting for interrupts to be simulated - handler
+// expect: 1
+// expect: 2
+// expect: done
+// expect: Type:any[]:[]
+
+irq_remove_handler(1, handler_address1);

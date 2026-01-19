@@ -1,0 +1,25 @@
+var count = 0;
+
+fun handler() {
+    print "handler";
+    count = count + 1;
+    print count;
+}
+
+var handler_routine = make_routine(handler, true);
+var handler_address = pin(handler_routine);
+irq_add_shared_handler(1, handler_address, 1);
+
+test_interrupt(1);
+print test_sync();  // expect: Waiting for interrupts to be simulated - handler
+// expect: 1
+// expect: done
+// expect: Type:any[]:[]
+
+test_interrupt(1);
+print test_sync();  // expect: Waiting for interrupts to be simulated - handler
+// expect: 2
+// expect: done
+// expect: Type:any[]:[]
+
+irq_remove_handler(1, handler_address1);
