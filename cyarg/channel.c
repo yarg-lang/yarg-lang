@@ -1,6 +1,8 @@
 #include <stdio.h>
 #ifdef CYARG_PTHREADS_SYNC
 #include <semaphore.h>
+#include <fcntl.h>   // for O_CREAT
+#include <sys/stat.h> // for S_IRUSR and S_IWUSR
 #endif
 
 #include "common.h"
