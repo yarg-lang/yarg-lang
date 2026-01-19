@@ -22,8 +22,11 @@ endif()
 
 if (CYARG_HOSTING STREQUAL "SELF_HOSTED")
 add_compile_definitions(CYARG_SELF_HOSTED)
+set(CYARG_FEATURE_FILESYSTEM "LITTLEFS" CACHE STRING "Filesystem feature to include")
 elseif(CYARG_HOSTING STREQUAL "HOSTED")
 add_compile_definitions(CYARG_OS_HOSTED)
+set(CYARG_FEATURE_FILESYSTEM "CSTDLIB" CACHE STRING "Filesystem feature to include")
+set(CYARG_FEATURE_TEST_SYSTEM "TRUE" CACHE STRING "Include the test system")
 endif()
 
 if(PICO_BOARD)
@@ -104,7 +107,7 @@ target_sources(cyarg
       fs/fs_stdlib.c)
 endif()
 
-if (CYARG_FEATURE_TEST_SYSTEM)
+if (CYARG_FEATURE_TEST_SYSTEM STREQUAL "TRUE")
 target_sources(cyarg
     PRIVATE
       test-system/testBuiltin.h

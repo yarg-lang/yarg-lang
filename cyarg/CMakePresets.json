@@ -10,8 +10,6 @@
             "cacheVariables": {
                 "YARG_FEATURE_INTERACTIVE_TRACE": "TRUE",
                 "CYARG_HOSTING": "HOSTED",
-                "CYARG_FEATURE_TEST_SYSTEM": "TRUE",
-                "CYARG_FEATURE_FILESYSTEM": "CSTDLIB",
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_TOOLCHAIN_FILE": ""
             }
@@ -25,8 +23,6 @@
             "cacheVariables": {
                 "CYARG_HOSTING": "HOSTED",
                 "CMAKE_BUILD_TYPE": "Debug",
-                "CYARG_FEATURE_TEST_SYSTEM": "TRUE",
-                "CYARG_FEATURE_FILESYSTEM": "CSTDLIB",
                 "CMAKE_TOOLCHAIN_FILE": ""
             }
         },
@@ -38,8 +34,6 @@
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
                 "CYARG_HOSTING": "HOSTED",
-                "CYARG_FEATURE_TEST_SYSTEM": "TRUE",
-                "CYARG_FEATURE_FILESYSTEM": "CSTDLIB",
                 "CMAKE_TOOLCHAIN_FILE": ""
             },
             "condition": {
@@ -56,8 +50,7 @@
             "cacheVariables": {
                 "CYARG_HOSTING": "SELF_HOSTED",
                 "PICO_BOARD": "pico",
-                "CMAKE_BUILD_TYPE": "Release",
-                "CYARG_FEATURE_FILESYSTEM": "LITTLEFS"
+                "CMAKE_BUILD_TYPE": "Release"
             } 
         },
         {
@@ -68,8 +61,7 @@
             "cacheVariables": {
                 "CYARG_HOSTING": "SELF_HOSTED",
                 "PICO_BOARD": "pico",
-                "CMAKE_BUILD_TYPE": "Debug",
-                "CYARG_FEATURE_FILESYSTEM": "LITTLEFS"
+                "CMAKE_BUILD_TYPE": "Debug"
             } 
         }
     ]
