@@ -1,4 +1,4 @@
-package main
+package littlefs
 
 /*
 #include <stdint.h>

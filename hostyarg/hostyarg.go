@@ -6,9 +6,13 @@ import (
 	"io"
 	"log"
 	"os"
+
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/block_device"
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/littlefs"
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/pico_uf2"
 )
 
-func add_file(lfs LittleFs, fileToAdd string) {
+func add_file(lfs littlefs.LittleFs, fileToAdd string) {
 
 	r, err := os.Open(fileToAdd)
 	if err != nil {
@@ -26,7 +30,7 @@ func add_file(lfs LittleFs, fileToAdd string) {
 	file.Write(data)
 }
 
-func list_files(fs LittleFs, dirEntry string) {
+func list_files(fs littlefs.LittleFs, dirEntry string) {
 
 	dir, err := fs.OpenDir(dirEntry)
 	if err != nil {
@@ -39,9 +43,9 @@ func list_files(fs LittleFs, dirEntry string) {
 			log.Fatal(err)
 		}
 		switch info.Type {
-		case EntryTypeDir:
+		case littlefs.EntryTypeDir:
 			fmt.Printf("'%v' (dir)\n", info.Name)
-		case EntryTypeReg:
+		case littlefs.EntryTypeReg:
 			fmt.Printf("'%v' (%v)\n", info.Name, info.Size)
 		default:
 			log.Fatal("unexpected entry type.")
@@ -50,50 +54,49 @@ func list_files(fs LittleFs, dirEntry string) {
 
 }
 
-func (bd BlockDevice) readFromUF2File(filename string) (e error) {
+func readFromUF2File(bd block_device.BlockDevice, filename string) (e error) {
 	f, e := os.Open(filename)
 	if e == nil {
 		defer f.Close()
-		bd.ReadFromUF2(f)
+		pico_uf2.ReadFromUF2(f, bd)
 	}
 	return e
 }
 
-func (bd BlockDevice) writeToUF2File(filename string) error {
+func writeToUF2File(bd block_device.BlockDevice, filename string) error {
 	f, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer f.Close()
 
-	bd.WriteAsUF2(f)
+	pico_uf2.WriteAsUF2(bd, f)
 
 	return nil
 }
 
-func formatCmd(fs BdFS, fsFilename string) {
-	fs.flash_fs.device.readFromUF2File(fsFilename)
+func formatCmd(fs littlefs.BdFS, fsFilename string) {
+	readFromUF2File(fs.Flash_fs.Device, fsFilename)
 
-	fs.cfg.Format()
+	littlefs.Format(fs.Cfg)
 
-	fs.flash_fs.device.writeToUF2File(fsFilename)
+	writeToUF2File(fs.Flash_fs.Device, fsFilename)
 }
 
-func cmdAddFile(fs BdFS, fsFilename, fileToAdd string) {
-	fs.flash_fs.device.readFromUF2File(fsFilename)
+func cmdAddFile(fs littlefs.BdFS, fsFilename, fileToAdd string) {
+	readFromUF2File(fs.Flash_fs.Device, fsFilename)
 
-	lfs, _ := fs.cfg.Mount()
+	lfs, _ := littlefs.Mount(fs.Cfg)
 	defer lfs.Close()
 
 	add_file(lfs, fileToAdd)
 
-	fs.flash_fs.device.writeToUF2File(fsFilename)
+	writeToUF2File(fs.Flash_fs.Device, fsFilename)
 }
 
-func cmdLs(fs BdFS, fsFilename, dirEntry string) {
-	fs.flash_fs.device.readFromUF2File(fsFilename)
-
-	lfs, _ := fs.cfg.Mount()
+func cmdLs(fs littlefs.BdFS, fsFilename, dirEntry string) {
+	readFromUF2File(fs.Flash_fs.Device, fsFilename)
+	lfs, _ := littlefs.Mount(fs.Cfg)
 	defer lfs.Close()
 
 	list_files(lfs, dirEntry)
@@ -123,10 +126,10 @@ func main() {
 		os.Exit(64)
 	}
 
-	device := newBlockDevice()
+	device := block_device.NewBlockDevice()
 	defer device.Close()
 
-	fs := newBdFS(device, FLASHFS_BASE_ADDR, FLASHFS_BLOCK_COUNT)
+	fs := littlefs.NewBdFS(device, littlefs.FLASHFS_BASE_ADDR, littlefs.FLASHFS_BLOCK_COUNT)
 	defer fs.Close()
 
 	switch os.Args[1] {

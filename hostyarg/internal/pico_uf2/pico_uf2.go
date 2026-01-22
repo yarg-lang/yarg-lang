@@ -1,9 +1,12 @@
-package main
+package pico_uf2
 
 import (
 	"encoding/binary"
 	"io"
 	"log"
+
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/block_device"
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/pico_flash_device"
 )
 
 type Uf2Frame struct {
@@ -30,7 +33,7 @@ const UF2_FLAG_EXTENSION_TAGS uint32 = 0x00008000
 
 const PICO_UF2_FAMILYID uint32 = 0xe48bff56
 
-func (device BlockDevice) ReadFromUF2(input io.Reader) {
+func ReadFromUF2(input io.Reader, device block_device.BlockDevice) {
 
 	frame := Uf2Frame{}
 	for binary.Read(input, binary.LittleEndian, &frame) != io.EOF {
@@ -54,7 +57,7 @@ func (device BlockDevice) ReadFromUF2(input io.Reader) {
 	}
 }
 
-func (device BlockDevice) WriteAsUF2(output io.Writer) {
+func WriteAsUF2(device block_device.BlockDevice, output io.Writer) {
 	pageTotal := device.CountBlocks() * device.PagePerBlock()
 	pageCursor := uint32(0)
 
@@ -72,7 +75,7 @@ func (device BlockDevice) WriteAsUF2(output io.Writer) {
 					MagicStart1: UF2_MAGIC_START1,
 					Flags:       UF2_FLAG_FAMILY_ID,
 					TargetAddr:  device.TargetAddress(b, p),
-					PayloadSize: PICO_PROG_PAGE_SIZE,
+					PayloadSize: pico_flash_device.PICO_PROG_PAGE_SIZE,
 					BlockNo:     pageCursor,
 					NumBlocks:   pageTotal,
 					Reserved:    PICO_UF2_FAMILYID, // documented as FamilyID, Filesize or 0.

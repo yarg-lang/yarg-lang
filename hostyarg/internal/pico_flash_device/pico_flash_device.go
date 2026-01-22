@@ -1,4 +1,4 @@
-package main
+package pico_flash_device
 
 const (
 	PICO_FLASH_BASE_ADDR  uint32 = 0x10000000
