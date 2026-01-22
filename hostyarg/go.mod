@@ -1,3 +1,3 @@
-module github.com/jhmcaleely/yarg-lang/hostyarg
+module github.com/yarg-lang/yarg-lang/hostyarg
 
-go 1.23.4
+go 1.25
