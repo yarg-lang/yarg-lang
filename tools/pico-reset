@@ -1,8 +1,4 @@
 #!/bin/bash
 OPENOCD="$HOME/.pico-sdk/openocd/0.12.0+dev"
 
-pushd $OPENOCD/scripts
-
-$OPENOCD/openocd.exe -f interface/cmsis-dap.cfg -f target/rp2040.cfg -c "adapter speed 5000" -c "init; reset; exit"
-
-popd
+$OPENOCD/openocd -s $OPENOCD/scripts -f interface/cmsis-dap.cfg -f target/rp2040.cfg -c "adapter speed 5000" -c "init; reset; exit"
