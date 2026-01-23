@@ -1,4 +1,4 @@
-package main
+package testrunner
 
 import (
 	"bufio"
@@ -43,7 +43,7 @@ func interpreterAvailable(interpreter string) (ok bool) {
 	return ok
 }
 
-func cmdRunTests(interpreter string, test string) (exitcode int) {
+func CmdRunTests(interpreter string, test string) (exitcode int) {
 
 	test = filepath.Clean(test)
 	interpreter = filepath.Clean(interpreter)

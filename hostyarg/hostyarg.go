@@ -10,6 +10,7 @@ import (
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/block_device"
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/littlefs"
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/pico_uf2"
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/testrunner"
 )
 
 func add_file(lfs littlefs.LittleFs, fileToAdd string) {
@@ -147,7 +148,7 @@ func main() {
 		cmdLs(*fs, *lsDirFS, *lsDirEntry)
 	case "runtests":
 		testRunCmd.Parse(os.Args[2:])
-		exit_code := cmdRunTests(*testRunInterpreter, *testRunTests)
+		exit_code := testrunner.CmdRunTests(*testRunInterpreter, *testRunTests)
 		os.Exit(exit_code)
 	default:
 		fmt.Println("unknown command")
