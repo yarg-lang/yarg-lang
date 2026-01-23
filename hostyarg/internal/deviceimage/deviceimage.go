@@ -93,13 +93,15 @@ func CmdLs(fsFilename, dirEntry string) {
 	ListFiles(lfs, dirEntry)
 }
 
-func Cmdformat(fsFilename string) {
+func Cmdformat(fsFilename string) error {
 	fs := blockDeviceFromUF2(fsFilename)
 	defer fs.Close()
 
-	littlefs.Format(fs.Cfg)
-
-	WriteToUF2File(fs.Storage, fsFilename)
+	result := littlefs.Format(fs.Cfg)
+	if result == nil {
+		WriteToUF2File(fs.Storage, fsFilename)
+	}
+	return result
 }
 
 func CmdAddFile(fsFilename, fileToAdd string) {

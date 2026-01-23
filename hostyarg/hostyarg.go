@@ -38,7 +38,11 @@ func main() {
 	switch os.Args[1] {
 	case "format":
 		formatFSCmd.Parse(os.Args[2:])
-		deviceimage.Cmdformat(*formatFSFS)
+		result := deviceimage.Cmdformat(*formatFSFS)
+		if result != nil {
+			fmt.Println("format failed: ", result)
+			os.Exit(1)
+		}
 	case "addfile":
 		addFileCmd.Parse(os.Args[2:])
 		if *addFileName == "" {
