@@ -5,7 +5,7 @@ import (
 )
 
 type FlashFS struct {
-	Device       block_device.BlockDevice
+	Device       block_device.BlockFSReadWriter
 	Base_address uint32
 }
 

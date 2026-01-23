@@ -30,6 +30,7 @@ const (
 
 type BdFS struct {
 	Cfg      LittleFsConfig
+	Storage  block_device.BlockDevice
 	Flash_fs flashfs.FlashFS
 	gohandle *flashfs.FlashFS
 	pins     *runtime.Pinner
@@ -37,13 +38,13 @@ type BdFS struct {
 
 func NewBdFS(device block_device.BlockDevice, baseAddr uint32, blockCount uint32) *BdFS {
 
-	cfg := BdFS{Cfg: *NewLittleFsConfig(blockCount), Flash_fs: flashfs.FlashFS{Device: device, Base_address: baseAddr}, pins: &runtime.Pinner{}}
+	cfg := BdFS{Cfg: *NewLittleFsConfig(blockCount), Storage: device, Flash_fs: flashfs.FlashFS{Device: device, Base_address: baseAddr}, pins: &runtime.Pinner{}}
 
 	cfg.gohandle = &cfg.Flash_fs
 
 	cfg.pins.Pin(cfg.gohandle)
 	cfg.pins.Pin(cfg.Cfg.C_handle)
-	cfg.Flash_fs.Device.PinStorage(cfg.pins)
+	cfg.Storage.PinStorage(cfg.pins)
 
 	C.install_bdfs_cb(cfg.Cfg.C_handle, C.uintptr_t(uintptr(unsafe.Pointer(cfg.gohandle))))
 	cfg.Cfg.PinStorage(cfg.pins)

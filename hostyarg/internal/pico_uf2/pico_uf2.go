@@ -33,7 +33,7 @@ const UF2_FLAG_EXTENSION_TAGS uint32 = 0x00008000
 
 const PICO_UF2_FAMILYID uint32 = 0xe48bff56
 
-func ReadFromUF2(input io.Reader, device block_device.BlockDevice) {
+func ReadFromUF2(input io.Reader, device block_device.BlockMemoryDeviceWriter) {
 
 	frame := Uf2Frame{}
 	for binary.Read(input, binary.LittleEndian, &frame) != io.EOF {
@@ -57,8 +57,8 @@ func ReadFromUF2(input io.Reader, device block_device.BlockDevice) {
 	}
 }
 
-func WriteAsUF2(device block_device.BlockDevice, output io.Writer) {
-	pageTotal := device.CountBlocks() * device.PagePerBlock()
+func WriteAsUF2(device block_device.BlockMemoryDeviceReader, output io.Writer) {
+	pageTotal := device.BlocksInUse() * device.PagePerBlock()
 	pageCursor := uint32(0)
 
 	for b := range device.BlockCount() {

@@ -54,7 +54,7 @@ func list_files(fs littlefs.LittleFs, dirEntry string) {
 
 }
 
-func readFromUF2File(bd block_device.BlockDevice, filename string) (e error) {
+func readFromUF2File(bd block_device.BlockMemoryDeviceWriter, filename string) (e error) {
 	f, e := os.Open(filename)
 	if e == nil {
 		defer f.Close()
@@ -63,7 +63,7 @@ func readFromUF2File(bd block_device.BlockDevice, filename string) (e error) {
 	return e
 }
 
-func writeToUF2File(bd block_device.BlockDevice, filename string) error {
+func writeToUF2File(bd block_device.BlockMemoryDeviceReader, filename string) error {
 	f, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
 		log.Fatal(err)
@@ -76,26 +76,25 @@ func writeToUF2File(bd block_device.BlockDevice, filename string) error {
 }
 
 func formatCmd(fs littlefs.BdFS, fsFilename string) {
-	readFromUF2File(fs.Flash_fs.Device, fsFilename)
+	readFromUF2File(fs.Storage, fsFilename)
 
 	littlefs.Format(fs.Cfg)
 
-	writeToUF2File(fs.Flash_fs.Device, fsFilename)
+	writeToUF2File(fs.Storage, fsFilename)
 }
 
 func cmdAddFile(fs littlefs.BdFS, fsFilename, fileToAdd string) {
-	readFromUF2File(fs.Flash_fs.Device, fsFilename)
-
+	readFromUF2File(fs.Storage, fsFilename)
 	lfs, _ := littlefs.Mount(fs.Cfg)
 	defer lfs.Close()
 
 	add_file(lfs, fileToAdd)
 
-	writeToUF2File(fs.Flash_fs.Device, fsFilename)
+	writeToUF2File(fs.Storage, fsFilename)
 }
 
 func cmdLs(fs littlefs.BdFS, fsFilename, dirEntry string) {
-	readFromUF2File(fs.Flash_fs.Device, fsFilename)
+	readFromUF2File(fs.Storage, fsFilename)
 	lfs, _ := littlefs.Mount(fs.Cfg)
 	defer lfs.Close()
 
