@@ -4,69 +4,20 @@ import (
 	"log"
 	"runtime"
 
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/block_device_storage"
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/pico_flash_device"
 )
 
 const PICO_DEVICE_BLOCK_COUNT = pico_flash_device.PICO_FLASH_SIZE_BYTES / pico_flash_device.PICO_ERASE_PAGE_SIZE
-const PICO_FLASH_PAGE_PER_BLOCK = pico_flash_device.PICO_ERASE_PAGE_SIZE / pico_flash_device.PICO_PROG_PAGE_SIZE
-
-type BlockDeviceStorage struct {
-	data        [pico_flash_device.PICO_FLASH_SIZE_BYTES]byte
-	pagePresent [PICO_DEVICE_BLOCK_COUNT][PICO_FLASH_PAGE_PER_BLOCK]bool
-}
-
-func (s *BlockDeviceStorage) BlockPageLocation(block, page uint32) uint32 {
-	return block*s.EraseBlockSize() + page*s.ProgPageSize()
-}
-
-func (s *BlockDeviceStorage) BlockPageOffsetLocation(block, page, offset uint32) uint32 {
-	return s.BlockPageLocation(block, page) + offset
-}
-
-func (s *BlockDeviceStorage) ProgPageSize() uint32 {
-	return pico_flash_device.PICO_PROG_PAGE_SIZE
-}
-
-func (s *BlockDeviceStorage) EraseBlockSize() uint32 {
-	return pico_flash_device.PICO_ERASE_PAGE_SIZE
-}
-
-func (s *BlockDeviceStorage) EraseBlock(block uint32) {
-
-	for p := range PICO_FLASH_PAGE_PER_BLOCK {
-		s.pagePresent[block][p] = false
-	}
-}
-
-func (s *BlockDeviceStorage) Read(block, page, offset uint32, size uint32) []byte {
-
-	storage_offset := s.BlockPageOffsetLocation(block, page, offset)
-
-	if s.pagePresent[block][page] {
-		log.Printf("Read   available page[%v][%v] off %v (size: %v)\n", block, page, offset, size)
-
-	} else {
-		log.Printf("Read unavailable page[%v][%v] off %v (size: %v)\n", block, page, offset, size)
-	}
-	return s.data[storage_offset : storage_offset+size]
-}
-
-func (s *BlockDeviceStorage) WritePage(block, page uint32, buffer []byte) {
-
-	s.pagePresent[block][page] = true
-	location := s.BlockPageLocation(block, page)
-
-	copy(s.data[location:int(location)+len(buffer)], buffer)
-}
 
 type BlockDevice struct {
-	storage     *BlockDeviceStorage
+	storage     *block_device_storage.BlockDeviceStorage
 	baseAddress uint32
 }
 
 func NewBlockDevice() BlockDevice {
 
-	s := BlockDeviceStorage{}
+	s := block_device_storage.BlockDeviceStorage{}
 	device := BlockDevice{storage: &s, baseAddress: pico_flash_device.PICO_FLASH_BASE_ADDR}
 	return device
 }
@@ -78,8 +29,8 @@ func (bd BlockDevice) Close() error {
 func (bd BlockDevice) CountPages() uint32 {
 	count := uint32(0)
 
-	for b := range bd.BlockCount() {
-		for p := range bd.PagePerBlock() {
+	for b := uint32(0); b < bd.BlockCount(); b++ {
+		for p := uint32(0); p < bd.PagePerBlock(); p++ {
 			if bd.PagePresent(b, p) {
 				count++
 			}
@@ -92,9 +43,9 @@ func (bd BlockDevice) CountPages() uint32 {
 func (bd BlockDevice) CountBlocks() uint32 {
 	count := uint32(0)
 
-	for b := range bd.BlockCount() {
+	for b := uint32(0); b < bd.BlockCount(); b++ {
 		pagePresent := false
-		for p := range bd.PagePerBlock() {
+		for p := uint32(0); p < bd.PagePerBlock(); p++ {
 			pagePresent = pagePresent || bd.PagePresent(b, p)
 		}
 		if pagePresent {
@@ -116,7 +67,7 @@ func (bd BlockDevice) DebugPrint() {
 }
 
 func (bd BlockDevice) PagePresent(block, page uint32) bool {
-	return bd.storage.pagePresent[block][page]
+	return bd.storage.PagePresent(block, page)
 }
 
 func (bd BlockDevice) storageOffset(block, page uint32) uint32 {
@@ -141,11 +92,11 @@ func (bd BlockDevice) BlockStorageAdddress(address uint32) (block, page, offset 
 }
 
 func (bd BlockDevice) BlockCount() uint32 {
-	return PICO_DEVICE_BLOCK_COUNT
+	return bd.storage.BlockCount()
 }
 
 func (bd BlockDevice) PagePerBlock() uint32 {
-	return PICO_FLASH_PAGE_PER_BLOCK
+	return bd.storage.PagePerBlock()
 }
 
 func (bd BlockDevice) EraseBlockSize() uint32 {
