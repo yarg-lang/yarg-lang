@@ -9,9 +9,9 @@ type FlashFS struct {
 	Base_address uint32
 }
 
-func (fs FlashFS) AddressForBlock(block uint32, off uint32) uint32 {
+func (fs FlashFS) AddressForBlock(block, offset uint32) uint32 {
 
-	byte_offset := block*fs.Device.EraseBlockSize() + off
+	byte_offset := block*fs.Device.EraseBlockSize() + offset
 
 	return fs.Base_address + byte_offset
 }

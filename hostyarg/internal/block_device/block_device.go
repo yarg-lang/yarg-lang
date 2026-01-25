@@ -38,8 +38,6 @@ type BlockFSReadWriter interface {
 	DebugPrint()
 }
 
-const PICO_DEVICE_BLOCK_COUNT = pico_flash_device.PICO_FLASH_SIZE_BYTES / pico_flash_device.PICO_ERASE_PAGE_SIZE
-
 type BlockDevice struct {
 	storage     *block_device_storage.BlockDeviceStorage
 	baseAddress uint32
@@ -48,7 +46,7 @@ type BlockDevice struct {
 func NewBlockDevice() BlockDevice {
 
 	s := block_device_storage.BlockDeviceStorage{}
-	device := BlockDevice{storage: &s, baseAddress: pico_flash_device.PICO_FLASH_BASE_ADDR}
+	device := BlockDevice{storage: &s, baseAddress: pico_flash_device.BaseAddr}
 	return device
 }
 
@@ -72,16 +70,6 @@ func (bd BlockDevice) BlocksInUse() uint32 {
 	return count
 }
 
-func (bd BlockDevice) DebugPrint() {
-	for b := range bd.BlockCount() {
-		for p := range bd.PagePerBlock() {
-			if bd.PagePresent(b, p) {
-				log.Printf("Page [%v, %v]: 0x%08x\n", b, p, bd.TargetAddress(b, p))
-			}
-		}
-	}
-}
-
 func DebugPrintDevice(bd BlockMemoryDeviceReader) {
 	for b := range bd.BlockCount() {
 		for p := range bd.PagePerBlock() {
@@ -92,12 +80,16 @@ func DebugPrintDevice(bd BlockMemoryDeviceReader) {
 	}
 }
 
+func (bd BlockDevice) DebugPrint() {
+	DebugPrintDevice(bd)
+}
+
 func (bd BlockDevice) PagePresent(block, page uint32) bool {
 	return bd.storage.PagePresent(block, page)
 }
 
 func (bd BlockDevice) storageOffset(block, page uint32) uint32 {
-	return block*bd.EraseBlockSize() + page*pico_flash_device.PICO_PROG_PAGE_SIZE
+	return block*bd.EraseBlockSize() + page*pico_flash_device.ProgPageSize
 }
 
 func (bd BlockDevice) TargetAddress(block, page uint32) uint32 {
@@ -110,8 +102,8 @@ func (bd BlockDevice) IsBlockStart(targetAddr uint32) bool {
 
 func (bd BlockDevice) blockStorageAdddress(address uint32) (block, page, offset uint32) {
 	page_offset := (address - bd.baseAddress) % bd.EraseBlockSize()
-	page = page_offset / pico_flash_device.PICO_PROG_PAGE_SIZE
-	offset = page_offset % pico_flash_device.PICO_PROG_PAGE_SIZE
+	page = page_offset / pico_flash_device.ProgPageSize
+	offset = page_offset % pico_flash_device.ProgPageSize
 	block = (address - bd.baseAddress) / bd.EraseBlockSize()
 
 	return block, page, offset

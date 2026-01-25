@@ -75,7 +75,7 @@ func WriteAsUF2(device block_device.BlockMemoryDeviceReader, output io.Writer) {
 					MagicStart1: UF2_MAGIC_START1,
 					Flags:       UF2_FLAG_FAMILY_ID,
 					TargetAddr:  device.TargetAddress(b, p),
-					PayloadSize: pico_flash_device.PICO_PROG_PAGE_SIZE,
+					PayloadSize: pico_flash_device.ProgPageSize,
 					BlockNo:     pageCursor,
 					NumBlocks:   pageTotal,
 					Reserved:    PICO_UF2_FAMILYID, // documented as FamilyID, Filesize or 0.

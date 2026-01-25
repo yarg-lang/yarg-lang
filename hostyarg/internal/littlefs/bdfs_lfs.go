@@ -22,10 +22,10 @@ import (
 const (
 	// 128 blocks will reserve a 512K filsystem - 1/4 of the 2Mb device on a Pico
 	FLASHFS_BLOCK_COUNT = 128
-	FLASHFS_SIZE_BYTES  = pico_flash_device.PICO_ERASE_PAGE_SIZE * FLASHFS_BLOCK_COUNT
+	FLASHFS_SIZE_BYTES  = pico_flash_device.ErasePageSize * FLASHFS_BLOCK_COUNT
 
 	// A start location counted back from the end of the device.
-	FLASHFS_BASE_ADDR uint32 = pico_flash_device.PICO_FLASH_BASE_ADDR + pico_flash_device.PICO_FLASH_SIZE_BYTES - FLASHFS_SIZE_BYTES
+	FLASHFS_BASE_ADDR uint32 = pico_flash_device.BaseAddr + pico_flash_device.Size - FLASHFS_SIZE_BYTES
 )
 
 type BdFS struct {
@@ -39,8 +39,8 @@ type BdFS struct {
 func NewBdFS(device block_device.BlockDevice, baseAddr uint32, blockCount uint32) *BdFS {
 
 	cfg := BdFS{Cfg: NewLittleFsConfig(blockCount,
-		pico_flash_device.PICO_PROG_PAGE_SIZE,
-		pico_flash_device.PICO_ERASE_PAGE_SIZE),
+		pico_flash_device.ProgPageSize,
+		pico_flash_device.ErasePageSize),
 		Storage: device,
 		Flash_fs: flashfs.FlashFS{Device: device,
 			Base_address: baseAddr},
