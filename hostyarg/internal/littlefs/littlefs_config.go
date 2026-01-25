@@ -5,23 +5,14 @@ package littlefs
 #include "lfs.h"
 */
 import "C"
-import (
-	"runtime"
 
-	"github.com/yarg-lang/yarg-lang/hostyarg/internal/pico_flash_device"
-)
-
-type LittleFsConfig struct {
-	C_handle *C.struct_lfs_config
-}
-
-func NewLittleFsConfig(blockCount uint32) *LittleFsConfig {
+func NewLittleFsConfig(blockCount, progSize, blockSize uint32) *C.struct_lfs_config {
 	var ccfg C.struct_lfs_config
 
 	// block device configuration
 	ccfg.read_size = 1
-	ccfg.prog_size = pico_flash_device.PICO_PROG_PAGE_SIZE
-	ccfg.block_size = pico_flash_device.PICO_ERASE_PAGE_SIZE
+	ccfg.prog_size = C.lfs_size_t(progSize)
+	ccfg.block_size = C.lfs_size_t(blockSize)
 
 	// the number of blocks we use for a flash fs.
 	// Can be zero if we can read it from the fs.
@@ -33,11 +24,5 @@ func NewLittleFsConfig(blockCount uint32) *LittleFsConfig {
 	ccfg.lookahead_size = 16
 	ccfg.block_cycles = 500
 
-	cfg := LittleFsConfig{C_handle: &ccfg}
-	return &cfg
-}
-
-func (cfg *LittleFsConfig) PinStorage(pins *runtime.Pinner) {
-	pins.Pin(cfg.C_handle)
-	pins.Pin(cfg.C_handle.context)
+	return &ccfg
 }

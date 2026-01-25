@@ -35,16 +35,17 @@ func newLittleFs() *LittleFs {
 	return &lfs
 }
 
-func Mount(cfg LittleFsConfig) (LittleFs, error) {
+func Mount(cfg *C.struct_lfs_config) (LittleFs, error) {
 
 	lfs := *newLittleFs()
 
 	var pin runtime.Pinner
 	pin.Pin(lfs.chandle)
-	cfg.PinStorage(&pin)
+	pin.Pin(cfg)
+	pin.Pin(cfg.context)
 	defer pin.Unpin()
 
-	result := C.lfs_mount(lfs.chandle, cfg.C_handle)
+	result := C.lfs_mount(lfs.chandle, cfg)
 	if result < 0 {
 		return lfs, errors.New("mount failed")
 	} else {
@@ -69,16 +70,16 @@ func (fs LittleFs) Close() error {
 	return fs.unmount()
 }
 
-func Format(cfg LittleFsConfig) error {
+func Format(cfg *C.struct_lfs_config) error {
 
 	lfs := newLittleFs()
 
 	var pin runtime.Pinner
 	pin.Pin(lfs.chandle)
-	pin.Pin(cfg.C_handle)
+	pin.Pin(cfg)
 	defer pin.Unpin()
 
-	result := C.lfs_format(lfs.chandle, cfg.C_handle)
+	result := C.lfs_format(lfs.chandle, cfg)
 	if result < 0 {
 		return errors.New("format failed")
 	} else {
