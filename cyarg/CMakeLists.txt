@@ -110,6 +110,8 @@ add_executable(cyarg
     sync_group.h
     sync_group.c
     fs/fs.h
+    big-int/big-int.h
+    big-int/big-int.c
     )
 
 if (CYARG_FEATURE_FILESYSTEM STREQUAL "LITTLEFS")

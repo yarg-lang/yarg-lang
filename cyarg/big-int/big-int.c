@@ -506,9 +506,7 @@ void int_div(Int const *n, Int const *d, Int *q, Int *r)
             addPos(&qDigit, q, q);
         }
         else // Guessed too high
-        {
-            printf("");
-        }
+            ;
     }
     int_invariant(q);
     int_invariant(&reducingNumerator);
