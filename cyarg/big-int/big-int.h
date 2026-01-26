@@ -13,9 +13,9 @@
 typedef struct Int
 {
     bool neg_;
+    bool overflow_;
     uint8_t d_; // num digits 1 - 64
     uint8_t m_; // max digits always 64 in this implementation
-    // todo - bool overflow_;
     union
     {
         uint16_t h_[INT_MAX_DIGITS];
@@ -34,7 +34,7 @@ typedef enum
 // constructors
 void int_init(Int *);
 void int_set_i(int64_t, Int *);
-void int_set_s(char const *s, Int *i);
+void int_set_s(char const *, Int *);
 void int_set_t(Int const *, Int *);
 
 // funtions
@@ -57,9 +57,10 @@ uint64_t int_to_u64(Int const *);
 int32_t int_to_i32(Int const *);
 uint32_t int_to_u32(Int const *);
 
-// testing -- deprecated: remove once added to language
-void int_run_tests(void);
-void int_print(Int const *);
-void int_for_bc(Int const *);
+// testing
 void int_invariant(Int const *);
-void int_make_random(Int *);
+void int_make_random(Int *); // constructor
+void int_print(Int const *); // todo deprecated: remove once added to language
+void int_for_bc(Int const *); // todo deprecated: remove once added to language
+void int_dump(Int const *); // todo deprecated: remove once added to language
+void int_run_tests(void); // todo deprecated: remove once added to language
