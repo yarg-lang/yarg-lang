@@ -145,7 +145,13 @@ jobs:
           cmake --preset host-test
           cmake --build build/host-test --parallel $(nproc)
 
-      - name: Run test suite
+      - name: Run Hostyarg test suite
+        run: |
+           cd hostyarg
+           go test -args -interpreter ../cyarg/build/host-test/cyarg
+           cd ..
+
+      - name: Run Yarg test suite
         run: ./bin/hostyarg runtests -tests "yarg/test" -interpreter "cyarg/build/host-test/cyarg"
 
       - name: Upload build artifacts

@@ -23,7 +23,10 @@ func AddFile(lfs littlefs.LittleFs, fileToAdd string) {
 		log.Fatal("nothing read")
 	}
 
-	file, _ := lfs.OpenFile(fileToAdd)
+	file, err := lfs.OpenFile(fileToAdd)
+	if err != nil {
+		log.Fatal("could not open file")
+	}
 	defer file.Close()
 
 	file.Write(data)
