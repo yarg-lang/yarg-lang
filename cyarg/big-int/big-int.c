@@ -613,7 +613,7 @@ char const *int_to_s(Int const *i, char *s, int n)
         int_div(&v, &tenToTheFour, &v, &r);
 
         assert(r.d_ == 1);
-        u_int16_t rem = r.h_[0];
+        uint16_t rem = r.h_[0];
         bool leading = int_is_zero(&v);
         for (int c = 0; c < 4 && out > s; c++)
         {
