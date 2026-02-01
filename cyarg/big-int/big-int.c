@@ -114,6 +114,33 @@ void int_set_i(int64_t to, Int *i)
     }
 }
 
+void int_set_u(uint64_t to, Int *i)
+{
+    i->m_ = INT_MAX_DIGITS;
+    i->overflow_ = false;
+    i->neg_ = false;
+
+    uint32_t *ip = i->w_;
+    for (; ip < &i->w_[i->m_ / 2] && to > 0;)
+    {
+        *ip++ = (uint32_t) to;
+        to /= 4294967296u;
+    }
+    i->d_ = (uint8_t)((ip - i->w_) * 2);
+    if (i->d_ == 0)
+    {
+        i->w_[0] = 0u;
+        i->d_ = 1;
+    }
+    else
+    {
+        if (i->h_[i->d_ - 1] == 0u) // overshot
+        {
+            i->d_--;
+        }
+    }
+}
+
 void int_set_s(char const *s, Int *i)
 {
     int_init(i);
@@ -595,6 +622,32 @@ IntComp int_is_abs(Int const *a, Int const *b)
     {
         return INT_LT;
     }
+}
+
+IntRange int_is_range(Int const *i, int64_t l, uint64_t u)
+{
+    IntRange r;
+
+    Int t;
+    int_set_u(u, &t);
+    if (int_is(i, &t) == INT_GT)
+    {
+        r = INT_ABOVE;
+    }
+    else
+    {
+        int_set_i(l, &t);
+        if (int_is(i, &t) == INT_LT)
+        {
+            r = INT_BELOW;
+        }
+        else
+        {
+            r = INT_WITHIN;
+        }
+    }
+
+    return r;
 }
 
 char const *int_to_s(Int const *i, char *s, int n)

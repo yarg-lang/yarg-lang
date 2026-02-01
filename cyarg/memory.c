@@ -419,6 +419,11 @@ static void blackenObject(Obj* object) {
             markObject((Obj*)expr->cardinality);
             break;
         }
+        case OBJ_INT: {
+            ObjInt *newObj = (ObjInt*)object;
+            markObject(&newObj->obj);
+            break;
+        }
     }
 }
 
@@ -570,6 +575,7 @@ static void freeObject(Obj* object) {
             break;
         }
         case OBJ_EXPR_TYPE_ARRAY: FREE(ObjExprTypeArray, object); break;
+        case OBJ_INT: FREE(ObjInt, object); break;
     }
 }
 

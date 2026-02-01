@@ -42,6 +42,8 @@ typedef enum {
     TOKEN_TS_READ, TOKEN_TS_WRITE,
     TOKEN_TS_INTERRUPT,
     TOKEN_TS_SYNC,
+    // BigInt
+    TOKEN_INT,
 
     TOKEN_ERROR, TOKEN_EOF
 } TokenType;

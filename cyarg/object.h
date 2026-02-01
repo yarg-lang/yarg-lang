@@ -47,6 +47,8 @@ typedef struct ObjConcreteYargTypePointer ObjConcreteYargTypePointer;
 #define AS_POINTER(value)      ((ObjPackedPointer*)AS_OBJ(value))
 #define AS_STRUCT(value)       ((ObjPackedStruct*)AS_OBJ(value))
 #define AS_SYNCGROUP(value)    ((ObjSyncGroup*)AS_OBJ(value))
+#define AS_INTOBJ(value)       ((ObjInt*)AS_OBJ(value))
+#define AS_INT(value)          (&((ObjInt*)AS_OBJ(value))->bigInt)
 
 typedef enum {
     OBJ_BOUND_METHOD,
@@ -103,7 +105,8 @@ typedef enum {
     OBJ_EXPR_SUPER,
     OBJ_EXPR_TYPE,
     OBJ_EXPR_TYPE_STRUCT,
-    OBJ_EXPR_TYPE_ARRAY
+    OBJ_EXPR_TYPE_ARRAY,
+    OBJ_INT
 } ObjType;
 
 struct Obj {
@@ -145,6 +148,11 @@ struct ObjString {
     char* chars;
     uint32_t hash;
 };
+
+typedef struct {
+    Obj obj;
+    Int bigInt;
+} ObjInt;
 
 typedef struct ObjUpvalue {
     Obj obj;

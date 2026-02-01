@@ -92,18 +92,19 @@ static int typeLiteralInstruction(const char* name, Chunk* chunk, int offset) {
     uint8_t type = chunk->code[offset + 1];
     printf("%-16s ", name);
     switch (type) {
+        case TYPE_MODIFIER_CONST: printf("const"); break;
         case TYPE_LITERAL_BOOL: printf("bool"); break;
         case TYPE_LITERAL_INT8: printf("int8"); break;
         case TYPE_LITERAL_UINT8: printf("uint8"); break;
         case TYPE_LITERAL_INT16: printf("int16"); break;
         case TYPE_LITERAL_UINT16: printf("uint16"); break;
-        case TYPE_LITERAL_INTEGER: printf("int32"); break;
+        case TYPE_LITERAL_INT32: printf("int32"); break;
         case TYPE_LITERAL_UINT32: printf("uint32"); break;
         case TYPE_LITERAL_INT64: printf("int64"); break;
         case TYPE_LITERAL_UINT64: printf("uint64"); break;
         case TYPE_LITERAL_MACHINE_FLOAT64: printf("mfloat64"); break;
         case TYPE_LITERAL_STRING: printf("string"); break;
-        case TYPE_MODIFIER_CONST: printf("const"); break;
+        case TYPE_LITERAL_INT: printf("int"); break;
         default: printf("<unknown %4d>", type); break;
     }
     printf("\n");

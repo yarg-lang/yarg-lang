@@ -296,6 +296,7 @@ ObjPackedStruct* newPackedStruct(ObjConcreteYargTypeStruct* type) {
     return object;
 }
 
+
 ObjPackedStruct* newPackedStructAt(PackedValue location) {
     ObjPackedStruct* object = ALLOCATE_OBJ(ObjPackedStruct, OBJ_UNOWNED_PACKEDSTRUCT);
     object->store = location;
@@ -484,6 +485,13 @@ void fprintObject(FILE* op, Value value) {
         case OBJ_PACKEDSTRUCT:
             printStruct(op, AS_STRUCT(value));
             break;
+        case OBJ_INT: {
+            Int *i = AS_INT(value);
+            char sb[311];
+            char const* s = int_to_s(i, sb, 311);
+            FPRINTMSG(op, "%s", s);
+            break;
+    }
         default:
             FPRINTMSG(op, "<implementation object %d>", OBJ_TYPE(value));
             break;

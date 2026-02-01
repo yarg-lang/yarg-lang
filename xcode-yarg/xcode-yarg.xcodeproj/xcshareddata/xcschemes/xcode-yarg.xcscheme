@@ -58,7 +58,7 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "sc.ya"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "p.ya"

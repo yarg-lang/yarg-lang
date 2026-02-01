@@ -285,7 +285,7 @@ static int lfs_bd_erase(lfs_t *lfs, lfs_block_t block) {
 
 // some operations on paths
 static inline lfs_size_t lfs_path_namelen(const char *path) {
-    return strcspn(path, "/");
+    return (lfs_size_t) strcspn(path, "/");
 }
 
 static inline bool lfs_path_islast(const char *path) {
@@ -1503,7 +1503,7 @@ nextname:
         if (lfs_tag_type3(tag) == LFS_TYPE_DIR) {
             name += strspn(name, "/");
         }
-        lfs_size_t namelen = strcspn(name, "/");
+        lfs_size_t namelen = (lfs_size_t) strcspn(name, "/");
 
         // skip '.'
         if (namelen == 1 && memcmp(name, ".", 1) == 0) {
@@ -1522,7 +1522,7 @@ nextname:
         int depth = 1;
         while (true) {
             suffix += strspn(suffix, "/");
-            sufflen = strcspn(suffix, "/");
+            sufflen = (lfs_size_t)strcspn(suffix, "/");
             if (sufflen == 0) {
                 break;
             }

@@ -108,8 +108,8 @@ void initialisePackedValue(PackedValue packedValue) {
             case TypeUint64: packedValue.storedValue->as.ui64 = 0; break;
             case TypeArray: {
                 ObjConcreteYargTypeArray* at = (ObjConcreteYargTypeArray*)packedValue.storedType;
-                Value elementTypeVal = arrayElementType(at);
-                ObjConcreteYargType* elementType = IS_NIL(elementTypeVal) ? NULL : AS_YARGTYPE(elementTypeVal);
+//                Value elementTypeVal = arrayElementType(at);
+//                ObjConcreteYargType* elementType = IS_NIL(elementTypeVal) ? NULL : AS_YARGTYPE(elementTypeVal);
                 if (at->cardinality > 0) {
                     for (size_t i = 0; i < at->cardinality; i++) {
                         PackedValue el = arrayElement(packedValue, i);
@@ -126,6 +126,7 @@ void initialisePackedValue(PackedValue packedValue) {
                 }
                 break;
             }
+            case TypeInt:
             case TypePointer:
             case TypeString:
             case TypeClass:
@@ -172,7 +173,8 @@ Value unpackValue(PackedValue packedValue) {
             case TypeNativeBlob:
             case TypeRoutine:
             case TypeChannel:
-            case TypeYargType: {
+            case TypeYargType:
+            case TypeInt: {
                 if (packedValue.storedValue->as.obj) {
                     return OBJ_VAL(packedValue.storedValue->as.obj);
                 } else {
@@ -207,7 +209,8 @@ static void packValue(PackedValue packedStorageTarget, Value value) {
             case TypeNativeBlob:
             case TypeRoutine:
             case TypeChannel:
-            case TypeYargType: {
+            case TypeYargType:
+            case TypeInt: {
                 packedStorageTarget.storedValue->as.obj = AS_OBJ(value);
                 break;
             }
@@ -366,6 +369,7 @@ bool valuesEqual(Value a, Value b) {
         case VAL_UI64:     return AS_UI64(a) == AS_UI64(b);
         case VAL_ADDRESS:  return AS_ADDRESS(a) == AS_ADDRESS(b);
         case VAL_OBJ:      return AS_OBJ(a) == AS_OBJ(b);
+
         default:           return false; // Unreachable.
     }
 }
