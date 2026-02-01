@@ -225,7 +225,7 @@ static uint8_t makeConstant(Value value) {
     return (uint8_t)constant;
 }
 
-static int emitConstant(Value value) {
+static void emitConstant(Value value) {
 
     if (IS_I8(value)) {
         emitBytes(OP_IMMEDIATEi8, AS_I8(value));
@@ -246,7 +246,6 @@ static int emitConstant(Value value) {
     } else {
         emitBytes(OP_CONSTANT, makeConstant(value));
     }
-    return 2;
 }
 
 static void emitReturn() {
@@ -317,6 +316,12 @@ static void generateNumber(ObjExprNumber* num) {
         case NUMBER_UINTEGER32: emitConstant(UI32_VAL(num->val.uinteger32)); break;
         case NUMBER_UINTEGER64: emitConstant(UI64_VAL(num->val.ui64)); break;
         case NUMBER_ADDRESS: emitConstant(ADDRESS_VAL(num->val.address)); break;
+        case NUMBER_INT: {
+            ObjInt* objInt = ALLOCATE_OBJ(ObjInt, OBJ_INT);
+            int_set_t(&num->val.bigInt, &objInt->bigInt);
+            emitConstant(OBJ_VAL(objInt));
+            break;
+        }
         default:
             return; //  unreachable
     }
@@ -348,7 +353,7 @@ static void generateExprLogicalOr(ObjExprOperation* bin) {
 
 static void generateExprAssignable(ObjExprOperation* op) {
     generateExpr(op->rhs);
-    if (  op->operation == EXPR_OP_DEREF_PTR
+    if (op->operation == EXPR_OP_DEREF_PTR
         && op->assignment == NULL) {
         emitByte(OP_DEREF_PTR);
     }
@@ -528,6 +533,7 @@ static void generateExprBuiltin(ObjExprBuiltin* fn) {
         case EXPR_BUILTIN_TS_WRITE: emitBytes(OP_GET_BUILTIN, BUILTIN_TS_WRITE); break;
         case EXPR_BUILTIN_TS_INTERRUPT: emitBytes(OP_GET_BUILTIN, BUILTIN_TS_INTERRUPT); break;
         case EXPR_BUILTIN_TS_SYNC: emitBytes(OP_GET_BUILTIN, BUILTIN_TS_SYNC); break;
+        case EXPR_BUILTIN_INT: emitBytes(OP_GET_BUILTIN, BUILTIN_INT); break;
     }
 }
 
@@ -584,13 +590,14 @@ static void generateExprType(ObjExprTypeLiteral* type) {
         case EXPR_TYPE_LITERAL_UINT8: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_UINT8); return;
         case EXPR_TYPE_LITERAL_INT16: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_INT16); return;
         case EXPR_TYPE_LITERAL_UINT16: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_UINT16); return;
-        case EXPR_TYPE_LITERAL_INTEGER: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_INTEGER); return;
+        case EXPR_TYPE_LITERAL_INT32: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_INT32); return;
         case EXPR_TYPE_LITERAL_MFLOAT64: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_MACHINE_FLOAT64); return;
         case EXPR_TYPE_LITERAL_UINT32: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_UINT32); return;
         case EXPR_TYPE_LITERAL_INT64: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_INT64); return;
         case EXPR_TYPE_LITERAL_UINT64: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_UINT64); return;
         case EXPR_TYPE_LITERAL_STRING: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_STRING); return;
         case EXPR_TYPE_MODIFIER_CONST: emitBytes(OP_TYPE_MODIFIER, TYPE_MODIFIER_CONST); return;
+        case EXPR_TYPE_LITERAL_INT: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_INT); return;
         default: return; // unreachable.
     }
 }

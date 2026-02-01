@@ -8,6 +8,7 @@
 
 #include "scanner.h"
 #include <stdbool.h>
+#include <limits.h>
 
 typedef enum {
     PREC_NONE,
@@ -172,6 +173,7 @@ static bool checkTypeToken() {
         case TOKEN_TYPE_STRING:
         case TOKEN_ANY:
         case TOKEN_STRUCT:
+        case TOKEN_INT:
             return true;
         default:
             return false;
@@ -371,6 +373,7 @@ static ObjExpr* builtin(bool canAssign) {
         case TOKEN_TS_WRITE: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_TS_WRITE, 1);
         case TOKEN_TS_INTERRUPT: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_TS_INTERRUPT, 1);
         case TOKEN_TS_SYNC: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_TS_SYNC, 1);
+        case TOKEN_INT: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_INT, 1);
         default: return NULL; // Unreachable.
     } 
 }
@@ -434,13 +437,14 @@ static ObjExpr* type(bool canAssign) {
             case TOKEN_UINT8: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT8); break;
             case TOKEN_INT16: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT16); break;
             case TOKEN_UINT16: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT16); break;
-            case TOKEN_INT32: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INTEGER); break;
+            case TOKEN_INT32: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT32); break;
             case TOKEN_UINT32: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT32); break;
             case TOKEN_INT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT64); break;
             case TOKEN_UINT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT64); break;
             case TOKEN_MACHINE_FLOAT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MFLOAT64); break;
             case TOKEN_STRUCT: expression = (ObjExpr*) structExpression(); break;
-            default: expression = NULL; // Unreachable
+            case TOKEN_INT: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT); break;
+           default: expression = NULL; // Unreachable
         }
         pushWorkingNode((Obj*)expression);
     
@@ -604,8 +608,13 @@ static ObjExpr* number(bool canAssign) {
             double value = strtod(number_start, NULL);
             val = newExprNumberDouble(value);
         } else {
-            int value = atoi(number_start);
-            val = newExprNumberInteger(value);
+            val = newExprNumberInt(number_start, number_len);
+            if (int_is_range(&val->val.bigInt, INT32_MIN, INT32_MAX) == INT_WITHIN) // this won’t work for INT32_MAX or INT64_MAX as the - is not parsed here
+            {
+                ObjExprNumber *old = val;
+                val = newExprNumberInteger32(int_to_i32(&val->val.bigInt));
+//                FREE(ObjExprNumber, old); // will GC sort this?
+            } // todo why no i64?
         }
     }
     else {
@@ -712,6 +721,7 @@ static AstParseRule rules[] = {
     [TOKEN_TS_WRITE]             = {builtin,   NULL,   PREC_NONE},
     [TOKEN_TS_INTERRUPT]         = {builtin,   NULL,   PREC_NONE},
     [TOKEN_TS_SYNC]              = {builtin,   NULL,   PREC_NONE},
+    [TOKEN_INT]                  = {type,      NULL,   PREC_NONE},
 
     [TOKEN_ERROR]                = {NULL,      NULL,   PREC_NONE},
     [TOKEN_EOF]                  = {NULL,      NULL,   PREC_NONE},
@@ -805,7 +815,7 @@ static ObjExpr* typeExpression() {
             case TOKEN_UINT8: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT8); break;
             case TOKEN_INT16: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT16); break;
             case TOKEN_UINT16: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT16); break;
-            case TOKEN_INT32: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INTEGER); break;
+            case TOKEN_INT32: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT32); break;
             case TOKEN_UINT32: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT32); break;
             case TOKEN_INT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT64); break;
             case TOKEN_UINT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT64); break;
@@ -813,6 +823,7 @@ static ObjExpr* typeExpression() {
             case TOKEN_TYPE_STRING: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_STRING); break;
             case TOKEN_ANY: expression = (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL); break;
             case TOKEN_STRUCT: expression = (ObjExpr*) structExpression(); break;
+            case TOKEN_INT: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT); break;
             default:
                 error("Invalid type in expression.");
         }

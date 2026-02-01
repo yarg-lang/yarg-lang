@@ -83,7 +83,8 @@ typedef enum {
     EXPR_BUILTIN_TS_READ,
     EXPR_BUILTIN_TS_WRITE,
     EXPR_BUILTIN_TS_INTERRUPT,
-    EXPR_BUILTIN_TS_SYNC
+    EXPR_BUILTIN_TS_SYNC,
+    EXPR_BUILTIN_INT
 } ExprBuiltin;
 
 typedef struct {
@@ -120,7 +121,8 @@ typedef enum {
     NUMBER_INTEGER32,
     NUMBER_UINTEGER32,
     NUMBER_UINTEGER64,
-    NUMBER_ADDRESS
+    NUMBER_ADDRESS,
+    NUMBER_INT
 } NumberType;
 
 typedef struct {
@@ -132,6 +134,7 @@ typedef struct {
         uint32_t uinteger32;
         uint64_t ui64;
         uintptr_t address;
+        Int bigInt;
     } val;
 } ObjExprNumber;
 
@@ -182,13 +185,14 @@ typedef enum {
     EXPR_TYPE_LITERAL_UINT8,
     EXPR_TYPE_LITERAL_INT16,
     EXPR_TYPE_LITERAL_UINT16,
-    EXPR_TYPE_LITERAL_INTEGER,
+    EXPR_TYPE_LITERAL_INT32,
     EXPR_TYPE_LITERAL_UINT32,
     EXPR_TYPE_LITERAL_INT64,
     EXPR_TYPE_LITERAL_UINT64,
     EXPR_TYPE_LITERAL_MFLOAT64,
     EXPR_TYPE_LITERAL_STRING,
-    EXPR_TYPE_MODIFIER_CONST
+    EXPR_TYPE_MODIFIER_CONST,
+    EXPR_TYPE_LITERAL_INT
 } ExprTypeLiteral;
 
 typedef struct {
@@ -287,10 +291,11 @@ typedef struct {
 ObjAst* newObjAst();
 
 ObjExprNumber* newExprNumberDouble(double value);
-ObjExprNumber* newExprNumberInteger(int value);
+ObjExprNumber* newExprNumberInteger32(int value);
 ObjExprNumber* newExprNumberUInteger32(uint32_t value);
 ObjExprNumber* newExprNumberUInteger64(uint64_t value);
 ObjExprNumber* newExprNumberAddress(uintptr_t value);
+ObjExprNumber* newExprNumberInt(const char* numbers, int numberDigits);
 ObjExprLiteral* newExprLiteral(ExprLiteral literal);
 ObjExprString* newExprString(const char* str, int strLength);
 ObjExprOperation* newExprOperation(ObjExpr* rhs, ExprOp op);

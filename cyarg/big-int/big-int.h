@@ -4,6 +4,8 @@
 //
 //  Created by dlm on 18/01/2026.
 //
+#ifndef cyarg_bigint_bigint_h
+#define cyarg_bigint_bigint_h
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -30,10 +32,18 @@ typedef enum
     INT_GT
 } IntComp;
 
+typedef enum
+{
+    INT_BELOW,
+    INT_WITHIN,
+    INT_ABOVE
+} IntRange;
+
 
 // constructors
 void int_init(Int *);
 void int_set_i(int64_t, Int *);
+void int_set_u(uint64_t, Int *);
 void int_set_s(char const *, Int *);
 void int_set_t(Int const *, Int *);
 
@@ -49,6 +59,7 @@ void int_neg(Int *);
 bool int_is_zero(Int const *);
 IntComp int_is(Int const *, Int const *);
 IntComp int_is_abs(Int const *, Int const *);
+IntRange int_is_range(Int const *, int64_t, uint64_t);
 
 // output
 char const *int_to_s(Int const *, char *, int n);
@@ -64,3 +75,5 @@ void int_print(Int const *); // todo deprecated: remove once added to language
 void int_for_bc(Int const *); // todo deprecated: remove once added to language
 void int_dump(Int const *); // todo deprecated: remove once added to language
 void int_run_tests(void); // todo deprecated: remove once added to language
+
+#endif

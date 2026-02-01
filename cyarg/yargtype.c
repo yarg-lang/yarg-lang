@@ -25,7 +25,8 @@ ObjConcreteYargType* newYargTypeFromType(ConcreteYargType yt) {
         case TypeNativeBlob:
         case TypeRoutine:
         case TypeChannel:
-        case TypeYargType: {
+        case TypeYargType:
+        case TypeInt : {
             ObjConcreteYargType* t = ALLOCATE_OBJ(ObjConcreteYargType, OBJ_YARGTYPE);
             t->yt = yt;
             return t;
@@ -175,6 +176,8 @@ Value concrete_typeof(Value a) {
         return OBJ_VAL(newYargTypeFromType(TypeYargType));
     } else if (IS_POINTER(a)) {
         return OBJ_VAL(AS_POINTER(a)->type);
+    } else if (IS_INT(a)) {
+        return OBJ_VAL(newYargTypeFromType(TypeInt));
     }
     fatalVMError("Unexpected object type");
     return NIL_VAL;
@@ -205,6 +208,7 @@ bool type_packs_as_obj(ObjConcreteYargType* type) {
         case TypeChannel:
         case TypePointer:
         case TypeYargType:
+        case TypeInt:
             return true;
     }
 }
@@ -230,6 +234,7 @@ bool type_packs_as_container(ObjConcreteYargType* type) {
         case TypeRoutine:
         case TypeChannel:
         case TypeYargType:
+        case TypeInt:
             return false;
         case TypePointer:
         case TypeArray:
@@ -255,6 +260,7 @@ bool is_nil_assignable_type(Value type) {
             case TypeInt64:
             case TypeUint64:
             case TypeStruct:
+            case TypeInt:
                 return false;
             case TypeAny:
             case TypeString:
@@ -285,6 +291,7 @@ bool is_placeable_type(Value typeVal) {
             case TypeUint32: return true;
             case TypeInt64: return true;
             case TypeUint64: return true;
+            case TypeInt:
             case TypeArray: {
                 ObjConcreteYargTypeArray* ct = (ObjConcreteYargTypeArray*)AS_YARGTYPE(typeVal);
                 Value elementType = arrayElementType(ct);
@@ -362,7 +369,8 @@ size_t yt_sizeof_type_storage(Value type) {
         case TypeChannel:
         case TypePointer:
         case TypeYargType:
-            return sizeof(Obj*);
+        case TypeInt:
+           return sizeof(Obj*);
         }
     }
 }
@@ -396,6 +404,7 @@ Value defaultValue(Value type) {
             case TypeChannel:
             case TypeYargType:
                 return NIL_VAL;
+            case TypeInt: return OBJ_VAL(0);
         }
     }
 }
@@ -439,6 +448,22 @@ bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue) {
 
     if (lhsType->yt == TypeArray && rhsConcreteType->yt == TypeArray) {       
         return isInitializableArray((ObjConcreteYargTypeArray*)lhsType, (ObjConcreteYargTypeArray*)rhsConcreteType); 
+    } else if (lhsType->yt == TypeInt) {
+        switch (rhsConcreteType->yt) {
+        case TypeString:
+        case TypeInt8:
+        case TypeUint8:
+        case TypeInt16:
+        case TypeUint16:
+        case TypeInt32:
+        case TypeUint32:
+        case TypeInt64:
+        case TypeUint64:
+        case TypeInt:
+            return true;
+        default:
+            return false;
+        }
     } else {
         return lhsType->yt == rhsConcreteType->yt;
     }
@@ -517,6 +542,10 @@ static void printTypeLiteral(FILE* op, ObjConcreteYargType* type) {
             } else {
                 FPRINTMSG(op, "any");
             }
+            break;
+        }
+        case TypeInt: {
+            FPRINTMSG(op, "int ");
             break;
         }
         default: FPRINTMSG(op, "Unknown"); break;

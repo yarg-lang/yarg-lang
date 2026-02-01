@@ -217,27 +217,29 @@ static TokenType identifierType() {
                 switch (scanner.start[1]) {
                     case 'f': return checkKeyword(2, 0, "", TOKEN_IF);
                     case 'm': return checkKeyword(2, 4, "port", TOKEN_IMPORT);
-                    case 'n': {
+                    case 'n':
                         if (scanner.current - scanner.start > 2) {
                             switch (scanner.start[2]) {
-                                case 't': {
-                                    if (scanner.current - scanner.start > 3) {
-                                        switch (scanner.start[3]) {
-                                            case '1': return checkKeyword(4, 1, "6", TOKEN_INT16);
-                                            case '3': return checkKeyword(4, 1, "2", TOKEN_INT32);
-                                            case '6': return checkKeyword(4, 1, "4", TOKEN_INT64);
-                                            case '8': return checkKeyword(4, 0, "", TOKEN_INT8);
-                                            }
-                                        }
+                            case 't':
+                                if (scanner.current - scanner.start > 3) {
+                                    switch (scanner.start[3]) {
+                                    case '1': return checkKeyword(4, 1, "6", TOKEN_INT16);
+                                    case '3': return checkKeyword(4, 1, "2", TOKEN_INT32);
+                                    case '6': return checkKeyword(4, 1, "4", TOKEN_INT64);
+                                    case '8': return checkKeyword(4, 0, "", TOKEN_INT8);
                                     }
-
+                                }
+                                else
+                                {
+                                    return checkKeyword(3, 0, "", TOKEN_INT);
                                 }
                                 break;
                             }
                         }
                         break;
+                    }
                 }
-            }
+            break;
         case 'l': return checkKeyword(1, 2, "en", TOKEN_LEN);
         case 'm':
             if (scanner.current - scanner.start > 1) {
