@@ -609,12 +609,10 @@ static ObjExpr* number(bool canAssign) {
             val = newExprNumberDouble(value);
         } else {
             val = newExprNumberInt(number_start, number_len);
-            if (int_is_range(&val->val.bigInt, INT32_MIN, INT32_MAX) == INT_WITHIN) // this won’t work for INT32_MAX or INT64_MAX as the - is not parsed here
+            if (int_is_range(&val->val.bigInt, INT32_MIN, INT32_MAX) == INT_WITHIN) // this won’t work for INT32_MIN or INT64_MIN as the - is not parsed here
             {
-                ObjExprNumber *old = val;
-                val = newExprNumberInteger32(int_to_i32(&val->val.bigInt));
-//                FREE(ObjExprNumber, old); // will GC sort this?
-            } // todo why no i64?
+                val = newExprNumberInteger32(int_to_i32(&val->val.bigInt)); // todo will GC sort this?
+            } // todo what about i64?
         }
     }
     else {
