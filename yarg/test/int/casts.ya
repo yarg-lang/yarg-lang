@@ -1,0 +1,31 @@
+
+var ts = [int(100), int8(101), uint8(102), int16(103), uint16(104), int32(105), uint32(106), int64(107), uint64(108), "109", 110.5];
+print ts[0]; // expect: 100
+print ts[1]; // expect: 101
+print ts[2]; // expect: 102
+print ts[3]; // expect: 103
+print ts[4]; // expect: 104
+print ts[5]; // expect: 105
+print ts[6]; // expect: 106
+print ts[7]; // expect: 107
+print ts[8]; // expect: 108
+print ts[9]; // expect: 109
+print ts[10]; // expect: 110.5
+
+for (var x = 0; x < 11; x = x + 1)
+{
+    print "// expect: " + string(ts[x]);
+    print int(ts[x]);
+    print int8(ts[x]);
+    print uint8(ts[x]);
+    print int16(ts[x]);
+    print uint16(ts[x]);
+    print int32(ts[x]);
+    print uint32(ts[x]);
+    print int64(ts[x]);
+    print uint64(ts[x]);
+    print string(ts[x]);
+    print mfloat64(ts[x]);
+}
+
+print "Done"; // expect: Done
