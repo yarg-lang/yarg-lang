@@ -374,6 +374,8 @@ static ObjExpr* builtin(bool canAssign) {
         case TOKEN_TS_INTERRUPT: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_TS_INTERRUPT, 1);
         case TOKEN_TS_SYNC: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_TS_SYNC, 1);
         case TOKEN_INT: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_INT, 1);
+        case TOKEN_MACHINE_FLOAT64: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_MFLOAT64, 1);
+        case TOKEN_STRING: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_STRING, 1);
         default: return NULL; // Unreachable.
     } 
 }

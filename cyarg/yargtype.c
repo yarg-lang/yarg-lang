@@ -448,22 +448,6 @@ bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue) {
 
     if (lhsType->yt == TypeArray && rhsConcreteType->yt == TypeArray) {       
         return isInitializableArray((ObjConcreteYargTypeArray*)lhsType, (ObjConcreteYargTypeArray*)rhsConcreteType); 
-    } else if (lhsType->yt == TypeInt) {
-        switch (rhsConcreteType->yt) {
-        case TypeString:
-        case TypeInt8:
-        case TypeUint8:
-        case TypeInt16:
-        case TypeUint16:
-        case TypeInt32:
-        case TypeUint32:
-        case TypeInt64:
-        case TypeUint64:
-        case TypeInt:
-            return true;
-        default:
-            return false;
-        }
     } else {
         return lhsType->yt == rhsConcreteType->yt;
     }
