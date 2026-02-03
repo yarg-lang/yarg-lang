@@ -111,7 +111,9 @@ typedef enum {
     BUILTIN_TS_WRITE,
     BUILTIN_TS_INTERRUPT,
     BUILTIN_TS_SYNC,
-    BUILTIN_INT
+    BUILTIN_INT,
+    BUILTIN_MFLOAT64,
+    BUILTIN_STRING
 } BuiltinFn;
 
 typedef enum {

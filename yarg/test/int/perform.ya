@@ -1,0 +1,151 @@
+const maxRand = 0x7fffffff;
+var seed = 0d173993;
+
+fun rand() {
+
+    // https://github.com/kraj/uClibc/blob/master/libc/stdlib/rand_r.c#L25
+
+    var next = seed;
+    var result;
+
+    next = next * 0d1103515245;
+    next = next + 0d12345;
+    result = (next / 0d65536) % 0d2048;
+
+    next = next * 0d1103515245;
+    next = next + 0d12345;
+    result = result << 0d10;
+    result = result ^ ((next / 0d65536) % 0d1024);
+
+    next = next * 0d1103515245;
+    next = next + 0d12345;
+    result = result << 0d10;
+    result = result ^ ((next / 0d65536) % 0d1024);
+
+    seed = next;
+    return next & maxRand;
+}
+
+fun int_rand() {
+    const size = rand() % 0d33; // max 33 * 31 => 1023 bits
+    var int x = int(rand());
+
+    for (var i = 0d0; i < size; i = i + 0d1)
+    {
+        x = x * int(0x80000000) + int(rand());
+    }
+
+    if (size == 0d32)
+    {
+        if (rand() % 0d2 == 0d1)
+        {
+            x = x + 89884656743115795386465259539451236680898848947115328636715040578866337902750481566354238661203768010560056939935696678829394884407208311246423715319737062188883946712432742638151109800623047059726541476042502884419075341171231440736956555270413618581675255342293149119973622969239858152417678164812112068608;
+        }
+    }
+
+    if (rand() % 0d2 == 0d1)
+    {
+        return -x;
+    }
+    else
+    {
+        return x;
+    }
+}
+
+var rts = new(int[500]);
+
+for (var int32 x = 0; x < 500; x = x + 1)
+{
+    rts[x] = int_rand();
+}
+
+//for (var x = 0; x < 500; x = x + 1)
+//{
+//    print rts[x];
+//}
+
+var uint64 s1 = clock();
+print "Add";
+for (var i = 0; i < 500; i = i + 1) for (var j = 0; j < 500; j = j + 1) for (var k = 0; k < 7; k = k + 1)
+{
+    rts[i] + rts[j];
+}
+var t = mfloat64(clock() - s1);
+print t / 500.0 / 500.0 / 7.0 * 1000.0;
+
+var uint64 s1 = clock();
+print "Sub";
+for (var i = 0; i < 500; i = i + 1) for (var j = 0; j < 500; j = j + 1) for (var k = 0; k < 7; k = k + 1)
+{
+    rts[i] - rts[j];
+}
+print mfloat64(clock() - s1) / 500.0 / 500.0 / 7.0 * 1000.0;
+
+var uint64 s1 = clock();
+print "Mul";
+for (var i = 0; i < 170; i = i + 1) for (var j = 0; j < 170; j = j + 1)
+{
+    rts[i] * rts[j];
+}
+print mfloat64(clock() - s1) / 170.0 / 170.0 * 1000.0;
+
+var uint64 s1 = clock();
+print "Div";
+for (var i = 0; i < 160; i = i + 1) for (var j = 0; j < 160; j = j + 1)
+{
+    rts[i] / rts[j];
+}
+print mfloat64
+(clock() - s1) / 160.0 / 160.0 * 1000.0;
+
+//rand: // pipe the output from here into `bc -lLS 0`
+//    for (int x = 0; x < 100000; x++)
+//    {
+//        printf("%d\n", x);
+//
+//        int_make_random(&a);int_invariant(&a);
+//        int_make_random(&b);int_invariant(&b);
+//
+//        int_add(&a, &b, &s);
+//        if (!s.overflow_)
+//        {
+//            int_invariant(&s);
+//            int_for_bc(&a);printf(" + ");int_for_bc(&b);printf(" - ");int_for_bc(&s);printf("\n");
+//        }
+//        else
+//        {
+//            //            printf("%d\n", x);
+//            s.overflow_ = false;
+//        }
+//
+//        int_sub(&a, &b, &d);
+//        if (!d.overflow_)
+//        {
+//            int_invariant(&d);
+//            int_for_bc(&a);printf(" - ");int_for_bc(&b);printf(" - ");int_for_bc(&d);printf("\n");
+//        }
+//        else
+//        {
+//            //            printf("%d\n", x);
+//            d.overflow_ = false;
+//        }
+//
+//        int_mul(&a, &b, &p);
+//        if (!p.overflow_)
+//        {
+//            int_invariant(&p);
+//            int_print(&a);printf(" * ");int_print(&b); printf(" - ");int_print(&p);printf("\n");
+//        }
+//        else
+//        {
+//            //            printf("%d\n", x);
+//            p.overflow_ = false;
+//        }
+//
+//        int_div(&a, &b, &q, &r);int_invariant(&q);int_invariant(&r);
+//        int_for_bc(&a);printf(" / ");int_for_bc(&b);printf(" - ");int_for_bc(&q);printf("\n");
+//        int_for_bc(&a);printf(" %% ");int_for_bc(&b);printf(" - ");int_for_bc(&r);printf("\n");
+//    }
+//}
+//

@@ -534,6 +534,8 @@ static void generateExprBuiltin(ObjExprBuiltin* fn) {
         case EXPR_BUILTIN_TS_INTERRUPT: emitBytes(OP_GET_BUILTIN, BUILTIN_TS_INTERRUPT); break;
         case EXPR_BUILTIN_TS_SYNC: emitBytes(OP_GET_BUILTIN, BUILTIN_TS_SYNC); break;
         case EXPR_BUILTIN_INT: emitBytes(OP_GET_BUILTIN, BUILTIN_INT); break;
+        case EXPR_BUILTIN_MFLOAT64: emitBytes(OP_GET_BUILTIN, BUILTIN_MFLOAT64); break;
+        case EXPR_BUILTIN_STRING: emitBytes(OP_GET_BUILTIN, BUILTIN_STRING); break;
     }
 }
 
