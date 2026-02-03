@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <inttypes.h>
 
 #include "common.h"
 #include "object.h"
@@ -1063,7 +1064,7 @@ bool stringBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     } else if (IS_UI64(arg)) {
         uint64_t i = AS_UI64(arg);
         char sb[22];
-        int l = sprintf(sb, "%llu", i);
+        int l = sprintf(sb, "%" PRIu64, i);
         ObjString* string = copyString(sb, l);
         result->as.obj = &string->obj;
         result->type = VAL_OBJ;
@@ -1094,7 +1095,7 @@ bool stringBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         return false;
     }
     char sb[22];
-    int l = sprintf(sb, "%lld", i);
+    int l = sprintf(sb, "%" PRId64, i);
     ObjString* string = copyString(sb, l);
     result->as.obj = &string->obj;
     result->type = VAL_OBJ;
