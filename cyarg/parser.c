@@ -375,7 +375,7 @@ static ObjExpr* builtin(bool canAssign) {
         case TOKEN_TS_SYNC: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_TS_SYNC, 1);
         case TOKEN_INT: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_INT, 1);
         case TOKEN_MACHINE_FLOAT64: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_MFLOAT64, 1);
-        case TOKEN_STRING: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_STRING, 1);
+        case TOKEN_TYPE_STRING: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_STRING, 1);
         default: return NULL; // Unreachable.
     } 
 }
@@ -446,6 +446,7 @@ static ObjExpr* type(bool canAssign) {
             case TOKEN_MACHINE_FLOAT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MFLOAT64); break;
             case TOKEN_STRUCT: expression = (ObjExpr*) structExpression(); break;
             case TOKEN_INT: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT); break;
+            case TOKEN_TYPE_STRING: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT); break;
            default: expression = NULL; // Unreachable
         }
         pushWorkingNode((Obj*)expression);
@@ -704,7 +705,7 @@ static AstParseRule rules[] = {
     [TOKEN_SEND]                 = {builtin,   NULL,   PREC_NONE},
     [TOKEN_SHARE]                = {builtin,   NULL,   PREC_NONE},
     [TOKEN_START]                = {builtin,   NULL,   PREC_NONE},
-    [TOKEN_TYPE_STRING]          = {NULL,      NULL,   PREC_NONE},
+    [TOKEN_TYPE_STRING]          = {type,      NULL,   PREC_NONE},
     [TOKEN_STRUCT]               = {type,      NULL,   PREC_NONE},
     [TOKEN_SUPER]                = {super_,    NULL,   PREC_NONE},
     [TOKEN_THIS]                 = {this_,     NULL,   PREC_NONE},
@@ -731,8 +732,10 @@ static AstParseRule* getRule(TokenType type) {
     return &rules[type];
 }
 
-static ObjExpr* parsePrecedence(Precedence precedence) {
+static int xxxx=0;
+static ObjExpr* parsePrecedence(Precedence precedence) {xxxx++;
     advance();
+    int ddd=TOKEN_TYPE_STRING;
     AstParseFn prefixRule = getRule(parser.previous.type)->prefix;
     if (prefixRule == NULL) {
         error("Expect expression.");
