@@ -732,10 +732,8 @@ static AstParseRule* getRule(TokenType type) {
     return &rules[type];
 }
 
-static int xxxx=0;
-static ObjExpr* parsePrecedence(Precedence precedence) {xxxx++;
+static ObjExpr* parsePrecedence(Precedence precedence) {
     advance();
-    int ddd=TOKEN_TYPE_STRING;
     AstParseFn prefixRule = getRule(parser.previous.type)->prefix;
     if (prefixRule == NULL) {
         error("Expect expression.");
