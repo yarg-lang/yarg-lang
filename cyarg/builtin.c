@@ -992,7 +992,7 @@ bool intBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     } else if (IS_DOUBLE(arg)) { // todo  handle floats larger than int64
         double f = AS_DOUBLE(arg);
         char sb[310];
-        sprintf(sb, "%308.0f", f);
+        sprintf(sb, "%.0f", f);
         ObjInt *newObj = ALLOCATE_OBJ(ObjInt, OBJ_INT);
         result->as.obj = &newObj->obj;
         result->type = VAL_OBJ;
