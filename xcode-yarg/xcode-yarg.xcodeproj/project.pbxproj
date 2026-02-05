@@ -31,6 +31,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		5A34E0B12F33200200D51F7D /* Exceptions for "hostyarg" folder in "xcode-yarg" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				internal/littlefs/bdfs_lfs_hal.c,
+			);
+			target = 5A8D28312EDDB59F0068C8C3 /* xcode-yarg */;
+		};
 		5AAAC3692F233239004C0336 /* Exceptions for "cyarg" folder in "xcode-yarg" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -39,21 +46,9 @@
 			);
 			target = 5A8D28312EDDB59F0068C8C3 /* xcode-yarg */;
 		};
-		5AB15E9E2EF274EF00FEB3F7 /* Exceptions for "hostyarg" folder in "xcode-yarg" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				bdfs_lfs_hal.c,
-			);
-			target = 5A8D28312EDDB59F0068C8C3 /* xcode-yarg */;
-		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		5AE1479D2EDDBA7B00CBDF09 /* test */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = test;
-			sourceTree = "<group>";
-		};
 		5AE149EA2EDDBB7400CBDF09 /* cyarg */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -72,7 +67,7 @@
 		5AE14A002EDDBB7400CBDF09 /* hostyarg */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				5AB15E9E2EF274EF00FEB3F7 /* Exceptions for "hostyarg" folder in "xcode-yarg" target */,
+				5A34E0B12F33200200D51F7D /* Exceptions for "hostyarg" folder in "xcode-yarg" target */,
 			);
 			name = hostyarg;
 			path = ../hostyarg;
@@ -114,7 +109,6 @@
 			children = (
 				5ADA7C9D2EE8CB8F00319EC0 /* xcode-yarg.xcodeproj */,
 				5AE149B42EDDBB4800CBDF09 /* yarg */,
-				5AE1479D2EDDBA7B00CBDF09 /* test */,
 				5A8D28332EDDB59F0068C8C3 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -270,7 +264,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -335,7 +329,7 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"CYARG_PTHREADS_SYNC=1",
