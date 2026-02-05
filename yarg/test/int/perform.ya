@@ -65,7 +65,7 @@ for (var int32 x = 0; x < 500; x = x + 1)
 //    print rts[x];
 //}
 
-var uint64 s1 = clock();
+var s1 = clock();
 print "Add";
 for (var i = 0; i < 500; i = i + 1) for (var j = 0; j < 500; j = j + 1) for (var k = 0; k < 7; k = k + 1)
 {
@@ -74,7 +74,7 @@ for (var i = 0; i < 500; i = i + 1) for (var j = 0; j < 500; j = j + 1) for (var
 var t = mfloat64(clock() - s1);
 print t / 500.0 / 500.0 / 7.0 * 1000.0;
 
-var uint64 s1 = clock();
+s1 = clock();
 print "Sub";
 for (var i = 0; i < 500; i = i + 1) for (var j = 0; j < 500; j = j + 1) for (var k = 0; k < 7; k = k + 1)
 {
@@ -82,7 +82,7 @@ for (var i = 0; i < 500; i = i + 1) for (var j = 0; j < 500; j = j + 1) for (var
 }
 print mfloat64(clock() - s1) / 500.0 / 500.0 / 7.0 * 1000.0;
 
-var uint64 s1 = clock();
+s1 = clock();
 print "Mul";
 for (var i = 0; i < 170; i = i + 1) for (var j = 0; j < 170; j = j + 1)
 {
@@ -90,7 +90,7 @@ for (var i = 0; i < 170; i = i + 1) for (var j = 0; j < 170; j = j + 1)
 }
 print mfloat64(clock() - s1) / 170.0 / 170.0 * 1000.0;
 
-var uint64 s1 = clock();
+s1 = clock();
 print "Div";
 for (var i = 0; i < 160; i = i + 1) for (var j = 0; j < 160; j = j + 1)
 {
@@ -99,53 +99,3 @@ for (var i = 0; i < 160; i = i + 1) for (var j = 0; j < 160; j = j + 1)
 print mfloat64
 (clock() - s1) / 160.0 / 160.0 * 1000.0;
 
-//rand: // pipe the output from here into `bc -lLS 0`
-//    for (int x = 0; x < 100000; x++)
-//    {
-//        printf("%d\n", x);
-//
-//        int_make_random(&a);int_invariant(&a);
-//        int_make_random(&b);int_invariant(&b);
-//
-//        int_add(&a, &b, &s);
-//        if (!s.overflow_)
-//        {
-//            int_invariant(&s);
-//            int_for_bc(&a);printf(" + ");int_for_bc(&b);printf(" - ");int_for_bc(&s);printf("\n");
-//        }
-//        else
-//        {
-//            //            printf("%d\n", x);
-//            s.overflow_ = false;
-//        }
-//
-//        int_sub(&a, &b, &d);
-//        if (!d.overflow_)
-//        {
-//            int_invariant(&d);
-//            int_for_bc(&a);printf(" - ");int_for_bc(&b);printf(" - ");int_for_bc(&d);printf("\n");
-//        }
-//        else
-//        {
-//            //            printf("%d\n", x);
-//            d.overflow_ = false;
-//        }
-//
-//        int_mul(&a, &b, &p);
-//        if (!p.overflow_)
-//        {
-//            int_invariant(&p);
-//            int_print(&a);printf(" * ");int_print(&b); printf(" - ");int_print(&p);printf("\n");
-//        }
-//        else
-//        {
-//            //            printf("%d\n", x);
-//            p.overflow_ = false;
-//        }
-//
-//        int_div(&a, &b, &q, &r);int_invariant(&q);int_invariant(&r);
-//        int_for_bc(&a);printf(" / ");int_for_bc(&b);printf(" - ");int_for_bc(&q);printf("\n");
-//        int_for_bc(&a);printf(" %% ");int_for_bc(&b);printf(" - ");int_for_bc(&r);printf("\n");
-//    }
-//}
-//
