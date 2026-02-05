@@ -381,6 +381,8 @@ void printExprBuiltin(ObjExprBuiltin* fn) {
         case EXPR_BUILTIN_TS_INTERRUPT: printf("test_interrupt"); break;
         case EXPR_BUILTIN_TS_SYNC: printf("test_sync"); break;
         case EXPR_BUILTIN_INT: printf("int"); break;
+        case EXPR_BUILTIN_MFLOAT64: printf("mfloat64"); break;
+        case EXPR_BUILTIN_STRING: printf("string"); break;
     }
 }
 
