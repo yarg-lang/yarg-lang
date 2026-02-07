@@ -35,8 +35,6 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       enableASanStackUseAfterReturn = "YES"
-      enableThreadSanitizer = "YES"
-      enableUBSanitizer = "YES"
       disableMainThreadChecker = "YES"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
@@ -59,7 +57,7 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "$HOME/Documents/Personal/Dev/yarg/yarg-lang/yarg/test/int/perform.ya"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "$HOME/Documents/Personal/Dev/yarg/yarg-lang/yarg/test/int/perform-t.ya"
@@ -71,6 +69,10 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "$HOME/Documents/Personal/Dev/yarg/yarg-lang/yarg/test/int/int.ya"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$HOME/Documents/Personal/Dev/yarg/yarg-lang/yarg/test/int/bc.ya"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>

@@ -1,0 +1,110 @@
+const reps = 10000;
+
+// https://github.com/kraj/uClibc/blob/master/libc/stdlib/rand_r.c#L25
+const maxRand = 0x7fffffff;
+var seed = 0d173993;
+fun rand()
+{
+    var next = seed;
+    var result;
+
+    next = next * 0d1103515245;
+    next = next + 0d12345;
+    result = (next / 0d65536) % 0d2048;
+
+    next = next * 0d1103515245;
+    next = next + 0d12345;
+    result = result << 0d10;
+    result = result ^ ((next / 0d65536) % 0d1024);
+
+    next = next * 0d1103515245;
+    next = next + 0d12345;
+    result = result << 0d10;
+    result = result ^ ((next / 0d65536) % 0d1024);
+
+    seed = next;
+    return next & maxRand;
+}
+
+const shifter = int(0x80000000);
+var temp = new(int[4]);
+fun int_rand()
+{
+    const size = rand() % 0d33; // max 33 * 31 => 1023 bits
+    var int x = int(rand());
+
+    for (var i = 0d0; i < size; i = i + 0d1)
+    {
+        x = x * shifter + int(rand());
+    }
+
+    if (size == 0d32)
+    {
+        if (rand() % 0d2 == 0d1)
+        {
+            x = x + 89884656743115795386465259539451236680898848947115328636715040578866337902750481566354238661203768010560056939935696678829394884407208311246423715319737062188883946712432742638151109800623047059726541476042502884419075341171231440736956555270413618581675255342293149119973622969239858152417678164812112068608;
+        }
+    }
+
+    if (rand() % 0d2 == 0d1)
+    {
+        return -x;
+    }
+    else
+    {
+        return x;
+    }
+}
+
+const zint = int(0);
+
+
+for (var x = 0; x < reps; x = x + 1)
+{
+    print x;
+
+    var a = int_rand();
+    var b = int_rand();
+
+
+    var s = a + b;
+
+    if (s - a == b) // no overflow
+    {
+        print string(a) + " + " + string(b) + " - " + string(s);
+    }
+    else
+    {
+        print "#overflow+";
+    }
+
+    var d = a - b;
+    if (d + b == a)
+    {
+        print string(a) + " - " + string(b) + " - " + string(d);
+    }
+    else
+    {
+        print "#overflow-";
+    }
+
+    var p = a * b;
+    if (p / a == b)
+    {
+        print string(a) + " * " + string(b) + " - " + string(p);
+    }
+    else
+    {
+        print "#overflow*";
+    }
+
+    var q = a / b;
+    var r = a % b;
+    if (a < zint) // put r back to normal c/bc modulus
+    {
+        r = r - b;
+    }
+    print string(a) + " / " + string(b) + " - " + string(q);
+    print string(a) + " % " + string(b) + " - " + string(r);
+}
+

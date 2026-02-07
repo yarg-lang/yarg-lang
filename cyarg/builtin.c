@@ -1078,6 +1078,7 @@ bool stringBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         char sb[311];
         Int *i = AS_INT(arg);
         char const *s = int_to_s(i, sb, 311);
+//        char const *s = int_for_bc(i);
         int len = (int)strlen(s);
         ObjString* string = copyString(s, len);
         result->as.obj = &string->obj;

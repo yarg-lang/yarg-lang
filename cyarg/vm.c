@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #ifdef CYARG_PICO_SDK_TARGET
 #include <pico/multicore.h>
 #endif
@@ -1361,6 +1362,8 @@ void binaryIntOp(ObjRoutine* routine, char const *c)
         int_div(a, b, &q, &r->bigInt); // todo int_div should handle q == 0
         break;
     }
+    default:
+        assert(!"IntOp");
     }
     routine->stackTopIndex -= 2;
     push(routine, OBJ_VAL(r));
@@ -1372,17 +1375,22 @@ void binaryIntBoolOp(ObjRoutine* routine, char const *op)
     Int *a = AS_INT(pop(routine));
     IntComp ic = int_is(a, b);
     bool r;
-    switch (ic)
+    switch (*op)
     {
-    case INT_LT:
-        r = strcmp(op, "<") == 0 || strcmp(op, "<=") == 0;
+    case '<':
+        assert(op[1] == 0);
+        r = ic == INT_LT;
         break;
-    case INT_GT:
-        r = strcmp(op, ">") == 0 || strcmp(op, ">=") == 0;
+    case '>':
+        assert(op[1] == 0);
+        r = ic == INT_GT;
         break;
-    case INT_EQ:
-        r = strcmp(op, "==") == 0;
+    case '=':
+        assert(op[1] == '=');
+        r = ic == INT_EQ;
         break;
+    default:
+        assert(!"BinaryOp");
     }
     push(routine, BOOL_VAL(r));
 }
