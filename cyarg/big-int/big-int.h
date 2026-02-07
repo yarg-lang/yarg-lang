@@ -73,7 +73,6 @@ void int_invariant(Int const *);
 void int_make_random(Int *); // constructor
 void int_print(Int const *); // todo deprecated: remove once added to language
 void int_for_bc(Int const *); // todo deprecated: remove once added to language
-void int_dump(Int const *); // todo deprecated: remove once added to language
 void int_run_tests(void); // todo deprecated: remove once added to language
 
 #endif

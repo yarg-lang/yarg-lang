@@ -1343,10 +1343,12 @@ InterpretResult interpret(const char* source) {
 
 void binaryIntOp(ObjRoutine* routine, char const *c)
 {
-    Int *b = AS_INT(pop(routine));
-    Int *a = AS_INT(pop(routine));
+    Int *a = AS_INT(peek(routine, 1));
+    Int *b = AS_INT(peek(routine, 0));
+
     ObjInt *r = ALLOCATE_OBJ(ObjInt, OBJ_INT);
     int_init(&r->bigInt);
+
     switch (*c)
     {
     case '+': int_add(a, b, &r->bigInt); break;
@@ -1356,10 +1358,11 @@ void binaryIntOp(ObjRoutine* routine, char const *c)
     case '%': {
         Int q;
         int_init(&q);
-        int_div(a, b, &q, &r->bigInt);
+        int_div(a, b, &q, &r->bigInt); // todo int_div should handle q == 0
         break;
     }
     }
+    routine->stackTopIndex -= 2;
     push(routine, OBJ_VAL(r));
 }
 
