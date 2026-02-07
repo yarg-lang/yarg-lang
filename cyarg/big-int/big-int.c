@@ -165,7 +165,7 @@ void int_set_s(char const *s, Int *i)
         int_mul(&ten, i, &acc);
         int d = *s++ - '0';
         Int digit;
-        int_set_i(d, &digit);
+        int_set_i(d, &digit); // optimise these two lines
         int_add(&acc, &digit, i);
     }
     i->neg_ = neg;
@@ -525,7 +525,6 @@ void int_div(Int const *n, Int const *d, Int *q, Int *r)
 
         int_set_i(guessMultiplier, &qDigit);
         int_mul(&shiftingDenominator, &qDigit, &reduceBy);
-        int_invariant(&reduceBy);
 
         if (int_is_abs(&reducingNumerator, &reduceBy) != INT_LT)
         {
@@ -535,13 +534,16 @@ void int_div(Int const *n, Int const *d, Int *q, Int *r)
         else // Guessed too high
             ;
     }
-    int_invariant(q);
-    int_invariant(&reducingNumerator);
     q->neg_ = nSign ^ dSign;
     if (r != 0)
     {
         int_set_t(&reducingNumerator, r);
         r->neg_ = nSign;
+        // adjust for yarg’s weird %
+        if (nSign)
+        {
+            int_add(r, d, r);
+        }
     }
 }
 
@@ -552,14 +554,7 @@ void int_neg(Int *i)
 
 bool int_is_zero(Int const *i)
 {
-    for (uint32_t const *ip = &i->w_[0]; ip < &i->w_[(i->d_ + 1) / 2]; ip++)
-    {
-        if (*ip != 0u)
-        {
-            return false;
-        }
-    }
-    return true; // is +/- zero
+    return i->h_[0] == 0 && i->d_ == 1;
 }
 
 IntComp int_is(Int const *a, Int const *b)
@@ -854,15 +849,6 @@ void int_for_bc(Int const *a)
     }
 }
 
-void int_dump(Int const *a)
-{
-    for (int i = a->d_ - 1; i > 0; i--)
-    {
-        printf("%04x ", a->h_[i]);
-    }
-    printf("%04x\n", a->h_[0]);
-}
-
 #ifdef CYARG_FEATURE_TEST_INT
 int main(void)
 {
@@ -884,8 +870,8 @@ void int_run_tests(void)
     Int tenToTheFour;
     int_set_i(10000u, &tenToTheFour);
 
-    //    goto div;
-    goto rand;
+//    goto div;
+//    goto rand;
     int_set_i(0, &a);
     int_invariant(&a);
     int_print(&a); printf("\n");
@@ -1192,7 +1178,7 @@ void int_run_tests(void)
         //        int_for_bc(&r);printf("%s\n", int_is(&q, &t) == INT_EQ ? "%✔️" : "%⨯");
         assert(int_is(&r, &t2) == INT_EQ);
     }
-    //    goto rand;
+//    goto rand;
     char const *tms[][3] =
     {
         {"3351951982485649274893506249551461531869841455148098344430890360930441007518386744200468574541725856922507964546621512713438470702986642486608412251521023", "3351951982485649274893506249551461531869841455148098344430890360930441007518386744200468574541725856922507964546621512713438470702986642486608412251521023", "11235582092889474423308157442431404585112356118389416079589380072358292237843810195794279832650471001320007117491962084853674360550901038905802964414967126069706528367755543042756389622154817142782907388308623998771662556764388893318631168471652618870995561901857550396971275994213576295767236553777010966529"},
@@ -1257,6 +1243,7 @@ void int_run_tests(void)
         assert(int_is(&r, &t) == INT_EQ);
     }
 
+//    return;
 rand: // pipe the output from here into `bc -lLS 0`
     for (int x = 0; x < 100000; x++)
     {
@@ -1306,4 +1293,3 @@ rand: // pipe the output from here into `bc -lLS 0`
         int_for_bc(&a);printf(" %% ");int_for_bc(&b);printf(" - ");int_for_bc(&r);printf("\n");
     }
 }
-

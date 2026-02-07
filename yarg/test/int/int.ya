@@ -211,7 +211,7 @@ fun tssf() {
         var b = tss[x][1];
         var t = tss[x][2];
         var d = a - b;
-        print d==int(t);
+        print d==int(t); // expect: true
     }
 }
 tssf();

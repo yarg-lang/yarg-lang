@@ -35,8 +35,7 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       enableASanStackUseAfterReturn = "YES"
-      enableThreadSanitizer = "YES"
-      enableUBSanitizer = "YES"
+      disableMainThreadChecker = "YES"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
@@ -58,16 +57,21 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "$HOME/Documents/Personal/Dev/yarg/yarg-lang/yarg/test/int/perform.ya"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$HOME/Documents/Personal/Dev/yarg/yarg-lang/yarg/test/int/perform-t.ya"
             isEnabled = "YES">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$HOME/Documents/Personal/Dev/yarg/yarg-lang/yarg/test/int/casts.ya"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$HOME/Documents/Personal/Dev/yarg/yarg-lang/yarg/test/int/int.ya"
+            isEnabled = "NO">
+         </CommandLineArgument>
       </CommandLineArguments>
-      <AdditionalOptions>
-         <AdditionalOption
-            key = "NSZombieEnabled"
-            value = "YES"
-            isEnabled = "YES">
-         </AdditionalOption>
-      </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

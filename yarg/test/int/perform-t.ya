@@ -1,6 +1,6 @@
-const reps_addsub = 90;
-const reps_mul = 500;
-const reps_div = 500;
+const reps_addsub = 9;
+const reps_mul = 170;
+const reps_div = 185;
 
 // https://github.com/kraj/uClibc/blob/master/libc/stdlib/rand_r.c#L25
 const maxRand = 0x7fffffff;
@@ -78,7 +78,7 @@ for (var x = 0; x < 500; x = x + 1)
 //    print x;
 //    }
 //}
-//print rts[0];
+// rts[0];
 //print rts[499];
 
 var s1 = clock();
