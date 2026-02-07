@@ -439,7 +439,12 @@ void int_div(Int const *n, Int const *d, Int *q, Int *r)
         {
             int_set_t(n, r);
             int_init(q);
-        }
+            // adjust for yarg’s weird %
+            if (n->neg_)
+            {
+                int_add(r, d, r);
+            }
+       }
         return;
     }
 
@@ -652,6 +657,7 @@ char const *int_to_s(Int const *i, char *s, int n)
 
     Int v;
     int_set_t(i, &v);
+    v.neg_ = false;
     Int tenToTheFour;
     int_set_i(10000u, &tenToTheFour);
 
