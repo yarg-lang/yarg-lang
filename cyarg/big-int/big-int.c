@@ -162,10 +162,10 @@ void int_set_s(char const *s, Int *i)
     }
     while (*s != 0)
     {
-        int_mul(&ten, i, &acc);
+        int_mul(&ten, i, &acc); // todo mul by uint16 optimisation
         int d = *s++ - '0';
         Int digit;
-        int_set_i(d, &digit); // optimise these two lines
+        int_set_i(d, &digit); // todo add to uint16 optimisation
         int_add(&acc, &digit, i);
     }
     i->neg_ = neg;
@@ -295,7 +295,7 @@ void int_shift(int shift, Int *i)
             i->d_ += shift;
             if (i->d_ < i->m_)
             {
-                i->h_[i->d_] = 0u; // only need to do if rd.d_ + shift is odd - but why not
+                i->h_[i->d_] = 0u; // only need to do if rd.d_ + shift && shift is odd - but why not
             }
         }
         else
@@ -390,7 +390,7 @@ void int_mul(Int const *a, Int const *b, Int *r)
         {
 //            printf(".%ld/%ld", ap - a->h_, bp - b->h_);
             Int pp;
-            int_set_i((uint32_t) *ap * (uint32_t) *bp, &pp);
+            int_set_i((uint32_t) *ap * (uint32_t) *bp, &pp); // todo cast to int32 to use M0 single instruction mul
             if (rp - r->h_ + pp.d_ > r->m_)
             {
                 r->overflow_ = true;
@@ -398,7 +398,7 @@ void int_mul(Int const *a, Int const *b, Int *r)
             }
             int_shift((int)(rp - r->h_), &pp);
 //            printf("%d:%d := %d %d\n", (int)pp.h16_, (int)pp.l16_, (int)*ap, (int)*bp);
-            int_add(r, &pp, r);
+            int_add(r, &pp, r); // todo add shifted uint32 optimisation
             if (r->overflow_)
             {
                 break;
@@ -522,7 +522,7 @@ void int_div(Int const *n, Int const *d, Int *q, Int *r)
             }
             guessNumerator.l16_ = reducingNumerator.h_[nDigit - 1];
         }
-        uint32_t guessMultiplier = guessNumerator.u32_ / testDenominator;
+        uint32_t guessMultiplier = guessNumerator.u32_ / testDenominator; // todo compare div_u32u32();
         if (guessMultiplier == 0u)
         {
             guessMultiplier = 1u;
