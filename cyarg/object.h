@@ -224,6 +224,7 @@ ObjBlob* newBlob(size_t size);
 ObjPackedUniformArray* newPackedUniformArray(ObjConcreteYargTypeArray* type);
 ObjString* takeString(char* chars, int length);
 ObjString* copyString(const char* chars, int length);
+ObjString* copyStringWithEscapes(const char* chars, int length);
 ObjUpvalue* newUpvalue(ValueCell* slot, size_t stackOffset);
 
 PackedValue arrayElement(PackedValue array, size_t index);

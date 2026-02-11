@@ -374,6 +374,36 @@ ObjString* copyString(const char* chars, int length) {
     return allocateString(heapChars, length, hash);
 }
 
+ObjString* copyStringWithEscapes(const char* chars, int length)
+{
+    char* heapChars = ALLOCATE(char, length + 1);
+
+    char const *in = chars;
+    char *out = heapChars;
+    int lengthOut = 0;
+    for (int i = 0; i < length && *in != '\0'; i++)
+    {
+        if (*in == '\\')
+        {
+            in++;
+            i++;
+        }
+        *out++ = *in++;
+        lengthOut++;
+    }
+    uint32_t hash = hashString(heapChars, lengthOut);
+    ObjString* interned = tableFindString(&vm.strings, heapChars, lengthOut, hash);
+    if (interned != NULL)
+    {
+        FREE(char, heapChars);
+        return interned;
+    }
+
+    *out = '\0';
+    return allocateString(heapChars, lengthOut, hash);
+}
+
+
 ObjUpvalue* newUpvalue(ValueCell* slot, size_t stackOffset) {
     ObjUpvalue* upvalue = ALLOCATE_OBJ(ObjUpvalue, OBJ_UPVALUE);
     upvalue->closed.value = NIL_VAL;

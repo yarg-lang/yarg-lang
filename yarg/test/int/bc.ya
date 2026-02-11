@@ -58,53 +58,46 @@ fun int_rand()
 
 const zint = int(0);
 
-
 for (var x = 0; x < reps; x = x + 1)
 {
-    print x;
+    var aa = int_rand();
+    var bb = int_rand();
 
-    var a = int_rand();
-    var b = int_rand();
+    var rr = aa + bb;
 
+    print "a = " + string(aa);
+    print "b = " + string(bb);
+    print "r = " + string(rr);
+    print "e = a + b";
+    print "if ( l2(abs(e)) < 1024 && r != e ) print " + string(x) + ", \":\", a, \" + \", b, \" expect \", e, \" got \", r";
 
-    var s = a + b;
+    rr = aa - bb;
 
-    if (s - a == b) // no overflow
-    {
-        print string(a) + " + " + string(b) + " - " + string(s);
-    }
-    else
-    {
-        print "#overflow+";
-    }
+    print "r = " + string(rr);
+    print "e = a - b";
+    print "if ( l2(abs(e)) < 1024 && r != e ) print " + string(x) + ", \":\", a, \" - \", b, \" expect \", e, \" got \", r";
 
-    var d = a - b;
-    if (d + b == a)
-    {
-        print string(a) + " - " + string(b) + " - " + string(d);
-    }
-    else
-    {
-        print "#overflow-";
-    }
+    rr = aa * bb;
 
-    var p = a * b;
-    if (p / a == b)
+    print "r = " + string(rr);
+    print "e = a * b";
+    print "if ( l2(abs(e)) < 1024 && r != e ) print " + string(x) + ", \":\", a, \" * \", b, \" expect \", e, \" got \", r";
+
+    rr = aa / bb;
+
+    print "r = " + string(rr);
+    print "e = a / b";
+    print "if ( r != e ) print " + string(x) + ", \":\", a, \" / \", b, \" expect \", e, \" got \", r";
+
+    rr = aa % bb;
+    if (aa < zint) // put r back to normal c/bc modulus
     {
-        print string(a) + " * " + string(b) + " - " + string(p);
-    }
-    else
-    {
-        print "#overflow*";
+        rr = rr - bb;
     }
 
-    var q = a / b;
-    var r = a % b;
-    if (a < zint) // put r back to normal c/bc modulus
-    {
-        r = r - b;
-    }
-    print string(a) + " / " + string(b) + " - " + string(q);
-    print string(a) + " % " + string(b) + " - " + string(r);
+    print "r = " + string(rr);
+    print "e = a % b";
+    print "if ( r != e ) print " + string(x) + ", \":\", a, \"% \", b, \" expect \", e, \" got \", r";
 }
 
+print "Done";
