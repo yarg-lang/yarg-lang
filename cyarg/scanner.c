@@ -405,6 +405,10 @@ static Token address() {
 
 static Token string() {
     while (peek() != '"' && !isAtEnd()) {
+        if (peek() == '\\')
+        {
+            advance();
+        }
         if (peek() == '\n') scanner.line++;
         advance();
     }
