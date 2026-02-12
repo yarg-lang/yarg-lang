@@ -68,26 +68,34 @@ for (var x = 0; x < reps; x = x + 1)
     print "a = " + string(aa);
     print "b = " + string(bb);
     print "r = " + string(rr);
+    print "o = " + string(int8(rr.overflow));
     print "e = a + b";
-    print "if ( l2(abs(e)) < 1024 && r != e ) print " + string(x) + ", \":\", a, \" + \", b, \" expect \", e, \" got \", r";
+    print "l = l2(abs(e))";
+    print "if ( l < 1024 && r != e ) print " + string(x) + ", \":\", a, \" + \", b, \" expect \", e, \" got \", r, \"\\n\"";
+    print "if ( l >= 1024 && o != 1) print " + string(x) + ", \":\", a, \" + \", b, \" expect overflow \", e, \" got \", r, \"\\n\"";
 
     rr = aa - bb;
 
     print "r = " + string(rr);
+    print "o = " + string(int8(rr.overflow));
     print "e = a - b";
-    print "if ( l2(abs(e)) < 1024 && r != e ) print " + string(x) + ", \":\", a, \" - \", b, \" expect \", e, \" got \", r";
+    print "l = l2(abs(e))";
+    print "if ( l < 1024 && r != e ) print " + string(x) + ", \":\", a, \" - \", b, \" expect \", e, \" got \", r, \"\\n\"";
+    print "if ( l >= 1024 && o != 1 ) print " + string(x) + ", \":\", a, \" - \", b, \" expect overflow \", e, \" got \", r, \"\\n\"";
 
     rr = aa * bb;
 
     print "r = " + string(rr);
+    print "o = " + string(int8(rr.overflow));
     print "e = a * b";
-    print "if ( l2(abs(e)) < 1024 && r != e ) print " + string(x) + ", \":\", a, \" * \", b, \" expect \", e, \" got \", r";
+    print "if ( l2(abs(e)) < 1024 && r != e ) print " + string(x) + ", \":\", a, \" * \", b, \" expect \", e, \" got \", r, \"\\n\"";
+    print "if ( l >= 1024 && o != 1 ) print " + string(x) + ", \":\", a, \" * \", b, \" expect overflow \", e, \" got \", r, \"\\n\"";
 
     rr = aa / bb;
 
     print "r = " + string(rr);
     print "e = a / b";
-    print "if ( r != e ) print " + string(x) + ", \":\", a, \" / \", b, \" expect \", e, \" got \", r";
+    print "if ( r != e ) print " + string(x) + ", \":\", a, \" / \", b, \" expect \", e, \" got \", r, \"\\n\"";
 
     rr = aa % bb;
     if (aa < zint) // put r back to normal c/bc modulus
@@ -97,7 +105,7 @@ for (var x = 0; x < reps; x = x + 1)
 
     print "r = " + string(rr);
     print "e = a % b";
-    print "if ( r != e ) print " + string(x) + ", \":\", a, \"% \", b, \" expect \", e, \" got \", r";
+    print "if ( r != e ) print " + string(x) + ", \":\", a, \"% \", b, \" expect \", e, \" got \", r, \"\\n\"";
 }
 
-print "Done";
+print "print \"Done\\n\"";

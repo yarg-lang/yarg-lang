@@ -774,8 +774,8 @@ runtimeError(routine, "Operands must both be numbers, integers or unsigned integ
                 break;
             }
             case OP_GET_PROPERTY: {
-                if (!IS_INSTANCE(peek(routine, 0)) && !IS_STRUCT(peek(routine, 0)) && !isStructPointer(peek(routine, 0))) {
-                    runtimeError(routine, "Only instances, structs and pointers to structs have properties.");
+                if (!IS_INSTANCE(peek(routine, 0)) && !IS_STRUCT(peek(routine, 0)) && !isStructPointer(peek(routine, 0)) && !IS_INT(peek(routine, 0))) {
+                    runtimeError(routine, "Only instances, structs, pointers to structs and ints have properties.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 if (IS_INSTANCE(peek(routine, 0))) {
@@ -820,6 +820,19 @@ runtimeError(routine, "Operands must both be numbers, integers or unsigned integ
 
                     pop(routine);
                     push(routine, result);
+                } else if (IS_INT(peek(routine, 0)))
+                {
+                    Int *b = AS_INT(pop(routine));
+                    ObjString* name = READ_STRING();
+                    if (strcmp(name->chars, "overflow") == 0)
+                    {
+                        push(routine, BOOL_VAL(b->overflow_));
+                    }
+                    else
+                    {
+                        runtimeError(routine, "Undefined property '%s'.", name->chars);
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
                 }
                 break;
             }
