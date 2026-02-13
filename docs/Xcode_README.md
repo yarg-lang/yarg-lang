@@ -19,8 +19,6 @@ $ sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
   $ git clone --recurse-submodules git@github.com:yarg-lang/yarg-lang.git
 ```
 
- - The Pico SDK and its dependencies (notably CMake) installed, per Raspberry Pi's instructions.
-
  - Use CMake to build the xcode project file
 
 ```
