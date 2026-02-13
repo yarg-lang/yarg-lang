@@ -75,10 +75,10 @@ while (a < 3) {
 Tests can be:
 
   * Output Tests
-  * Compile Error Tests
-  * Runtime Error Tests
+  * a Compile Error Test
+  * a Runtime Error Test
 
-A script consists of one or more output tests followed by an optional Error test. If included, only one Error test can be present in a script.
+A script consists of one or more Output Tests followed by an optional Error Test. If included, only one Error Test can be present in a script.
 
 ## Output Tests
 
@@ -97,7 +97,7 @@ print test_sync();  // expect: Waiting for interrupts to be simulated - handler
 
 A test script can contain any number of Output Tests.
 
-## Compile Error Tests
+## Compile Error Test
 
 if the test is validating the compiler, it will check for 'Error' appearing, with an optional line number if that is material, eg:
 
@@ -112,7 +112,7 @@ var a = "a";
 ```
 The exit code from the interpreter is compared with COMPILE_ERROR (65), so a script can test at most one compile error.
 
-## Runtime Error Tests
+## Runtime Error Test
 
 If a test expects a runtime error, 'expect runtime error:' will prefix the expected message:
 
