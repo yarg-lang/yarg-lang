@@ -20,7 +20,7 @@ The host machine requires:
 Optionally:
 
   * `vsce` should be installed to build the vscode-yarg project, to provide syntax highlighting in VSCode
-  * `Xcode` and its default toolchain can be used to build host binaries on MacOS. `go` is required to test them.
+  * `Xcode` and its default toolchain can be used to build host binaries on MacOS. `go` is required to test them. See [BUILD_XCode.md](docs/BUILD_XCode.md)
 
 ### Pico SDK dependency
 
