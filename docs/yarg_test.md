@@ -60,7 +60,7 @@ hostyarg executes cyarg, and captures its output and exit code, akin to:
 0
 ```
 
-The regex scan of comments is unware of Yarg, so will not usefully honour if statements, loops, etc, so this an example of how to test a loop:
+The regex scan of comments is unaware of Yarg, so will not usefully honour if statements, loops, etc, so this an example of how to test a loop:
 
 ```
 while (a < 3) {
