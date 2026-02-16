@@ -60,7 +60,7 @@ void appendToDynamicObjArray(DynamicObjArray* array, Obj* obj) {
 
 Obj* removeLastFromDynamicObjArray(DynamicObjArray* array) {
     Obj* end = NULL;
-    if (array->objectCount > 1) {
+    if (array->objectCount > 0) {
         end = array->objects[array->objectCount - 1];
         array->objectCount--;
     }
