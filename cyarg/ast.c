@@ -465,9 +465,12 @@ void printExpr(ObjExpr* expr) {
                     case NUMBER_ADDRESS:
                         printf("@x%lx", num->val.address);
                         break;
-                    case NUMBER_INT:
-                        printf("int66");
+                    case NUMBER_INT: {
+                        char sb[311];
+                        char const *s = int_to_s(&num->val.bigInt, sb, 311);
+                        printf("%s", s);
                         break;
+                    }
                 }
                 break;
             }
