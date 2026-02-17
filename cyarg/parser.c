@@ -447,7 +447,7 @@ static ObjExpr* type(bool canAssign) {
             case TOKEN_STRUCT: expression = (ObjExpr*) structExpression(); break;
             case TOKEN_INT: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT); break;
             case TOKEN_TYPE_STRING: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT); break;
-           default: expression = NULL; // Unreachable
+            default: expression = NULL; // Unreachable
         }
         pushWorkingNode((Obj*)expression);
     

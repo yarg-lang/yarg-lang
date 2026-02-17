@@ -369,7 +369,7 @@ size_t yt_sizeof_type_storage(Value type) {
         case TypePointer:
         case TypeYargType:
         case TypeInt:
-           return sizeof(Obj*);
+            return sizeof(Obj*);
         }
     }
 }
