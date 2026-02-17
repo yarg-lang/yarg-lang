@@ -291,7 +291,6 @@ bool is_placeable_type(Value typeVal) {
             case TypeUint32: return true;
             case TypeInt64: return true;
             case TypeUint64: return true;
-            case TypeInt:
             case TypeArray: {
                 ObjConcreteYargTypeArray* ct = (ObjConcreteYargTypeArray*)AS_YARGTYPE(typeVal);
                 Value elementType = arrayElementType(ct);
