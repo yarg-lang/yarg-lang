@@ -473,6 +473,7 @@ static void printTypeLiteral(FILE* op, ObjConcreteYargType* type) {
         case TypeAny: FPRINTMSG(op, "any"); break;
         case TypeBool: FPRINTMSG(op, "bool"); break;
         case TypeDouble: FPRINTMSG(op, "mfloat64"); break;
+        case TypeInt: FPRINTMSG(op, "int"); break;
         case TypeInt8: FPRINTMSG(op, "int8"); break;
         case TypeUint8: FPRINTMSG(op, "uint8"); break;
         case TypeInt16: FPRINTMSG(op, "int16"); break;
@@ -525,10 +526,6 @@ static void printTypeLiteral(FILE* op, ObjConcreteYargType* type) {
             } else {
                 FPRINTMSG(op, "any");
             }
-            break;
-        }
-        case TypeInt: {
-            FPRINTMSG(op, "int ");
             break;
         }
         default: FPRINTMSG(op, "Unknown"); break;
