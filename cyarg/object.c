@@ -302,7 +302,6 @@ ObjPackedStruct* newPackedStruct(ObjConcreteYargTypeStruct* type) {
     return object;
 }
 
-
 ObjPackedStruct* newPackedStructAt(PackedValue location) {
     ObjPackedStruct* object = ALLOCATE_OBJ(ObjPackedStruct, OBJ_UNOWNED_PACKEDSTRUCT);
     object->store = location;
