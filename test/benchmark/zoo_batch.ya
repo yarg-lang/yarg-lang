@@ -17,9 +17,9 @@ class Zoo {
 
 var zoo = Zoo();
 var sum = 0;
-var start = clock();
+var begin = clock();
 var batch = 0;
-while (clock() - start < 10) {
+while (clock() - begin < 10) {
   for (var i = 0; i < 10000; i = i + 1) {
     sum = sum + zoo.ant()
               + zoo.banana()
@@ -33,4 +33,4 @@ while (clock() - start < 10) {
 
 print sum;
 print batch;
-print clock() - start;
+print clock() - begin;
