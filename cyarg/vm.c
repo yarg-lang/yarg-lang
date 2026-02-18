@@ -467,12 +467,6 @@ static void makeConcreteTypeConst(ObjRoutine* routine) {
     }
 }
 
-static void makeConcreteTypeArray(ObjRoutine* routine) {
-    ObjConcreteYargType* typeObject = newYargArrayTypeFromType(peek(routine, 0));
-    pop(routine);
-    push(routine, OBJ_VAL(typeObject));
-}
-
 InterpretResult run(ObjRoutine* routine) {
     CallFrame* frame = &routine->frames[routine->frameCount - 1];
     routine->state = EXEC_RUNNING;

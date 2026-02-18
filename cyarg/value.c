@@ -108,8 +108,6 @@ void initialisePackedValue(PackedValue packedValue) {
             case TypeUint64: packedValue.storedValue->as.ui64 = 0; break;
             case TypeArray: {
                 ObjConcreteYargTypeArray* at = (ObjConcreteYargTypeArray*)packedValue.storedType;
-                Value elementTypeVal = arrayElementType(at);
-                ObjConcreteYargType* elementType = IS_NIL(elementTypeVal) ? NULL : AS_YARGTYPE(elementTypeVal);
                 if (at->cardinality > 0) {
                     for (size_t i = 0; i < at->cardinality; i++) {
                         PackedValue el = arrayElement(packedValue, i);
