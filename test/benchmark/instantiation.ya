@@ -4,7 +4,7 @@ class Foo {
   init() {}
 }
 
-var start = clock();
+var begin = clock();
 var i = 0;
 while (i < 500000) {
   Foo();
@@ -40,4 +40,4 @@ while (i < 500000) {
   i = i + 1;
 }
 
-print clock() - start;
+print clock() - begin;

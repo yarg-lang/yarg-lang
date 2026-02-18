@@ -107,7 +107,7 @@ while (i < 100000) {
 
 var loopTime = clock() - loopStart;
 
-var start = clock();
+var begin = clock();
 
 i = 0;
 while (i < 100000) {
@@ -210,7 +210,7 @@ while (i < 100000) {
 
 }
 
-var elapsed = clock() - start;
+var elapsed = clock() - begin;
 print "loop";
 print loopTime;
 print "elapsed";
