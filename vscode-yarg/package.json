@@ -3,8 +3,8 @@
     "version": "0.3.0",
     "displayName": "Yarg Language",
     "description": "Yarg Language Support for VS Code",
-    "publisher": "jhmcaleely",
-    "repository": "https://github.com/jhmcaleely/yarg-lang/vscode-yarg",
+    "publisher": "yarglang",
+    "repository": "https://github.com/yarg-lang/yarg-lang/vscode-yarg",
     "engines": {
       "vscode": "^1.51.0"
     },
