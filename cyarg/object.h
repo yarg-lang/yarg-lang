@@ -242,6 +242,7 @@ void offsetPointerDestination(ObjPackedPointer* pointer, size_t offset);
 
 ObjPackedUniformArray* newPackedUniformArrayAt(PackedValue location);
 
+Value defaultIntValue();
 Value defaultArrayValue(ObjConcreteYargType* type);
 Value defaultStructValue(ObjConcreteYargType* type);
 

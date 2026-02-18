@@ -128,6 +128,12 @@ ObjBlob* newBlob(size_t count) {
     return blob;
 }
 
+Value defaultIntValue() {
+    ObjInt* intObj = ALLOCATE_OBJ(ObjInt, OBJ_INT);
+    int_init(&intObj->bigInt);
+    return OBJ_VAL(intObj);
+}
+
 PackedValue arrayElement(PackedValue array, size_t index) {
     ObjConcreteYargTypeArray* array_type = (ObjConcreteYargTypeArray*) array.storedType;
     

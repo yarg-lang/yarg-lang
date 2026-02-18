@@ -390,6 +390,7 @@ Value defaultValue(Value type) {
             case TypeUint32: return UI32_VAL(0);
             case TypeInt64: return I64_VAL(0);
             case TypeUint64: return UI64_VAL(0);
+            case TypeInt: return defaultIntValue();
             case TypeStruct: return defaultStructValue(ct);
             case TypeArray: return defaultArrayValue(ct);
             case TypePointer:
@@ -403,7 +404,6 @@ Value defaultValue(Value type) {
             case TypeChannel:
             case TypeYargType:
                 return NIL_VAL;
-            case TypeInt: return OBJ_VAL(0);
         }
     }
 }
