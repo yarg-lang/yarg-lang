@@ -69,10 +69,6 @@ func CmdRunTests(interpreter string, test string) (exitcode int) {
 				log.Fatal(err)
 			}
 
-			if path == "benchmark" {
-				return fs.SkipDir
-			}
-
 			if !d.IsDir() {
 				target := filepath.Join(test, path)
 				total, pass := runTestFile(interpreter, target)
