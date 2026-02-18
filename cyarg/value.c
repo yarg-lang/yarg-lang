@@ -165,6 +165,13 @@ Value unpackValue(PackedValue packedValue) {
             case TypeArray: {
                 return OBJ_VAL(newPackedUniformArrayAt(packedValue));
             }
+            case TypeInt: {
+                if (packedValue.storedValue->as.obj) {
+                    return OBJ_VAL(packedValue.storedValue->as.obj);
+                } else {
+                    return defaultIntValue();
+                }
+            }
             case TypePointer:
             case TypeString:
             case TypeClass:
@@ -173,8 +180,7 @@ Value unpackValue(PackedValue packedValue) {
             case TypeNativeBlob:
             case TypeRoutine:
             case TypeChannel:
-            case TypeYargType:
-            case TypeInt: {
+            case TypeYargType: {
                 if (packedValue.storedValue->as.obj) {
                     return OBJ_VAL(packedValue.storedValue->as.obj);
                 } else {
