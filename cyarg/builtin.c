@@ -512,9 +512,7 @@ bool newBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
             *result = defaultValue(typeToCreate);
             return true;
         }
-        case TypeInt: {
-            return true;
-        }
+        case TypeInt:
         case TypeString:
         case TypeClass:
         case TypeInstance:
