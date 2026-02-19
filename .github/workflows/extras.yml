@@ -69,8 +69,8 @@ jobs:
           cmake --preset xcode-host
           cmake --build build/xcode-host
 
-      - name: Run test suite
-        run: ./bin/hostyarg runtests -tests "yarg/test" -interpreter "cyarg/build/xcode-host/Debug/cyarg"
+      - name: Run Hostyarg Yarg test suite
+        run: ./bin/hostyarg runtests -tests "test/hostyarg" -interpreter "cyarg/build/xcode-host/Debug/cyarg"
       
       - name: Run BC test suite
         run: ./cyarg/build/xcode-host/Debug/cyarg test/bc/int.ya | bc -lLS 0 | diff - test/bc/int.expected
