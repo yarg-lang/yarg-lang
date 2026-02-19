@@ -4,7 +4,7 @@ Host based tooling for creating and manipulating yarg images for devices.
 
 Currently has two core features
 
-  - Running cyarg against the test suites in yarg/test
+  - Running cyarg against the test suites in test/hostyarg
   - Building Pico UF2 images that contain cyarg and useful Yarg .ya sources. An in-memory image is built up with littlefs and then written to the UF2 file.
 
 ## Building

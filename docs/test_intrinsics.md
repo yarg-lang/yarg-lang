@@ -8,7 +8,7 @@ test_write(address, [opt] value) // fails if value
 test_interrupt(number|string)
 array[string] test_sync() // fails if unexpected peek/poke or missing read/write, returns empty if tests pass
 
-So tests in yarg might be: (see yarg/test/test_system/test_interrupts.ya)
+So tests in yarg might be: (see test/hostyarg/test_system/test_interrupts.ya)
 ==============
 test_set(@x1, 1);
 test_set(@x2, 2);
@@ -59,4 +59,4 @@ Simulate file system using xcode project
 
 //
 import("machine");
-var source = read_source("yarg/test/read_source/sample.ya");
+var source = read_source("test/hostyarg/test/read_source/sample.ya");

@@ -88,7 +88,7 @@ Will run the Yarg test suite. A sample (good) output looks like:
 ```
 % ./tools/test.sh 
 Interpreter: bin/cyarg
-Tests: yarg/test
+Tests: test/hostyarg
 Total tests: 1044, passed: 1044
 ```
 'Total tests' and 'passed' match, and are the same or higher than the last run on main.
