@@ -569,6 +569,9 @@ bool uint64Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
             *result = UI64_VAL(i);
             return true;
         }
+    } else if (IS_BOOL(arg)) {
+        *result = UI64_VAL(AS_BOOL(arg));
+        return true;
     }
     return false;
 }
@@ -614,6 +617,9 @@ bool int64Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
             *result = I64_VAL(i);
             return true;
         }
+    } else if (IS_BOOL(arg)) {
+        *result = I64_VAL(AS_BOOL(arg));
+        return true;
     }
     return false;
 }
@@ -659,6 +665,9 @@ bool uint32Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
             *result = UI32_VAL((uint32_t) i);
             return true;
         }
+    } else if (IS_BOOL(arg)) {
+        *result = UI32_VAL(AS_BOOL(arg));
+        return true;
     }
     return false;
 }
@@ -704,6 +713,9 @@ bool int32Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
             *result = I32_VAL((int32_t) i);
             return true;
         }
+    } else if (IS_BOOL(arg)) {
+        *result = I32_VAL(AS_BOOL(arg));
+        return true;
     }
     return false;
 }
@@ -749,6 +761,9 @@ bool uint16Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
             *result = UI16_VAL((uint16_t) i);
             return true;
         }
+    } else if (IS_BOOL(arg)) {
+        *result = UI16_VAL(AS_BOOL(arg));
+        return true;
     }
     return false;
 }
@@ -794,6 +809,9 @@ bool int16Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
             *result = I16_VAL((int16_t) i);
             return true;
         }
+    } else if (IS_BOOL(arg)) {
+        *result = I16_VAL(AS_BOOL(arg));
+        return true;
     }
     return false;
 }
@@ -839,6 +857,9 @@ bool uint8Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
             *result = UI8_VAL((int8_t) i);
             return true;
         }
+    } else if (IS_BOOL(arg)) {
+        *result = UI8_VAL(AS_BOOL(arg));
+        return true;
     }
     return false;
 }
@@ -884,6 +905,9 @@ bool int8Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
             *result = I8_VAL((int8_t) i);
             return true;
         }
+    } else if (IS_BOOL(arg)) {
+        *result = I8_VAL(AS_BOOL(arg));
+        return true;
     }
     return false;
 }
@@ -924,6 +948,8 @@ bool intBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         result->type = VAL_OBJ;
         int_set_t(AS_INT(arg), &newObj->bigInt);
         return true;
+    } else if (IS_BOOL(arg)) {
+        i = AS_BOOL(arg);
     } else {
         return false;
     }
@@ -978,6 +1004,12 @@ bool stringBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         double f = AS_DOUBLE(arg);
         int l = sprintf(sb, "%#g", f);
         ObjString* string = copyString(sb, l);
+        result->as.obj = &string->obj;
+        result->type = VAL_OBJ;
+        return true;
+    } else if (IS_BOOL(arg)) {
+        char const *s = AS_BOOL(arg) ? "true" : "false";
+        ObjString* string = copyString(s, (int) strlen(s));
         result->as.obj = &string->obj;
         result->type = VAL_OBJ;
         return true;
