@@ -56,7 +56,8 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '>=1.21.4'
-          cache: false
+          cache: true
+          cache-dependency-path: '**/go.sum'
     
       - name: Build hostyarg
         run: |
