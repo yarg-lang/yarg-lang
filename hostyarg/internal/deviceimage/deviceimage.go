@@ -3,15 +3,23 @@ package deviceimage
 import (
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"os"
+	"time"
 
-	"github.com/yarg-lang/yarg-lang/hostyarg/internal/block_device"
-	"github.com/yarg-lang/yarg-lang/hostyarg/internal/littlefs"
+	block_device "github.com/yarg-lang/yarg-lang/hostyarg/internal/block/device"
+	block_io "github.com/yarg-lang/yarg-lang/hostyarg/internal/block/io"
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/block/littlefs_store"
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/block/pico_memory"
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/littlefs/littlefs"
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/littlefs/readfs"
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/pico_flash_device"
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/pico_uf2"
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/yarg_littlefs"
 )
 
-func AddFile(lfs littlefs.LittleFs, fileToAdd string) {
+func AddFile(lfs *littlefs.FS, fileToAdd string) {
 
 	r, err := os.Open(fileToAdd)
 	if err != nil {
@@ -32,89 +40,231 @@ func AddFile(lfs littlefs.LittleFs, fileToAdd string) {
 	file.Write(data)
 }
 
-func ListFiles(fs littlefs.LittleFs, dirEntry string) {
-
-	dir, err := fs.OpenDir(dirEntry)
-	if err != nil {
-		log.Fatal(err.Error())
+func CopyFile(lfs *littlefs.FS, src, dest string) (e error) {
+	srcFile, e := os.Open(src)
+	if e != nil {
+		return
 	}
-	defer dir.Close()
+	defer srcFile.Close()
 
-	for more, info, err := dir.Read(); more; more, info, err = dir.Read() {
-		if err != nil {
-			log.Fatal(err)
-		}
-		switch info.Type {
-		case littlefs.EntryTypeDir:
-			fmt.Printf("'%v' (dir)\n", info.Name)
-		case littlefs.EntryTypeReg:
-			fmt.Printf("'%v' (%v)\n", info.Name, info.Size)
-		default:
-			log.Fatal("unexpected entry type.")
-		}
+	data, e := io.ReadAll(srcFile)
+	if e != nil {
+		return
 	}
+
+	destFile, e := lfs.OpenFile(dest)
+	if e != nil {
+		return
+	}
+	defer destFile.Close()
+
+	_, e = destFile.Write(data)
+	return
 }
 
-func ReadFromUF2File(bd block_device.BlockMemoryDeviceWriter, filename string) (e error) {
-	f, e := os.Open(filename)
-	if e == nil {
-		defer f.Close()
-		pico_uf2.ReadFromUF2(f, bd)
+func ListFiles(filesystem fs.FS, path string, long bool) (err error) {
+
+	entries, err := fs.ReadDir(filesystem, path)
+	if err != nil {
+		return
 	}
-	return e
+
+	for _, entry := range entries {
+		if long {
+			info, err := entry.Info()
+			if err != nil {
+				return err
+			}
+			fmt.Printf("%s\t%d\t%s\n", info.Mode(), info.Size(), entry.Name())
+		} else {
+			fmt.Println(entry.Name())
+		}
+	}
+	return
 }
 
-func WriteToUF2File(bd block_device.BlockMemoryDeviceReader, filename string) error {
-	f, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0666)
-	if err != nil {
-		log.Fatal(err)
+func writeToUF2File(bd block_io.BlockDeviceReader, filename string) (e error) {
+	f, e := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0666)
+	if e != nil {
+		return
 	}
 	defer f.Close()
 
 	pico_uf2.WriteAsUF2(bd, f)
 
-	return nil
+	return
 }
 
-func blockDeviceFromUF2(fsFilename string) littlefs.BdFS {
-	device := block_device.NewBlockDevice()
+func blockDeviceFromUF2(fsFilename string) (device block_device.BlockDevice, e error) {
 
-	fs := littlefs.NewBdFS(device, littlefs.FLASHFS_BASE_ADDR, littlefs.FLASHFS_BLOCK_COUNT)
+	storage := pico_memory.BlockDeviceStorage{}
 
-	ReadFromUF2File(fs.Storage, fsFilename)
+	device = block_device.NewBlockDevice(block_io.DeviceAddress(pico_flash_device.BaseAddr), &storage)
 
-	return *fs
+	f, e := os.Open(fsFilename)
+	if e != nil {
+		return
+	}
+	defer f.Close()
+
+	e = pico_uf2.ReadFromUF2(f, device)
+	return
 }
 
-func CmdLs(fsFilename, dirEntry string) {
-	fs := blockDeviceFromUF2(fsFilename)
-	defer fs.Close()
+func CmdLs(fsFilename, dirEntry string, long bool) (e error) {
+	dev, e := blockDeviceFromUF2(fsFilename)
+	if e != nil {
+		return
+	}
+	defer dev.Close()
 
-	lfs, _ := littlefs.Mount(fs.Cfg)
+	store := littlefs_store.NewDevice(dev, block_io.DeviceAddress(yarg_littlefs.BaseAddr))
+	config := littlefs.NewConfig(&store, 0)
+	defer config.Close()
+
+	lfs, e := readfs.NewReadFS(config, time.Now())
+	if e != nil {
+		return
+	}
 	defer lfs.Close()
 
-	ListFiles(lfs, dirEntry)
+	e = ListFiles(lfs, dirEntry, long)
+
+	return
 }
 
-func Cmdformat(fsFilename string) error {
-	fs := blockDeviceFromUF2(fsFilename)
-	defer fs.Close()
-
-	result := littlefs.Format(fs.Cfg)
-	if result == nil {
-		WriteToUF2File(fs.Storage, fsFilename)
+func CmdFsInfo(fsFilename string) (e error) {
+	dev, e := blockDeviceFromUF2(fsFilename)
+	if e != nil {
+		return
 	}
-	return result
+	defer dev.Close()
+
+	store := littlefs_store.NewDevice(dev, block_io.DeviceAddress(yarg_littlefs.BaseAddr))
+	config := littlefs.NewConfig(&store, 0)
+	defer config.Close()
+
+	lfs, e := readfs.NewReadFS(config, time.Now())
+	if e != nil {
+		return
+	}
+	defer lfs.Close()
+
+	info, e := lfs.StatFS()
+	if e != nil {
+		return
+	}
+
+	blocks_available, e := lfs.Size()
+	if e != nil {
+		return
+	}
+
+	blocks_used, e := lfs.SizeUsed()
+	if e != nil {
+		return
+	}
+
+	fmt.Printf("Disk Version: %x\n", info.DiskVersion)
+	fmt.Printf("Block Size: %d\n", info.BlockSize)
+	fmt.Printf("Block Count: %d\n", info.BlockCount)
+	fmt.Printf("Blocks Used: %d (%d bytes)\n", blocks_used, blocks_used*info.BlockSize)
+	fmt.Printf("Free Space: %d blocks (%d bytes)\n", info.BlockCount-blocks_used, (info.BlockCount-blocks_used)*info.BlockSize)
+	fmt.Printf("Data Available %d (nearest block, includes duplicated blocks)\n", blocks_available*info.BlockSize)
+	fmt.Printf("Name Max: %d\n", info.NameMax)
+	fmt.Printf("File Max: %d\n", info.FileMax)
+	fmt.Printf("Attr Max: %d\n", info.AttrMax)
+
+	return
+}
+
+func Cmdformat(fsFilename string) (e error) {
+	dev, e := blockDeviceFromUF2(fsFilename)
+	if e != nil {
+		return
+	}
+	defer dev.Close()
+
+	store := littlefs_store.NewDevice(dev, block_io.DeviceAddress(yarg_littlefs.BaseAddr))
+	config := littlefs.NewConfig(&store, yarg_littlefs.BlockCount)
+	defer config.Close()
+
+	e = littlefs.Format(config)
+	if e == nil {
+		writeToUF2File(dev, fsFilename)
+	}
+	return
 }
 
 func CmdAddFile(fsFilename, fileToAdd string) {
-	fs := blockDeviceFromUF2(fsFilename)
-	defer fs.Close()
+	dev, e := blockDeviceFromUF2(fsFilename)
+	if e != nil {
+		return
+	}
+	defer dev.Close()
 
-	lfs, _ := littlefs.Mount(fs.Cfg)
+	store := littlefs_store.NewDevice(dev, block_io.DeviceAddress(yarg_littlefs.BaseAddr))
+	config := littlefs.NewConfig(&store, 0)
+	defer config.Close()
+
+	lfs, _ := littlefs.Mount(config)
 	defer lfs.Close()
 
 	AddFile(lfs, fileToAdd)
 
-	WriteToUF2File(fs.Storage, fsFilename)
+	writeToUF2File(dev, fsFilename)
+}
+
+func CmdCp(fsFilename, src, dest string) (e error) {
+	dev, e := blockDeviceFromUF2(fsFilename)
+	if e != nil {
+		return
+	}
+	defer dev.Close()
+
+	store := littlefs_store.NewDevice(dev, block_io.DeviceAddress(yarg_littlefs.BaseAddr))
+	config := littlefs.NewConfig(&store, 0)
+	defer config.Close()
+
+	lfs, e := littlefs.Mount(config)
+	if e != nil {
+		return
+	}
+	defer lfs.Close()
+
+	e = CopyFile(lfs, src, dest)
+	if e != nil {
+		return
+	}
+
+	writeToUF2File(dev, fsFilename)
+
+	return
+}
+
+func CmdMkdir(fsFilename, dirToCreate string) (e error) {
+	dev, e := blockDeviceFromUF2(fsFilename)
+	if e != nil {
+		return
+	}
+	defer dev.Close()
+
+	store := littlefs_store.NewDevice(dev, block_io.DeviceAddress(yarg_littlefs.BaseAddr))
+	config := littlefs.NewConfig(&store, 0)
+	defer config.Close()
+
+	lfs, e := littlefs.Mount(config)
+	if e != nil {
+		return
+	}
+	defer lfs.Close()
+
+	e = lfs.Mkdir(dirToCreate)
+	if e != nil {
+		return
+	}
+
+	writeToUF2File(dev, fsFilename)
+
+	return
 }

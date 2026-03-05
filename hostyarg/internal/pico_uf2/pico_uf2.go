@@ -2,10 +2,11 @@ package pico_uf2
 
 import (
 	"encoding/binary"
+	"fmt"
 	"io"
 	"log"
 
-	"github.com/yarg-lang/yarg-lang/hostyarg/internal/block_device"
+	block_io "github.com/yarg-lang/yarg-lang/hostyarg/internal/block/io"
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/pico_flash_device"
 )
 
@@ -33,31 +34,32 @@ const UF2_FLAG_EXTENSION_TAGS uint32 = 0x00008000
 
 const PICO_UF2_FAMILYID uint32 = 0xe48bff56
 
-func ReadFromUF2(input io.Reader, device block_device.BlockMemoryDeviceWriter) {
+func ReadFromUF2(input io.Reader, device block_io.BlockDeviceWriter) error {
 
 	frame := Uf2Frame{}
 	for binary.Read(input, binary.LittleEndian, &frame) != io.EOF {
 
 		if frame.MagicStart0 != UF2_MAGIC_START0 {
-			log.Fatal("bad start0")
+			return fmt.Errorf("bad start0")
 		}
 		if frame.MagicStart1 != UF2_MAGIC_START1 {
-			log.Fatal("bad start1")
+			return fmt.Errorf("bad start1")
 		}
 		if frame.MagicEnd != UF2_MAGIC_END {
-			log.Fatal("bad end")
+			return fmt.Errorf("bad end")
 		}
 
 		// erase a block before writing any pages to it.
-		if device.IsBlockStart(frame.TargetAddr) {
-			device.EraseBlock(frame.TargetAddr)
+		if device.IsBlockStart(block_io.DeviceAddress(frame.TargetAddr)) {
+			device.EraseBlock(block_io.DeviceAddress(frame.TargetAddr))
 		}
 
-		device.WriteBlock(frame.TargetAddr, frame.Data[0:frame.PayloadSize])
+		device.WritePage(frame.Data[0:frame.PayloadSize], block_io.DeviceAddress(frame.TargetAddr))
 	}
+	return nil
 }
 
-func WriteAsUF2(device block_device.BlockMemoryDeviceReader, output io.Writer) {
+func WriteAsUF2(device block_io.BlockDeviceReader, output io.Writer) {
 	pageTotal := device.BlocksInUse() * device.PagePerBlock()
 	pageCursor := uint32(0)
 
@@ -74,16 +76,16 @@ func WriteAsUF2(device block_device.BlockMemoryDeviceReader, output io.Writer) {
 					MagicStart0: UF2_MAGIC_START0,
 					MagicStart1: UF2_MAGIC_START1,
 					Flags:       UF2_FLAG_FAMILY_ID,
-					TargetAddr:  device.TargetAddress(b, p),
+					TargetAddr:  uint32(device.TargetAddress(b, p)),
 					PayloadSize: pico_flash_device.ProgPageSize,
 					BlockNo:     pageCursor,
-					NumBlocks:   pageTotal,
+					NumBlocks:   uint32(pageTotal),
 					Reserved:    PICO_UF2_FAMILYID, // documented as FamilyID, Filesize or 0.
 					MagicEnd:    UF2_MAGIC_END,
 				}
 
 				if device.PagePresent(b, p) {
-					copy(frame.Data[0:frame.PayloadSize], device.ReadBlock(frame.TargetAddr, frame.PayloadSize))
+					device.ReadPage(frame.Data[0:frame.PayloadSize], block_io.DeviceAddress(frame.TargetAddr))
 
 					log.Printf("uf2page: %08x, %d\n", frame.TargetAddr, frame.PayloadSize)
 				} else {

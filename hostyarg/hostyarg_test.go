@@ -33,7 +33,8 @@ func TestMain(m *testing.M) {
 
 func TestLs(t *testing.T) {
 
-	deviceimage.CmdLs("testdata/yarg-lang-pico.uf2", "/")
+	deviceimage.CmdLs("testdata/yarg-lang-pico.uf2", ".", false)
+	deviceimage.CmdLs("testdata/yarg-lang-pico.uf2", ".", true)
 }
 
 func TestAddFile(t *testing.T) {
@@ -41,6 +42,36 @@ func TestAddFile(t *testing.T) {
 	os.Chdir("testdata")
 
 	deviceimage.CmdAddFile("yarg-lang-pico.uf2", "fresh_cheese.ya")
+	os.Chdir("../")
+}
+
+func TestCopyFile(t *testing.T) {
+
+	os.Chdir("testdata")
+	err := deviceimage.CmdCp("yarg-lang-pico.uf2", "fresh_cheese.ya", "copy_of_fresh_cheese.ya")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	err = deviceimage.CmdLs("yarg-lang-pico.uf2", ".", false)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	err = deviceimage.CmdCp("yarg-lang-pico.uf2", "stale_cheese.ya", "copy_of_fresh_cheese.ya")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	err = deviceimage.CmdLs("yarg-lang-pico.uf2", ".", true)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	os.Chdir("../")
+}
+
+func TestMkdir(t *testing.T) {
+
+	os.Chdir("testdata")
+	deviceimage.CmdMkdir("yarg-lang-pico.uf2", "cheese")
+	deviceimage.CmdLs("yarg-lang-pico.uf2", ".", true)
 	os.Chdir("../")
 }
 
@@ -53,9 +84,12 @@ var interpreter = flag.String("interpreter", "../bin/cyarg", "interpreter to use
 
 func TestRunTests(t *testing.T) {
 
-	exit_code := testrunner.CmdRunTests(*interpreter, "testdata/tests")
-	if exit_code != 0 {
-		t.Fatalf("expected exit code 0, got %v", exit_code)
+	err, failedtests := testrunner.CmdRunTests(*interpreter, "testdata/tests")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if failedtests != 0 {
+		t.Fatalf("expected 0 failed tests, got %v", failedtests)
 	}
 }
 
@@ -66,5 +100,5 @@ func TestFileSequence(t *testing.T) {
 	deviceimage.CmdAddFile("yarg-lang-pico.uf2", "fresh_cheese.ya")
 	os.Chdir("../")
 
-	deviceimage.CmdLs("testdata/yarg-lang-pico.uf2", "/")
+	deviceimage.CmdLs("testdata/yarg-lang-pico.uf2", ".", false)
 }

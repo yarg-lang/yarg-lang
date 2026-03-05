@@ -2,7 +2,6 @@ package testrunner
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"io/fs"
 	"log"
@@ -12,6 +11,8 @@ import (
 	"reflect"
 	"regexp"
 	"strconv"
+
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/runbinary"
 )
 
 const (
@@ -19,101 +20,73 @@ const (
 	COMPILE_ERROR = 65
 )
 
-type Test struct {
-	Expectations             int
-	Name                     string
-	FileName                 string
-	ExpectedExitCode         int
-	ExpectedRuntimeErrorLine int
-	ExpectedOutput           []string
-	ExpectedError            []string
+type expectationTest struct {
+	expectations             int
+	expectedExitCode         int
+	expectedRuntimeErrorLine int
+	expectedOutput           []string
+	expectedError            []string
 }
 
-func testsAvailable(test string) (isDir, ok bool) {
-	info, err := os.Stat(test)
-	if err == nil {
-		return info.IsDir(), true
-	}
-	return isDir, false
-}
+func CmdRunTests(interpreter string, tests string) (err error, failedtests int) {
 
-func interpreterAvailable(interpreter string) (ok bool) {
-	_, err := os.Stat(interpreter)
-	ok = err == nil
-	return ok
-}
-
-func CmdRunTests(interpreter string, test string) (exitcode int) {
-
-	test = filepath.Clean(test)
+	tests = filepath.Clean(tests)
 	interpreter = filepath.Clean(interpreter)
 
-	isDir, ok := testsAvailable(test)
-	if !ok {
-		fmt.Printf("Could not stat %v, nothing to test\n", test)
-		return 1
+	info, err := os.Stat(tests)
+	if err != nil {
+		return
 	}
-	ok = interpreterAvailable(interpreter)
-	if !ok {
-		fmt.Printf("Could not stat %v, no interpreter to run\n", interpreter)
-		return 1
+
+	_, err = os.Stat(interpreter)
+	if err != nil {
+		return fmt.Errorf("Could not stat %v, no interpreter to run", interpreter), 0
 	}
 
 	var grandtotal, grandpass int
 
-	if isDir {
-		fileSystem := os.DirFS(test)
+	if info.IsDir() {
+		fileSystem := os.DirFS(tests)
 
-		fs.WalkDir(fileSystem, ".", func(path string, d fs.DirEntry, err error) error {
-			if err != nil {
-				log.Fatal(err)
+		err = fs.WalkDir(fileSystem, ".", func(path string, d fs.DirEntry, walkerr error) error {
+			if walkerr != nil {
+				return walkerr
 			}
 
 			if !d.IsDir() {
-				target := filepath.Join(test, path)
-				total, pass := runTestFile(interpreter, target)
+				testfile := filepath.Join(tests, path)
+				total, pass := runTestFile(interpreter, testfile, path)
 				grandtotal += total
 				grandpass += pass
 			}
+
 			return nil
 		})
 	} else {
-		total, pass := runTestFile(interpreter, test)
-		grandtotal += total
-		grandpass += pass
+		logname := filepath.Base(tests)
+
+		grandtotal, grandpass = runTestFile(interpreter, tests, logname)
 	}
 
-	fmt.Printf("Interpreter: %v\n", interpreter)
-	fmt.Printf("Tests: %v\n", test)
-	fmt.Printf("Total tests: %v, passed: %v\n", grandtotal, grandpass)
-
-	return grandtotal - grandpass
+	fmt.Printf("%s tests: %v, passed: %v\n", tests, grandtotal, grandpass)
+	return err, grandtotal - grandpass
 }
 
-func testFriendlyName(testfile string) string {
-	test_name := filepath.Base(testfile)
-	extension := filepath.Ext(testfile)
+func runTestFile(interpreter string, testfile, fsname string) (total, pass int) {
 
-	return test_name[:len(test_name)-len(extension)]
-}
+	test := createFromSource(testfile)
 
-func runTestFile(interpreter string, testfile string) (total, pass int) {
+	runner := exec.Command(interpreter, testfile)
 
-	var test Test
-	test.FileName = testfile
-	test.Name = testFriendlyName(test.FileName)
-
-	test.parseTestSource()
-	total = test.Expectations
-
-	output, errors, code, ok := runInterpreter(interpreter, test.FileName)
+	output, errors, code, ok := runbinary.RunCommand(runner)
 	if ok {
 
 		if test.validateCode(code) {
 
-			if code == RUNTIME_ERROR {
+			switch code {
+			case RUNTIME_ERROR:
 				test.accountRuntimeErrorExpectations(errors, &pass)
-			} else if code == COMPILE_ERROR {
+			case COMPILE_ERROR:
 				test.accountCompileErrorExpectations(errors, &pass)
 			}
 
@@ -123,74 +96,75 @@ func runTestFile(interpreter string, testfile string) (total, pass int) {
 		test.accountOutputExpectations(output, &pass)
 	}
 
-	if pass != total {
-		fmt.Printf("test: %v\n", test.Name)
-		fmt.Printf("tests supplied: %v\n", total)
-		fmt.Printf("tests passed: %v\n", pass)
-		fmt.Printf("--- (%v)\n", code)
+	if pass != test.expectations {
+		fmt.Printf("%v tests %v, passed %v", fsname, test.expectations, pass)
+		if !test.validateCode(code) {
+			fmt.Printf(", exitcode %v (expected: %v)", code, test.expectedExitCode)
+		}
+		fmt.Println()
 		for l := range output {
 			fmt.Println(output[l])
 		}
 		for l := range errors {
 			fmt.Println(errors[l])
 		}
-		fmt.Println("---")
 	}
 
-	return total, pass
+	return test.expectations, pass
 }
 
-func (test *Test) validateCode(code int) bool {
-	return code == test.ExpectedExitCode
+func (test *expectationTest) validateCode(code int) bool {
+	return code == test.expectedExitCode
 }
 
-func (test *Test) accountEmptyTestExpectations(output, errors []string, pass *int) {
+func (test *expectationTest) accountEmptyTestExpectations(output, errors []string, pass *int) {
 
-	if len(test.ExpectedError) == 0 && len(test.ExpectedOutput) == 0 && test.Expectations == 1 {
+	if len(test.expectedError) == 0 && len(test.expectedOutput) == 0 && test.expectations == 1 {
 		if len(output) == 0 && len(errors) == 0 {
 			*pass += 1
 		}
 	}
 }
 
-func (test *Test) accountCompileErrorExpectations(errors []string, pass *int) bool {
+func (test *expectationTest) accountCompileErrorExpectations(errors []string, pass *int) {
 
-	if len(test.ExpectedError) > 0 &&
-		reflect.DeepEqual(test.ExpectedError, errors) {
+	if len(test.expectedError) > 0 &&
+		reflect.DeepEqual(test.expectedError, errors) {
 		*pass += len(errors)
-		return true
+		return
 	}
-	return false
 }
 
-func (test *Test) accountRuntimeErrorExpectations(errors []string, pass *int) {
-	if len(test.ExpectedError) > 0 {
-		if errors[0] == test.ExpectedError[0] {
+func (test *expectationTest) accountRuntimeErrorExpectations(errors []string, pass *int) {
+	if len(test.expectedError) > 0 {
+		if errors[0] == test.expectedError[0] {
 			*pass++
 		}
 
 		// examine the first line of the stack dump.
 		r := regexp.MustCompile(`\[line (\d+)\]`)
 		match := r.FindStringSubmatch(errors[1])
-		candidate := strconv.Itoa(test.ExpectedRuntimeErrorLine)
+		candidate := strconv.Itoa(test.expectedRuntimeErrorLine)
 		if match != nil && match[1] == candidate {
 			*pass++
 		}
 	}
 }
 
-func (test *Test) accountOutputExpectations(output []string, pass *int) {
-	if reflect.DeepEqual(test.ExpectedOutput[0:len(output)], output) {
+func (test *expectationTest) accountOutputExpectations(output []string, pass *int) {
+	if reflect.DeepEqual(test.expectedOutput[0:len(output)], output) {
 		*pass += len(output)
 	}
 }
 
-func (test *Test) parseTestSource() {
-	file, err := os.Open(test.FileName)
+func createFromSource(testfile string) *expectationTest {
+	file, err := os.Open(testfile)
 	if err != nil {
 		log.Fatal("could not open test")
 	}
 	defer file.Close()
+
+	var test expectationTest
 
 	scanner := bufio.NewScanner(file)
 	var lineNo int
@@ -199,78 +173,45 @@ func (test *Test) parseTestSource() {
 		test.parseLine(lineNo, scanner.Text())
 	}
 
-	if len(test.ExpectedOutput) == 0 && len(test.ExpectedError) == 0 {
-		test.Expectations++
+	if len(test.expectedOutput) == 0 && len(test.expectedError) == 0 {
+		test.expectations++
 	}
+
+	return &test
 }
 
-func (test *Test) parseLine(lineNo int, line string) {
+func (test *expectationTest) parseLine(lineNo int, line string) {
 	r := regexp.MustCompile(`// expect: ?(.*)`)
 	match := r.FindStringSubmatch(line)
 	if match != nil {
-		test.ExpectedOutput = append(test.ExpectedOutput, match[1])
-		test.Expectations++
+		test.expectedOutput = append(test.expectedOutput, match[1])
+		test.expectations++
 	}
 
 	r = regexp.MustCompile(`// (Error.*)`)
 	match = r.FindStringSubmatch(line)
 	if match != nil {
-		test.ExpectedExitCode = COMPILE_ERROR
+		test.expectedExitCode = COMPILE_ERROR
 		expected := fmt.Sprintf("[line %v] %v", lineNo, match[1])
-		test.ExpectedError = append(test.ExpectedError, expected)
-		test.Expectations++
+		test.expectedError = append(test.expectedError, expected)
+		test.expectations++
 	}
 
 	r = regexp.MustCompile(`// \[line (\d+)\] (Error.*)`)
 	match = r.FindStringSubmatch(line)
 	if match != nil {
-		test.ExpectedExitCode = COMPILE_ERROR
-		test.ExpectedError = append(test.ExpectedError, fmt.Sprintf("[line %v] %v", match[1], match[2]))
-		test.Expectations++
+		test.expectedExitCode = COMPILE_ERROR
+		test.expectedError = append(test.expectedError, fmt.Sprintf("[line %v] %v", match[1], match[2]))
+		test.expectations++
 	}
 
 	r = regexp.MustCompile(`// expect runtime error: (.+)`)
 	match = r.FindStringSubmatch(line)
 	if match != nil {
-		test.ExpectedExitCode = RUNTIME_ERROR
-		test.ExpectedError = append(test.ExpectedError, match[1])
-		test.Expectations++
-		test.ExpectedRuntimeErrorLine = lineNo
-		test.Expectations++
+		test.expectedExitCode = RUNTIME_ERROR
+		test.expectedError = append(test.expectedError, match[1])
+		test.expectations++
+		test.expectedRuntimeErrorLine = lineNo
+		test.expectations++
 	}
-}
-
-func streamToLines(stream bytes.Buffer) (lines []string) {
-	scanner := bufio.NewScanner(&stream)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-	return lines
-}
-
-func runInterpreter(interpreter, argument string) (output, errors []string, exitcode int, ok bool) {
-	var cstdout, cstderr bytes.Buffer
-	runner := exec.Command(interpreter, argument)
-	runner.Stdout = &cstdout
-	runner.Stderr = &cstderr
-
-	err := runner.Run()
-	ok = err == nil
-
-	if err != nil {
-		switch e := err.(type) {
-		case *exec.ExitError:
-			ok = true
-			exitcode = e.ExitCode()
-		default:
-			fmt.Println("failed executing:", err)
-		}
-	}
-
-	if ok {
-		output = streamToLines(cstdout)
-		errors = streamToLines(cstderr)
-	}
-
-	return output, errors, exitcode, ok
 }
