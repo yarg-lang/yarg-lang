@@ -12,7 +12,7 @@ Yarg aims to be a dedicated language for Microcontroller firmware development. I
 
 ## Installing Yarg
 
-Download the latest release from [releases](https://github.com/yarg-lang/yarg-lang/releases), and follow the README instructions in the tar file.
+Download the latest release from [releases](rel), and follow the README instructions in the tar file.
 
 ## Using Yarg
 
@@ -32,7 +32,8 @@ Building yarg from source is required for some ports of Yarg, and to contribute 
 | `tools/` | Miscellaneous tools |
 | `vscode-yarg/` | A VS Code Language Extension for Yarg |
 | `yarg/specimen/` | Samples of Yarg |
-| `yarg/specimen/conway-life-display` | A Yarg implemention of: [jhmcaleely:conway-life-display](https://github.com/jhmcaleely/conway-life-display) |
+| `yarg/specimen/conway-life-display` | A Yarg implemention of: [jhmcaleely:conway-life-display](conway) |
+| `external` | dependecies hosted as git submodules. Notably includes [littlefs-project:littlefs](lfs) |
 
 ## Samples
 
@@ -148,3 +149,6 @@ while (true) {
 [Cornish Yarg](https://en.wikipedia.org/wiki/Cornish_Yarg) is a cheese I enjoy.
 
 [wiki]: https://github.com/yarg-lang/yarg-lang/wiki
+[conway]: https://github.com/jhmcaleely/conway-life-display
+[lfs]: https://github.com/littlefs-project/littlefs
+[rel]: https://github.com/yarg-lang/yarg-lang/releases

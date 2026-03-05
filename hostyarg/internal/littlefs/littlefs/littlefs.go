@@ -6,7 +6,7 @@ package littlefs
 
 /*
 #include <stdlib.h>
-#include "../../../littlefs/lfs.h"
+#include "../../../../external/littlefs/lfs.h"
 #include "littlefs_utilities.h"
 */
 import "C"

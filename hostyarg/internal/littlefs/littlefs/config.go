@@ -1,7 +1,7 @@
 package littlefs
 
 /*
-#include "../../../littlefs/lfs.h"
+#include "../../../../external/littlefs/lfs.h"
 */
 import "C"
 import (

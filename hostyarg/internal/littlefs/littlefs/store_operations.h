@@ -2,7 +2,7 @@
 #define store_callbacks_h
 
 #include <stdint.h>
-#include "../../../littlefs/lfs.h"
+#include "../../../../external/littlefs/lfs.h"
 
 // typedef to include const, as cgo doesn't support it as declaration.
 typedef const struct lfs_config* lfs_const_config_ptr;

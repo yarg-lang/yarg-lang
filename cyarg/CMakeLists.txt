@@ -118,8 +118,8 @@ if (CYARG_FEATURE_FILESYSTEM STREQUAL "LITTLEFS")
 target_sources(cyarg
     PRIVATE
       fs/fs_littlefs.c
-      ../hostyarg/littlefs/lfs.c
-      ../hostyarg/littlefs/lfs_util.c)
+      ../external/littlefs/lfs.c
+      ../external/littlefs/lfs_util.c)
 if (YARG_DEVICE STREQUAL "RASPBERRY_PI_PICO")
 target_sources(cyarg
     PRIVATE

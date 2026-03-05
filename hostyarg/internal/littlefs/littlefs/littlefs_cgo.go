@@ -3,8 +3,8 @@ package littlefs
 // pull in the littlefs implementation so that cgo can include the symbols.
 
 /*
-#include "../../../littlefs/lfs.c"
-#include "../../../littlefs/lfs_util.c"
+#include "../../../../external/littlefs/lfs.c"
+#include "../../../../external/littlefs/lfs_util.c"
 #include "littlefs_utilities.h"
 
 static int traverse_block(void* data, lfs_block_t block) {
