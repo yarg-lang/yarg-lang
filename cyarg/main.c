@@ -1,17 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "platform_hal.h"
+#ifdef CYARG_FEATURE_HOSTED_REPL
+#include <sysexits.h>
+#endif
 
 #include "common.h"
-#include "chunk.h"
-#include "debug.h"
+#include "platform_hal.h"
 #include "vm.h"
 #include "fs/fs.h"
-#include "compiler.h"
 
-const char* defaultScript = "main.ya";
+#ifdef CYARG_FEATURE_HOSTED_REPL
+#include "compiler.h"
+#include "chunk.h"
+#include "debug.h"
+#endif
 
 static void repl() {
     char line[4096];
@@ -30,26 +33,41 @@ static void repl() {
     }
 }
 
+#ifdef CYARG_FEATURE_HOSTED_REPL
 static void runFile(const char* path) {
     char* source = readFile(path);
     if (source) {
         InterpretResult result = interpret(source);
         free(source);
 
-        if (result == INTERPRET_COMPILE_ERROR) exit(65);
-        if (result == INTERPRET_RUNTIME_ERROR) exit(70);
+        if (result == INTERPRET_COMPILE_ERROR) exit(EX_DATAERR);
+        if (result == INTERPRET_RUNTIME_ERROR) exit(EX_SOFTWARE);
+    } else {
+        exit(EX_NOINPUT);
+    }
+}
+
+static void compileFile(const char* path) {
+    char* source = readFile(path);
+    if (!source) {
+        exit(EX_NOINPUT);
+    }
+
+    ObjFunction* result = compile(source);
+    if (!result) {
+        exit(EX_DATAERR);
     }
 }
 
 static void disassembleFile(const char* path) {
     char* source = readFile(path);
     if (!source) {
-        return;
+        exit(EX_NOINPUT);
     }
 
     ObjFunction* result = compile(source);
     if (!result) {
-        return;
+        exit(EX_DATAERR);
     }
 
     disassembleChunk(&result->chunk, path);
@@ -60,14 +78,18 @@ static void disassembleFile(const char* path) {
         }
     }
 }
+#endif
 
 #if defined(CYARG_FEATURE_SELF_HOSTED_REPL)
 int main() {
     plaform_hal_init();
 
     initVM();
-
-    runFile(defaultScript);
+    char* source = readFile("main.ya");
+    if (source) {
+        interpret(source);
+        free(source);
+    }
     repl();
 
     freeVM();
@@ -82,12 +104,14 @@ int main(int argc, const char* argv[]) {
         repl();
     } else if (argc == 2) {
         runFile(argv[1]);
-    } else if (argc == 3 && strcmp(argv[1], "disassemble") == 0) {
+    } else if (argc == 3 && strcmp(argv[1], "--compile") == 0) {
+        compileFile(argv[2]);
+    } else if (argc == 3 && strcmp(argv[1], "--disassemble") == 0) {
         disassembleFile(argv[2]);
     }
     else {
         FPRINTMSG(stderr, "Usage: cyarg [path]\n");
-        exit(64);
+        exit(EX_USAGE);
     }
 
     freeVM();
