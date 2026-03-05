@@ -11,7 +11,7 @@ As I add dependencies, this file will contain licence notices they require.
 
 I believe a derivative of this repo would need the notice below included.
 
--- portions of: cyarg/, yarg/tests/
+-- portions of: cyarg/, test/hostyarg/
 Copyright (c) 2015 Robert Nystrom
 
 

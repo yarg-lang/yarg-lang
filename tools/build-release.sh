@@ -23,7 +23,7 @@ mkdir -p build/release
 mkdir -p build/release/extras
 
 pushd hostyarg
-go build -o ../bin/hostyarg .
+go build -o ../bin/yarg ./cmd/yarg || BUILD_ERROR=1
 popd
 
 pushd cyarg

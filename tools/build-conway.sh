@@ -1,6 +1,6 @@
 #!/bin/bash
 
-HOSTYARG="../../../bin/hostyarg"
+HOSTYARG="../../../bin/yarg"
 TARGETUF2="../../../build/conway.uf2"
 
 

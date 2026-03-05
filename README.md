@@ -26,7 +26,7 @@ Building yarg from source is required for some ports of Yarg, and to contribute 
 | dir | Description |
 | :--- | :--- |
 | `cyarg/` | yarg implementation in C |
-| `hostyarg/` | host tooling for yarg maintenance |
+| `hostyarg/` | host tooling, notably `yarg` |
 | `docs/` | Additional documentation |
 | `test/` | Various Test Suites. See [README.md](test/README.md) |
 | `tools/` | Miscellaneous tools |

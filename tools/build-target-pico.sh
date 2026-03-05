@@ -2,7 +2,7 @@
 BUILD_ERROR=0
 
 pushd hostyarg
-go build -o ../bin/hostyarg .
+go build -o ../bin/yarg ./cmd/yarg || BUILD_ERROR=1
 popd
 
 pushd cyarg
@@ -16,12 +16,12 @@ popd
 mkdir -p build
 cp cyarg/build/target-pico/cyarg.uf2 build/yarg-lang.uf2 || BUILD_ERROR=1
 
-./bin/hostyarg format -fs build/yarg-lang.uf2
+./bin/yarg format -fs build/yarg-lang.uf2
 ./tools/add-yarg-stdlib.sh build/yarg-lang.uf2
 
 cp cyarg/build/target-pico-debug/cyarg.uf2 build/yarg-lang-debug.uf2 || BUILD_ERROR=1
 
-./bin/hostyarg format -fs build/yarg-lang-debug.uf2
+./bin/yarg format -fs build/yarg-lang-debug.uf2
 ./tools/add-yarg-stdlib.sh build/yarg-lang-debug.uf2
 
 ./tools/build-specimen.sh

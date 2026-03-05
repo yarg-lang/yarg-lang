@@ -100,7 +100,7 @@ jobs:
           name: yarg-target-pico-ubuntu
           path: |
             build/*.uf2
-            bin/hostyarg
+            bin/yarg
 
   build-host:
     name: Host (tools/build-host.sh)
@@ -125,7 +125,7 @@ jobs:
       - name: Build hostyarg
         run: |
           cd hostyarg
-          go build -o ../bin/hostyarg .
+          go build -o ../bin/yarg ./cmd/yarg
       
       - name: Setup GCC
         run: |
@@ -149,18 +149,20 @@ jobs:
 
       - name: Run Hostyarg self test
         run: |
+           mkdir -p bin
+           cp cyarg/build/host-test/cyarg bin/cyarg
            cd hostyarg
-           go test -args -interpreter ../cyarg/build/host-test/cyarg
+           go test ./...
            cd ..
 
       - name: Run Hostyarg Yarg test suite
-        run: ./bin/hostyarg runtests -tests "test/hostyarg" -interpreter "cyarg/build/host-test/cyarg"
+        run: ./bin/yarg runtests -tests "test/hostyarg" -interpreter "cyarg/build/host-test/cyarg"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: yarg-host-ubuntu
           path: |
-            bin/hostyarg
+            bin/yarg
             cyarg/build/host-test/cyarg
             cyarg/build/host/cyarg

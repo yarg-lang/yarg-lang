@@ -35,10 +35,10 @@ $ cd cyarg
 $ cmake --build build/xcode-host
 ```
 
-Note that if you have hostyarg successfully built (you should!), then the test suite can be run:
+Note that if you have `yarg` successfully built (you should!), then the test suite can be run:
 
 ```
-$ ./bin/hostyarg runtests -tests "test/hostyarg" -interpreter "cyarg/build/xcode-host/Debug/cyarg"
+$ ./bin/yarg runtests -tests "test/hostyarg" -interpreter "cyarg/build/xcode-host/Debug/cyarg"
 ```
 
 This behaviour can be captured on the command line with:

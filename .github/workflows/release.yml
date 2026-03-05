@@ -110,7 +110,7 @@ jobs:
       - name: Build hostyarg
         run: |
           cd hostyarg
-          go build -o ../bin/hostyarg .
+          go build -o ../bin/yarg ./cmd/yarg
 
       - name: Build target pico
         run: |
@@ -156,7 +156,7 @@ jobs:
       - name: Build hostyarg
         run: |
           cd hostyarg
-          go build -o ../bin/hostyarg .
+          go build -o ../bin/yarg ./cmd/yarg
 
       - name:  Download release artifact
         uses: actions/download-artifact@v5

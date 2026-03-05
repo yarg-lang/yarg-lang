@@ -2,10 +2,14 @@
 
 BUILD_ERROR=0
 
-pushd hostyarg
-go build -o ../bin/hostyarg .
-popd
+if [ ! -d "bin" ]
+then
+    mkdir bin
+fi
 
+pushd hostyarg
+go build -o ../bin ./cmd/yarg || BUILD_ERROR=1
+popd
 
 pushd cyarg
 cmake --preset host || BUILD_ERROR=1

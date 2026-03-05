@@ -1,6 +1,6 @@
 # Building Yarg
 
-Note: Using Yarg on a device, and wrting new Yarg for a device does not require building Yarg from source. Yarg usage only requires a binary of hostyarg (currently built by go on your host PC), and an image file for your target board (currently a .uf2 for the Pico). Grab a build from [releases][rel], and follow the README instructions within. 
+Note: Using Yarg on a device, and wrting new Yarg for a device does not require building Yarg from source. Yarg usage only requires the host `yarg` binary (currently built by go on your host PC), and an image file for your target board (currently a .uf2 for the Pico). Grab a build from [releases][rel], and follow the README instructions within. 
 
 With that said, contributing to Yarg itself is appreciated!
 
@@ -9,7 +9,7 @@ With that said, contributing to Yarg itself is appreciated!
 The host machine requires:
 
   * A C development toolchain, eg a GCC or CLang based toolchain (gcc must be v14 or higher)
-  * `go` ([golang][golang]), for the test harness and target image generation tools (`hostyarg`)
+  * `go` ([golang][golang]), for the test harness and target image generation tools (`yarg`)
   * The [Raspberry Pi Pico SDK][picosdk] (currently v2.2.0), and it's dependencies (notably `picotool`), if you want to build for the Pico.
   * `./tools/setup-ubuntu-vm.sh` is a specimen script to configure an Ubuntu 25.10 VM. It will installed the pico toolchain and sdk in pico-tooling/ if you supply `pico` as a parameter, eg:
 
@@ -103,7 +103,7 @@ To clear all build atrefacts from the source tree:
 
 This repo contains Yarg and various supporting tools and tests. These are built for Microcontroller devices (currently Raspberry Pi Pico), with supporting tools on a host PC (currently MacOS or Ubuntu, with Windows and other Distros in future). Additionally, Yarg itself can be built for use on host, for convenient development and testing.
 
-You can build a target/device build (names used interchangably). A full build will also include support tooling (notably hostyarg) for the PC. If you want, you can build exclusively for host, producing a version of yarg that can be used from a command line. Tools such as xcode project files are available to support this.
+You can build a target/device build (names used interchangably). A full build will also include support tooling (notably `yarg`) for the PC. If you want, you can build exclusively for host, producing a version of yarg that can be used from a command line. Tools such as xcode project files are available to support this.
 
 Set YARG_DEVICE in your environment or similar (eg CMakePresets.json or CMakeUserPresets.json).
 

@@ -2,12 +2,12 @@
 
 Yarg tests present in test/hostyarg exercise the complete Yarg stack. Currently these are run as an automated suite on host.
 
-## hostyarg runtests
+## yarg runtests
 
 To run the test suite, first build the repo, and then:
 
 ```
-% ./bin/hostyarg runtests -tests "test/hostyarg" -interpreter "bin/cyarg"
+% ./bin/yarg runtests -tests "test/hostyarg" -interpreter "bin/cyarg"
 Interpreter: bin/cyarg
 Tests: test/hostyarg
 Total tests: 1065, passed: 1065
@@ -15,11 +15,11 @@ Total tests: 1065, passed: 1065
 
 This walks every folder in the supplied directory (test/hostyarg), using bin/cyarg to run every .ya file found in each directory. Currently a folder named 'benchmark' is skipped.
 
-If some tests fail, their output is provided, and the return code from hostyarg will be the count of failing tests (ie, non-zero), eg:
+If some tests fail, their output is provided, and the return code from `yarg` will be the count of failing tests (ie, non-zero), eg:
 
 ```
-% ./bin/hostyarg runtests -tests test/hostyarg -interpreter bin/cyarg
-test: bool
+% ./bin/yarg runtests -tests test/hostyarg -interpreter bin/cyarg
+test: call/bool.ya
 tests supplied: 2
 tests passed: 1
 --- (70)
@@ -33,11 +33,9 @@ Total tests: 1065, passed: 1064
 1
 ```
 
-The failing test can be located with `find`, and then run directly with `cyarg` to inspect the failure:
+The failing test can then run directly with `cyarg` to inspect the failure:
 
 ```
-% find . -name bool.ya
-./test/hostyarg/call/bool.ya
 % ./bin/cyarg test/hostyarg/call/bool.ya
 Undefined variable (OP_GET_GLOBAL) 'tru'.
 [line 1] in script
@@ -45,13 +43,13 @@ Undefined variable (OP_GET_GLOBAL) 'tru'.
 
 ## Test Script
 
-An individual test script is written in Yarg, with comments that will be parsed (via regex) by the hostyarg harness, eg if `test.ya` contains:
+An individual test script is written in Yarg, with comments that will be parsed (via regex) by the `yarg` harness, eg if `test.ya` contains:
 
 ```
 print -0.0;    // expect: -0.00000
 ```
 
-hostyarg executes cyarg, and captures its output and exit code, akin to:
+`yarg` executes cyarg, and captures its output and exit code, akin to:
 
 ```
 % cyarg test.ya

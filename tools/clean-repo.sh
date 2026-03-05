@@ -1,31 +1,17 @@
 #!/bin/bash
 
-if [ -d bin ]
-then
-    rm -R bin
-fi
+for file in hostyarg/cmd/yarg/yarg hostyarg/yarg
+do
+    if [ -e $file ]
+    then
+        rm $file
+    fi
+done
 
-if [ -d build ]
-then
-    rm -R build
-fi
-
-if [ -e hostyarg/hostyarg ]
-then
-    rm hostyarg/hostyarg
-fi
-
-if [ -e hostyarg/test.uf2 ]
-then
-    rm hostyarg/test.uf2
-fi
-
-if [ -d cyarg/build ]
-then
-    rm -R cyarg/build
-fi
-
-if [ -d release ]
-then
-    rm -R release
-fi
+for dir in bin build release cyarg/build
+do
+    if [ -d $dir ]
+    then
+        rm -R $dir
+    fi
+done

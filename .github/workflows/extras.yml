@@ -62,7 +62,7 @@ jobs:
       - name: Build hostyarg
         run: |
           cd hostyarg
-          go build -o ../bin/hostyarg .
+          go build -o ../bin/yarg ./cmd/yarg
 
       - name: Build Xcode project
         run: |
@@ -71,7 +71,7 @@ jobs:
           cmake --build build/xcode-host
 
       - name: Run Hostyarg Yarg test suite
-        run: ./bin/hostyarg runtests -tests "test/hostyarg" -interpreter "cyarg/build/xcode-host/Debug/cyarg"
+        run: ./bin/yarg runtests -tests "test/hostyarg" -interpreter "cyarg/build/xcode-host/Debug/cyarg"
       
       - name: Run BC test suite
         run: ./cyarg/build/xcode-host/Debug/cyarg test/bc/int.ya | bc -lLS 0 | diff - test/bc/int.expected
@@ -81,5 +81,5 @@ jobs:
         with:
           name: yarg-lang-macos-xcode
           path: |
-            bin/hostyarg
+            bin/yarg
             cyarg/build/xcode-host/cyarg

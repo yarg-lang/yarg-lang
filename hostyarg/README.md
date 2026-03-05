@@ -10,7 +10,7 @@ Currently has two core features
 ## Building
 
 ```
-$ go build
+$ go build ./cmd/yarg
 ```
 
 # Testing
@@ -24,11 +24,11 @@ $ go test [-args -intepreter ../path/to/cyarg]
 Install using the go package manager:
 
 ```
-$ go install github.com/yarg-lang/yarg-lang/hostyarg@latest
+$ go install github.com/yarg-lang/yarg-lang/hostyarg/cmd/yarg@latest
 ```
 
 ## Usage
 
 ```
-$ hostyarg [addfile|format|ls|runtests]
+$ yarg [addfile|format|ls|runtests]
 ```
