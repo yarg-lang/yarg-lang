@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"os"
 
@@ -33,11 +34,18 @@ func dispatchSubCommand(args []string) {
 	flags := flag.NewFlagSet(args[0], flag.ExitOnError)
 	switch args[0] {
 	case "format":
-		formatFSFS := flags.String("fs", "", "format fs on this image")
+		formatFSFS := flags.String("image", "", "image containing filesystem to format")
+		formatCreate := flags.Bool("create", false, "create image if it doesn't exist")
 		flags.Parse(args[1:])
-		err := deviceimage.Cmdformat(*formatFSFS)
+		err := deviceimage.Cmdformat(*formatFSFS, *formatCreate)
 		if err != nil {
-			exitWithUsageError("format failed")
+			if os.IsNotExist(err) {
+				if p, ok := err.(*fs.PathError); ok {
+					exitWithUsageError(fmt.Sprintf("image file does not exist: %s (use -create?)", p.Path))
+				}
+			} else {
+				exitWithUsageError("format failed")
+			}
 		}
 	case "ls":
 		lsDirFS := flags.String("image", "", "image containing filesystem to mount")

@@ -11,7 +11,7 @@ fi
 mkdir -p build
 cp cyarg/build/target-pico/cyarg.uf2 build/$TARGETUF2 || BUILD_ERROR=1
 
-./bin/yarg format -fs build/$TARGETUF2
+./bin/yarg format -image build/$TARGETUF2
 ./tools/add-yarg-stdlib.sh build/$TARGETUF2 || BUILD_ERROR=1
 
 # for now fill the release with specimens

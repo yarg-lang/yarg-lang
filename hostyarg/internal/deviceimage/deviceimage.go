@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"path/filepath"
 	"time"
 
 	block_device "github.com/yarg-lang/yarg-lang/hostyarg/internal/block/device"
@@ -155,21 +156,53 @@ func CmdFsInfo(fsFilename string) (e error) {
 	return
 }
 
-func Cmdformat(fsFilename string) (e error) {
-	dev, e := blockDeviceFromUF2(fsFilename)
-	if e != nil {
+func Cmdformat(fsFilename string, create bool) (e error) {
+
+	fsFilename = filepath.Clean(fsFilename)
+
+	creationRequired := false
+	_, e = os.Stat(fsFilename)
+	if os.IsNotExist(e) && create {
+		creationRequired = true
+	} else if e != nil {
 		return
 	}
-	defer dev.Close()
 
-	store := littlefs_store.NewDevice(dev, block_io.DeviceAddress(yarg_littlefs.BaseAddr))
+	storage := pico_memory.BlockDeviceStorage{}
+	device := block_device.NewBlockDevice(block_io.DeviceAddress(pico_flash_device.BaseAddr), &storage)
+	defer device.Close()
+
+	if !creationRequired {
+		f, err := os.Open(fsFilename)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		e = pico_uf2.ReadFromUF2(f, device)
+		if e != nil {
+			return
+		}
+	}
+
+	store := littlefs_store.NewDevice(device, block_io.DeviceAddress(yarg_littlefs.BaseAddr))
 	config := littlefs.NewConfig(&store, yarg_littlefs.BlockCount)
 	defer config.Close()
 
 	e = littlefs.Format(config)
-	if e == nil {
-		writeToUF2File(dev, fsFilename)
+	if e != nil {
+		return
 	}
+
+	if creationRequired {
+		f, err := os.Create(fsFilename)
+		if err != nil {
+			return
+		}
+		defer f.Close()
+	}
+
+	e = writeToUF2File(device, fsFilename)
 	return
 }
 

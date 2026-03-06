@@ -69,7 +69,24 @@ func TestMkdir(t *testing.T) {
 
 func TestFormat(t *testing.T) {
 
-	deviceimage.Cmdformat("testdata/yarg-lang-pico.uf2")
+	e := deviceimage.Cmdformat("testdata/yarg-lang-pico.uf2", false)
+	if e != nil {
+		t.Fatalf("unexpected error: %v", e)
+	}
+
+	e = deviceimage.Cmdformat("testdata/nonexistent.uf2", false)
+	if e == nil {
+		t.Fatalf("expected error, got nil")
+	}
+	if !os.IsNotExist(e) {
+		t.Fatalf("expected not exist error, got %v", e)
+	}
+
+	e = deviceimage.Cmdformat("testdata/nonexistent.uf2", true)
+	if e != nil {
+		t.Fatalf("unexpected error: %v", e)
+	}
+	os.Remove("testdata/nonexistent.uf2")
 }
 
 var interpreter = flag.String("interpreter", "../bin/cyarg", "interpreter to use")
@@ -87,7 +104,7 @@ func TestRunTests(t *testing.T) {
 
 func TestFileSequence(t *testing.T) {
 
-	deviceimage.Cmdformat("testdata/yarg-lang-pico.uf2")
+	deviceimage.Cmdformat("testdata/yarg-lang-pico.uf2", false)
 	os.Chdir("testdata")
 	deviceimage.CmdCp("yarg-lang-pico.uf2", "fresh_cheese.ya", "fresh_cheese.ya")
 	os.Chdir("../")
