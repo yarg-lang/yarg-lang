@@ -30,5 +30,5 @@ $ go install github.com/yarg-lang/yarg-lang/hostyarg/cmd/yarg@latest
 ## Usage
 
 ```
-$ yarg [addfile|format|ls|runtests]
+$ yarg [cp|format|ls|runtests]
 ```

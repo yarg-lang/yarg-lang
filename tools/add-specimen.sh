@@ -4,20 +4,20 @@ FS_PATH="${1:-build/specimen-fs.uf2}"
 
 pushd yarg/specimen > /dev/null
 
-../../bin/yarg addfile -fs "../../$FS_PATH" -add alarm.ya
-../../bin/yarg addfile -fs "../../$FS_PATH" -add blinky.ya
-../../bin/yarg addfile -fs "../../$FS_PATH" -add hello_led.ya
-../../bin/yarg addfile -fs "../../$FS_PATH" -add hello_button.ya
-../../bin/yarg addfile -fs "../../$FS_PATH" -add cheese.ya
-../../bin/yarg addfile -fs "../../$FS_PATH" -add coroutine-flash.ya
-../../bin/yarg addfile -fs "../../$FS_PATH" -add multicore-flash.ya
-../../bin/yarg addfile -fs "../../$FS_PATH" -add scone.ya
-../../bin/yarg addfile -fs "../../$FS_PATH" -add timed-flash.ya
-../../bin/yarg addfile -fs "../../$FS_PATH" -add button.ya
-../../bin/yarg addfile -fs "../../$FS_PATH" -add serial-echo.ya
-../../bin/yarg addfile -fs "../../$FS_PATH" -add serial-input.ya
-../../bin/yarg addfile -fs "../../$FS_PATH" -add button_flash.ya
-../../bin/yarg addfile -fs "../../$FS_PATH" -add dma-test.ya
-../../bin/yarg addfile -fs "../../$FS_PATH" -add main.ya
+../../bin/yarg cp -fs "../../$FS_PATH" -src alarm.ya -dest alarm.ya
+../../bin/yarg cp -fs "../../$FS_PATH" -src blinky.ya -dest blinky.ya
+../../bin/yarg cp -fs "../../$FS_PATH" -src hello_led.ya -dest hello_led.ya
+../../bin/yarg cp -fs "../../$FS_PATH" -src hello_button.ya -dest hello_button.ya
+../../bin/yarg cp -fs "../../$FS_PATH" -src cheese.ya -dest cheese.ya
+../../bin/yarg cp -fs "../../$FS_PATH" -src coroutine-flash.ya -dest coroutine-flash.ya
+../../bin/yarg cp -fs "../../$FS_PATH" -src multicore-flash.ya -dest multicore-flash.ya
+../../bin/yarg cp -fs "../../$FS_PATH" -src scone.ya -dest scone.ya
+../../bin/yarg cp -fs "../../$FS_PATH" -src timed-flash.ya -dest timed-flash.ya
+../../bin/yarg cp -fs "../../$FS_PATH" -src button.ya -dest button.ya
+../../bin/yarg cp -fs "../../$FS_PATH" -src serial-echo.ya -dest serial-echo.ya
+../../bin/yarg cp -fs "../../$FS_PATH" -src serial-input.ya -dest serial-input.ya
+../../bin/yarg cp -fs "../../$FS_PATH" -src button_flash.ya -dest button_flash.ya
+../../bin/yarg cp -fs "../../$FS_PATH" -src dma-test.ya -dest dma-test.ya
+../../bin/yarg cp -fs "../../$FS_PATH" -src main.ya -dest main.ya
 
 popd > /dev/null

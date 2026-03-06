@@ -39,21 +39,6 @@ func dispatchSubCommand(args []string) {
 		if err != nil {
 			exitWithUsageError("format failed")
 		}
-	case "addfile":
-		addFileFS := flags.String("fs", "", "add file to this filesystem")
-		addFileName := flags.String("add", "", "filename to add")
-		flags.Parse(args[1:])
-		if *addFileFS == "" {
-			exitWithUsageError("expect filesystem to add file to")
-		}
-		if *addFileName == "" {
-			exitWithUsageError("expect filename to add")
-		}
-
-		err := deviceimage.CmdCp(*addFileFS, *addFileName, *addFileName)
-		if err != nil {
-			exitWithError(err.Error())
-		}
 	case "ls":
 		lsDirFS := flags.String("image", "", "image containing filesystem to mount")
 		lsDirEntry := flags.String("dir", ".", "directory to ls")
