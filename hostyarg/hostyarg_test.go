@@ -37,14 +37,6 @@ func TestLs(t *testing.T) {
 	deviceimage.CmdLs("testdata/yarg-lang-pico.uf2", ".", true)
 }
 
-func TestAddFile(t *testing.T) {
-
-	os.Chdir("testdata")
-
-	deviceimage.CmdAddFile("yarg-lang-pico.uf2", "fresh_cheese.ya")
-	os.Chdir("../")
-}
-
 func TestCopyFile(t *testing.T) {
 
 	os.Chdir("testdata")
@@ -97,7 +89,7 @@ func TestFileSequence(t *testing.T) {
 
 	deviceimage.Cmdformat("testdata/yarg-lang-pico.uf2")
 	os.Chdir("testdata")
-	deviceimage.CmdAddFile("yarg-lang-pico.uf2", "fresh_cheese.ya")
+	deviceimage.CmdCp("yarg-lang-pico.uf2", "fresh_cheese.ya", "fresh_cheese.ya")
 	os.Chdir("../")
 
 	deviceimage.CmdLs("testdata/yarg-lang-pico.uf2", ".", false)

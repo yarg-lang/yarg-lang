@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"log"
 	"os"
 	"time"
 
@@ -19,27 +18,6 @@ import (
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/yarg_littlefs"
 )
 
-func AddFile(lfs *littlefs.FS, fileToAdd string) {
-
-	r, err := os.Open(fileToAdd)
-	if err != nil {
-		log.Fatal("nothing to open")
-	}
-	defer r.Close()
-	data, err := io.ReadAll(r)
-	if err != nil {
-		log.Fatal("nothing read")
-	}
-
-	file, err := lfs.OpenFile(fileToAdd)
-	if err != nil {
-		log.Fatal("could not open file")
-	}
-	defer file.Close()
-
-	file.Write(data)
-}
-
 func CopyFile(lfs *littlefs.FS, src, dest string) (e error) {
 	srcFile, e := os.Open(src)
 	if e != nil {
@@ -47,18 +25,17 @@ func CopyFile(lfs *littlefs.FS, src, dest string) (e error) {
 	}
 	defer srcFile.Close()
 
-	data, e := io.ReadAll(srcFile)
-	if e != nil {
-		return
-	}
-
 	destFile, e := lfs.OpenFile(dest)
 	if e != nil {
 		return
 	}
 	defer destFile.Close()
 
-	_, e = destFile.Write(data)
+	_, e = io.Copy(destFile, srcFile)
+	if e != nil {
+		return
+	}
+
 	return
 }
 
@@ -194,25 +171,6 @@ func Cmdformat(fsFilename string) (e error) {
 		writeToUF2File(dev, fsFilename)
 	}
 	return
-}
-
-func CmdAddFile(fsFilename, fileToAdd string) {
-	dev, e := blockDeviceFromUF2(fsFilename)
-	if e != nil {
-		return
-	}
-	defer dev.Close()
-
-	store := littlefs_store.NewDevice(dev, block_io.DeviceAddress(yarg_littlefs.BaseAddr))
-	config := littlefs.NewConfig(&store, 0)
-	defer config.Close()
-
-	lfs, _ := littlefs.Mount(config)
-	defer lfs.Close()
-
-	AddFile(lfs, fileToAdd)
-
-	writeToUF2File(dev, fsFilename)
 }
 
 func CmdCp(fsFilename, src, dest string) (e error) {

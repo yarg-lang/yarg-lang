@@ -50,7 +50,10 @@ func dispatchSubCommand(args []string) {
 			exitWithUsageError("expect filename to add")
 		}
 
-		deviceimage.CmdAddFile(*addFileFS, *addFileName)
+		err := deviceimage.CmdCp(*addFileFS, *addFileName, *addFileName)
+		if err != nil {
+			exitWithError(err.Error())
+		}
 	case "ls":
 		lsDirFS := flags.String("image", "", "image containing filesystem to mount")
 		lsDirEntry := flags.String("dir", ".", "directory to ls")
