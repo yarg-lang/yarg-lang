@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/yarg-lang/yarg-lang/hostyarg"
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/deviceimage"
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/devicerunner"
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/hostrunner"
@@ -139,31 +140,35 @@ func dispatchSubCommand(args []string) {
 			exitWithError("compile failed")
 		}
 	case "run":
-		deviceRunSource := flags.String("source", "", "source to run on device")
 		devicePort := flags.String("port", "", "serial port to use as device console")
 		localRunInterpreter := flags.String("interpreter", "", "default interpreter")
 		flags.Parse(args[1:])
-		if *deviceRunSource == "" {
+		positionals := flags.Args()
+		if len(positionals) != 1 {
+			exitWithUsageError("unexpected positional arguments: " + fmt.Sprint(positionals))
+		}
+		if positionals[0] == "" {
 			exitWithUsageError("expect source to run")
 		}
+		var runner hostyarg.YargRunner
+
 		if *devicePort == "" && *localRunInterpreter == "" {
-			var ok bool
-			*devicePort, ok = devicerunner.DefaultPort()
+			runner = hostyarg.DefaultYargRunner()
+		} else if *devicePort != "" && *localRunInterpreter != "" {
+			exitWithUsageError("cannot specify both device port and local interpreter")
+		} else if *localRunInterpreter != "" {
+			runner = &hostyarg.HostRunner{Interpreter: *localRunInterpreter}
+		} else if *devicePort != "" {
+			port, ok := devicerunner.PicoPortFor(*devicePort)
 			if !ok {
-				exitWithError("no valid port found")
+				exitWithError("failed to find specified device port")
 			}
+			runner = &hostyarg.DeviceRunner{Port: port}
 		}
 
-		if *devicePort != "" {
-			result := devicerunner.CmdRunOnDevice(*deviceRunSource, *devicePort)
-			if result != nil {
-				exitWithError("run failed")
-			}
-		} else {
-			result := hostrunner.CmdRunLocally(*deviceRunSource, *localRunInterpreter)
-			if result != nil {
-				exitWithError("run failed")
-			}
+		err := runner.Run(positionals[0])
+		if err != nil {
+			exitWithError(err.Error())
 		}
 
 	case "test":

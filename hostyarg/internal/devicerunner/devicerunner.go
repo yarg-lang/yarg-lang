@@ -64,7 +64,7 @@ func CmdFlashBinary(binaryPath string) (ok bool) {
 	return result == 0
 }
 
-type picoPort struct {
+type PicoPort struct {
 	name         string
 	serialNumber string
 	pid          string
@@ -77,7 +77,7 @@ const (
 	debugProbePID  = "000C" // Raspberry Pi RP2040 CMSIS-DAP debug adapter
 )
 
-func (p picoPort) String() string {
+func (p PicoPort) String() string {
 	if p.vid == raspberryPiVID && p.pid == debugProbePID {
 		return fmt.Sprintf("%s, Serial=%s, VID:PID=%s:%s (Debug Probe)", p.name, p.serialNumber, p.vid, p.pid)
 	} else if p.vid == raspberryPiVID && p.pid == picoPID {
@@ -87,24 +87,30 @@ func (p picoPort) String() string {
 	}
 }
 
-func getSerialOutput(portName string, sourcePath string, done chan bool) {
+func (p PicoPort) Name() string {
+	return p.name
+}
 
-	defer func() { done <- true }()
+func GetSerialOutput(portName string, sourcePath string, done chan error) (output []string) {
 
-	serial, err := serial.Open(portName, &serial.Mode{BaudRate: 115200})
-	if err != nil {
-		fmt.Println("Failed to open serial port!")
-		return
+	var result_error error
+
+	defer func() { done <- result_error }()
+
+	serial, result_error := serial.Open(portName, &serial.Mode{BaudRate: 115200})
+	if result_error != nil {
+		return nil
 	}
 	defer serial.Close()
 
-	serial.Write([]byte(fmt.Sprintf("exec(read_source(\"%s\"));\n", sourcePath)))
+	fmt.Fprintf(serial, "exec(read_source(\"%s\"));\n", sourcePath)
 
 	buff := make([]byte, 100)
 	for {
 		n, err := serial.Read(buff)
 		if err != nil {
-			log.Fatal(err)
+			result_error = err
+			return nil
 		}
 		if n == 0 {
 			fmt.Println("No data read from serial port, exiting.")
@@ -112,33 +118,30 @@ func getSerialOutput(portName string, sourcePath string, done chan bool) {
 		}
 
 		input := string(buff[:n])
-		fmt.Print(input)
-
-		if strings.HasSuffix(input, "> ") {
-			fmt.Print("\n")
-			break
+		lines := strings.SplitSeq(input, "\n")
+		for line := range lines {
+			if strings.HasSuffix(line, "> ") {
+				return output
+			}
+			output = append(output, line)
 		}
-		if strings.Contains(input, "\n") {
-			fmt.Print("\n")
-			continue
-		}
-
 	}
+	return output
 }
 
-func DefaultPort() (string, bool) {
+func DefaultPort() (p PicoPort, ok bool) {
 
 	detailedports, err := enumerator.GetDetailedPortsList()
 	if err != nil {
 		log.Println(err)
-		return "", false
+		return p, false
 	}
 	if len(detailedports) == 0 {
 		log.Println("No serial ports found!")
-		return "", false
+		return p, false
 	}
 
-	picoPorts := []picoPort{}
+	picoPorts := []PicoPort{}
 
 	// prefer debug probe connections, since they have a more stable serial connection.
 	// scan twice, looking for debug probe first, and then direct Pico connections.
@@ -146,7 +149,7 @@ func DefaultPort() (string, bool) {
 	for _, port := range detailedports {
 		if port.IsUSB && port.VID == raspberryPiVID && port.PID == debugProbePID {
 			log.Printf("Found Debug Probe port: %s\n", port.Name)
-			debugprobe := picoPort{
+			debugprobe := PicoPort{
 				name:         port.Name,
 				serialNumber: port.SerialNumber,
 				pid:          port.PID,
@@ -159,7 +162,7 @@ func DefaultPort() (string, bool) {
 	for _, port := range detailedports {
 		if port.IsUSB && port.VID == raspberryPiVID && port.PID == picoPID {
 			log.Printf("Found Pico port: %s\n", port.Name)
-			pico := picoPort{
+			pico := PicoPort{
 				name:         port.Name,
 				serialNumber: port.SerialNumber,
 				pid:          port.PID,
@@ -170,20 +173,38 @@ func DefaultPort() (string, bool) {
 	}
 
 	if len(picoPorts) == 0 {
-		return "", false
+		return p, false
 	}
 
-	fmt.Printf("%s\n", picoPorts[0])
-	return picoPorts[0].name, true
+	return picoPorts[0], true
 }
 
-func CmdRunOnDevice(sourcePath string, port string) error {
+func PicoPortFor(name string) (p PicoPort, ok bool) {
 
-	serialComplete := make(chan bool)
-	go getSerialOutput(port, sourcePath, serialComplete)
+	detailedports, err := enumerator.GetDetailedPortsList()
+	if err != nil {
+		log.Println(err)
+		return p, false
+	}
+	if len(detailedports) == 0 {
+		log.Println("No serial ports found!")
+		return p, false
+	}
 
-	<-serialComplete
-	return nil
+	for _, port := range detailedports {
+		if port.Name == name && port.IsUSB {
+			log.Printf("Found port: %s\n", port.Name)
+			picoPort := PicoPort{
+				name:         port.Name,
+				serialNumber: port.SerialNumber,
+				pid:          port.PID,
+				vid:          port.VID,
+			}
+			return picoPort, true
+		}
+	}
+
+	return p, false
 }
 
 func CmdListDevices() bool {
