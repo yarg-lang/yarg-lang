@@ -150,23 +150,13 @@ func dispatchSubCommand(args []string) {
 		if positionals[0] == "" {
 			exitWithUsageError("expect source to run")
 		}
-		var runner hostyarg.YargRunner
 
-		if *devicePort == "" && *localRunInterpreter == "" {
-			runner = hostyarg.DefaultYargRunner()
-		} else if *devicePort != "" && *localRunInterpreter != "" {
-			exitWithUsageError("cannot specify both device port and local interpreter")
-		} else if *localRunInterpreter != "" {
-			runner = &hostyarg.HostRunner{Interpreter: *localRunInterpreter}
-		} else if *devicePort != "" {
-			port, ok := devicerunner.PicoPortFor(*devicePort)
-			if !ok {
-				exitWithError("failed to find specified device port")
-			}
-			runner = &hostyarg.DeviceRunner{Port: port}
+		runner, err := hostyarg.DefaultYargRunner(*devicePort, *localRunInterpreter)
+		if err != nil {
+			exitWithError(err.Error())
 		}
 
-		err := runner.Run(positionals[0])
+		err = runner.Run(positionals[0])
 		if err != nil {
 			exitWithError(err.Error())
 		}
@@ -185,7 +175,7 @@ func dispatchSubCommand(args []string) {
 		}
 	case "devices":
 		flags.Parse(args[1:])
-		devicerunner.CmdListDevices()
+		hostyarg.CmdListDevices()
 	default:
 		exitWithUsageError("unknown command")
 	}

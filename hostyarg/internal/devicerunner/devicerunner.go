@@ -72,15 +72,15 @@ type PicoPort struct {
 }
 
 const (
-	raspberryPiVID = "2E8A" // https://github.com/raspberrypi/usb-pid
-	picoPID        = "000A" // Raspberry Pi Pico SDK CDC UART (RP2040)
-	debugProbePID  = "000C" // Raspberry Pi RP2040 CMSIS-DAP debug adapter
+	RaspberryPiVID = "2E8A" // https://github.com/raspberrypi/usb-pid
+	PicoPID        = "000A" // Raspberry Pi Pico SDK CDC UART (RP2040)
+	DebugProbePID  = "000C" // Raspberry Pi RP2040 CMSIS-DAP debug adapter
 )
 
 func (p PicoPort) String() string {
-	if p.vid == raspberryPiVID && p.pid == debugProbePID {
+	if p.vid == RaspberryPiVID && p.pid == DebugProbePID {
 		return fmt.Sprintf("%s, Serial=%s, VID:PID=%s:%s (Debug Probe)", p.name, p.serialNumber, p.vid, p.pid)
-	} else if p.vid == raspberryPiVID && p.pid == picoPID {
+	} else if p.vid == RaspberryPiVID && p.pid == PicoPID {
 		return fmt.Sprintf("%s, Serial=%s, VID:PID=%s:%s (Pico)", p.name, p.serialNumber, p.vid, p.pid)
 	} else {
 		return fmt.Sprintf("%s, Serial=%s, VID:PID=%s:%s", p.name, p.serialNumber, p.vid, p.pid)
@@ -147,7 +147,7 @@ func DefaultPort() (p PicoPort, ok bool) {
 	// scan twice, looking for debug probe first, and then direct Pico connections.
 
 	for _, port := range detailedports {
-		if port.IsUSB && port.VID == raspberryPiVID && port.PID == debugProbePID {
+		if port.IsUSB && port.VID == RaspberryPiVID && port.PID == DebugProbePID {
 			log.Printf("Found Debug Probe port: %s\n", port.Name)
 			debugprobe := PicoPort{
 				name:         port.Name,
@@ -160,7 +160,7 @@ func DefaultPort() (p PicoPort, ok bool) {
 	}
 
 	for _, port := range detailedports {
-		if port.IsUSB && port.VID == raspberryPiVID && port.PID == picoPID {
+		if port.IsUSB && port.VID == RaspberryPiVID && port.PID == PicoPID {
 			log.Printf("Found Pico port: %s\n", port.Name)
 			pico := PicoPort{
 				name:         port.Name,
@@ -205,36 +205,4 @@ func PicoPortFor(name string) (p PicoPort, ok bool) {
 	}
 
 	return p, false
-}
-
-func CmdListDevices() bool {
-
-	detailedports, err := enumerator.GetDetailedPortsList()
-	if err != nil {
-		log.Println(err)
-		return false
-	}
-	if len(detailedports) == 0 {
-		log.Println("No device serial ports found!")
-		return false
-	}
-	for _, port := range detailedports {
-		if port.IsUSB && port.VID == raspberryPiVID {
-			switch port.PID {
-			case debugProbePID:
-				fmt.Printf("%s, Serial=%s, VID:PID=%s:%s (Debug Probe)\n", port.Name, port.SerialNumber, port.VID, port.PID)
-			case picoPID:
-				fmt.Printf("%s, Serial=%s, VID:PID=%s:%s (Pico)\n", port.Name, port.SerialNumber, port.VID, port.PID)
-			default:
-				fmt.Printf("%s, Serial=%s, VID:PID=%s:%s (Raspberry Pi Device)\n", port.Name, port.SerialNumber, port.VID, port.PID)
-			}
-		} else {
-			if port.IsUSB {
-				log.Printf("%s, VID:PID=%s:%s\n", port.Name, port.VID, port.PID)
-			} else {
-				log.Printf("%s\n", port.Name)
-			}
-		}
-	}
-	return true
 }
