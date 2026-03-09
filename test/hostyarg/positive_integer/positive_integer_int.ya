@@ -1,0 +1,4 @@
+var any[1] test;
+var index = int(4294967296);
+print index; // expect: 4294967296
+print test[index]; // expect runtime error: Expected an array and a positive or unsigned integer.

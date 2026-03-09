@@ -370,7 +370,7 @@ static bool derefElement(ObjRoutine* routine) {
     if (IS_UNIFORMARRAY(peek(routine, 1))) {
         ObjPackedUniformArray* array = AS_UNIFORMARRAY(peek(routine, 1));
         if (index >= arrayCardinality(array->store)) {
-            runtimeError(routine, "Array index %d out of bounds.", index);
+            runtimeError(routine, "Array index %zu out of bounds.", index);
             return false;
         }
         PackedValue element = arrayElement(array->store, index);
@@ -379,7 +379,7 @@ static bool derefElement(ObjRoutine* routine) {
     } else {
         ObjPackedUniformArray* arrayObj = (ObjPackedUniformArray*)destinationObject(peek(routine, 1));
         if (index >= arrayCardinality(arrayObj->store)) {
-            runtimeError(routine, "Array index %d out of bounds (0:%zu)", index, arrayCardinality(arrayObj->store) - 1);
+            runtimeError(routine, "Array index %zu out of bounds (0:%zu)", index, arrayCardinality(arrayObj->store) - 1);
             return false;
         }
         tempRootPush(OBJ_VAL(arrayObj));

@@ -1,0 +1,27 @@
+var any[1] test;
+print test[0]; // expect: nil
+
+var index = uint8(0);
+print index; // expect: 0
+print test[index]; // expect: nil
+index = uint16(0);
+print test[index]; // expect: nil
+index = uint32(0);
+print test[index]; // expect: nil
+index = uint64(0);
+print test[index]; // expect: nil
+index = int8(0);
+print test[index]; // expect: nil
+index = int16(0);
+print test[index]; // expect: nil
+index = int32(0);
+print test[index]; // expect: nil
+index = int64(0);
+print test[index]; // expect: nil
+index = int(0);
+print test[index]; // expect: nil
+
+// maximum valid index is a uint32, so these should cause an out of bounds error.
+index = uint64(4294967295);
+print index; // expect: 4294967295
+print test[index]; // expect runtime error: Array index 4294967295 out of bounds.

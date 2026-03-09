@@ -1,0 +1,4 @@
+var any[1] test;
+var index = int32(-1);
+print index; // expect: -1
+print test[index]; // expect runtime error: Expected an array and a positive or unsigned integer.
