@@ -27,18 +27,18 @@ bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* resu
         runtimeError(routine, "Expected an address.");
         return false;
     }
-    if (!is_positive_integer(numVal)) {
+    if (!is_positive_integer32(numVal)) {
         runtimeError(routine, "Expected an a positive integer.");
         return false;
     }
-    if (!is_positive_integer(prioVal)) {
+    if (!is_positive_integer32(prioVal)) {
         runtimeError(routine, "Expected an a positive integer for priority.");
         return false;
     }        
 
-    unsigned int num = as_positive_integer(numVal);
+    unsigned int num = as_positive_integer32(numVal);
     uintptr_t isrRoutine = AS_ADDRESS(address);
-    unsigned int prio = as_positive_integer(prioVal);
+    unsigned int prio = as_positive_integer32(prioVal);
 
 #if defined(CYARG_PICO_SDK_TARGET)
     irq_add_shared_handler(num, (irq_handler_t) isrRoutine, prio);
@@ -60,12 +60,12 @@ bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, Value* result) 
         runtimeError(routine, "Expected an address.");
         return false;
     }
-    if (!is_positive_integer(numVal)) {
+    if (!is_positive_integer32(numVal)) {
         runtimeError(routine, "Expected an a positive integer.");
         return false;
     }
 
-    unsigned int num = as_positive_integer(numVal);
+    unsigned int num = as_positive_integer32(numVal);
     uintptr_t isrRoutine = AS_ADDRESS(address);
 
 #if defined(CYARG_PICO_SDK_TARGET)
@@ -98,7 +98,7 @@ bool clock_get_hzNative(ObjRoutine* routine, int argCount, Value* result) {
     }
     Value numVal = nativeArgument(routine, argCount, 0);
 
-    if (!is_positive_integer(numVal)) {
+    if (!is_positive_integer32(numVal)) {
         runtimeError(routine, "Argument must be a positive integer");
         return false;
     }
@@ -106,7 +106,7 @@ bool clock_get_hzNative(ObjRoutine* routine, int argCount, Value* result) {
     uint32_t res = 0;
 
 #ifdef CYARG_PICO_SDK_TARGET
-    res = clock_get_hz(as_positive_integer(numVal));
+    res = clock_get_hz(as_positive_integer32(numVal));
 #endif
 
     *result = UI32_VAL(res);

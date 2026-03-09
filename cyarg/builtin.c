@@ -191,13 +191,13 @@ bool makeChannelBuiltin(ObjRoutine* routine, int argCount, Value* result) {
         valCapacity = UI32_VAL(1);
     } else {
         Value arg1 = nativeArgument(routine, argCount, 0);
-        if (!is_positive_integer(arg1)) {
+        if (!is_positive_integer32(arg1)) {
             runtimeError(routine, "Expected a positive integer");
         }
         valCapacity = arg1;
     }
 
-    size_t capacity = as_positive_integer(valCapacity);
+    size_t capacity = as_positive_integer32(valCapacity);
 
     ObjChannelContainer* channel = newChannel(routine, capacity);
 

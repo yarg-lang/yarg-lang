@@ -377,7 +377,7 @@ bool valuesEqual(Value a, Value b) {
     }
 }
 
-bool is_positive_integer(Value a) {
+bool is_positive_integer32(Value a) {
     if (IS_UI32(a) || IS_UI16(a) || IS_UI8(a)) {
         return true;
     } else if (IS_UI64(a) && AS_UI64(a) <= UINT32_MAX) {
@@ -388,13 +388,13 @@ bool is_positive_integer(Value a) {
         return true;
     } else if (IS_I8(a) && AS_I8(a) >= 0) {
         return true;
-    } else if (IS_I64(a) && AS_I64(a) >= 0) {
+    } else if (IS_I64(a) && AS_I64(a) >= 0 && AS_I64(a) <= UINT32_MAX) {
         return true;
     }
     return false;
 }
 
-uint32_t as_positive_integer(Value a) {
+uint32_t as_positive_integer32(Value a) {
     if (IS_I32(a)) {
         return AS_I32(a);
     } else if (IS_I8(a)) {
@@ -402,7 +402,7 @@ uint32_t as_positive_integer(Value a) {
     } else if (IS_I16(a)) {
         return AS_I16(a);
     } else if (IS_I64(a) && AS_I64(a) <= UINT32_MAX) {
-        return AS_I32(a);
+        return (uint32_t) AS_I64(a);
     } else if (IS_UI32(a)) {
         return AS_UI32(a);
     } else if (IS_UI8(a)) {
@@ -410,7 +410,7 @@ uint32_t as_positive_integer(Value a) {
     } else if (IS_UI16(a)) {
         return AS_UI16(a);
     } else if (IS_UI64(a) && AS_UI64(a) <= UINT32_MAX) {
-        return AS_UI32(a);
+        return (uint32_t) AS_UI64(a);
     }
     return 0;
 }

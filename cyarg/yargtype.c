@@ -106,8 +106,8 @@ size_t addFieldType(ObjConcreteYargTypeStruct* st, size_t index, size_t fieldOff
     tableSet(&st->field_names, AS_STRING(name), SIZE_T_UI_VAL(index));
     if (IS_NIL(offset)) {
         st->field_indexes[index] = fieldOffset;
-    } else if (is_positive_integer(offset)) {
-        fieldOffset = as_positive_integer(offset);
+    } else if (is_positive_integer32(offset)) {
+        fieldOffset = as_positive_integer32(offset);
         st->field_indexes[index] = fieldOffset;
     }
     st->storage_size = fieldOffset + yt_sizeof_type_storage(type);
