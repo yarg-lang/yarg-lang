@@ -249,11 +249,26 @@ static void expressionList(DynamicObjArray* items) {
 
 }
 
+static void appendInitializer(DynamicObjArray* initializers) {
+    Obj* key_or_item = (Obj*) expression();
+    if (match(TOKEN_COLON)) {
+        pushWorkingNode(key_or_item);
+        Obj* value = (Obj*) expression();
+        pushWorkingNode(value);
+        appendToDynamicObjArray(initializers, (Obj*)value);
+        popWorkingNode();
+        popWorkingNode();
+    } else {
+        appendToDynamicObjArray(initializers, key_or_item);
+    }
+
+}
+
 static void arrayInitExpressionsList(DynamicObjArray* initializers) {
 
     if (!check(TOKEN_RIGHT_SQUARE_BRACKET)) {
         do {
-            appendToDynamicObjArray(initializers, (Obj*)expression());
+            appendInitializer(initializers);
             if (initializers->objectCount > 255) {
                 error("Can't have more than 255 array initialisers.");
             }
