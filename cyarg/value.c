@@ -132,6 +132,7 @@ void initialisePackedValue(PackedValue packedValue) {
             case TypeFunction:
             case TypeRoutine:
             case TypeChannel:
+            case TypeMap:
             case TypeYargType: {
                 packedValue.storedValue->as.obj = NULL;
                 break;
@@ -176,6 +177,7 @@ Value unpackValue(PackedValue packedValue) {
             case TypeFunction:
             case TypeRoutine:
             case TypeChannel:
+            case TypeMap:
             case TypeYargType: {
                 if (packedValue.storedValue->as.obj) {
                     return OBJ_VAL(packedValue.storedValue->as.obj);
@@ -211,7 +213,8 @@ static void packValue(PackedValue packedStorageTarget, Value value) {
             case TypeRoutine:
             case TypeChannel:
             case TypeYargType:
-            case TypeInt: {
+            case TypeInt:
+            case TypeMap: {
                 packedStorageTarget.storedValue->as.obj = AS_OBJ(value);
                 break;
             }

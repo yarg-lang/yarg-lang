@@ -10,7 +10,7 @@ typedef struct ObjConcreteYargType ObjConcreteYargType;
 typedef struct ObjConcreteYargTypeArray ObjConcreteYargTypeArray;
 typedef struct ObjConcreteYargTypeStruct ObjConcreteYargTypeStruct;
 typedef struct ObjConcreteYargTypePointer ObjConcreteYargTypePointer;
-
+typedef struct ObjConcreteYargTypeMap ObjConcreteYargTypeMap;
 
 #define OBJ_TYPE(value)     (AS_OBJ(value)->type)
 
@@ -25,10 +25,11 @@ typedef struct ObjConcreteYargTypePointer ObjConcreteYargTypePointer;
 #define IS_CHANNEL(value)      isObjType(value, OBJ_CHANNELCONTAINER)
 #define IS_STRING(value)       isObjType(value, OBJ_STRING)
 #define IS_UNIFORMARRAY(value) (isObjType(value, OBJ_PACKEDUNIFORMARRAY)|| isObjType(value, OBJ_UNOWNED_UNIFORMARRAY))
-#define IS_YARGTYPE(value)     (isObjType(value, OBJ_YARGTYPE) || isObjType(value, OBJ_YARGTYPE_ARRAY) || isObjType(value, OBJ_YARGTYPE_STRUCT) || isObjType(value, OBJ_YARGTYPE_POINTER))
+#define IS_YARGTYPE(value)     (isObjType(value, OBJ_YARGTYPE) || isObjType(value, OBJ_YARGTYPE_ARRAY) || isObjType(value, OBJ_YARGTYPE_STRUCT) || isObjType(value, OBJ_YARGTYPE_POINTER) || isObjType(value, OBJ_YARGTYPE_MAP))
 #define IS_POINTER(value)      (isObjType(value, OBJ_PACKEDPOINTER) || isObjType(value, OBJ_UNOWNED_PACKEDPOINTER))
 #define IS_STRUCT(value)       (isObjType(value, OBJ_PACKEDSTRUCT) || isObjType(value, OBJ_UNOWNED_PACKEDSTRUCT))
 #define IS_SYNCGROUP(value)    isObjType(value, OBJ_SYNCGROUP)
+#define IS_MAP(value)          isObjType(value, OBJ_MAP)
 
 #define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
 #define AS_CLASS(value)        ((ObjClass*)AS_OBJ(value))
@@ -66,11 +67,13 @@ typedef enum {
     OBJ_YARGTYPE_ARRAY,
     OBJ_YARGTYPE_STRUCT,
     OBJ_YARGTYPE_POINTER,
+    OBJ_YARGTYPE_MAP,
     OBJ_PACKEDPOINTER,
     OBJ_UNOWNED_PACKEDPOINTER,
     OBJ_UNOWNED_PACKEDSTRUCT,
     OBJ_PACKEDSTRUCT,
     OBJ_SYNCGROUP,
+    OBJ_MAP,
     OBJ_STACKSLICE,
     OBJ_AST,
     OBJ_PLACEALIAS,
@@ -199,6 +202,12 @@ typedef struct {
     PackedValue store;
 } ObjPackedStruct;
 
+typedef struct {
+    Obj obj;
+    ObjConcreteYargTypeMap* type;
+    ValueTable entries;
+} ObjMap;
+
 #define ALLOCATE_OBJ(type, objectType) \
     (type*)allocateObject(sizeof(type), objectType)
 
@@ -218,6 +227,7 @@ void initFunction(ObjFunction* function);
 ObjInstance* newInstance(ObjClass* klass);
 ObjNative* newNative(NativeFn function);
 ObjPackedUniformArray* newPackedUniformArray(ObjConcreteYargTypeArray* type);
+ObjMap* newMap(ObjConcreteYargTypeMap* type);
 ObjString* takeString(char* chars, int length);
 ObjString* copyString(const char* chars, int length);
 ObjString* copyStringWithEscapes(const char* chars, int length);

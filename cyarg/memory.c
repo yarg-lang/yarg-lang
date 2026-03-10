@@ -208,6 +208,12 @@ static void blackenObject(Obj* object) {
         }
         case OBJ_STRING: break;
         case OBJ_INT: break;
+        case OBJ_MAP: {
+            ObjMap* map = (ObjMap*)object;
+            markObject((Obj*)map->type);
+            markTable(&map->entries);
+            break;
+        }
         case OBJ_YARGTYPE: break;
         case OBJ_YARGTYPE_ARRAY: {
             ObjConcreteYargTypeArray* type = (ObjConcreteYargTypeArray*)object;
@@ -226,6 +232,12 @@ static void blackenObject(Obj* object) {
         case OBJ_YARGTYPE_POINTER: {
             ObjConcreteYargTypePointer* type = (ObjConcreteYargTypePointer*)object;
             markObject((Obj*)type->target_type);
+            break;
+        }
+        case OBJ_YARGTYPE_MAP: {
+            ObjConcreteYargTypeMap* type = (ObjConcreteYargTypeMap*)object;
+            markObject((Obj*)type->key_type);
+            markObject((Obj*)type->value_type);
             break;
         }
         case OBJ_SYNCGROUP: markSyncGroup((ObjSyncGroup*)object); break;
@@ -507,6 +519,12 @@ static void freeObject(Obj* object) {
             FREE(ObjPackedStruct, object);
             break;            
         }
+        case OBJ_MAP: {
+            ObjMap* map = (ObjMap*)object;
+            freeTable(&map->entries);
+            FREE(ObjMap, object);
+            break;
+        }
         case OBJ_YARGTYPE: FREE(ObjConcreteYargType, object); break;
         case OBJ_YARGTYPE_ARRAY: FREE(ObjConcreteYargTypeArray, object); break;
         case OBJ_YARGTYPE_STRUCT: {
@@ -517,6 +535,7 @@ static void freeObject(Obj* object) {
             FREE(ObjConcreteYargTypeStruct, object);
             break;
         }
+        case OBJ_YARGTYPE_MAP: FREE(ObjConcreteYargTypeMap, object); break;
         case OBJ_YARGTYPE_POINTER: FREE(ObjConcreteYargTypePointer, object); break;
         case OBJ_SYNCGROUP: freeSyncGroup(object); break;
         case OBJ_STACKSLICE: FREE(ObjStackSlice, object); break;

@@ -179,6 +179,13 @@ Value defaultArrayValue(ObjConcreteYargType* type) {
     return OBJ_VAL(newPackedUniformArray(arrayType));
 }
 
+ObjMap* newMap(ObjConcreteYargTypeMap* type) {
+    ObjMap* map = ALLOCATE_OBJ(ObjMap, OBJ_MAP);
+    map->type = type;
+    initTable(&map->entries);
+    return map;
+}
+
 ObjPackedPointer* newPointerForHeapCell(PackedValue location) {
 
     ObjPackedPointer* ptr = ALLOCATE_OBJ(ObjPackedPointer, OBJ_PACKEDPOINTER);
@@ -506,6 +513,7 @@ void fprintObject(FILE* op, Value value) {
         case OBJ_YARGTYPE:
         case OBJ_YARGTYPE_ARRAY:
         case OBJ_YARGTYPE_STRUCT:
+        case OBJ_YARGTYPE_MAP:
             printType(op, AS_YARGTYPE(value));
             break;
         case OBJ_UNOWNED_PACKEDPOINTER:

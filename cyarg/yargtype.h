@@ -26,6 +26,7 @@ typedef enum {
    TypeArray,
    TypeStruct,
    TypePointer,
+   TypeMap,
    TypeYargType
 } ConcreteYargType;
 
@@ -54,6 +55,12 @@ typedef struct ObjConcreteYargTypePointer {
     ObjConcreteYargType core;
     ObjConcreteYargType* target_type;
 } ObjConcreteYargTypePointer;
+
+typedef struct ObjConcreteYargTypeMap {
+    ObjConcreteYargType core;
+    ObjConcreteYargType* key_type;
+    ObjConcreteYargType* value_type;
+} ObjConcreteYargTypeMap;
 
 ObjConcreteYargType* newYargTypeFromType(ConcreteYargType yt);
 

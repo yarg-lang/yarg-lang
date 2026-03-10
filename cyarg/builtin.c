@@ -523,6 +523,10 @@ bool newBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
             *result = defaultValue(typeToCreate);
             return true;
         }
+        case TypeMap: {
+            *result = OBJ_VAL(newMap((ObjConcreteYargTypeMap*)AS_YARGTYPE(typeToCreate)));
+            return true;
+        }
         case TypeInt:
         case TypeString:
         case TypeClass:
