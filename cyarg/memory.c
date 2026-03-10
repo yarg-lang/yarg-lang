@@ -430,6 +430,13 @@ static void blackenObject(Obj* object) {
             markObject((Obj*)expr->cardinality);
             break;
         }
+        case OBJ_EXPR_PAIR: {
+            markExpr(object);
+            ObjExprPair* pair = (ObjExprPair*)object;
+            markObject((Obj*)pair->a);
+            markObject((Obj*)pair->b);
+            break;
+        }
     }
 }
 
@@ -565,6 +572,7 @@ static void freeObject(Obj* object) {
             break;
         }
         case OBJ_EXPR_ARRAYELEMENT: FREE(ObjExprArrayElement, object); break;
+        case OBJ_EXPR_PAIR: FREE(ObjExprPair, object); break;
         case OBJ_EXPR_BUILTIN: FREE(ObjExprBuiltin, object); break;
         case OBJ_EXPR_DOT: FREE(ObjExprDot, object); break;
         case OBJ_EXPR_SUPER: FREE(ObjExprSuper, object); break;

@@ -211,6 +211,13 @@ ObjExprArrayElement* newExprArrayElement() {
     return array;
 }
 
+ObjExprPair* newExprPair(ObjExpr* a, ObjExpr* b) {
+    ObjExprPair* pair = ALLOCATE_OBJ(ObjExprPair, OBJ_EXPR_PAIR);
+    pair->a = a;
+    pair->b = b;
+    return pair;
+}
+
 ObjExprBuiltin* newExprBuiltin(ExprBuiltin fn, int arity) {
     ObjExprBuiltin* builtin = ALLOCATE_OBJ(ObjExprBuiltin, OBJ_EXPR_BUILTIN);
     builtin->expr.nextExpr = NULL;
@@ -495,6 +502,13 @@ void printExpr(ObjExpr* expr) {
                     printf(" = ");
                     printExpr(array->assignment);
                 }
+                break;
+            }
+            case OBJ_EXPR_PAIR: {
+                ObjExprPair* pair = (ObjExprPair*)cursor;
+                printExpr(pair->a);
+                printf(":");
+                printExpr(pair->b);
                 break;
             }
             case OBJ_EXPR_BUILTIN: printExprBuiltin((ObjExprBuiltin*)cursor); break;

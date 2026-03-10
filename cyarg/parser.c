@@ -255,7 +255,8 @@ static void appendInitializer(DynamicObjArray* initializers) {
         pushWorkingNode(key_or_item);
         Obj* value = (Obj*) expression();
         pushWorkingNode(value);
-        appendToDynamicObjArray(initializers, (Obj*)value);
+        ObjExprPair* pair = newExprPair((ObjExpr*)key_or_item, (ObjExpr*)value);
+        appendToDynamicObjArray(initializers, (Obj*)pair);
         popWorkingNode();
         popWorkingNode();
     } else {
