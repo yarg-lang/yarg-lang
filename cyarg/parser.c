@@ -249,28 +249,29 @@ static void expressionList(DynamicObjArray* items) {
 
 }
 
-static void appendInitializer(DynamicObjArray* initializers) {
+static void appendInitializer(ObjExprCollectionInitializer* collection) {
     Obj* key_or_item = (Obj*) expression();
     if (match(TOKEN_COLON)) {
         pushWorkingNode(key_or_item);
         Obj* value = (Obj*) expression();
         pushWorkingNode(value);
         ObjExprPair* pair = newExprPair((ObjExpr*)key_or_item, (ObjExpr*)value);
-        appendToDynamicObjArray(initializers, (Obj*)pair);
+        appendToDynamicObjArray(&collection->initializers, (Obj*)pair);
+        collection->isMap = true;
         popWorkingNode();
         popWorkingNode();
     } else {
-        appendToDynamicObjArray(initializers, key_or_item);
+        appendToDynamicObjArray(&collection->initializers, key_or_item);
     }
 
 }
 
-static void arrayInitExpressionsList(DynamicObjArray* initializers) {
+static void collectionInitializers(ObjExprCollectionInitializer* collection) {
 
     if (!check(TOKEN_RIGHT_SQUARE_BRACKET)) {
         do {
-            appendInitializer(initializers);
-            if (initializers->objectCount > 255) {
+            appendInitializer(collection);
+            if (collection->initializers.objectCount > 255) {
                 error("Can't have more than 255 array initialisers.");
             }
 
@@ -325,18 +326,18 @@ static ObjExpr* deref(bool canAssign) {
     return (ObjExpr*)elmt;
 }
 
-static ObjExpr* arrayinit(bool canAssign) {
+static ObjExpr* collectioninit(bool canAssign) {
 
-    ObjExprArrayInit* array = newExprArrayInit();
-    pushWorkingNode((Obj*)array);
+    ObjExprCollectionInitializer* collection = newExprCollectionInitializer();
+    pushWorkingNode((Obj*)collection);
 
-    arrayInitExpressionsList(&array->initializers);
-    consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' initialising array.");
+    collectionInitializers(collection);
+    consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' initialising map or array.");
 
-    array->cardinality = (ObjExpr*) newExprNumberFromCint(array->initializers.objectCount);
+    collection->cardinality = (ObjExpr*) newExprNumberFromCint(collection->initializers.objectCount);
     
     popWorkingNode();
-    return (ObjExpr*)array;
+    return (ObjExpr*)collection;
 }
 
 static ObjExpr* call(bool canAssign) {
@@ -750,7 +751,7 @@ static AstParseRule rules[] = {
     [TOKEN_RIGHT_PAREN]          = {NULL,      NULL,   PREC_NONE},
     [TOKEN_LEFT_BRACE]           = {NULL,      NULL,   PREC_NONE},
     [TOKEN_RIGHT_BRACE]          = {NULL,      NULL,   PREC_NONE},
-    [TOKEN_LEFT_SQUARE_BRACKET]  = {arrayinit, deref,  PREC_DEREF},
+    [TOKEN_LEFT_SQUARE_BRACKET]  = {collectioninit, deref,  PREC_DEREF},
     [TOKEN_RIGHT_SQUARE_BRACKET] = {NULL,      NULL,   PREC_NONE},
     [TOKEN_COMMA]                = {NULL,      NULL,   PREC_NONE},
     [TOKEN_DOT]                  = {NULL,      dot,    PREC_CALL},

@@ -392,9 +392,9 @@ static void blackenObject(Obj* object) {
             markDynamicObjArray(&call->arguments);
             break;
         }
-        case OBJ_EXPR_ARRAYINIT: {
+        case OBJ_EXPR_COLLECTION_INITIALIZER: {
             markExpr(object);
-            ObjExprArrayInit* array = (ObjExprArrayInit*)object;
+            ObjExprCollectionInitializer* array = (ObjExprCollectionInitializer*)object;
             markDynamicObjArray(&array->initializers);
             markObject((Obj*)array->cardinality);
             break;
@@ -584,10 +584,10 @@ static void freeObject(Obj* object) {
             FREE(ObjExprCall, object); 
             break;
         }
-        case OBJ_EXPR_ARRAYINIT: {
-            ObjExprArrayInit* init = (ObjExprArrayInit*)object;
+        case OBJ_EXPR_COLLECTION_INITIALIZER: {
+            ObjExprCollectionInitializer* init = (ObjExprCollectionInitializer*)object;
             freeDynamicObjArray(&init->initializers);
-            FREE(ObjExprArrayInit, object); 
+            FREE(ObjExprCollectionInitializer, object); 
             break;
         }
         case OBJ_EXPR_ARRAYELEMENT: FREE(ObjExprArrayElement, object); break;

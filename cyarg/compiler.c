@@ -532,19 +532,30 @@ static void generateExprCall(ObjExprCall* call) {
     emitBytes(OP_CALL, call->arguments.objectCount);
 }
 
-static void generateExprArrayInit(ObjExprArrayInit* array) {
+static void generateExprArrayInit(ObjExprCollectionInitializer* array) {
  
     emitBytes(OP_GET_BUILTIN, BUILTIN_NEW);
     emitByte(OP_NIL);
-    generateExpr(array->cardinality);
+    if (array->isMap) {
+        emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_STRING);
+    } else {
+        generateExpr(array->cardinality);
+    }
     emitByte(OP_TYPE_ARRAY);
     emitBytes(OP_CALL, 1);
  
     for (int i = 0; i < array->initializers.objectCount; i++) {
-        ObjExpr* element = (ObjExpr*)newExprNumberFromCint(i);
+        Obj* item_or_pair = array->initializers.objects[i];
+        if (item_or_pair->type == OBJ_EXPR_PAIR) {
+            ObjExprPair* pair = (ObjExprPair*)item_or_pair;
+            generateExpr(pair->a);
+            generateExpr(pair->b);
+        } else {
+            ObjExpr* element = (ObjExpr*)newExprNumberFromCint(i);
         tempRootPush(OBJ_VAL(element));
-        generateExpr(element);
-        generateExpr((ObjExpr*)array->initializers.objects[i]);
+            generateExpr(element);
+        generateExpr((ObjExpr*)item_or_pair);
+        }
         emitByte(OP_SET_ELEMENT);
         tempRootPop();
     }
@@ -678,11 +689,10 @@ static void generateExprTypeStruct(ObjExprTypeStruct* struct_) {
 }
 
 static void generateExprTypeIndexedCollection(ObjExprTypeIndexedCollection* collectionType) {
-    if (collectionType->indexing) {
-        generateExpr(collectionType->indexing);
-    } else {
-        emitByte(OP_NIL);
+    if (!collectionType->indexing) {
+        error("Indexed collection type must have an indexing expression.");
     }
+    generateExpr(collectionType->indexing);
     emitByte(OP_TYPE_ARRAY);
 }
 
@@ -734,8 +744,8 @@ static void generateExprElt(ObjExpr* expr) {
             generateExprCall(call);
             break;
         }
-        case OBJ_EXPR_ARRAYINIT: {
-            ObjExprArrayInit* array = (ObjExprArrayInit*)expr;
+        case OBJ_EXPR_COLLECTION_INITIALIZER: {
+            ObjExprCollectionInitializer* array = (ObjExprCollectionInitializer*)expr;
             generateExprArrayInit(array);
             break;
         }
