@@ -530,8 +530,13 @@ bool newBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
             return true;
         }
         case TypeMap: {
-            *result = OBJ_VAL(newMap((ObjConcreteYargTypeMap*)AS_YARGTYPE(typeToCreate)));
-            return true;
+            if (isSupportedMapKeyType(typeToCreate)) {
+                *result = OBJ_VAL(newMap((ObjConcreteYargTypeMap*)AS_YARGTYPE(typeToCreate)));
+                return true;
+            } else {
+                runtimeError(routineContext, "Unsupported map key type.");
+                return false;
+            }
         }
         case TypeInt:
         case TypeString:

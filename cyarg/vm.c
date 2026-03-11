@@ -1390,10 +1390,17 @@ InterpretResult run(ObjRoutine* routine) {
 
                 if (IS_NIL(indexer) || IS_YARGTYPE(indexer)) {
                     ObjConcreteYargTypeMap* mapType = ALLOCATE_OBJ(ObjConcreteYargTypeMap, OBJ_YARGTYPE_MAP);
+                    tempRootPush(OBJ_VAL(mapType));
                     mapType->core.yt = TypeMap;
                     mapType->key_type = IS_NIL(indexer) ? NULL : AS_YARGTYPE(indexer);
                     mapType->value_type = IS_NIL(peek(routine, 1)) ? NULL : AS_YARGTYPE(peek(routine, 1));
+                    if (!isSupportedMapKeyType(OBJ_VAL(mapType))) {
+                        runtimeError(routine, "Unsupported map key type.");
+                        tempRootPop();
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
                     typeObject = (ObjConcreteYargType*) mapType;
+                    tempRootPop();
                 } else if (is_positive_integer32(indexer)) {
                     uint32_t cardinality = as_positive_integer32(indexer);
                     if (cardinality == 0) {

@@ -535,6 +535,24 @@ bool isCompatibleType(ObjConcreteYargType* lhsType, Value rhsValue, Value *promo
     }
 }
 
+// this is a temporary measure, until we have a more complete hashing setup.
+bool isSupportedMapKeyType(Value type) {
+    if (IS_YARGTYPE(type)) {
+        switch (AS_YARGTYPE(type)->yt) {
+            case TypeMap: {
+                ObjConcreteYargTypeMap* mt = (ObjConcreteYargTypeMap*)AS_YARGTYPE(type);
+                return isSupportedMapKeyType(mt->key_type ? OBJ_VAL(mt->key_type) : NIL_VAL);
+            }
+            case TypeString:
+                return true;
+            default:
+                return false;
+        }
+    } else {
+         return false;
+    }
+}
+
 static void printTypeLiteral(FILE* op, ObjConcreteYargType* type) {
     if (type == NULL) {
         FPRINTMSG(op, "any");
