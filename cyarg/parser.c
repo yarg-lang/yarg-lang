@@ -443,6 +443,24 @@ static ObjExprTypeStruct* structExpression() {
     return struct_declaration;
 }
 
+static void consumeCollectionIndex(ObjExpr* cursor) {
+    if (match(TOKEN_LEFT_SQUARE_BRACKET)) {
+
+        cursor->nextExpr = (ObjExpr*) ALLOCATE_OBJ(ObjExprTypeIndexedCollection, OBJ_EXPR_TYPE_INDEXED_COLLECTION);
+        ObjExprTypeIndexedCollection* collection = (ObjExprTypeIndexedCollection*)cursor->nextExpr;
+            
+        if (!check(TOKEN_RIGHT_SQUARE_BRACKET)) {
+            collection->indexing = parsePrecedence(PREC_ASSIGNMENT); // no assignment in this expression.
+        }
+
+        if (!collection->indexing) {
+            error("Collection type must have size or index type.");
+        }
+
+        consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' after array type.");
+    }
+}
+
 static ObjExpr* type(bool canAssign) {
 
     if (check(TOKEN_LEFT_PAREN)) {
@@ -468,21 +486,9 @@ static ObjExpr* type(bool canAssign) {
             default: expression = NULL; // Unreachable
         }
         pushWorkingNode((Obj*)expression);
-    
-        if (match(TOKEN_LEFT_SQUARE_BRACKET)) {
-
-            expression->nextExpr = (ObjExpr*) ALLOCATE_OBJ(ObjExprTypeIndexedCollection, OBJ_EXPR_TYPE_INDEXED_COLLECTION);
-            
-            if (!check(TOKEN_RIGHT_SQUARE_BRACKET)) {
-                ObjExprTypeIndexedCollection* array = (ObjExprTypeIndexedCollection*)expression->nextExpr;
-                array->indexing = parsePrecedence(PREC_ASSIGNMENT); // no assignment in this expression.
-            }
-
-            consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' after array type.");
-        }
+        consumeCollectionIndex(expression);
 
         popWorkingNode();
-
         return expression;
     }
 
@@ -941,17 +947,10 @@ static ObjExpr* typeExpression() {
     if (expression) {
         ObjExpr* cursor = expression;
         pushWorkingNode((Obj*)expression);
+        consumeCollectionIndex(cursor);
 
-        if (match(TOKEN_LEFT_SQUARE_BRACKET)) {
-            ObjExprTypeIndexedCollection* collection = newExprTypeIndexedCollection();
-            cursor->nextExpr = (ObjExpr*) collection;
+        if (cursor->nextExpr) {
             cursor = cursor->nextExpr;
-
-            if (!check(TOKEN_RIGHT_SQUARE_BRACKET)) {
-                collection->indexing = parsePrecedence(PREC_ASSIGNMENT); // no assignment in this expression.
-            }
-
-            consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' after array type.");
         }
 
         if (isConst) {

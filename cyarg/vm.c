@@ -402,33 +402,59 @@ static bool derefElement(ObjRoutine* routine) {
     return true;
 }
 
-static bool setArrayElement(ObjRoutine* routine) {
-    if (!IS_UNIFORMARRAY(peek(routine, 2)) || !is_positive_integer32(peek(routine, 1))) {
+static bool setArrayElement(ObjRoutine* routine, ObjPackedUniformArray* array, Value indexVal, Value rhs) {
+
+    if (!is_positive_integer32(indexVal)) {
         runtimeError(routine, "Expected an array and a positive or unsigned integer.");
         return false;
     }
 
-    Value new_value = peek(routine, 0);
-    uint32_t index = as_positive_integer32(peek(routine, 1));
-    Value boxed_array = peek(routine, 2);
+    uint32_t index = as_positive_integer32(indexVal);
 
-    if (IS_UNIFORMARRAY(boxed_array)) {
-        ObjPackedUniformArray* array = AS_UNIFORMARRAY(boxed_array);
-        if (index >= arrayCardinality(array->store)) {
-            runtimeError(routine, "Array index %d out of bounds (0:%d)", index, arrayCardinality(array->store) - 1);
-            return false;
-        }
-
-        PackedValue trg = arrayElement(array->store, index);
-        if (!assignToPackedValue(trg, new_value)) {
-            runtimeError(routine, "Cannot set array element to incompatible type.");
-            return false;
-        }
+    if (index >= arrayCardinality(array->store)) {
+        runtimeError(routine, "Array index %d out of bounds (0:%d)", index, arrayCardinality(array->store) - 1);
+        return false;
     }
 
-    pop(routine);
-    pop(routine);
+    PackedValue trg = arrayElement(array->store, index);
+    if (!assignToPackedValue(trg, rhs)) {
+        runtimeError(routine, "Cannot set array element to incompatible type.");
+        return false;
+    }
     return true;
+}
+
+static bool setMapElement(ObjRoutine* routine, ObjMap* map, Value key, Value rhs) {
+    if (!IS_STRING(key)) {
+        runtimeError(routine, "Expected a string key for map assignment.");
+        return false;
+    }
+    tableSet(&map->entries, AS_STRING(key), rhs);
+    return true;
+}
+
+static bool setElement(ObjRoutine* routine) {
+
+    Value collection = peek(routine, 2);
+    Value index = peek(routine, 1);
+    Value rhs = peek(routine, 0);
+
+    bool result = false;
+
+    if (IS_MAP(collection)) {
+        result = setMapElement(routine, AS_MAP(collection), index, rhs);
+    } else if (IS_UNIFORMARRAY(collection)) {
+        result = setArrayElement(routine, AS_UNIFORMARRAY(collection), index, rhs);
+    } else {
+        runtimeError(routine, "Expected an array and a positive or unsigned integer.");
+        return false;
+    }
+
+    if (result) {
+        pop(routine);
+        pop(routine);
+    }
+    return result;
 }
 
 static void derefPtr(ObjRoutine* routine) {
@@ -1275,7 +1301,7 @@ InterpretResult run(ObjRoutine* routine) {
                 break;
             }
             case OP_SET_ELEMENT: {
-                if (!setArrayElement(routine)) {
+                if (!setElement(routine)) {
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
@@ -1338,12 +1364,16 @@ InterpretResult run(ObjRoutine* routine) {
                     mapType->value_type = IS_NIL(peek(routine, 1)) ? NULL : AS_YARGTYPE(peek(routine, 1));
                     typeObject = (ObjConcreteYargType*) mapType;
                 } else if (is_positive_integer32(indexer)) {
-                    ObjConcreteYargTypeArray* array = (ObjConcreteYargTypeArray*) newYargArrayTypeFromType(peek(routine, 1));
                     uint32_t cardinality = as_positive_integer32(indexer);
+                    if (cardinality == 0) {
+                        runtimeError(routine, "Array cardinality must be non zero.");
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
+                    ObjConcreteYargTypeArray* array = (ObjConcreteYargTypeArray*) newYargArrayTypeFromType(peek(routine, 1));
                     array->cardinality = cardinality;
                     typeObject = (ObjConcreteYargType*) array;
                 } else {
-                    runtimeError(routine, "Array indexer must be a positive integer or a type.");
+                    runtimeError(routine, "Collection must be array or map.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
 

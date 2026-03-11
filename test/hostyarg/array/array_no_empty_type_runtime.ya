@@ -1,0 +1,1 @@
+var any[0] test; // expect runtime error: Array cardinality must be non zero.
