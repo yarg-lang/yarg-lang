@@ -1,0 +1,1 @@
+var any[any] map; // expect runtime error: Unsupported map key type.

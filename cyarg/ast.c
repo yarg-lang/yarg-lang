@@ -211,18 +211,27 @@ ObjExprCall* newExprCall() {
     return call;
 }
 
-ObjExprArrayInit* newExprArrayInit() {
-    ObjExprArrayInit* array = ALLOCATE_OBJ(ObjExprArrayInit, OBJ_EXPR_ARRAYINIT);
-    initDynamicObjArray(&array->initializers);
-    return array;
+ObjExprCollectionInitializer* newExprCollectionInitializer() {
+    ObjExprCollectionInitializer* collection = ALLOCATE_OBJ(ObjExprCollectionInitializer, OBJ_EXPR_COLLECTION_INITIALIZER);
+    initDynamicObjArray(&collection->initializers);
+    return collection;
 }
 
-ObjExprArrayElement* newExprArrayElement() {
-    ObjExprArrayElement* array = ALLOCATE_OBJ(ObjExprArrayElement, OBJ_EXPR_ARRAYELEMENT);
-    array->expr.nextExpr = NULL;
-    array->element = NULL;
-    array->assignment = NULL;
-    return array;
+ObjExprCollectionElement* newExprCollectionElement() {
+    ObjExprCollectionElement* collection = ALLOCATE_OBJ(ObjExprCollectionElement, OBJ_EXPR_COLLECTION_ELEMENT);
+    return collection;
+}
+
+ObjExprTypeIndexedCollection* newExprTypeIndexedCollection() {
+    ObjExprTypeIndexedCollection* collection = ALLOCATE_OBJ(ObjExprTypeIndexedCollection, OBJ_EXPR_TYPE_INDEXED_COLLECTION);
+    return collection;
+}
+
+ObjExprPair* newExprPair(ObjExpr* a, ObjExpr* b) {
+    ObjExprPair* pair = ALLOCATE_OBJ(ObjExprPair, OBJ_EXPR_PAIR);
+    pair->a = a;
+    pair->b = b;
+    return pair;
 }
 
 ObjExprBuiltin* newExprBuiltin(ExprBuiltin fn, int arity) {
@@ -260,11 +269,6 @@ ObjExprTypeStruct* newExprTypeStruct() {
     tempRootPush(OBJ_VAL(expr));
     initDynamicValueArray(&expr->fieldsByIndex);
     tempRootPop();
-    return expr;
-}
-
-ObjExprTypeArray* newExprTypeArray() {
-    ObjExprTypeArray* expr = ALLOCATE_OBJ(ObjExprTypeArray, OBJ_EXPR_TYPE_ARRAY);
     return expr;
 }
 
@@ -427,10 +431,10 @@ void printStructType(ObjExprTypeStruct* struct_) {
     printf("}");
 }
 
-void printArrayType(ObjExprTypeArray* array) {
+void printIndexedCollectionType(ObjExprTypeIndexedCollection* collection) {
     printf("[");
-    if (array->cardinality) {
-        printExpr(array->cardinality);
+    if (collection->indexing) {
+        printExpr(collection->indexing);
     }
     printf("]");
 }
@@ -504,25 +508,34 @@ void printExpr(ObjExpr* expr) {
                 printCallArgs(&call->arguments);
                 break;
             }
-            case OBJ_EXPR_ARRAYINIT: {
-                ObjExprArrayInit* array = (ObjExprArrayInit*)cursor;
+            case OBJ_EXPR_COLLECTION_INITIALIZER: {
+                ObjExprCollectionInitializer* collection = (ObjExprCollectionInitializer*)cursor;
                 printf("[");
-                for (int i = 0; i < array->initializers.objectCount; i++) {
-                    printExpr((ObjExpr*)array->initializers.objects[i]);
-                    printf(", ");
+                for (int i = 0; i < collection->initializers.objectCount; i++) {
+                    printExpr((ObjExpr*)collection->initializers.objects[i]);
+                    if (i < collection->initializers.objectCount - 1) {
+                        printf(", ");
+                    }
                 }
                 printf("]");
                 break;
             }
-            case OBJ_EXPR_ARRAYELEMENT: {
-                ObjExprArrayElement* array = (ObjExprArrayElement*)cursor;
+            case OBJ_EXPR_COLLECTION_ELEMENT: {
+                ObjExprCollectionElement* collection = (ObjExprCollectionElement*)cursor;
                 printf("[");
-                printExpr(array->element);
+                printExpr(collection->element);
                 printf("]");
-                if (array->assignment) {
+                if (collection->assignment) {
                     printf(" = ");
-                    printExpr(array->assignment);
+                    printExpr(collection->assignment);
                 }
+                break;
+            }
+            case OBJ_EXPR_PAIR: {
+                ObjExprPair* pair = (ObjExprPair*)cursor;
+                printExpr(pair->a);
+                printf(":");
+                printExpr(pair->b);
                 break;
             }
             case OBJ_EXPR_BUILTIN: printExprBuiltin((ObjExprBuiltin*)cursor); break;
@@ -530,7 +543,7 @@ void printExpr(ObjExpr* expr) {
             case OBJ_EXPR_SUPER: printExprSuper((ObjExprSuper*)cursor); break;
             case OBJ_EXPR_TYPE: printExprType(cursor); break;
             case OBJ_EXPR_TYPE_STRUCT: printStructType((ObjExprTypeStruct*)cursor); break;
-            case OBJ_EXPR_TYPE_ARRAY: printArrayType((ObjExprTypeArray*)cursor); break;
+            case OBJ_EXPR_TYPE_INDEXED_COLLECTION: printIndexedCollectionType((ObjExprTypeIndexedCollection*)cursor); break;
             default: printf("<unknown>"); break;
         }
         cursor = cursor->nextExpr;

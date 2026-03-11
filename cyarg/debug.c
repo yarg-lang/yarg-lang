@@ -257,8 +257,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             return typeLiteralInstruction("OP_TYPE_MODIFIER", chunk, offset);
         case OP_TYPE_STRUCT:
             return byteInstruction("OP_TYPE_STRUCT", chunk, offset);
-        case OP_TYPE_ARRAY:
-            return simpleInstruction("OP_TYPE_ARRAY", offset);
+        case OP_TYPE_INDEXED_COLLECTION:
+            return simpleInstruction("OP_TYPE_INDEXED_COLLECTION", offset);
         case OP_SET_CELL_TYPE:
             return simpleInstruction("OP_SET_CELL_TYPE", offset);
         case OP_DEREF_PTR:

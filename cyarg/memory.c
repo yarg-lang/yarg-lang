@@ -203,6 +203,12 @@ static void blackenObject(Obj* object) {
         }
         case OBJ_STRING: break;
         case OBJ_INT: break;
+        case OBJ_MAP: {
+            ObjMap* map = (ObjMap*)object;
+            markObject((Obj*)map->type);
+            markTable(&map->entries);
+            break;
+        }
         case OBJ_YARGTYPE: break;
         case OBJ_YARGTYPE_ARRAY: {
             ObjConcreteYargTypeArray* type = (ObjConcreteYargTypeArray*)object;
@@ -221,6 +227,12 @@ static void blackenObject(Obj* object) {
         case OBJ_YARGTYPE_POINTER: {
             ObjConcreteYargTypePointer* type = (ObjConcreteYargTypePointer*)object;
             markObject((Obj*)type->target_type);
+            break;
+        }
+        case OBJ_YARGTYPE_MAP: {
+            ObjConcreteYargTypeMap* type = (ObjConcreteYargTypeMap*)object;
+            markObject((Obj*)type->key_type);
+            markObject((Obj*)type->value_type);
             break;
         }
         case OBJ_SYNCGROUP: markSyncGroup((ObjSyncGroup*)object); break;
@@ -370,17 +382,17 @@ static void blackenObject(Obj* object) {
             markDynamicObjArray(&call->arguments);
             break;
         }
-        case OBJ_EXPR_ARRAYINIT: {
+        case OBJ_EXPR_COLLECTION_INITIALIZER: {
             markExpr(object);
-            ObjExprArrayInit* array = (ObjExprArrayInit*)object;
-            markDynamicObjArray(&array->initializers);
+            ObjExprCollectionInitializer* collection = (ObjExprCollectionInitializer*)object;
+            markDynamicObjArray(&collection->initializers);
             break;
         }
-        case OBJ_EXPR_ARRAYELEMENT: {
+        case OBJ_EXPR_COLLECTION_ELEMENT: {
             markExpr(object);
-            ObjExprArrayElement* array = (ObjExprArrayElement*)object;
-            markObject((Obj*)array->element);
-            markObject((Obj*)array->assignment);
+            ObjExprCollectionElement* collection = (ObjExprCollectionElement*)object;
+            markObject((Obj*)collection->element);
+            markObject((Obj*)collection->assignment);
             break;
         }
         case OBJ_EXPR_BUILTIN: {
@@ -413,10 +425,17 @@ static void blackenObject(Obj* object) {
             markArray(&expr->fieldsByIndex);
             break;
         }
-        case OBJ_EXPR_TYPE_ARRAY: {
+        case OBJ_EXPR_TYPE_INDEXED_COLLECTION: {
             markExpr(object);
-            ObjExprTypeArray* expr = (ObjExprTypeArray*)object;
-            markObject((Obj*)expr->cardinality);
+            ObjExprTypeIndexedCollection* collection = (ObjExprTypeIndexedCollection*)object;
+            markObject((Obj*)collection->indexing);
+            break;
+        }
+        case OBJ_EXPR_PAIR: {
+            markExpr(object);
+            ObjExprPair* pair = (ObjExprPair*)object;
+            markObject((Obj*)pair->a);
+            markObject((Obj*)pair->b);
             break;
         }
     }
@@ -489,6 +508,12 @@ static void freeObject(Obj* object) {
             FREE(ObjPackedStruct, object);
             break;            
         }
+        case OBJ_MAP: {
+            ObjMap* map = (ObjMap*)object;
+            freeTable(&map->entries);
+            FREE(ObjMap, object);
+            break;
+        }
         case OBJ_YARGTYPE: FREE(ObjConcreteYargType, object); break;
         case OBJ_YARGTYPE_ARRAY: FREE(ObjConcreteYargTypeArray, object); break;
         case OBJ_YARGTYPE_STRUCT: {
@@ -499,6 +524,7 @@ static void freeObject(Obj* object) {
             FREE(ObjConcreteYargTypeStruct, object);
             break;
         }
+        case OBJ_YARGTYPE_MAP: FREE(ObjConcreteYargTypeMap, object); break;
         case OBJ_YARGTYPE_POINTER: FREE(ObjConcreteYargTypePointer, object); break;
         case OBJ_SYNCGROUP: freeSyncGroup(object); break;
         case OBJ_STACKSLICE: FREE(ObjStackSlice, object); break;
@@ -546,13 +572,14 @@ static void freeObject(Obj* object) {
             FREE(ObjExprCall, object); 
             break;
         }
-        case OBJ_EXPR_ARRAYINIT: {
-            ObjExprArrayInit* init = (ObjExprArrayInit*)object;
+        case OBJ_EXPR_COLLECTION_INITIALIZER: {
+            ObjExprCollectionInitializer* init = (ObjExprCollectionInitializer*)object;
             freeDynamicObjArray(&init->initializers);
-            FREE(ObjExprArrayInit, object); 
+            FREE(ObjExprCollectionInitializer, object); 
             break;
         }
-        case OBJ_EXPR_ARRAYELEMENT: FREE(ObjExprArrayElement, object); break;
+        case OBJ_EXPR_COLLECTION_ELEMENT: FREE(ObjExprCollectionElement, object); break;
+        case OBJ_EXPR_PAIR: FREE(ObjExprPair, object); break;
         case OBJ_EXPR_BUILTIN: FREE(ObjExprBuiltin, object); break;
         case OBJ_EXPR_DOT: FREE(ObjExprDot, object); break;
         case OBJ_EXPR_SUPER: FREE(ObjExprSuper, object); break;
@@ -563,7 +590,7 @@ static void freeObject(Obj* object) {
             FREE(ObjExprTypeStruct, object);
             break;
         }
-        case OBJ_EXPR_TYPE_ARRAY: FREE(ObjExprTypeArray, object); break;
+        case OBJ_EXPR_TYPE_INDEXED_COLLECTION: FREE(ObjExprTypeIndexedCollection, object); break;
         case OBJ_INT: FREE(ObjInt, object); break;
     }
 }

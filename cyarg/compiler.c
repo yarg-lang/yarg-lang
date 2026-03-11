@@ -474,27 +474,38 @@ static void generateExprCall(ObjExprCall* call) {
     emitBytes(OP_CALL, call->arguments.objectCount);
 }
 
-static void generateExprArrayInit(ObjExprArrayInit* array) {
+static void generateExprCollectionInit(ObjExprCollectionInitializer* collection) {
  
     emitBytes(OP_GET_BUILTIN, BUILTIN_NEW);
     emitByte(OP_NIL);
-    emitConstant(I32_VAL(array->initializers.objectCount));
-    emitByte(OP_TYPE_ARRAY);
+    if (collection->isMap) {
+        emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_STRING);
+    } else {
+        emitConstant(I32_VAL(collection->initializers.objectCount));
+    }
+    emitByte(OP_TYPE_INDEXED_COLLECTION);
     emitBytes(OP_CALL, 1);
  
-    for (int i = 0; i < array->initializers.objectCount; i++) {
-        emitConstant(I32_VAL(i));
-        generateExpr((ObjExpr*)array->initializers.objects[i]);
+    for (int i = 0; i < collection->initializers.objectCount; i++) {
+        Obj* item_or_pair = collection->initializers.objects[i];
+        if (item_or_pair->type == OBJ_EXPR_PAIR) {
+            ObjExprPair* pair = (ObjExprPair*)item_or_pair;
+            generateExpr(pair->a);
+            generateExpr(pair->b);
+        } else {
+            emitConstant(I32_VAL(i));
+            generateExpr((ObjExpr*)item_or_pair);
+        }
         emitByte(OP_SET_ELEMENT);
     }
 }
 
-static void generateExprArrayElement(ObjExprArrayElement* array) {
+static void generateExprCollectionElement(ObjExprCollectionElement* collection) {
 
-    generateExpr(array->element);
+    generateExpr(collection->element);
 
-    if (array->assignment) {
-        generateExpr(array->assignment);
+    if (collection->assignment) {
+        generateExpr(collection->assignment);
         emitByte(OP_SET_ELEMENT);
     } else {
         emitByte(OP_ELEMENT);
@@ -616,13 +627,12 @@ static void generateExprTypeStruct(ObjExprTypeStruct* struct_) {
     emitBytes(OP_TYPE_STRUCT, (uint8_t)fieldCount);
 }
 
-static void generateExprTypeArray(ObjExprTypeArray* array) {
-    if (array->cardinality) {
-        generateExpr(array->cardinality);
-    } else {
-        emitByte(OP_NIL);
+static void generateExprTypeIndexedCollection(ObjExprTypeIndexedCollection* collectionType) {
+    if (!collectionType->indexing) {
+        error("Indexed collection type must have an indexing expression.");
     }
-    emitByte(OP_TYPE_ARRAY);
+    generateExpr(collectionType->indexing);
+    emitByte(OP_TYPE_INDEXED_COLLECTION);
 }
 
 static void generateExprElt(ObjExpr* expr) {
@@ -668,14 +678,14 @@ static void generateExprElt(ObjExpr* expr) {
             generateExprCall(call);
             break;
         }
-        case OBJ_EXPR_ARRAYINIT: {
-            ObjExprArrayInit* array = (ObjExprArrayInit*)expr;
-            generateExprArrayInit(array);
+        case OBJ_EXPR_COLLECTION_INITIALIZER: {
+            ObjExprCollectionInitializer* collection = (ObjExprCollectionInitializer*)expr;
+            generateExprCollectionInit(collection);
             break;
         }
-        case OBJ_EXPR_ARRAYELEMENT: {
-            ObjExprArrayElement* array = (ObjExprArrayElement*)expr;
-            generateExprArrayElement(array);
+        case OBJ_EXPR_COLLECTION_ELEMENT: {
+            ObjExprCollectionElement* collection = (ObjExprCollectionElement*)expr;
+            generateExprCollectionElement(collection);
             break;
         }
         case OBJ_EXPR_BUILTIN: {
@@ -703,9 +713,9 @@ static void generateExprElt(ObjExpr* expr) {
             generateExprTypeStruct(t);
             break;
         }
-        case OBJ_EXPR_TYPE_ARRAY: {
-            ObjExprTypeArray* a = (ObjExprTypeArray*)expr;
-            generateExprTypeArray(a);
+        case OBJ_EXPR_TYPE_INDEXED_COLLECTION: {
+            ObjExprTypeIndexedCollection* a = (ObjExprTypeIndexedCollection*)expr;
+            generateExprTypeIndexedCollection(a);
             break;
         }
         default:

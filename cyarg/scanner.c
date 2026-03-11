@@ -448,6 +448,7 @@ Token scanToken() {
         case '&': return makeToken(TOKEN_AMP);
         case '^': return makeToken(TOKEN_CARET);
         case '%': return makeToken(TOKEN_PERCENT);
+        case ':': return makeToken(TOKEN_COLON);
         case '@': {
             if (peek() == 'x' || peek() == 'X') {
                 return address();

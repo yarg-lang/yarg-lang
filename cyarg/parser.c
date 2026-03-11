@@ -248,12 +248,29 @@ static void expressionList(DynamicObjArray* items) {
 
 }
 
-static void arrayInitExpressionsList(DynamicObjArray* initializers) {
+static void appendInitializer(ObjExprCollectionInitializer* collection) {
+    Obj* key_or_item = (Obj*) expression();
+    if (match(TOKEN_COLON)) {
+        pushWorkingNode(key_or_item);
+        Obj* value = (Obj*) expression();
+        pushWorkingNode(value);
+        ObjExprPair* pair = newExprPair((ObjExpr*)key_or_item, (ObjExpr*)value);
+        appendToDynamicObjArray(&collection->initializers, (Obj*)pair);
+        collection->isMap = true;
+        popWorkingNode();
+        popWorkingNode();
+    } else {
+        appendToDynamicObjArray(&collection->initializers, key_or_item);
+    }
+
+}
+
+static void collectionInitializers(ObjExprCollectionInitializer* collection) {
 
     if (!check(TOKEN_RIGHT_SQUARE_BRACKET)) {
         do {
-            appendToDynamicObjArray(initializers, (Obj*)expression());
-            if (initializers->objectCount > 255) {
+            appendInitializer(collection);
+            if (collection->initializers.objectCount > 255) {
                 error("Can't have more than 255 array initialisers.");
             }
 
@@ -294,7 +311,7 @@ static ObjExpr* dot(bool canAssign) {
 
 static ObjExpr* deref(bool canAssign) {
     
-    ObjExprArrayElement* elmt = newExprArrayElement();
+    ObjExprCollectionElement* elmt = newExprCollectionElement();
     pushWorkingNode((Obj*)elmt);
 
     elmt->element = parsePrecedence(PREC_ASSIGNMENT);   // prevents assignment within []
@@ -308,16 +325,16 @@ static ObjExpr* deref(bool canAssign) {
     return (ObjExpr*)elmt;
 }
 
-static ObjExpr* arrayinit(bool canAssign) {
+static ObjExpr* collectioninit(bool canAssign) {
 
-    ObjExprArrayInit* array = newExprArrayInit();
-    pushWorkingNode((Obj*)array);
+    ObjExprCollectionInitializer* collection = newExprCollectionInitializer();
+    pushWorkingNode((Obj*)collection);
 
-    arrayInitExpressionsList(&array->initializers);
-    consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' initialising array.");
+    collectionInitializers(collection);
+    consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' initialising map or array.");
     
     popWorkingNode();
-    return (ObjExpr*)array;
+    return (ObjExpr*)collection;
 }
 
 static ObjExpr* call(bool canAssign) {
@@ -424,6 +441,24 @@ static ObjExprTypeStruct* structExpression() {
     return struct_declaration;
 }
 
+static void consumeCollectionIndex(ObjExpr* cursor) {
+    if (match(TOKEN_LEFT_SQUARE_BRACKET)) {
+
+        cursor->nextExpr = (ObjExpr*) ALLOCATE_OBJ(ObjExprTypeIndexedCollection, OBJ_EXPR_TYPE_INDEXED_COLLECTION);
+        ObjExprTypeIndexedCollection* collection = (ObjExprTypeIndexedCollection*)cursor->nextExpr;
+            
+        if (!check(TOKEN_RIGHT_SQUARE_BRACKET)) {
+            collection->indexing = parsePrecedence(PREC_ASSIGNMENT); // no assignment in this expression.
+        }
+
+        if (!collection->indexing) {
+            error("Collection type must have size or index type.");
+        }
+
+        consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' after array type.");
+    }
+}
+
 static ObjExpr* type(bool canAssign) {
 
     if (check(TOKEN_LEFT_PAREN)) {
@@ -445,25 +480,13 @@ static ObjExpr* type(bool canAssign) {
             case TOKEN_MACHINE_FLOAT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MFLOAT64); break;
             case TOKEN_STRUCT: expression = (ObjExpr*) structExpression(); break;
             case TOKEN_INT: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT); break;
-            case TOKEN_TYPE_STRING: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT); break;
+            case TOKEN_TYPE_STRING: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_STRING); break;
             default: expression = NULL; // Unreachable
         }
         pushWorkingNode((Obj*)expression);
-    
-        if (match(TOKEN_LEFT_SQUARE_BRACKET)) {
-
-            expression->nextExpr = (ObjExpr*) newExprTypeArray();
-            
-            if (!check(TOKEN_RIGHT_SQUARE_BRACKET)) {
-                ObjExprTypeArray* array = (ObjExprTypeArray*)expression->nextExpr;
-                array->cardinality = parsePrecedence(PREC_ASSIGNMENT); // no assignment in this expression.
-            }
-
-            consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' after array type.");
-        }
+        consumeCollectionIndex(expression);
 
         popWorkingNode();
-
         return expression;
     }
 
@@ -639,7 +662,7 @@ static AstParseRule rules[] = {
     [TOKEN_RIGHT_PAREN]          = {NULL,      NULL,   PREC_NONE},
     [TOKEN_LEFT_BRACE]           = {NULL,      NULL,   PREC_NONE},
     [TOKEN_RIGHT_BRACE]          = {NULL,      NULL,   PREC_NONE},
-    [TOKEN_LEFT_SQUARE_BRACKET]  = {arrayinit, deref,  PREC_DEREF},
+    [TOKEN_LEFT_SQUARE_BRACKET]  = {collectioninit, deref,  PREC_DEREF},
     [TOKEN_RIGHT_SQUARE_BRACKET] = {NULL,      NULL,   PREC_NONE},
     [TOKEN_COMMA]                = {NULL,      NULL,   PREC_NONE},
     [TOKEN_DOT]                  = {NULL,      dot,    PREC_CALL},
@@ -836,17 +859,10 @@ static ObjExpr* typeExpression() {
     if (expression) {
         ObjExpr* cursor = expression;
         pushWorkingNode((Obj*)expression);
+        consumeCollectionIndex(cursor);
 
-        if (match(TOKEN_LEFT_SQUARE_BRACKET)) {
-            ObjExprTypeArray* array_expr = newExprTypeArray();
-            cursor->nextExpr = (ObjExpr*) array_expr;
+        if (cursor->nextExpr) {
             cursor = cursor->nextExpr;
-
-            if (!check(TOKEN_RIGHT_SQUARE_BRACKET)) {
-                array_expr->cardinality = parsePrecedence(PREC_ASSIGNMENT); // no assignment in this expression.
-            }
-
-            consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' after array type.");
         }
 
         if (isConst) {

@@ -46,6 +46,11 @@ ObjConcreteYargType* newYargTypeFromType(ConcreteYargType yt) {
             p->core.yt = yt;
             return (ObjConcreteYargType*)p;
         }
+        case TypeMap: {
+            ObjConcreteYargTypeMap* m = ALLOCATE_OBJ(ObjConcreteYargTypeMap, OBJ_YARGTYPE_MAP);
+            m->core.yt = yt;
+            return (ObjConcreteYargType*)m;
+        }
     }
 }
 
@@ -173,6 +178,8 @@ Value concrete_typeof(Value a) {
         return OBJ_VAL(newYargTypeFromType(TypeYargType));
     } else if (IS_POINTER(a)) {
         return OBJ_VAL(AS_POINTER(a)->type);
+    } else if (IS_MAP(a)) {
+        return OBJ_VAL(newYargTypeFromType(TypeMap));
     } else if (IS_INT(a)) {
         return OBJ_VAL(newYargTypeFromType(TypeInt));
     }
@@ -204,6 +211,7 @@ bool type_packs_as_obj(ObjConcreteYargType* type) {
         case TypeRoutine:
         case TypeChannel:
         case TypePointer:
+        case TypeMap:
         case TypeYargType:
             return true;
     }
@@ -229,6 +237,7 @@ bool type_packs_as_container(ObjConcreteYargType* type) {
         case TypeFunction:
         case TypeRoutine:
         case TypeChannel:
+        case TypeMap:
         case TypeYargType:
             return false;
         case TypePointer:
@@ -266,6 +275,7 @@ bool is_nil_assignable_type(Value type) {
             case TypeChannel:
             case TypeArray:
             case TypePointer:
+            case TypeMap:
             case TypeYargType:
                 return true;
         } 
@@ -361,6 +371,7 @@ size_t yt_sizeof_type_storage(Value type) {
         case TypeRoutine:
         case TypeChannel:
         case TypePointer:
+        case TypeMap:
         case TypeYargType:
             return sizeof(Obj*);
         }
@@ -394,6 +405,7 @@ Value defaultValue(Value type) {
             case TypeFunction:
             case TypeRoutine:
             case TypeChannel:
+            case TypeMap:
             case TypeYargType:
                 return NIL_VAL;
         }
@@ -449,6 +461,24 @@ bool isCompatibleType(ObjConcreteYargType* lhsType, Value rhsValue) {
         return false;
     } else {
         return isInitialisableType(lhsType, rhsValue);
+    }
+}
+
+// this is a temporary measure, until we have a more complete hashing setup.
+bool isSupportedMapKeyType(Value type) {
+    if (IS_YARGTYPE(type)) {
+        switch (AS_YARGTYPE(type)->yt) {
+            case TypeMap: {
+                ObjConcreteYargTypeMap* mt = (ObjConcreteYargTypeMap*)AS_YARGTYPE(type);
+                return isSupportedMapKeyType(mt->key_type ? OBJ_VAL(mt->key_type) : NIL_VAL);
+            }
+            case TypeString:
+                return true;
+            default:
+                return false;
+        }
+    } else {
+         return false;
     }
 }
 
@@ -517,6 +547,14 @@ static void printTypeLiteral(FILE* op, ObjConcreteYargType* type) {
             } else {
                 FPRINTMSG(op, "any");
             }
+            break;
+        }
+        case TypeMap: {
+            ObjConcreteYargTypeMap* mt = (ObjConcreteYargTypeMap*) type;
+            printTypeLiteral(op, mt->value_type);
+            FPRINTMSG(op, "[");
+            printTypeLiteral(op, mt->key_type);
+            FPRINTMSG(op, "]");
             break;
         }
         default: FPRINTMSG(op, "Unknown"); break;

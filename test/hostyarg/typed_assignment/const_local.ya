@@ -24,12 +24,12 @@ var asBefore;
     print aUint;        // expect: 57054
     
     var const string aString = "Hello, Scope!";
-    var const any[] aArray = new(any[11]);
+    var const any[11] aArray;
     var const asBefore = 10;
 
     print aString;      // expect: Hello, Scope!
     print asBefore;     // expect: 10
-    print aArray;       // expect: Type:any[11]:[nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
+    print aArray;       // expect: Type:const any[11]:[nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
 
     counter = 0d7; // expect runtime error: Cannot set local variable to incompatible type.
 }

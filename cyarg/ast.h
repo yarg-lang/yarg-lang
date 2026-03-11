@@ -152,14 +152,21 @@ typedef struct {
 
 typedef struct {
     ObjExpr expr;
+    bool isMap;
     DynamicObjArray initializers;
-} ObjExprArrayInit;
+} ObjExprCollectionInitializer;
 
 typedef struct {
     ObjExpr expr;
     ObjExpr* element;
     ObjExpr* assignment;
-} ObjExprArrayElement;
+} ObjExprCollectionElement;
+
+typedef struct {
+    ObjExpr expr;
+    ObjExpr* a;
+    ObjExpr* b;
+} ObjExprPair;
 
 typedef struct {
     ObjExpr expr;
@@ -204,8 +211,8 @@ typedef struct {
 
 typedef struct {
     ObjExpr expr;
-    ObjExpr* cardinality;
-} ObjExprTypeArray;
+    ObjExpr* indexing;
+} ObjExprTypeIndexedCollection;
 
 typedef struct {
     ObjExpr expr;
@@ -300,19 +307,20 @@ ObjExprNumber* newExprNumberAddress(uintptr_t value);
 ObjExprNumber* newExprNumberInt(const char* numbers, int numberDigits);
 ObjExprLiteral* newExprLiteral(ExprLiteral literal);
 ObjExprString* newExprString(const char* str, int strLength);
+ObjExprPair* newExprPair(ObjExpr* a, ObjExpr* b);
 ObjExprOperation* newExprOperation(ObjExpr* rhs, ExprOp op);
 ObjExprGrouping* newExprGrouping(ObjExpr* expression);
 ObjExprNamedVariable* newExprNamedVariable(const char* name, int nameLength);
 ObjExprNamedConstant* newExprNamedConstant(const char* name, int nameLength);
 ObjExprCall* newExprCall();
-ObjExprArrayInit* newExprArrayInit();
-ObjExprArrayElement* newExprArrayElement();
+ObjExprCollectionInitializer* newExprCollectionInitializer();
+ObjExprCollectionElement* newExprCollectionElement();
 ObjExprBuiltin* newExprBuiltin(ExprBuiltin fn, int arity);
 ObjExprDot* newExprDot(const char* name, int nameLength);
 ObjExprSuper* newExprSuper(const char* name, int nameLength);
 ObjExprTypeLiteral* newExprType(ExprTypeLiteral type);
 ObjExprTypeStruct* newExprTypeStruct();
-ObjExprTypeArray* newExprTypeArray();
+ObjExprTypeIndexedCollection* newExprTypeIndexedCollection();
 
 ObjStmtExpression* newStmtExpression(ObjExpr* expr, ObjType statement, int line);
 ObjStmtBlock* newStmtBlock(int line);

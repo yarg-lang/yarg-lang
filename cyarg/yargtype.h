@@ -26,6 +26,7 @@ typedef enum {
    TypeArray,
    TypeStruct,
    TypePointer,
+   TypeMap,
    TypeYargType
 } ConcreteYargType;
 
@@ -55,6 +56,12 @@ typedef struct ObjConcreteYargTypePointer {
     ObjConcreteYargType* target_type;
 } ObjConcreteYargTypePointer;
 
+typedef struct ObjConcreteYargTypeMap {
+    ObjConcreteYargType core;
+    ObjConcreteYargType* key_type;
+    ObjConcreteYargType* value_type;
+} ObjConcreteYargTypeMap;
+
 ObjConcreteYargType* newYargTypeFromType(ConcreteYargType yt);
 
 ObjConcreteYargType* newYargArrayTypeFromType(Value elementType);
@@ -81,6 +88,8 @@ Value defaultValue(Value type);
 
 bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue);
 bool isCompatibleType(ObjConcreteYargType* lhsType, Value rhsValue);
+
+bool isSupportedMapKeyType(Value type);
 
 void printType(FILE* op, ObjConcreteYargType* type);
 

@@ -436,14 +436,20 @@ bool lenBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
 
     if (IS_STRING(arg)) {
         ObjString* string = AS_STRING(arg);
-        *result = UI32_VAL(string->length);
+        size_t length = string->length;
+        *result = SIZE_T_UI_VAL(length);
         return true;
     } else if (IS_UNIFORMARRAY(arg)) {
         ObjPackedUniformArray* array = AS_UNIFORMARRAY(arg);
         *result = SIZE_T_UI_VAL(arrayCardinality(array->store));
         return true;
+    } else if (IS_MAP(arg)) {
+        ObjMap* map = AS_MAP(arg);
+        size_t count = map->entries.count;
+        *result = SIZE_T_UI_VAL(count);
+        return true;
     } else {
-        runtimeError(routineContext, "Expected a string or array.");
+        runtimeError(routineContext, "Expected a string, array or map.");
         return false;
     }
 }
@@ -511,6 +517,15 @@ bool newBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         case TypeArray: {
             *result = defaultValue(typeToCreate);
             return true;
+        }
+        case TypeMap: {
+            if (isSupportedMapKeyType(typeToCreate)) {
+                *result = OBJ_VAL(newMap((ObjConcreteYargTypeMap*)AS_YARGTYPE(typeToCreate)));
+                return true;
+            } else {
+                runtimeError(routineContext, "Unsupported map key type.");
+                return false;
+            }
         }
         case TypeInt:
         case TypeString:

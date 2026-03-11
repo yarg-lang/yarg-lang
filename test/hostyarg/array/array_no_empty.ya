@@ -1,0 +1,1 @@
+var any[] test; // [line 1] Error at '[': Collection type must have size or index type.

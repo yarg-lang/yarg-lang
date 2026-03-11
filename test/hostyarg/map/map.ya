@@ -1,0 +1,8 @@
+var test = ["test": 10, "ME": "JOHN"];
+print test["test"]; // expect: 10
+print test["ME"]; // expect: JOHN
+print len(test); // expect: 2
+var heapMap = new(any[string]);
+heapMap["answer"] = 42;
+print heapMap["answer"]; // expect: 42
+var not_allowed = new(any[any]); // expect runtime error: Unsupported map key type.
