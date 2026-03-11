@@ -532,20 +532,20 @@ static void generateExprCall(ObjExprCall* call) {
     emitBytes(OP_CALL, call->arguments.objectCount);
 }
 
-static void generateExprArrayInit(ObjExprCollectionInitializer* array) {
+static void generateExprCollectionInit(ObjExprCollectionInitializer* collection) {
  
     emitBytes(OP_GET_BUILTIN, BUILTIN_NEW);
     emitByte(OP_NIL);
-    if (array->isMap) {
+    if (collection->isMap) {
         emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_STRING);
     } else {
-        generateExpr(array->cardinality);
+        generateExpr(collection->cardinality);
     }
     emitByte(OP_TYPE_INDEXED_COLLECTION);
     emitBytes(OP_CALL, 1);
  
-    for (int i = 0; i < array->initializers.objectCount; i++) {
-        Obj* item_or_pair = array->initializers.objects[i];
+    for (int i = 0; i < collection->initializers.objectCount; i++) {
+        Obj* item_or_pair = collection->initializers.objects[i];
         if (item_or_pair->type == OBJ_EXPR_PAIR) {
             ObjExprPair* pair = (ObjExprPair*)item_or_pair;
             generateExpr(pair->a);
@@ -561,12 +561,12 @@ static void generateExprArrayInit(ObjExprCollectionInitializer* array) {
     }
 }
 
-static void generateExprArrayElement(ObjExprArrayElement* array) {
+static void generateExprCollectionElement(ObjExprCollectionElement* collection) {
 
-    generateExpr(array->element);
+    generateExpr(collection->element);
 
-    if (array->assignment) {
-        generateExpr(array->assignment);
+    if (collection->assignment) {
+        generateExpr(collection->assignment);
         emitByte(OP_SET_ELEMENT);
     } else {
         emitByte(OP_ELEMENT);
@@ -745,13 +745,13 @@ static void generateExprElt(ObjExpr* expr) {
             break;
         }
         case OBJ_EXPR_COLLECTION_INITIALIZER: {
-            ObjExprCollectionInitializer* array = (ObjExprCollectionInitializer*)expr;
-            generateExprArrayInit(array);
+            ObjExprCollectionInitializer* collection = (ObjExprCollectionInitializer*)expr;
+            generateExprCollectionInit(collection);
             break;
         }
-        case OBJ_EXPR_ARRAYELEMENT: {
-            ObjExprArrayElement* array = (ObjExprArrayElement*)expr;
-            generateExprArrayElement(array);
+        case OBJ_EXPR_COLLECTION_ELEMENT: {
+            ObjExprCollectionElement* collection = (ObjExprCollectionElement*)expr;
+            generateExprCollectionElement(collection);
             break;
         }
         case OBJ_EXPR_BUILTIN: {

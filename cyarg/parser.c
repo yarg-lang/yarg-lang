@@ -312,7 +312,7 @@ static ObjExpr* dot(bool canAssign) {
 
 static ObjExpr* deref(bool canAssign) {
     
-    ObjExprArrayElement* elmt = newExprArrayElement();
+    ObjExprCollectionElement* elmt = newExprCollectionElement();
     pushWorkingNode((Obj*)elmt);
 
     elmt->element = parsePrecedence(PREC_ASSIGNMENT);   // prevents assignment within []

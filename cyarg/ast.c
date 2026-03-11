@@ -198,22 +198,18 @@ ObjExprCall* newExprCall() {
 }
 
 ObjExprCollectionInitializer* newExprCollectionInitializer() {
-    ObjExprCollectionInitializer* array = ALLOCATE_OBJ(ObjExprCollectionInitializer, OBJ_EXPR_COLLECTION_INITIALIZER);
-    initDynamicObjArray(&array->initializers);
-    return array;
+    ObjExprCollectionInitializer* collection = ALLOCATE_OBJ(ObjExprCollectionInitializer, OBJ_EXPR_COLLECTION_INITIALIZER);
+    initDynamicObjArray(&collection->initializers);
+    return collection;
 }
 
-ObjExprArrayElement* newExprArrayElement() {
-    ObjExprArrayElement* array = ALLOCATE_OBJ(ObjExprArrayElement, OBJ_EXPR_ARRAYELEMENT);
-    array->expr.nextExpr = NULL;
-    array->element = NULL;
-    array->assignment = NULL;
-    return array;
+ObjExprCollectionElement* newExprCollectionElement() {
+    ObjExprCollectionElement* collection = ALLOCATE_OBJ(ObjExprCollectionElement, OBJ_EXPR_COLLECTION_ELEMENT);
+    return collection;
 }
 
 ObjExprTypeIndexedCollection* newExprTypeIndexedCollection() {
     ObjExprTypeIndexedCollection* collection = ALLOCATE_OBJ(ObjExprTypeIndexedCollection, OBJ_EXPR_TYPE_INDEXED_COLLECTION);
-
     return collection;
 }
 
@@ -421,10 +417,10 @@ void printStructType(ObjExprTypeStruct* struct_) {
     printf("}");
 }
 
-void printIndexedCollectionType(ObjExprTypeIndexedCollection* array) {
+void printIndexedCollectionType(ObjExprTypeIndexedCollection* collection) {
     printf("[");
-    if (array->indexing) {
-        printExpr(array->indexing);
+    if (collection->indexing) {
+        printExpr(collection->indexing);
     }
     printf("]");
 }
@@ -485,25 +481,25 @@ void printExpr(ObjExpr* expr) {
                 break;
             }
             case OBJ_EXPR_COLLECTION_INITIALIZER: {
-                ObjExprCollectionInitializer* array = (ObjExprCollectionInitializer*)cursor;
+                ObjExprCollectionInitializer* collection = (ObjExprCollectionInitializer*)cursor;
                 printf("[");
-                for (int i = 0; i < array->initializers.objectCount; i++) {
-                    printExpr((ObjExpr*)array->initializers.objects[i]);
-                    if (i < array->initializers.objectCount - 1) {
+                for (int i = 0; i < collection->initializers.objectCount; i++) {
+                    printExpr((ObjExpr*)collection->initializers.objects[i]);
+                    if (i < collection->initializers.objectCount - 1) {
                         printf(", ");
                     }
                 }
                 printf("]");
                 break;
             }
-            case OBJ_EXPR_ARRAYELEMENT: {
-                ObjExprArrayElement* array = (ObjExprArrayElement*)cursor;
+            case OBJ_EXPR_COLLECTION_ELEMENT: {
+                ObjExprCollectionElement* collection = (ObjExprCollectionElement*)cursor;
                 printf("[");
-                printExpr(array->element);
+                printExpr(collection->element);
                 printf("]");
-                if (array->assignment) {
+                if (collection->assignment) {
                     printf(" = ");
-                    printExpr(array->assignment);
+                    printExpr(collection->assignment);
                 }
                 break;
             }

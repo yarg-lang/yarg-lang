@@ -394,16 +394,16 @@ static void blackenObject(Obj* object) {
         }
         case OBJ_EXPR_COLLECTION_INITIALIZER: {
             markExpr(object);
-            ObjExprCollectionInitializer* array = (ObjExprCollectionInitializer*)object;
-            markDynamicObjArray(&array->initializers);
-            markObject((Obj*)array->cardinality);
+            ObjExprCollectionInitializer* collection = (ObjExprCollectionInitializer*)object;
+            markDynamicObjArray(&collection->initializers);
+            markObject((Obj*)collection->cardinality);
             break;
         }
-        case OBJ_EXPR_ARRAYELEMENT: {
+        case OBJ_EXPR_COLLECTION_ELEMENT: {
             markExpr(object);
-            ObjExprArrayElement* array = (ObjExprArrayElement*)object;
-            markObject((Obj*)array->element);
-            markObject((Obj*)array->assignment);
+            ObjExprCollectionElement* collection = (ObjExprCollectionElement*)object;
+            markObject((Obj*)collection->element);
+            markObject((Obj*)collection->assignment);
             break;
         }
         case OBJ_EXPR_BUILTIN: {
@@ -590,7 +590,7 @@ static void freeObject(Obj* object) {
             FREE(ObjExprCollectionInitializer, object); 
             break;
         }
-        case OBJ_EXPR_ARRAYELEMENT: FREE(ObjExprArrayElement, object); break;
+        case OBJ_EXPR_COLLECTION_ELEMENT: FREE(ObjExprCollectionElement, object); break;
         case OBJ_EXPR_PAIR: FREE(ObjExprPair, object); break;
         case OBJ_EXPR_BUILTIN: FREE(ObjExprBuiltin, object); break;
         case OBJ_EXPR_DOT: FREE(ObjExprDot, object); break;
