@@ -677,9 +677,9 @@ static void generateExprTypeStruct(ObjExprTypeStruct* struct_) {
     emitBytes(OP_TYPE_STRUCT, (uint8_t)fieldCount);
 }
 
-static void generateExprTypeArray(ObjExprTypeArray* array) {
-    if (array->cardinality) {
-        generateExpr(array->cardinality);
+static void generateExprTypeIndexedCollection(ObjExprTypeIndexedCollection* collectionType) {
+    if (collectionType->indexing) {
+        generateExpr(collectionType->indexing);
     } else {
         emitByte(OP_NIL);
     }
@@ -769,9 +769,9 @@ static void generateExprElt(ObjExpr* expr) {
             generateExprTypeStruct(t);
             break;
         }
-        case OBJ_EXPR_TYPE_ARRAY: {
-            ObjExprTypeArray* a = (ObjExprTypeArray*)expr;
-            generateExprTypeArray(a);
+        case OBJ_EXPR_TYPE_INDEXED_COLLECTION: {
+            ObjExprTypeIndexedCollection* a = (ObjExprTypeIndexedCollection*)expr;
+            generateExprTypeIndexedCollection(a);
             break;
         }
         default:

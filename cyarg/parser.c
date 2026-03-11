@@ -464,18 +464,18 @@ static ObjExpr* type(bool canAssign) {
             case TOKEN_MACHINE_FLOAT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_MFLOAT64); break;
             case TOKEN_STRUCT: expression = (ObjExpr*) structExpression(); break;
             case TOKEN_INT: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT); break;
-            case TOKEN_TYPE_STRING: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT); break;
+            case TOKEN_TYPE_STRING: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_STRING); break;
             default: expression = NULL; // Unreachable
         }
         pushWorkingNode((Obj*)expression);
     
         if (match(TOKEN_LEFT_SQUARE_BRACKET)) {
 
-            expression->nextExpr = (ObjExpr*) newExprTypeArray();
+            expression->nextExpr = (ObjExpr*) ALLOCATE_OBJ(ObjExprTypeIndexedCollection, OBJ_EXPR_TYPE_INDEXED_COLLECTION);
             
             if (!check(TOKEN_RIGHT_SQUARE_BRACKET)) {
-                ObjExprTypeArray* array = (ObjExprTypeArray*)expression->nextExpr;
-                array->cardinality = parsePrecedence(PREC_ASSIGNMENT); // no assignment in this expression.
+                ObjExprTypeIndexedCollection* array = (ObjExprTypeIndexedCollection*)expression->nextExpr;
+                array->indexing = parsePrecedence(PREC_ASSIGNMENT); // no assignment in this expression.
             }
 
             consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' after array type.");
@@ -943,12 +943,12 @@ static ObjExpr* typeExpression() {
         pushWorkingNode((Obj*)expression);
 
         if (match(TOKEN_LEFT_SQUARE_BRACKET)) {
-            ObjExprTypeArray* array_expr = newExprTypeArray();
-            cursor->nextExpr = (ObjExpr*) array_expr;
+            ObjExprTypeIndexedCollection* collection = newExprTypeIndexedCollection();
+            cursor->nextExpr = (ObjExpr*) collection;
             cursor = cursor->nextExpr;
 
             if (!check(TOKEN_RIGHT_SQUARE_BRACKET)) {
-                array_expr->cardinality = parsePrecedence(PREC_ASSIGNMENT); // no assignment in this expression.
+                collection->indexing = parsePrecedence(PREC_ASSIGNMENT); // no assignment in this expression.
             }
 
             consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' after array type.");

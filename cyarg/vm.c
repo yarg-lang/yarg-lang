@@ -1327,16 +1327,25 @@ InterpretResult run(ObjRoutine* routine) {
                 break;
             }
             case OP_TYPE_ARRAY: {
-                if (!IS_NIL(peek(routine, 0)) && !is_positive_integer32(peek(routine, 0))) {
-                    runtimeError(routine, "Array cardinality must be positive integer or nil");
+                Value indexer = peek(routine, 0);
+
+                ObjConcreteYargType* typeObject = NULL;
+
+                if (IS_NIL(indexer) || IS_YARGTYPE(indexer)) {
+                    ObjConcreteYargTypeMap* mapType = ALLOCATE_OBJ(ObjConcreteYargTypeMap, OBJ_YARGTYPE_MAP);
+                    mapType->core.yt = TypeMap;
+                    mapType->key_type = IS_NIL(indexer) ? NULL : AS_YARGTYPE(indexer);
+                    mapType->value_type = IS_NIL(peek(routine, 1)) ? NULL : AS_YARGTYPE(peek(routine, 1));
+                    typeObject = (ObjConcreteYargType*) mapType;
+                } else if (is_positive_integer32(indexer)) {
+                    ObjConcreteYargTypeArray* array = (ObjConcreteYargTypeArray*) newYargArrayTypeFromType(peek(routine, 1));
+                    uint32_t cardinality = as_positive_integer32(indexer);
+                    array->cardinality = cardinality;
+                    typeObject = (ObjConcreteYargType*) array;
+                } else {
+                    runtimeError(routine, "Array indexer must be a positive integer or a type.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                uint32_t cardinality = 0;
-                if (is_positive_integer32(peek(routine, 0))) {
-                    cardinality = as_positive_integer32(peek(routine, 0));
-                }
-                ObjConcreteYargTypeArray* typeObject = (ObjConcreteYargTypeArray*) newYargArrayTypeFromType(peek(routine, 1));
-                typeObject->cardinality = cardinality;
 
                 pop(routine);
                 pop(routine);

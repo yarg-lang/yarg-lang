@@ -208,8 +208,8 @@ typedef struct {
 
 typedef struct {
     ObjExpr expr;
-    ObjExpr* cardinality;
-} ObjExprTypeArray;
+    ObjExpr* indexing;
+} ObjExprTypeIndexedCollection;
 
 typedef struct {
     ObjExpr expr;
@@ -315,7 +315,7 @@ ObjExprDot* newExprDot(const char* name, int nameLength);
 ObjExprSuper* newExprSuper(const char* name, int nameLength);
 ObjExprTypeLiteral* newExprType(ExprTypeLiteral type);
 ObjExprTypeStruct* newExprTypeStruct();
-ObjExprTypeArray* newExprTypeArray();
+ObjExprTypeIndexedCollection* newExprTypeIndexedCollection();
 
 ObjStmtExpression* newStmtExpression(ObjExpr* expr, ObjType statement, int line);
 ObjStmtBlock* newStmtBlock(int line);
