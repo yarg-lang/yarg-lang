@@ -366,8 +366,8 @@ static void defineMethod(ObjRoutine* routine, ObjString* name) {
     pop(routine);
 }
 
-static bool derefElement(ObjRoutine* routine) {
-    if (!(IS_UNIFORMARRAY(peek(routine, 1)) || isArrayPointer(peek(routine, 1))) || !is_positive_integer32(peek(routine, 0))) {
+static bool derefArrayElement(ObjRoutine* routine) {
+    if (!is_positive_integer32(peek(routine, 0))) {
         runtimeError(routine, "Expected an array and a positive or unsigned integer.");
         return false;
     }
@@ -400,6 +400,37 @@ static bool derefElement(ObjRoutine* routine) {
     pop(routine);
     push(routine, result);
     return true;
+}
+
+static bool derefMapElement(ObjRoutine* routine, ObjMap* map, Value key) {
+    if (!IS_STRING(key)) {
+        runtimeError(routine, "Expected a string key.");
+        return false;
+    }
+    Value result;
+    if (!tableGet(&map->entries, AS_STRING(key), &result)) {
+        result = NIL_VAL;
+    }
+    pop(routine);
+    pop(routine);
+    push(routine, result);
+    return true;
+}
+
+static bool derefElement(ObjRoutine* routine) {
+
+    Value collection = peek(routine, 1);
+    Value index = peek(routine, 0);
+
+    if (IS_UNIFORMARRAY(collection) || isArrayPointer(collection)) {
+        return derefArrayElement(routine);
+    } else if (IS_MAP(collection)) {
+        return derefMapElement(routine, AS_MAP(collection), index);
+    } else {
+        runtimeError(routine, "Expected a map or array as target.");
+        return false;
+    }
+    return false;
 }
 
 static bool setArrayElement(ObjRoutine* routine, ObjPackedUniformArray* array, Value indexVal, Value rhs) {
