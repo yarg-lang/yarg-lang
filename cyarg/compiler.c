@@ -541,7 +541,7 @@ static void generateExprArrayInit(ObjExprCollectionInitializer* array) {
     } else {
         generateExpr(array->cardinality);
     }
-    emitByte(OP_TYPE_ARRAY);
+    emitByte(OP_TYPE_INDEXED_COLLECTION);
     emitBytes(OP_CALL, 1);
  
     for (int i = 0; i < array->initializers.objectCount; i++) {
@@ -693,7 +693,7 @@ static void generateExprTypeIndexedCollection(ObjExprTypeIndexedCollection* coll
         error("Indexed collection type must have an indexing expression.");
     }
     generateExpr(collectionType->indexing);
-    emitByte(OP_TYPE_ARRAY);
+    emitByte(OP_TYPE_INDEXED_COLLECTION);
 }
 
 static void generateExprElt(ObjExpr* expr) {

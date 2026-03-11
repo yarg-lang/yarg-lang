@@ -1383,7 +1383,7 @@ InterpretResult run(ObjRoutine* routine) {
                 tempRootPop();
                 break;
             }
-            case OP_TYPE_ARRAY: {
+            case OP_TYPE_INDEXED_COLLECTION: {
                 Value indexer = peek(routine, 0);
 
                 ObjConcreteYargType* typeObject = NULL;
