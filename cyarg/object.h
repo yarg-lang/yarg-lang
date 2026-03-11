@@ -49,6 +49,7 @@ typedef struct ObjConcreteYargTypeMap ObjConcreteYargTypeMap;
 #define AS_SYNCGROUP(value)    ((ObjSyncGroup*)AS_OBJ(value))
 #define AS_INTOBJ(value)       ((ObjInt*)AS_OBJ(value))
 #define AS_INT(value)          (&(AS_INTOBJ(value)->bigInt))
+#define AS_MAP(value)          ((ObjMap*)AS_OBJ(value))
 
 typedef enum {
     OBJ_BOUND_METHOD,

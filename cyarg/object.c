@@ -530,7 +530,13 @@ void fprintObject(FILE* op, Value value) {
             char const* s = int_to_s(i, sb, INT_STRLEN_FOR_INT254);
             FPRINTMSG(op, "%s", s);
             break;
-    }
+        }
+        case OBJ_MAP:
+            FPRINTMSG(op, "<map ");
+            FPRINTMSG(op, "(%d) ", AS_MAP(value)->entries.count);
+            printType(op, (ObjConcreteYargType*)(AS_MAP(value)->type));
+            FPRINTMSG(op, " >");
+            break;
         default:
             FPRINTMSG(op, "<implementation object %d>", OBJ_TYPE(value));
             break;
