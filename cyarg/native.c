@@ -112,3 +112,49 @@ bool clock_get_hzNative(ObjRoutine* routine, int argCount, Value* result) {
     *result = UI32_VAL(res);
     return true;
 }
+
+bool stdin_getsNative(ObjRoutine* routine, int argCount, Value* result) {
+    if (argCount != 0) {
+        runtimeError(routine, "Expected 0 arguments but got %d.", argCount);
+        return false;
+    }
+
+    char buffer[4096];
+    if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
+        *result = NIL_VAL;
+        return true;
+    }
+    size_t length = strlen(buffer);
+    if (length > 0 && buffer[length - 1] == '\n') {
+        buffer[length - 1] = '\0';
+        length--;
+    }
+    *result = OBJ_VAL(copyString(buffer, length));
+    return true;
+}
+
+bool stdin_eofNative(ObjRoutine* routine, int argCount, Value* result) {
+    *result = BOOL_VAL(feof(stdin));
+    return true;
+}
+
+bool stdout_putsNative(ObjRoutine* routine, int argCount, Value* result) {
+    if (argCount != 1) {
+        runtimeError(routine, "Expected 1 argument but got %d.", argCount);
+        return false;
+    }
+
+    Value strVal = nativeArgument(routine, argCount, 0);
+    if (!IS_STRING(strVal)) {
+        runtimeError(routine, "Expected a string.");
+        return false;
+    }
+#ifdef CYARG_PICO_STDLIB
+    printf("%s", AS_CSTRING(strVal));
+    *result = I32_VAL(0);
+#else
+    int32_t res = fputs(AS_CSTRING(strVal), stdout);
+    *result = I32_VAL(res);
+#endif
+    return true;
+}

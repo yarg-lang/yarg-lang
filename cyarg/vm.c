@@ -174,6 +174,9 @@ void initVM() {
     defineNative("irq_remove_handler", irq_remove_handlerNative);
     defineNative("irq_add_shared_handler", irq_add_shared_handlerNative);
 
+    defineNative("c_stdin_gets", stdin_getsNative);
+    defineNative("c_stdin_eof", stdin_eofNative);
+    defineNative("c_stdout_puts", stdout_putsNative);
 }
 
 void freeVM() {

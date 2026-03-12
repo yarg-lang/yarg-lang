@@ -1,0 +1,18 @@
+fun repl() {
+    c_stdout_puts("yarg> ");
+    while (true) {
+        var line = c_stdin_gets();
+        if (line != "") {
+            exec(line);
+            c_stdout_puts("yarg> ");
+        }
+        else {
+            var feofi = c_stdin_eof(); // c_stdin_gets returns null when pause/continue in lldb
+            if (feofi) { // only exit if EOF
+                return;
+            }
+        }
+    }
+}
+
+repl();
