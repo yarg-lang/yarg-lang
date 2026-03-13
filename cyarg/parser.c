@@ -316,6 +316,8 @@ static ObjExpr* arrayinit(bool canAssign) {
 
     arrayInitExpressionsList(&array->initializers);
     consume(TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' initialising array.");
+
+    array->cardinality = (ObjExpr*) newExprNumberFromCint(array->initializers.objectCount);
     
     popWorkingNode();
     return (ObjExpr*)array;

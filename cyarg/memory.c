@@ -374,6 +374,7 @@ static void blackenObject(Obj* object) {
             markExpr(object);
             ObjExprArrayInit* array = (ObjExprArrayInit*)object;
             markDynamicObjArray(&array->initializers);
+            markObject((Obj*)array->cardinality);
             break;
         }
         case OBJ_EXPR_ARRAYELEMENT: {

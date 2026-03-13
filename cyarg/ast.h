@@ -145,6 +145,7 @@ typedef struct {
 typedef struct {
     ObjExpr expr;
     DynamicObjArray initializers;
+    ObjExpr* cardinality;
 } ObjExprArrayInit;
 
 typedef struct {
@@ -286,6 +287,7 @@ ObjAst* newObjAst();
 
 ObjExprNumber* newExprNumberDouble(double value);
 ObjExprNumber* newExprNumberInt(int numberDecimalDigits);
+ObjExprNumber* newExprNumberFromCint(int constant);
 ObjExprLiteral* newExprLiteral(ExprLiteral literal);
 ObjExprString* newExprString(const char* str, int strLength);
 ObjExprOperation* newExprOperation(ObjExpr* rhs, ExprOp op);

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
+#include <assert.h>
 
 #include "ast.h"
 #include "memory.h"
@@ -137,6 +138,16 @@ ObjExprNumber* newExprNumberInt(int numberDecimalDigits) {
     ObjExprNumber *num = (ObjExprNumber *) allocateObject(sizeof (ObjExprNumber) + sizeof (uint16_t) * s, OBJ_EXPR_NUMBER);
     num->bigInt.m_ = s;
     num->type = NUMBER_INT;
+    return num;
+}
+
+ObjExprNumber* newExprNumberFromCint(int constant) {
+    int64_t val = constant;
+    uint8_t s = (uint8_t) (sizeof(int) / sizeof(uint16_t));
+    ObjExprNumber *num = (ObjExprNumber *) allocateObject(sizeof (ObjExprNumber) + sizeof (uint16_t) * s, OBJ_EXPR_NUMBER);
+    num->type = NUMBER_INT;
+    num->bigInt.m_ = s;
+    int_set_i(val, &num->bigInt);
     return num;
 }
 
