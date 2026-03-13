@@ -112,6 +112,8 @@ add_executable(cyarg
     fs/fs.h
     big-int/big-int.h
     big-int/big-int.c
+    big-int/precalc.c
+    big-int/precalc.h
     )
 
 if (CYARG_FEATURE_FILESYSTEM STREQUAL "LITTLEFS")

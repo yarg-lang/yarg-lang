@@ -222,14 +222,32 @@ static void packValue(PackedValue packedStorageTarget, Value value) {
     }
 }
 
+static void noLongerLiteralInt(Value *value)
+{
+    if (IS_INT(*value))
+    {
+        ((ObjInt *) value->as.obj)->isLiteral = false;
+    }
+}
+
 bool assignToPackedValue(PackedValue lhs, Value rhsValue) {
 
     if (lhs.storedType == NULL) {
+        noLongerLiteralInt(&rhsValue);
         lhs.storedValue->asValue = rhsValue;
         return true;
     } else {
-        if (isCompatibleType(lhs.storedType, rhsValue)) {
-            packValue(lhs, rhsValue);
+        Value promoted;
+        if (isCompatibleType(lhs.storedType, rhsValue, &promoted)) {
+            if (promoted.type == VAL_NIL)
+            {
+                noLongerLiteralInt(&rhsValue);
+                packValue(lhs, rhsValue);
+            }
+            else
+            {
+                packValue(lhs, promoted);
+            }
             return true;
         } else {
             return false;
@@ -239,11 +257,21 @@ bool assignToPackedValue(PackedValue lhs, Value rhsValue) {
 
 bool assignToValueCellTarget(ValueCellTarget lhs, Value rhsValue) {
     if (lhs.cellType == NULL) {
+        noLongerLiteralInt(&rhsValue);
         *lhs.value = rhsValue;
         return true;
     } else {
-        if (isCompatibleType(lhs.cellType, rhsValue)) {
-            *(lhs.value) = rhsValue;
+        Value promoted;
+        if (isCompatibleType(lhs.cellType, rhsValue, &promoted)) {
+            if (promoted.type == VAL_NIL)
+            {
+                noLongerLiteralInt(&rhsValue);
+                *(lhs.value) = rhsValue;
+            }
+            else
+            {
+                *(lhs.value) = promoted;
+            }
             return true;
         } else {
             return false;
@@ -253,11 +281,21 @@ bool assignToValueCellTarget(ValueCellTarget lhs, Value rhsValue) {
 
 bool initialiseValueCellTarget(ValueCellTarget lhs, Value rhsValue) {
     if (lhs.cellType == NULL) {
+        noLongerLiteralInt(&rhsValue);
         *lhs.value = rhsValue;
         return true;
     } else {
-        if (isInitialisableType(lhs.cellType, rhsValue)) {
-            *(lhs.value) = rhsValue;
+        Value promoted;
+        if (isInitialisableType(lhs.cellType, rhsValue, &promoted)) {
+            if (promoted.type == VAL_NIL)
+            {
+                noLongerLiteralInt(&rhsValue);
+                *(lhs.value) = rhsValue;
+            }
+            else
+            {
+                *(lhs.value) = promoted;
+            }
             return true;
         } else {
             return false;

@@ -10,20 +10,49 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define INT_MAX_DIGITS 64
+#define INT_DIGITS_FOR_INT8 1
+#define INT_DIGITS_FOR_INT16 1
+#define INT_DIGITS_FOR_INT32 2
+#define INT_DIGITS_FOR_INT64 4
+#define INT_DIGITS_FOR_ADDRESS 4 // target address size could be 32 or 64
+#define INT_DIGITS_FOR_S(STRLEN) ((1651124 + (int)(STRLEN) * 342808) / 1651125) // multiply by 1/log10(65536) - fails at 1224 decimal digits (255 (16-bit) digits)
+#define INT_STRLEN_FOR_INT254 1226 // ceil(log10(pow(65536, 254))) + 1 (for null) + 1 for '-'
 
-typedef struct Int
+typedef struct
 {
     bool neg_;
     bool overflow_;
-    uint8_t d_; // num digits 1 - 64
-    uint8_t m_; // max digits always 64 in this implementation
-    union
-    {
-        uint16_t h_[INT_MAX_DIGITS];
-        uint32_t w_[INT_MAX_DIGITS / 2];
-    };
+    uint8_t d_; // num (16-bit) digits 1..m_
+    uint8_t m_; // max (16-bit) digits - allocated size, always even
+    uint32_t w_[];
 } Int;
+
+typedef struct // smallest concrete type of int - can be a global or a local or const, any IntConcreteX *obj may be cast to (Int *)
+{
+    bool neg_;
+    bool overflow_;
+    uint8_t d_;
+    uint8_t m_; // {2}
+    uint32_t w_[2 / 2];
+} IntConcrete2;
+
+typedef struct // concrete type of int which can hold uint64_t/int64_t - can be a global or a local
+{
+    bool neg_;
+    bool overflow_;
+    uint8_t d_;
+    uint8_t m_; // {4}
+    uint32_t w_[4 / 2];
+} IntConcrete4;
+
+typedef struct // largest concrete type of int - can be a global or a local - use sparingly as takes up 512 bytes
+{
+    bool neg_;
+    bool overflow_;
+    uint8_t d_;
+    uint8_t m_; // {254}
+    uint32_t w_[254 / 2];
+} IntConcrete254;
 
 typedef enum
 {
@@ -42,6 +71,9 @@ typedef enum
 
 // constructors
 void int_init(Int *);
+Int *int_init_concrete2(IntConcrete2 *);
+Int *int_init_concrete4(IntConcrete4 *);
+Int *int_init_concrete254(IntConcrete254 *);
 void int_set_i(int64_t, Int *);
 void int_set_u(uint64_t, Int *);
 void int_set_s(char const *, Int *);
@@ -52,7 +84,7 @@ void int_add(Int const *, Int const *, Int *);
 void int_sub(Int const *, Int const *, Int *);
 void int_shift(int, Int *); // by half words
 void int_mul(Int const *, Int const *, Int *);
-void int_div(Int const *, Int const *, Int *i, Int *r); // r may be nil and not returned
+void int_div(Int const *, Int const *, Int *q, Int *r); // r may be nil  // todo -- also allow q == 0
 void int_neg(Int *);
 
 // comparisons

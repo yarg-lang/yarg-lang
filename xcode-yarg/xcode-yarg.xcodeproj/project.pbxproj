@@ -1,0 +1,1479 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5A8D28302EDDB59F0068C8C3 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		5A8D28322EDDB59F0068C8C3 /* xcode-yarg */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "xcode-yarg"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5AA02B582F557C8900382A9E /* int.expected */ = {isa = PBXFileReference; lastKnownFileType = text; path = int.expected; sourceTree = "<group>"; };
+		5AA02B592F557C8900382A9E /* int.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = int.ya; sourceTree = "<group>"; };
+		5AA02B5B2F557C8900382A9E /* binary_trees.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = binary_trees.ya; sourceTree = "<group>"; };
+		5AA02B5C2F557C8900382A9E /* equality.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = equality.ya; sourceTree = "<group>"; };
+		5AA02B5D2F557C8900382A9E /* fib.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = fib.ya; sourceTree = "<group>"; };
+		5AA02B5E2F557C8900382A9E /* instantiation.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = instantiation.ya; sourceTree = "<group>"; };
+		5AA02B5F2F557C8900382A9E /* int-perform.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = "int-perform.ya"; sourceTree = "<group>"; };
+		5AA02B602F557C8900382A9E /* int-perform-t.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = "int-perform-t.ya"; sourceTree = "<group>"; };
+		5AA02B612F557C8900382A9E /* invocation.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = invocation.ya; sourceTree = "<group>"; };
+		5AA02B622F557C8900382A9E /* method_call.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = method_call.ya; sourceTree = "<group>"; };
+		5AA02B632F557C8900382A9E /* properties.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = properties.ya; sourceTree = "<group>"; };
+		5AA02B642F557C8900382A9E /* string_equality.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = string_equality.ya; sourceTree = "<group>"; };
+		5AA02B652F557C8900382A9E /* trees.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = trees.ya; sourceTree = "<group>"; };
+		5AA02B662F557C8900382A9E /* zoo.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = zoo.ya; sourceTree = "<group>"; };
+		5AA02B672F557C8900382A9E /* zoo_batch.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = zoo_batch.ya; sourceTree = "<group>"; };
+		5AA02B692F557C8900382A9E /* array.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = array.ya; sourceTree = "<group>"; };
+		5AA02B6A2F557C8900382A9E /* array_bool.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = array_bool.ya; sourceTree = "<group>"; };
+		5AA02B6B2F557C8900382A9E /* array_expressions.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = array_expressions.ya; sourceTree = "<group>"; };
+		5AA02B6C2F557C8900382A9E /* array_init_too_big.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = array_init_too_big.ya; sourceTree = "<group>"; };
+		5AA02B6D2F557C8900382A9E /* array_integer.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = array_integer.ya; sourceTree = "<group>"; };
+		5AA02B6E2F557C8900382A9E /* array_mfloat64.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = array_mfloat64.ya; sourceTree = "<group>"; };
+		5AA02B6F2F557C8900382A9E /* array_muint32.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = array_muint32.ya; sourceTree = "<group>"; };
+		5AA02B702F557C8900382A9E /* large_array.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = large_array.ya; sourceTree = "<group>"; };
+		5AA02B712F557C8900382A9E /* set_out_of_bounds.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = set_out_of_bounds.ya; sourceTree = "<group>"; };
+		5AA02B732F557C8900382A9E /* associativity.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = associativity.ya; sourceTree = "<group>"; };
+		5AA02B742F557C8900382A9E /* global.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = global.ya; sourceTree = "<group>"; };
+		5AA02B752F557C8900382A9E /* grouping.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = grouping.ya; sourceTree = "<group>"; };
+		5AA02B762F557C8900382A9E /* infix_operator.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = infix_operator.ya; sourceTree = "<group>"; };
+		5AA02B772F557C8900382A9E /* local.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = local.ya; sourceTree = "<group>"; };
+		5AA02B782F557C8900382A9E /* prefix_operator.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = prefix_operator.ya; sourceTree = "<group>"; };
+		5AA02B792F557C8900382A9E /* syntax.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = syntax.ya; sourceTree = "<group>"; };
+		5AA02B7A2F557C8900382A9E /* to_this.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = to_this.ya; sourceTree = "<group>"; };
+		5AA02B7B2F557C8900382A9E /* undefined.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = undefined.ya; sourceTree = "<group>"; };
+		5AA02B7D2F557C8900382A9E /* bitand.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = bitand.ya; sourceTree = "<group>"; };
+		5AA02B7E2F557C8900382A9E /* bitor.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = bitor.ya; sourceTree = "<group>"; };
+		5AA02B7F2F557C8900382A9E /* bitshift.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = bitshift.ya; sourceTree = "<group>"; };
+		5AA02B802F557C8900382A9E /* bitxor.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = bitxor.ya; sourceTree = "<group>"; };
+		5AA02B822F557C8900382A9E /* empty.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = empty.ya; sourceTree = "<group>"; };
+		5AA02B832F557C8900382A9E /* scope.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = scope.ya; sourceTree = "<group>"; };
+		5AA02B852F557C8900382A9E /* equality.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = equality.ya; sourceTree = "<group>"; };
+		5AA02B862F557C8900382A9E /* not.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = not.ya; sourceTree = "<group>"; };
+		5AA02B882F557C8900382A9E /* bool.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = bool.ya; sourceTree = "<group>"; };
+		5AA02B892F557C8900382A9E /* nil.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = nil.ya; sourceTree = "<group>"; };
+		5AA02B8A2F557C8900382A9E /* num.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = num.ya; sourceTree = "<group>"; };
+		5AA02B8B2F557C8900382A9E /* object.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = object.ya; sourceTree = "<group>"; };
+		5AA02B8C2F557C8900382A9E /* string.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = string.ya; sourceTree = "<group>"; };
+		5AA02B8E2F557C8900382A9E /* channel.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = channel.ya; sourceTree = "<group>"; };
+		5AA02B8F2F557C8900382A9E /* sync_group.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = sync_group.ya; sourceTree = "<group>"; };
+		5AA02B912F557C8900382A9E /* empty.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = empty.ya; sourceTree = "<group>"; };
+		5AA02B922F557C8900382A9E /* inherit_self.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = inherit_self.ya; sourceTree = "<group>"; };
+		5AA02B932F557C8900382A9E /* inherited_method.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = inherited_method.ya; sourceTree = "<group>"; };
+		5AA02B942F557C8900382A9E /* local_inherit_other.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = local_inherit_other.ya; sourceTree = "<group>"; };
+		5AA02B952F557C8900382A9E /* local_inherit_self.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = local_inherit_self.ya; sourceTree = "<group>"; };
+		5AA02B962F557C8900382A9E /* local_reference_self.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = local_reference_self.ya; sourceTree = "<group>"; };
+		5AA02B972F557C8900382A9E /* reference_self.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = reference_self.ya; sourceTree = "<group>"; };
+		5AA02B992F557C8900382A9E /* assign_to_closure.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = assign_to_closure.ya; sourceTree = "<group>"; };
+		5AA02B9A2F557C8900382A9E /* assign_to_shadowed_later.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = assign_to_shadowed_later.ya; sourceTree = "<group>"; };
+		5AA02B9B2F557C8900382A9E /* close_over_function_parameter.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = close_over_function_parameter.ya; sourceTree = "<group>"; };
+		5AA02B9C2F557C8900382A9E /* close_over_later_variable.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = close_over_later_variable.ya; sourceTree = "<group>"; };
+		5AA02B9D2F557C8900382A9E /* close_over_method_parameter.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = close_over_method_parameter.ya; sourceTree = "<group>"; };
+		5AA02B9E2F557C8900382A9E /* closed_closure_in_function.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = closed_closure_in_function.ya; sourceTree = "<group>"; };
+		5AA02B9F2F557C8900382A9E /* nested_closure.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = nested_closure.ya; sourceTree = "<group>"; };
+		5AA02BA02F557C8900382A9E /* open_closure_in_function.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = open_closure_in_function.ya; sourceTree = "<group>"; };
+		5AA02BA12F557C8900382A9E /* reference_closure_multiple_times.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = reference_closure_multiple_times.ya; sourceTree = "<group>"; };
+		5AA02BA22F557C8900382A9E /* reuse_closure_slot.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = reuse_closure_slot.ya; sourceTree = "<group>"; };
+		5AA02BA32F557C8900382A9E /* shadow_closure_with_local.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = shadow_closure_with_local.ya; sourceTree = "<group>"; };
+		5AA02BA42F557C8900382A9E /* unused_closure.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = unused_closure.ya; sourceTree = "<group>"; };
+		5AA02BA52F557C8900382A9E /* unused_later_closure.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = unused_later_closure.ya; sourceTree = "<group>"; };
+		5AA02BA72F557C8900382A9E /* line_at_eof.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = line_at_eof.ya; sourceTree = "<group>"; };
+		5AA02BA82F557C8900382A9E /* only_line_comment.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = only_line_comment.ya; sourceTree = "<group>"; };
+		5AA02BA92F557C8900382A9E /* only_line_comment_and_line.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = only_line_comment_and_line.ya; sourceTree = "<group>"; };
+		5AA02BAA2F557C8900382A9E /* unicode.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = unicode.ya; sourceTree = "<group>"; };
+		5AA02BAC2F557C8900382A9E /* compile.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = compile.ya; sourceTree = "<group>"; };
+		5AA02BAE2F557C8900382A9E /* arguments.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = arguments.ya; sourceTree = "<group>"; };
+		5AA02BAF2F557C8900382A9E /* call_init_early_return.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = call_init_early_return.ya; sourceTree = "<group>"; };
+		5AA02BB02F557C8900382A9E /* call_init_explicitly.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = call_init_explicitly.ya; sourceTree = "<group>"; };
+		5AA02BB12F557C8900382A9E /* default.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = default.ya; sourceTree = "<group>"; };
+		5AA02BB22F557C8900382A9E /* default_arguments.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = default_arguments.ya; sourceTree = "<group>"; };
+		5AA02BB32F557C8900382A9E /* early_return.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = early_return.ya; sourceTree = "<group>"; };
+		5AA02BB42F557C8900382A9E /* extra_arguments.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = extra_arguments.ya; sourceTree = "<group>"; };
+		5AA02BB52F557C8900382A9E /* init_not_method.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = init_not_method.ya; sourceTree = "<group>"; };
+		5AA02BB62F557C8900382A9E /* missing_arguments.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = missing_arguments.ya; sourceTree = "<group>"; };
+		5AA02BB72F557C8900382A9E /* return_in_nested_function.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = return_in_nested_function.ya; sourceTree = "<group>"; };
+		5AA02BB82F557C8900382A9E /* return_value.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = return_value.ya; sourceTree = "<group>"; };
+		5AA02BBA2F557C8900382A9E /* coroutine.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = coroutine.ya; sourceTree = "<group>"; };
+		5AA02BBB2F557C8900382A9E /* receive_result.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = receive_result.ya; sourceTree = "<group>"; };
+		5AA02BBD2F557C8900382A9E /* exec.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = exec.ya; sourceTree = "<group>"; };
+		5AA02BBF2F557C8900382A9E /* call_function_field.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = call_function_field.ya; sourceTree = "<group>"; };
+		5AA02BC02F557C8900382A9E /* call_nonfunction_field.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = call_nonfunction_field.ya; sourceTree = "<group>"; };
+		5AA02BC12F557C8900382A9E /* get_and_set_method.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = get_and_set_method.ya; sourceTree = "<group>"; };
+		5AA02BC22F557C8900382A9E /* get_on_bool.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = get_on_bool.ya; sourceTree = "<group>"; };
+		5AA02BC32F557C8900382A9E /* get_on_class.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = get_on_class.ya; sourceTree = "<group>"; };
+		5AA02BC42F557C8900382A9E /* get_on_function.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = get_on_function.ya; sourceTree = "<group>"; };
+		5AA02BC52F557C8900382A9E /* get_on_nil.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = get_on_nil.ya; sourceTree = "<group>"; };
+		5AA02BC62F557C8900382A9E /* get_on_num.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = get_on_num.ya; sourceTree = "<group>"; };
+		5AA02BC72F557C8900382A9E /* get_on_string.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = get_on_string.ya; sourceTree = "<group>"; };
+		5AA02BC82F557C8900382A9E /* many.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = many.ya; sourceTree = "<group>"; };
+		5AA02BC92F557C8900382A9E /* method.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = method.ya; sourceTree = "<group>"; };
+		5AA02BCA2F557C8900382A9E /* method_binds_this.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = method_binds_this.ya; sourceTree = "<group>"; };
+		5AA02BCB2F557C8900382A9E /* on_instance.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = on_instance.ya; sourceTree = "<group>"; };
+		5AA02BCC2F557C8900382A9E /* set_evaluation_order.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = set_evaluation_order.ya; sourceTree = "<group>"; };
+		5AA02BCD2F557C8900382A9E /* set_on_bool.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = set_on_bool.ya; sourceTree = "<group>"; };
+		5AA02BCE2F557C8900382A9E /* set_on_class.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = set_on_class.ya; sourceTree = "<group>"; };
+		5AA02BCF2F557C8900382A9E /* set_on_function.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = set_on_function.ya; sourceTree = "<group>"; };
+		5AA02BD02F557C8900382A9E /* set_on_nil.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = set_on_nil.ya; sourceTree = "<group>"; };
+		5AA02BD12F557C8900382A9E /* set_on_num.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = set_on_num.ya; sourceTree = "<group>"; };
+		5AA02BD22F557C8900382A9E /* set_on_string.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = set_on_string.ya; sourceTree = "<group>"; };
+		5AA02BD32F557C8900382A9E /* undefined.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = undefined.ya; sourceTree = "<group>"; };
+		5AA02BD52F557C8900382A9E /* class_in_body.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = class_in_body.ya; sourceTree = "<group>"; };
+		5AA02BD62F557C8900382A9E /* closure_in_body.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = closure_in_body.ya; sourceTree = "<group>"; };
+		5AA02BD72F557C8900382A9E /* fun_in_body.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = fun_in_body.ya; sourceTree = "<group>"; };
+		5AA02BD82F557C8900382A9E /* return_closure.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = return_closure.ya; sourceTree = "<group>"; };
+		5AA02BD92F557C8900382A9E /* return_inside.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = return_inside.ya; sourceTree = "<group>"; };
+		5AA02BDA2F557C8900382A9E /* scope.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = scope.ya; sourceTree = "<group>"; };
+		5AA02BDB2F557C8900382A9E /* statement_condition.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = statement_condition.ya; sourceTree = "<group>"; };
+		5AA02BDC2F557C8900382A9E /* statement_increment.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = statement_increment.ya; sourceTree = "<group>"; };
+		5AA02BDD2F557C8900382A9E /* statement_initializer.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = statement_initializer.ya; sourceTree = "<group>"; };
+		5AA02BDE2F557C8900382A9E /* syntax.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = syntax.ya; sourceTree = "<group>"; };
+		5AA02BDF2F557C8900382A9E /* var_in_body.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = var_in_body.ya; sourceTree = "<group>"; };
+		5AA02BE12F557C8900382A9E /* body_must_be_block.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = body_must_be_block.ya; sourceTree = "<group>"; };
+		5AA02BE22F557C8900382A9E /* empty_body.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = empty_body.ya; sourceTree = "<group>"; };
+		5AA02BE32F557C8900382A9E /* extra_arguments.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = extra_arguments.ya; sourceTree = "<group>"; };
+		5AA02BE42F557C8900382A9E /* local_mutual_recursion.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = local_mutual_recursion.ya; sourceTree = "<group>"; };
+		5AA02BE52F557C8900382A9E /* local_recursion.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = local_recursion.ya; sourceTree = "<group>"; };
+		5AA02BE62F557C8900382A9E /* missing_arguments.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = missing_arguments.ya; sourceTree = "<group>"; };
+		5AA02BE72F557C8900382A9E /* missing_comma_in_parameters.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = missing_comma_in_parameters.ya; sourceTree = "<group>"; };
+		5AA02BE82F557C8900382A9E /* mutual_recursion.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = mutual_recursion.ya; sourceTree = "<group>"; };
+		5AA02BE92F557C8900382A9E /* nested_call_with_arguments.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = nested_call_with_arguments.ya; sourceTree = "<group>"; };
+		5AA02BEA2F557C8900382A9E /* parameters.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = parameters.ya; sourceTree = "<group>"; };
+		5AA02BEB2F557C8900382A9E /* print.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = print.ya; sourceTree = "<group>"; };
+		5AA02BEC2F557C8900382A9E /* recursion.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = recursion.ya; sourceTree = "<group>"; };
+		5AA02BED2F557C8900382A9E /* too_many_arguments.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = too_many_arguments.ya; sourceTree = "<group>"; };
+		5AA02BEE2F557C8900382A9E /* too_many_parameters.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = too_many_parameters.ya; sourceTree = "<group>"; };
+		5AA02BF02F557C8900382A9E /* class_in_else.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = class_in_else.ya; sourceTree = "<group>"; };
+		5AA02BF12F557C8900382A9E /* class_in_then.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = class_in_then.ya; sourceTree = "<group>"; };
+		5AA02BF22F557C8900382A9E /* dangling_else.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = dangling_else.ya; sourceTree = "<group>"; };
+		5AA02BF32F557C8900382A9E /* else.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = else.ya; sourceTree = "<group>"; };
+		5AA02BF42F557C8900382A9E /* fun_in_else.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = fun_in_else.ya; sourceTree = "<group>"; };
+		5AA02BF52F557C8900382A9E /* fun_in_then.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = fun_in_then.ya; sourceTree = "<group>"; };
+		5AA02BF62F557C8900382A9E /* if.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = if.ya; sourceTree = "<group>"; };
+		5AA02BF72F557C8900382A9E /* truth.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = truth.ya; sourceTree = "<group>"; };
+		5AA02BF82F557C8900382A9E /* var_in_else.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = var_in_else.ya; sourceTree = "<group>"; };
+		5AA02BF92F557C8900382A9E /* var_in_then.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = var_in_then.ya; sourceTree = "<group>"; };
+		5AA02BFB2F557C8900382A9E /* constructor.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = constructor.ya; sourceTree = "<group>"; };
+		5AA02BFC2F557C8900382A9E /* inherit_from_function.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = inherit_from_function.ya; sourceTree = "<group>"; };
+		5AA02BFD2F557C8900382A9E /* inherit_from_nil.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = inherit_from_nil.ya; sourceTree = "<group>"; };
+		5AA02BFE2F557C8900382A9E /* inherit_from_number.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = inherit_from_number.ya; sourceTree = "<group>"; };
+		5AA02BFF2F557C8900382A9E /* inherit_methods.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = inherit_methods.ya; sourceTree = "<group>"; };
+		5AA02C002F557C8900382A9E /* parenthesized_superclass.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = parenthesized_superclass.ya; sourceTree = "<group>"; };
+		5AA02C012F557C8900382A9E /* set_fields_from_base_class.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = set_fields_from_base_class.ya; sourceTree = "<group>"; };
+		5AA02C032F557C8900382A9E /* casts.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = casts.ya; sourceTree = "<group>"; };
+		5AA02C042F557C8900382A9E /* int.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = int.ya; sourceTree = "<group>"; };
+		5AA02C062F557C8900382A9E /* int8.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = int8.ya; sourceTree = "<group>"; };
+		5AA02C072F557C8900382A9E /* int16.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = int16.ya; sourceTree = "<group>"; };
+		5AA02C082F557C8900382A9E /* int32.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = int32.ya; sourceTree = "<group>"; };
+		5AA02C092F557C8900382A9E /* int64.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = int64.ya; sourceTree = "<group>"; };
+		5AA02C0B2F557C8900382A9E /* closure_frame_interrupt.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = closure_frame_interrupt.ya; sourceTree = "<group>"; };
+		5AA02C0C2F557C8900382A9E /* repeating_interrupt.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = repeating_interrupt.ya; sourceTree = "<group>"; };
+		5AA02C0D2F557C8900382A9E /* single_interrupt.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = single_interrupt.ya; sourceTree = "<group>"; };
+		5AA02C0F2F557C8900382A9E /* array_len.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = array_len.ya; sourceTree = "<group>"; };
+		5AA02C102F557C8900382A9E /* int_len.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = int_len.ya; sourceTree = "<group>"; };
+		5AA02C112F557C8900382A9E /* len_args.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = len_args.ya; sourceTree = "<group>"; };
+		5AA02C122F557C8900382A9E /* string_len.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = string_len.ya; sourceTree = "<group>"; };
+		5AA02C142F557C8900382A9E /* immediates_unlimted.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = immediates_unlimted.ya; sourceTree = "<group>"; };
+		5AA02C152F557C8900382A9E /* isr_stack_overflow.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = isr_stack_overflow.ya; sourceTree = "<group>"; };
+		5AA02C162F557C8900382A9E /* loop_too_large.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = loop_too_large.ya; sourceTree = "<group>"; };
+		5AA02C172F557C8900382A9E /* no_reuse_constants.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = no_reuse_constants.ya; sourceTree = "<group>"; };
+		5AA02C182F557C8900382A9E /* stack_overflow.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = stack_overflow.ya; sourceTree = "<group>"; };
+		5AA02C192F557C8900382A9E /* too_many_constants.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = too_many_constants.ya; sourceTree = "<group>"; };
+		5AA02C1A2F557C8900382A9E /* too_many_locals.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = too_many_locals.ya; sourceTree = "<group>"; };
+		5AA02C1B2F557C8900382A9E /* too_many_upvalues.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = too_many_upvalues.ya; sourceTree = "<group>"; };
+		5AA02C1D2F557C8900382A9E /* and.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = and.ya; sourceTree = "<group>"; };
+		5AA02C1E2F557C8900382A9E /* and_truth.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = and_truth.ya; sourceTree = "<group>"; };
+		5AA02C1F2F557C8900382A9E /* or.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = or.ya; sourceTree = "<group>"; };
+		5AA02C202F557C8900382A9E /* or_truth.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = or_truth.ya; sourceTree = "<group>"; };
+		5AA02C222F557C8900382A9E /* arity.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = arity.ya; sourceTree = "<group>"; };
+		5AA02C232F557C8900382A9E /* empty_block.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = empty_block.ya; sourceTree = "<group>"; };
+		5AA02C242F557C8900382A9E /* extra_arguments.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = extra_arguments.ya; sourceTree = "<group>"; };
+		5AA02C252F557C8900382A9E /* missing_arguments.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = missing_arguments.ya; sourceTree = "<group>"; };
+		5AA02C262F557C8900382A9E /* not_found.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = not_found.ya; sourceTree = "<group>"; };
+		5AA02C272F557C8900382A9E /* print_bound_method.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = print_bound_method.ya; sourceTree = "<group>"; };
+		5AA02C282F557C8900382A9E /* refer_to_name.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = refer_to_name.ya; sourceTree = "<group>"; };
+		5AA02C292F557C8900382A9E /* too_many_arguments.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = too_many_arguments.ya; sourceTree = "<group>"; };
+		5AA02C2A2F557C8900382A9E /* too_many_parameters.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = too_many_parameters.ya; sourceTree = "<group>"; };
+		5AA02C2C2F557C8900382A9E /* mod.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = mod.ya; sourceTree = "<group>"; };
+		5AA02C2E2F557C8900382A9E /* literal.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = literal.ya; sourceTree = "<group>"; };
+		5AA02C302F557C8900382A9E /* decimal_point_at_eof.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = decimal_point_at_eof.ya; sourceTree = "<group>"; };
+		5AA02C312F557C8900382A9E /* incomplete_literal.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = incomplete_literal.ya; sourceTree = "<group>"; };
+		5AA02C322F557C8900382A9E /* leading_dot.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = leading_dot.ya; sourceTree = "<group>"; };
+		5AA02C332F557C8900382A9E /* literals.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = literals.ya; sourceTree = "<group>"; };
+		5AA02C342F557C8900382A9E /* nan_equality.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = nan_equality.ya; sourceTree = "<group>"; };
+		5AA02C352F557C8900382A9E /* radix.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = radix.ya; sourceTree = "<group>"; };
+		5AA02C362F557C8900382A9E /* trailing_dot.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = trailing_dot.ya; sourceTree = "<group>"; };
+		5AA02C382F557C8900382A9E /* add.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = add.ya; sourceTree = "<group>"; };
+		5AA02C392F557C8900382A9E /* add_bool_nil.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = add_bool_nil.ya; sourceTree = "<group>"; };
+		5AA02C3A2F557C8900382A9E /* add_bool_num.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = add_bool_num.ya; sourceTree = "<group>"; };
+		5AA02C3B2F557C8900382A9E /* add_bool_string.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = add_bool_string.ya; sourceTree = "<group>"; };
+		5AA02C3C2F557C8900382A9E /* add_nil_nil.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = add_nil_nil.ya; sourceTree = "<group>"; };
+		5AA02C3D2F557C8900382A9E /* add_num_nil.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = add_num_nil.ya; sourceTree = "<group>"; };
+		5AA02C3E2F557C8900382A9E /* add_string_nil.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = add_string_nil.ya; sourceTree = "<group>"; };
+		5AA02C3F2F557C8900382A9E /* comparison.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = comparison.ya; sourceTree = "<group>"; };
+		5AA02C402F557C8900382A9E /* divide.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = divide.ya; sourceTree = "<group>"; };
+		5AA02C412F557C8900382A9E /* divide_nonnum_num.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = divide_nonnum_num.ya; sourceTree = "<group>"; };
+		5AA02C422F557C8900382A9E /* divide_num_nonnum.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = divide_num_nonnum.ya; sourceTree = "<group>"; };
+		5AA02C432F557C8900382A9E /* equals.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = equals.ya; sourceTree = "<group>"; };
+		5AA02C442F557C8900382A9E /* equals_class.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = equals_class.ya; sourceTree = "<group>"; };
+		5AA02C452F557C8900382A9E /* equals_method.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = equals_method.ya; sourceTree = "<group>"; };
+		5AA02C462F557C8900382A9E /* greater_nonnum_num.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = greater_nonnum_num.ya; sourceTree = "<group>"; };
+		5AA02C472F557C8900382A9E /* greater_num_nonnum.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = greater_num_nonnum.ya; sourceTree = "<group>"; };
+		5AA02C482F557C8900382A9E /* greater_or_equal_nonnum_num.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = greater_or_equal_nonnum_num.ya; sourceTree = "<group>"; };
+		5AA02C492F557C8900382A9E /* greater_or_equal_num_nonnum.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = greater_or_equal_num_nonnum.ya; sourceTree = "<group>"; };
+		5AA02C4A2F557C8900382A9E /* less_nonnum_num.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = less_nonnum_num.ya; sourceTree = "<group>"; };
+		5AA02C4B2F557C8900382A9E /* less_num_nonnum.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = less_num_nonnum.ya; sourceTree = "<group>"; };
+		5AA02C4C2F557C8900382A9E /* less_or_equal_nonnum_num.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = less_or_equal_nonnum_num.ya; sourceTree = "<group>"; };
+		5AA02C4D2F557C8900382A9E /* less_or_equal_num_nonnum.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = less_or_equal_num_nonnum.ya; sourceTree = "<group>"; };
+		5AA02C4E2F557C8900382A9E /* multiply.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = multiply.ya; sourceTree = "<group>"; };
+		5AA02C4F2F557C8900382A9E /* multiply_nonnum_num.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = multiply_nonnum_num.ya; sourceTree = "<group>"; };
+		5AA02C502F557C8900382A9E /* multiply_num_nonnum.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = multiply_num_nonnum.ya; sourceTree = "<group>"; };
+		5AA02C512F557C8900382A9E /* negate.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = negate.ya; sourceTree = "<group>"; };
+		5AA02C522F557C8900382A9E /* negate_nonnum.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = negate_nonnum.ya; sourceTree = "<group>"; };
+		5AA02C532F557C8900382A9E /* not.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = not.ya; sourceTree = "<group>"; };
+		5AA02C542F557C8900382A9E /* not_class.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = not_class.ya; sourceTree = "<group>"; };
+		5AA02C552F557C8900382A9E /* not_equals.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = not_equals.ya; sourceTree = "<group>"; };
+		5AA02C562F557C8900382A9E /* subtract.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = subtract.ya; sourceTree = "<group>"; };
+		5AA02C572F557C8900382A9E /* subtract_nonnum_num.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = subtract_nonnum_num.ya; sourceTree = "<group>"; };
+		5AA02C582F557C8900382A9E /* subtract_num_nonnum.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = subtract_num_nonnum.ya; sourceTree = "<group>"; };
+		5AA02C5A2F557C8900382A9E /* peek.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = peek.ya; sourceTree = "<group>"; };
+		5AA02C5B2F557C8900382A9E /* poke.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = poke.ya; sourceTree = "<group>"; };
+		5AA02C5D2F557C8900382A9E /* offset.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = offset.ya; sourceTree = "<group>"; };
+		5AA02C5E2F557C8900382A9E /* place.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = place.ya; sourceTree = "<group>"; };
+		5AA02C5F2F557C8900382A9E /* place_alias.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = place_alias.ya; sourceTree = "<group>"; };
+		5AA02C602F557C8900382A9E /* place_not_supported.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = place_not_supported.ya; sourceTree = "<group>"; };
+		5AA02C612F557C8900382A9E /* place_out_of_bounds.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = place_out_of_bounds.ya; sourceTree = "<group>"; };
+		5AA02C632F557C8900382A9E /* pointer.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = pointer.ya; sourceTree = "<group>"; };
+		5AA02C642F557C8900382A9E /* struct_pointer.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = struct_pointer.ya; sourceTree = "<group>"; };
+		5AA02C662F557C8900382A9E /* missing_argument.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = missing_argument.ya; sourceTree = "<group>"; };
+		5AA02C682F557C8900382A9E /* read_source.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = read_source.ya; sourceTree = "<group>"; };
+		5AA02C692F557C8900382A9E /* sample.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = sample.ya; sourceTree = "<group>"; };
+		5AA02C6B2F557C8900382A9E /* 40.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = 40.ya; sourceTree = "<group>"; };
+		5AA02C6C2F557C8900382A9E /* 394.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = 394.ya; sourceTree = "<group>"; };
+		5AA02C6E2F557C8900382A9E /* after_else.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = after_else.ya; sourceTree = "<group>"; };
+		5AA02C6F2F557C8900382A9E /* after_if.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = after_if.ya; sourceTree = "<group>"; };
+		5AA02C702F557C8900382A9E /* after_while.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = after_while.ya; sourceTree = "<group>"; };
+		5AA02C712F557C8900382A9E /* at_top_level.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = at_top_level.ya; sourceTree = "<group>"; };
+		5AA02C722F557C8900382A9E /* in_function.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = in_function.ya; sourceTree = "<group>"; };
+		5AA02C732F557C8900382A9E /* in_method.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = in_method.ya; sourceTree = "<group>"; };
+		5AA02C742F557C8900382A9E /* return_nil_if_no_value.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = return_nil_if_no_value.ya; sourceTree = "<group>"; };
+		5AA02C762F557C8900382A9E /* hello_led.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = hello_led.ya; sourceTree = "<group>"; };
+		5AA02C782F557C8900382A9E /* error_after_multiline.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = error_after_multiline.ya; sourceTree = "<group>"; };
+		5AA02C792F557C8900382A9E /* literals.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = literals.ya; sourceTree = "<group>"; };
+		5AA02C7A2F557C8900382A9E /* multiline.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = multiline.ya; sourceTree = "<group>"; };
+		5AA02C7B2F557C8900382A9E /* unterminated.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = unterminated.ya; sourceTree = "<group>"; };
+		5AA02C7D2F557C8900382A9E /* assignment.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = assignment.ya; sourceTree = "<group>"; };
+		5AA02C7E2F557C8900382A9E /* basic.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = basic.ya; sourceTree = "<group>"; };
+		5AA02C7F2F557C8900382A9E /* nested_structs.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = nested_structs.ya; sourceTree = "<group>"; };
+		5AA02C802F557C8900382A9E /* struct_array.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = struct_array.ya; sourceTree = "<group>"; };
+		5AA02C812F557C8900382A9E /* struct_struct.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = struct_struct.ya; sourceTree = "<group>"; };
+		5AA02C832F557C8900382A9E /* bound_method.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = bound_method.ya; sourceTree = "<group>"; };
+		5AA02C842F557C8900382A9E /* call_other_method.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = call_other_method.ya; sourceTree = "<group>"; };
+		5AA02C852F557C8900382A9E /* call_same_method.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = call_same_method.ya; sourceTree = "<group>"; };
+		5AA02C862F557C8900382A9E /* closure.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = closure.ya; sourceTree = "<group>"; };
+		5AA02C872F557C8900382A9E /* constructor.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = constructor.ya; sourceTree = "<group>"; };
+		5AA02C882F557C8900382A9E /* extra_arguments.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = extra_arguments.ya; sourceTree = "<group>"; };
+		5AA02C892F557C8900382A9E /* indirectly_inherited.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = indirectly_inherited.ya; sourceTree = "<group>"; };
+		5AA02C8A2F557C8900382A9E /* missing_arguments.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = missing_arguments.ya; sourceTree = "<group>"; };
+		5AA02C8B2F557C8900382A9E /* no_superclass_bind.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = no_superclass_bind.ya; sourceTree = "<group>"; };
+		5AA02C8C2F557C8900382A9E /* no_superclass_call.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = no_superclass_call.ya; sourceTree = "<group>"; };
+		5AA02C8D2F557C8900382A9E /* no_superclass_method.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = no_superclass_method.ya; sourceTree = "<group>"; };
+		5AA02C8E2F557C8900382A9E /* parenthesized.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = parenthesized.ya; sourceTree = "<group>"; };
+		5AA02C8F2F557C8900382A9E /* reassign_superclass.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = reassign_superclass.ya; sourceTree = "<group>"; };
+		5AA02C902F557C8900382A9E /* super_at_top_level.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = super_at_top_level.ya; sourceTree = "<group>"; };
+		5AA02C912F557C8900382A9E /* super_in_closure_in_inherited_method.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = super_in_closure_in_inherited_method.ya; sourceTree = "<group>"; };
+		5AA02C922F557C8900382A9E /* super_in_inherited_method.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = super_in_inherited_method.ya; sourceTree = "<group>"; };
+		5AA02C932F557C8900382A9E /* super_in_top_level_function.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = super_in_top_level_function.ya; sourceTree = "<group>"; };
+		5AA02C942F557C8900382A9E /* super_without_dot.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = super_without_dot.ya; sourceTree = "<group>"; };
+		5AA02C952F557C8900382A9E /* super_without_name.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = super_without_name.ya; sourceTree = "<group>"; };
+		5AA02C962F557C8900382A9E /* this_in_superclass_method.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = this_in_superclass_method.ya; sourceTree = "<group>"; };
+		5AA02C982F557C8900382A9E /* test_handler.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_handler.ya; sourceTree = "<group>"; };
+		5AA02C992F557C8900382A9E /* test_read_write.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_read_write.ya; sourceTree = "<group>"; };
+		5AA02C9B2F557C8900382A9E /* closure.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = closure.ya; sourceTree = "<group>"; };
+		5AA02C9C2F557C8900382A9E /* nested_class.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = nested_class.ya; sourceTree = "<group>"; };
+		5AA02C9D2F557C8900382A9E /* nested_closure.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = nested_closure.ya; sourceTree = "<group>"; };
+		5AA02C9E2F557C8900382A9E /* this_at_top_level.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = this_at_top_level.ya; sourceTree = "<group>"; };
+		5AA02C9F2F557C8900382A9E /* this_in_method.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = this_in_method.ya; sourceTree = "<group>"; };
+		5AA02CA02F557C8900382A9E /* this_in_top_level_function.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = this_in_top_level_function.ya; sourceTree = "<group>"; };
+		5AA02CA22F557C8900382A9E /* array_wrong_assign.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = array_wrong_assign.ya; sourceTree = "<group>"; };
+		5AA02CA32F557C8900382A9E /* bool_wrong_assign.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = bool_wrong_assign.ya; sourceTree = "<group>"; };
+		5AA02CA42F557C8900382A9E /* const_local.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = const_local.ya; sourceTree = "<group>"; };
+		5AA02CA52F557C8900382A9E /* const_only_local.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = const_only_local.ya; sourceTree = "<group>"; };
+		5AA02CA62F557C8900382A9E /* const_only_upvalue.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = const_only_upvalue.ya; sourceTree = "<group>"; };
+		5AA02CA72F557C8900382A9E /* const_upvalue.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = const_upvalue.ya; sourceTree = "<group>"; };
+		5AA02CA82F557C8900382A9E /* const_variables.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = const_variables.ya; sourceTree = "<group>"; };
+		5AA02CA92F557C8900382A9E /* integer_wrong_assign.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = integer_wrong_assign.ya; sourceTree = "<group>"; };
+		5AA02CAA2F557C8900382A9E /* mfloat64_wrong_assign.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = mfloat64_wrong_assign.ya; sourceTree = "<group>"; };
+		5AA02CAB2F557C8900382A9E /* muint32_wrong_assign.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = muint32_wrong_assign.ya; sourceTree = "<group>"; };
+		5AA02CAC2F557C8900382A9E /* string_wrong_assign.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = string_wrong_assign.ya; sourceTree = "<group>"; };
+		5AA02CAD2F557C8900382A9E /* typed_globals.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = typed_globals.ya; sourceTree = "<group>"; };
+		5AA02CAE2F557C8900382A9E /* typed_locals.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = typed_locals.ya; sourceTree = "<group>"; };
+		5AA02CAF2F557C8900382A9E /* upvalue_wrong_assign.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = upvalue_wrong_assign.ya; sourceTree = "<group>"; };
+		5AA02CB12F557C8900382A9E /* collide_with_parameter.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = collide_with_parameter.ya; sourceTree = "<group>"; };
+		5AA02CB22F557C8900382A9E /* duplicate_local.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = duplicate_local.ya; sourceTree = "<group>"; };
+		5AA02CB32F557C8900382A9E /* duplicate_parameter.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = duplicate_parameter.ya; sourceTree = "<group>"; };
+		5AA02CB42F557C8900382A9E /* duplicate_typed_local.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = duplicate_typed_local.ya; sourceTree = "<group>"; };
+		5AA02CB52F557C8900382A9E /* early_bound.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = early_bound.ya; sourceTree = "<group>"; };
+		5AA02CB62F557C8900382A9E /* in_middle_of_block.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = in_middle_of_block.ya; sourceTree = "<group>"; };
+		5AA02CB72F557C8900382A9E /* in_nested_block.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = in_nested_block.ya; sourceTree = "<group>"; };
+		5AA02CB82F557C8900382A9E /* local_from_method.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = local_from_method.ya; sourceTree = "<group>"; };
+		5AA02CB92F557C8900382A9E /* redeclare_global.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = redeclare_global.ya; sourceTree = "<group>"; };
+		5AA02CBA2F557C8900382A9E /* redefine_global.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = redefine_global.ya; sourceTree = "<group>"; };
+		5AA02CBB2F557C8900382A9E /* scope_reuse_in_different_blocks.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = scope_reuse_in_different_blocks.ya; sourceTree = "<group>"; };
+		5AA02CBC2F557C8900382A9E /* shadow_and_local.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = shadow_and_local.ya; sourceTree = "<group>"; };
+		5AA02CBD2F557C8900382A9E /* shadow_global.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = shadow_global.ya; sourceTree = "<group>"; };
+		5AA02CBE2F557C8900382A9E /* shadow_local.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = shadow_local.ya; sourceTree = "<group>"; };
+		5AA02CBF2F557C8900382A9E /* type_only_variables.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = type_only_variables.ya; sourceTree = "<group>"; };
+		5AA02CC02F557C8900382A9E /* typed_collide_with_parameter.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = typed_collide_with_parameter.ya; sourceTree = "<group>"; };
+		5AA02CC12F557C8900382A9E /* typed_default_initialisation.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = typed_default_initialisation.ya; sourceTree = "<group>"; };
+		5AA02CC22F557C8900382A9E /* typed_variables.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = typed_variables.ya; sourceTree = "<group>"; };
+		5AA02CC32F557C8900382A9E /* undefined_global.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = undefined_global.ya; sourceTree = "<group>"; };
+		5AA02CC42F557C8900382A9E /* undefined_local.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = undefined_local.ya; sourceTree = "<group>"; };
+		5AA02CC52F557C8900382A9E /* uninitialized.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = uninitialized.ya; sourceTree = "<group>"; };
+		5AA02CC62F557C8900382A9E /* unreached_undefined.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = unreached_undefined.ya; sourceTree = "<group>"; };
+		5AA02CC72F557C8900382A9E /* use_false_as_var.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = use_false_as_var.ya; sourceTree = "<group>"; };
+		5AA02CC82F557C8900382A9E /* use_global_in_initializer.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = use_global_in_initializer.ya; sourceTree = "<group>"; };
+		5AA02CC92F557C8900382A9E /* use_local_in_initializer.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = use_local_in_initializer.ya; sourceTree = "<group>"; };
+		5AA02CCA2F557C8900382A9E /* use_nil_as_var.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = use_nil_as_var.ya; sourceTree = "<group>"; };
+		5AA02CCB2F557C8900382A9E /* use_this_as_var.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = use_this_as_var.ya; sourceTree = "<group>"; };
+		5AA02CCD2F557C8900382A9E /* class_in_body.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = class_in_body.ya; sourceTree = "<group>"; };
+		5AA02CCE2F557C8900382A9E /* closure_in_body.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = closure_in_body.ya; sourceTree = "<group>"; };
+		5AA02CCF2F557C8900382A9E /* fun_in_body.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = fun_in_body.ya; sourceTree = "<group>"; };
+		5AA02CD02F557C8900382A9E /* return_closure.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = return_closure.ya; sourceTree = "<group>"; };
+		5AA02CD12F557C8900382A9E /* return_inside.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = return_inside.ya; sourceTree = "<group>"; };
+		5AA02CD22F557C8900382A9E /* syntax.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = syntax.ya; sourceTree = "<group>"; };
+		5AA02CD32F557C8900382A9E /* var_in_body.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = var_in_body.ya; sourceTree = "<group>"; };
+		5AA02CD52F557C8900382A9E /* empty_file.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = empty_file.ya; sourceTree = "<group>"; };
+		5AA02CD62F557C8900382A9E /* precedence.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = precedence.ya; sourceTree = "<group>"; };
+		5AA02CD72F557C8900382A9E /* unexpected_character.ya */ = {isa = PBXFileReference; lastKnownFileType = text; path = unexpected_character.ya; sourceTree = "<group>"; };
+		5AA02CD92F557C8900382A9E /* bc-run.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "bc-run.sh"; sourceTree = "<group>"; };
+		5AA02CDA2F557C8900382A9E /* hostyarg-run.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "hostyarg-run.sh"; sourceTree = "<group>"; };
+		5AA02CDB2F557C8900382A9E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		5ADA7C9D2EE8CB8F00319EC0 /* xcode-yarg.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "xcode-yarg.xcodeproj"; sourceTree = "<group>"; };
+		5AE149B52EDDBB7400CBDF09 /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = build.sh; path = ../build.sh; sourceTree = SOURCE_ROOT; };
+		5AE149B62EDDBB7400CBDF09 /* BUILD.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = BUILD.md; path = ../BUILD.md; sourceTree = SOURCE_ROOT; };
+		5AE149B72EDDBB7400CBDF09 /* clean.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = clean.sh; path = ../clean.sh; sourceTree = SOURCE_ROOT; };
+		5AE14A012EDDBB7400CBDF09 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = SOURCE_ROOT; };
+		5AE14A022EDDBB7400CBDF09 /* LICENSE_NOTICES */ = {isa = PBXFileReference; lastKnownFileType = text; name = LICENSE_NOTICES; path = ../LICENSE_NOTICES; sourceTree = SOURCE_ROOT; };
+		5AE14A032EDDBB7400CBDF09 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = SOURCE_ROOT; };
+		5AE14A042EDDBB7400CBDF09 /* test.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = test.sh; path = ../test.sh; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		5A34E0B12F33200200D51F7D /* Exceptions for "hostyarg" folder in "xcode-yarg" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				internal/littlefs/bdfs_lfs_hal.c,
+			);
+			target = 5A8D28312EDDB59F0068C8C3 /* xcode-yarg */;
+		};
+		5AAAC3692F233239004C0336 /* Exceptions for "cyarg" folder in "xcode-yarg" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				fs/fs_littlefs.c,
+				fs/pico_lfs_hal.c,
+			);
+			target = 5A8D28312EDDB59F0068C8C3 /* xcode-yarg */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		5AE149EA2EDDBB7400CBDF09 /* cyarg */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5AAAC3692F233239004C0336 /* Exceptions for "cyarg" folder in "xcode-yarg" target */,
+			);
+			name = cyarg;
+			path = ../cyarg;
+			sourceTree = SOURCE_ROOT;
+		};
+		5AE149EC2EDDBB7400CBDF09 /* docs */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			name = docs;
+			path = ../docs;
+			sourceTree = SOURCE_ROOT;
+		};
+		5AE14A002EDDBB7400CBDF09 /* hostyarg */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5A34E0B12F33200200D51F7D /* Exceptions for "hostyarg" folder in "xcode-yarg" target */,
+			);
+			name = hostyarg;
+			path = ../hostyarg;
+			sourceTree = SOURCE_ROOT;
+		};
+		5AE14A0A2EDDBB7400CBDF09 /* tools */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			name = tools;
+			path = ../tools;
+			sourceTree = SOURCE_ROOT;
+		};
+		5AE14A102EDDBB7400CBDF09 /* vscode-yarg */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			name = "vscode-yarg";
+			path = "../vscode-yarg";
+			sourceTree = SOURCE_ROOT;
+		};
+		5AE14B9F2EDDBB7400CBDF09 /* yarg */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			name = yarg;
+			path = ../yarg;
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		5A8D282F2EDDB59F0068C8C3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		5A8D28292EDDB59F0068C8C3 = {
+			isa = PBXGroup;
+			children = (
+				5ADA7C9D2EE8CB8F00319EC0 /* xcode-yarg.xcodeproj */,
+				5AE149B42EDDBB4800CBDF09 /* yarg */,
+				5A8D28332EDDB59F0068C8C3 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		5A8D28332EDDB59F0068C8C3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5A8D28322EDDB59F0068C8C3 /* xcode-yarg */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5AA02B5A2F557C8900382A9E /* bc */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02B582F557C8900382A9E /* int.expected */,
+				5AA02B592F557C8900382A9E /* int.ya */,
+			);
+			path = bc;
+			sourceTree = "<group>";
+		};
+		5AA02B682F557C8900382A9E /* benchmark */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02B5B2F557C8900382A9E /* binary_trees.ya */,
+				5AA02B5C2F557C8900382A9E /* equality.ya */,
+				5AA02B5D2F557C8900382A9E /* fib.ya */,
+				5AA02B5E2F557C8900382A9E /* instantiation.ya */,
+				5AA02B5F2F557C8900382A9E /* int-perform.ya */,
+				5AA02B602F557C8900382A9E /* int-perform-t.ya */,
+				5AA02B612F557C8900382A9E /* invocation.ya */,
+				5AA02B622F557C8900382A9E /* method_call.ya */,
+				5AA02B632F557C8900382A9E /* properties.ya */,
+				5AA02B642F557C8900382A9E /* string_equality.ya */,
+				5AA02B652F557C8900382A9E /* trees.ya */,
+				5AA02B662F557C8900382A9E /* zoo.ya */,
+				5AA02B672F557C8900382A9E /* zoo_batch.ya */,
+			);
+			path = benchmark;
+			sourceTree = "<group>";
+		};
+		5AA02B722F557C8900382A9E /* array */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02B692F557C8900382A9E /* array.ya */,
+				5AA02B6A2F557C8900382A9E /* array_bool.ya */,
+				5AA02B6B2F557C8900382A9E /* array_expressions.ya */,
+				5AA02B6C2F557C8900382A9E /* array_init_too_big.ya */,
+				5AA02B6D2F557C8900382A9E /* array_integer.ya */,
+				5AA02B6E2F557C8900382A9E /* array_mfloat64.ya */,
+				5AA02B6F2F557C8900382A9E /* array_muint32.ya */,
+				5AA02B702F557C8900382A9E /* large_array.ya */,
+				5AA02B712F557C8900382A9E /* set_out_of_bounds.ya */,
+			);
+			path = array;
+			sourceTree = "<group>";
+		};
+		5AA02B7C2F557C8900382A9E /* assignment */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02B732F557C8900382A9E /* associativity.ya */,
+				5AA02B742F557C8900382A9E /* global.ya */,
+				5AA02B752F557C8900382A9E /* grouping.ya */,
+				5AA02B762F557C8900382A9E /* infix_operator.ya */,
+				5AA02B772F557C8900382A9E /* local.ya */,
+				5AA02B782F557C8900382A9E /* prefix_operator.ya */,
+				5AA02B792F557C8900382A9E /* syntax.ya */,
+				5AA02B7A2F557C8900382A9E /* to_this.ya */,
+				5AA02B7B2F557C8900382A9E /* undefined.ya */,
+			);
+			path = assignment;
+			sourceTree = "<group>";
+		};
+		5AA02B812F557C8900382A9E /* bitops */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02B7D2F557C8900382A9E /* bitand.ya */,
+				5AA02B7E2F557C8900382A9E /* bitor.ya */,
+				5AA02B7F2F557C8900382A9E /* bitshift.ya */,
+				5AA02B802F557C8900382A9E /* bitxor.ya */,
+			);
+			path = bitops;
+			sourceTree = "<group>";
+		};
+		5AA02B842F557C8900382A9E /* block */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02B822F557C8900382A9E /* empty.ya */,
+				5AA02B832F557C8900382A9E /* scope.ya */,
+			);
+			path = block;
+			sourceTree = "<group>";
+		};
+		5AA02B872F557C8900382A9E /* bool */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02B852F557C8900382A9E /* equality.ya */,
+				5AA02B862F557C8900382A9E /* not.ya */,
+			);
+			path = bool;
+			sourceTree = "<group>";
+		};
+		5AA02B8D2F557C8900382A9E /* call */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02B882F557C8900382A9E /* bool.ya */,
+				5AA02B892F557C8900382A9E /* nil.ya */,
+				5AA02B8A2F557C8900382A9E /* num.ya */,
+				5AA02B8B2F557C8900382A9E /* object.ya */,
+				5AA02B8C2F557C8900382A9E /* string.ya */,
+			);
+			path = call;
+			sourceTree = "<group>";
+		};
+		5AA02B902F557C8900382A9E /* channel */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02B8E2F557C8900382A9E /* channel.ya */,
+				5AA02B8F2F557C8900382A9E /* sync_group.ya */,
+			);
+			path = channel;
+			sourceTree = "<group>";
+		};
+		5AA02B982F557C8900382A9E /* class */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02B912F557C8900382A9E /* empty.ya */,
+				5AA02B922F557C8900382A9E /* inherit_self.ya */,
+				5AA02B932F557C8900382A9E /* inherited_method.ya */,
+				5AA02B942F557C8900382A9E /* local_inherit_other.ya */,
+				5AA02B952F557C8900382A9E /* local_inherit_self.ya */,
+				5AA02B962F557C8900382A9E /* local_reference_self.ya */,
+				5AA02B972F557C8900382A9E /* reference_self.ya */,
+			);
+			path = class;
+			sourceTree = "<group>";
+		};
+		5AA02BA62F557C8900382A9E /* closure */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02B992F557C8900382A9E /* assign_to_closure.ya */,
+				5AA02B9A2F557C8900382A9E /* assign_to_shadowed_later.ya */,
+				5AA02B9B2F557C8900382A9E /* close_over_function_parameter.ya */,
+				5AA02B9C2F557C8900382A9E /* close_over_later_variable.ya */,
+				5AA02B9D2F557C8900382A9E /* close_over_method_parameter.ya */,
+				5AA02B9E2F557C8900382A9E /* closed_closure_in_function.ya */,
+				5AA02B9F2F557C8900382A9E /* nested_closure.ya */,
+				5AA02BA02F557C8900382A9E /* open_closure_in_function.ya */,
+				5AA02BA12F557C8900382A9E /* reference_closure_multiple_times.ya */,
+				5AA02BA22F557C8900382A9E /* reuse_closure_slot.ya */,
+				5AA02BA32F557C8900382A9E /* shadow_closure_with_local.ya */,
+				5AA02BA42F557C8900382A9E /* unused_closure.ya */,
+				5AA02BA52F557C8900382A9E /* unused_later_closure.ya */,
+			);
+			path = closure;
+			sourceTree = "<group>";
+		};
+		5AA02BAB2F557C8900382A9E /* comments */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02BA72F557C8900382A9E /* line_at_eof.ya */,
+				5AA02BA82F557C8900382A9E /* only_line_comment.ya */,
+				5AA02BA92F557C8900382A9E /* only_line_comment_and_line.ya */,
+				5AA02BAA2F557C8900382A9E /* unicode.ya */,
+			);
+			path = comments;
+			sourceTree = "<group>";
+		};
+		5AA02BAD2F557C8900382A9E /* compile */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02BAC2F557C8900382A9E /* compile.ya */,
+			);
+			path = compile;
+			sourceTree = "<group>";
+		};
+		5AA02BB92F557C8900382A9E /* constructor */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02BAE2F557C8900382A9E /* arguments.ya */,
+				5AA02BAF2F557C8900382A9E /* call_init_early_return.ya */,
+				5AA02BB02F557C8900382A9E /* call_init_explicitly.ya */,
+				5AA02BB12F557C8900382A9E /* default.ya */,
+				5AA02BB22F557C8900382A9E /* default_arguments.ya */,
+				5AA02BB32F557C8900382A9E /* early_return.ya */,
+				5AA02BB42F557C8900382A9E /* extra_arguments.ya */,
+				5AA02BB52F557C8900382A9E /* init_not_method.ya */,
+				5AA02BB62F557C8900382A9E /* missing_arguments.ya */,
+				5AA02BB72F557C8900382A9E /* return_in_nested_function.ya */,
+				5AA02BB82F557C8900382A9E /* return_value.ya */,
+			);
+			path = constructor;
+			sourceTree = "<group>";
+		};
+		5AA02BBC2F557C8900382A9E /* coroutine */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02BBA2F557C8900382A9E /* coroutine.ya */,
+				5AA02BBB2F557C8900382A9E /* receive_result.ya */,
+			);
+			path = coroutine;
+			sourceTree = "<group>";
+		};
+		5AA02BBE2F557C8900382A9E /* exec */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02BBD2F557C8900382A9E /* exec.ya */,
+			);
+			path = exec;
+			sourceTree = "<group>";
+		};
+		5AA02BD42F557C8900382A9E /* field */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02BBF2F557C8900382A9E /* call_function_field.ya */,
+				5AA02BC02F557C8900382A9E /* call_nonfunction_field.ya */,
+				5AA02BC12F557C8900382A9E /* get_and_set_method.ya */,
+				5AA02BC22F557C8900382A9E /* get_on_bool.ya */,
+				5AA02BC32F557C8900382A9E /* get_on_class.ya */,
+				5AA02BC42F557C8900382A9E /* get_on_function.ya */,
+				5AA02BC52F557C8900382A9E /* get_on_nil.ya */,
+				5AA02BC62F557C8900382A9E /* get_on_num.ya */,
+				5AA02BC72F557C8900382A9E /* get_on_string.ya */,
+				5AA02BC82F557C8900382A9E /* many.ya */,
+				5AA02BC92F557C8900382A9E /* method.ya */,
+				5AA02BCA2F557C8900382A9E /* method_binds_this.ya */,
+				5AA02BCB2F557C8900382A9E /* on_instance.ya */,
+				5AA02BCC2F557C8900382A9E /* set_evaluation_order.ya */,
+				5AA02BCD2F557C8900382A9E /* set_on_bool.ya */,
+				5AA02BCE2F557C8900382A9E /* set_on_class.ya */,
+				5AA02BCF2F557C8900382A9E /* set_on_function.ya */,
+				5AA02BD02F557C8900382A9E /* set_on_nil.ya */,
+				5AA02BD12F557C8900382A9E /* set_on_num.ya */,
+				5AA02BD22F557C8900382A9E /* set_on_string.ya */,
+				5AA02BD32F557C8900382A9E /* undefined.ya */,
+			);
+			path = field;
+			sourceTree = "<group>";
+		};
+		5AA02BE02F557C8900382A9E /* for */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02BD52F557C8900382A9E /* class_in_body.ya */,
+				5AA02BD62F557C8900382A9E /* closure_in_body.ya */,
+				5AA02BD72F557C8900382A9E /* fun_in_body.ya */,
+				5AA02BD82F557C8900382A9E /* return_closure.ya */,
+				5AA02BD92F557C8900382A9E /* return_inside.ya */,
+				5AA02BDA2F557C8900382A9E /* scope.ya */,
+				5AA02BDB2F557C8900382A9E /* statement_condition.ya */,
+				5AA02BDC2F557C8900382A9E /* statement_increment.ya */,
+				5AA02BDD2F557C8900382A9E /* statement_initializer.ya */,
+				5AA02BDE2F557C8900382A9E /* syntax.ya */,
+				5AA02BDF2F557C8900382A9E /* var_in_body.ya */,
+			);
+			path = for;
+			sourceTree = "<group>";
+		};
+		5AA02BEF2F557C8900382A9E /* function */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02BE12F557C8900382A9E /* body_must_be_block.ya */,
+				5AA02BE22F557C8900382A9E /* empty_body.ya */,
+				5AA02BE32F557C8900382A9E /* extra_arguments.ya */,
+				5AA02BE42F557C8900382A9E /* local_mutual_recursion.ya */,
+				5AA02BE52F557C8900382A9E /* local_recursion.ya */,
+				5AA02BE62F557C8900382A9E /* missing_arguments.ya */,
+				5AA02BE72F557C8900382A9E /* missing_comma_in_parameters.ya */,
+				5AA02BE82F557C8900382A9E /* mutual_recursion.ya */,
+				5AA02BE92F557C8900382A9E /* nested_call_with_arguments.ya */,
+				5AA02BEA2F557C8900382A9E /* parameters.ya */,
+				5AA02BEB2F557C8900382A9E /* print.ya */,
+				5AA02BEC2F557C8900382A9E /* recursion.ya */,
+				5AA02BED2F557C8900382A9E /* too_many_arguments.ya */,
+				5AA02BEE2F557C8900382A9E /* too_many_parameters.ya */,
+			);
+			path = function;
+			sourceTree = "<group>";
+		};
+		5AA02BFA2F557C8900382A9E /* if */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02BF02F557C8900382A9E /* class_in_else.ya */,
+				5AA02BF12F557C8900382A9E /* class_in_then.ya */,
+				5AA02BF22F557C8900382A9E /* dangling_else.ya */,
+				5AA02BF32F557C8900382A9E /* else.ya */,
+				5AA02BF42F557C8900382A9E /* fun_in_else.ya */,
+				5AA02BF52F557C8900382A9E /* fun_in_then.ya */,
+				5AA02BF62F557C8900382A9E /* if.ya */,
+				5AA02BF72F557C8900382A9E /* truth.ya */,
+				5AA02BF82F557C8900382A9E /* var_in_else.ya */,
+				5AA02BF92F557C8900382A9E /* var_in_then.ya */,
+			);
+			path = if;
+			sourceTree = "<group>";
+		};
+		5AA02C022F557C8900382A9E /* inheritance */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02BFB2F557C8900382A9E /* constructor.ya */,
+				5AA02BFC2F557C8900382A9E /* inherit_from_function.ya */,
+				5AA02BFD2F557C8900382A9E /* inherit_from_nil.ya */,
+				5AA02BFE2F557C8900382A9E /* inherit_from_number.ya */,
+				5AA02BFF2F557C8900382A9E /* inherit_methods.ya */,
+				5AA02C002F557C8900382A9E /* parenthesized_superclass.ya */,
+				5AA02C012F557C8900382A9E /* set_fields_from_base_class.ya */,
+			);
+			path = inheritance;
+			sourceTree = "<group>";
+		};
+		5AA02C052F557C8900382A9E /* int */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C032F557C8900382A9E /* casts.ya */,
+				5AA02C042F557C8900382A9E /* int.ya */,
+			);
+			path = int;
+			sourceTree = "<group>";
+		};
+		5AA02C0A2F557C8900382A9E /* integer_sizes */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C062F557C8900382A9E /* int8.ya */,
+				5AA02C072F557C8900382A9E /* int16.ya */,
+				5AA02C082F557C8900382A9E /* int32.ya */,
+				5AA02C092F557C8900382A9E /* int64.ya */,
+			);
+			path = integer_sizes;
+			sourceTree = "<group>";
+		};
+		5AA02C0E2F557C8900382A9E /* interrupts */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C0B2F557C8900382A9E /* closure_frame_interrupt.ya */,
+				5AA02C0C2F557C8900382A9E /* repeating_interrupt.ya */,
+				5AA02C0D2F557C8900382A9E /* single_interrupt.ya */,
+			);
+			path = interrupts;
+			sourceTree = "<group>";
+		};
+		5AA02C132F557C8900382A9E /* len */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C0F2F557C8900382A9E /* array_len.ya */,
+				5AA02C102F557C8900382A9E /* int_len.ya */,
+				5AA02C112F557C8900382A9E /* len_args.ya */,
+				5AA02C122F557C8900382A9E /* string_len.ya */,
+			);
+			path = len;
+			sourceTree = "<group>";
+		};
+		5AA02C1C2F557C8900382A9E /* limit */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C142F557C8900382A9E /* immediates_unlimted.ya */,
+				5AA02C152F557C8900382A9E /* isr_stack_overflow.ya */,
+				5AA02C162F557C8900382A9E /* loop_too_large.ya */,
+				5AA02C172F557C8900382A9E /* no_reuse_constants.ya */,
+				5AA02C182F557C8900382A9E /* stack_overflow.ya */,
+				5AA02C192F557C8900382A9E /* too_many_constants.ya */,
+				5AA02C1A2F557C8900382A9E /* too_many_locals.ya */,
+				5AA02C1B2F557C8900382A9E /* too_many_upvalues.ya */,
+			);
+			path = limit;
+			sourceTree = "<group>";
+		};
+		5AA02C212F557C8900382A9E /* logical_operator */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C1D2F557C8900382A9E /* and.ya */,
+				5AA02C1E2F557C8900382A9E /* and_truth.ya */,
+				5AA02C1F2F557C8900382A9E /* or.ya */,
+				5AA02C202F557C8900382A9E /* or_truth.ya */,
+			);
+			path = logical_operator;
+			sourceTree = "<group>";
+		};
+		5AA02C2B2F557C8900382A9E /* method */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C222F557C8900382A9E /* arity.ya */,
+				5AA02C232F557C8900382A9E /* empty_block.ya */,
+				5AA02C242F557C8900382A9E /* extra_arguments.ya */,
+				5AA02C252F557C8900382A9E /* missing_arguments.ya */,
+				5AA02C262F557C8900382A9E /* not_found.ya */,
+				5AA02C272F557C8900382A9E /* print_bound_method.ya */,
+				5AA02C282F557C8900382A9E /* refer_to_name.ya */,
+				5AA02C292F557C8900382A9E /* too_many_arguments.ya */,
+				5AA02C2A2F557C8900382A9E /* too_many_parameters.ya */,
+			);
+			path = method;
+			sourceTree = "<group>";
+		};
+		5AA02C2D2F557C8900382A9E /* modulo */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C2C2F557C8900382A9E /* mod.ya */,
+			);
+			path = modulo;
+			sourceTree = "<group>";
+		};
+		5AA02C2F2F557C8900382A9E /* nil */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C2E2F557C8900382A9E /* literal.ya */,
+			);
+			path = nil;
+			sourceTree = "<group>";
+		};
+		5AA02C372F557C8900382A9E /* number */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C302F557C8900382A9E /* decimal_point_at_eof.ya */,
+				5AA02C312F557C8900382A9E /* incomplete_literal.ya */,
+				5AA02C322F557C8900382A9E /* leading_dot.ya */,
+				5AA02C332F557C8900382A9E /* literals.ya */,
+				5AA02C342F557C8900382A9E /* nan_equality.ya */,
+				5AA02C352F557C8900382A9E /* radix.ya */,
+				5AA02C362F557C8900382A9E /* trailing_dot.ya */,
+			);
+			path = number;
+			sourceTree = "<group>";
+		};
+		5AA02C592F557C8900382A9E /* operator */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C382F557C8900382A9E /* add.ya */,
+				5AA02C392F557C8900382A9E /* add_bool_nil.ya */,
+				5AA02C3A2F557C8900382A9E /* add_bool_num.ya */,
+				5AA02C3B2F557C8900382A9E /* add_bool_string.ya */,
+				5AA02C3C2F557C8900382A9E /* add_nil_nil.ya */,
+				5AA02C3D2F557C8900382A9E /* add_num_nil.ya */,
+				5AA02C3E2F557C8900382A9E /* add_string_nil.ya */,
+				5AA02C3F2F557C8900382A9E /* comparison.ya */,
+				5AA02C402F557C8900382A9E /* divide.ya */,
+				5AA02C412F557C8900382A9E /* divide_nonnum_num.ya */,
+				5AA02C422F557C8900382A9E /* divide_num_nonnum.ya */,
+				5AA02C432F557C8900382A9E /* equals.ya */,
+				5AA02C442F557C8900382A9E /* equals_class.ya */,
+				5AA02C452F557C8900382A9E /* equals_method.ya */,
+				5AA02C462F557C8900382A9E /* greater_nonnum_num.ya */,
+				5AA02C472F557C8900382A9E /* greater_num_nonnum.ya */,
+				5AA02C482F557C8900382A9E /* greater_or_equal_nonnum_num.ya */,
+				5AA02C492F557C8900382A9E /* greater_or_equal_num_nonnum.ya */,
+				5AA02C4A2F557C8900382A9E /* less_nonnum_num.ya */,
+				5AA02C4B2F557C8900382A9E /* less_num_nonnum.ya */,
+				5AA02C4C2F557C8900382A9E /* less_or_equal_nonnum_num.ya */,
+				5AA02C4D2F557C8900382A9E /* less_or_equal_num_nonnum.ya */,
+				5AA02C4E2F557C8900382A9E /* multiply.ya */,
+				5AA02C4F2F557C8900382A9E /* multiply_nonnum_num.ya */,
+				5AA02C502F557C8900382A9E /* multiply_num_nonnum.ya */,
+				5AA02C512F557C8900382A9E /* negate.ya */,
+				5AA02C522F557C8900382A9E /* negate_nonnum.ya */,
+				5AA02C532F557C8900382A9E /* not.ya */,
+				5AA02C542F557C8900382A9E /* not_class.ya */,
+				5AA02C552F557C8900382A9E /* not_equals.ya */,
+				5AA02C562F557C8900382A9E /* subtract.ya */,
+				5AA02C572F557C8900382A9E /* subtract_nonnum_num.ya */,
+				5AA02C582F557C8900382A9E /* subtract_num_nonnum.ya */,
+			);
+			path = operator;
+			sourceTree = "<group>";
+		};
+		5AA02C5C2F557C8900382A9E /* peek_poke */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C5A2F557C8900382A9E /* peek.ya */,
+				5AA02C5B2F557C8900382A9E /* poke.ya */,
+			);
+			path = peek_poke;
+			sourceTree = "<group>";
+		};
+		5AA02C622F557C8900382A9E /* place */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C5D2F557C8900382A9E /* offset.ya */,
+				5AA02C5E2F557C8900382A9E /* place.ya */,
+				5AA02C5F2F557C8900382A9E /* place_alias.ya */,
+				5AA02C602F557C8900382A9E /* place_not_supported.ya */,
+				5AA02C612F557C8900382A9E /* place_out_of_bounds.ya */,
+			);
+			path = place;
+			sourceTree = "<group>";
+		};
+		5AA02C652F557C8900382A9E /* pointer */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C632F557C8900382A9E /* pointer.ya */,
+				5AA02C642F557C8900382A9E /* struct_pointer.ya */,
+			);
+			path = pointer;
+			sourceTree = "<group>";
+		};
+		5AA02C672F557C8900382A9E /* print */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C662F557C8900382A9E /* missing_argument.ya */,
+			);
+			path = print;
+			sourceTree = "<group>";
+		};
+		5AA02C6A2F557C8900382A9E /* read_source */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C682F557C8900382A9E /* read_source.ya */,
+				5AA02C692F557C8900382A9E /* sample.ya */,
+			);
+			path = read_source;
+			sourceTree = "<group>";
+		};
+		5AA02C6D2F557C8900382A9E /* regression */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C6B2F557C8900382A9E /* 40.ya */,
+				5AA02C6C2F557C8900382A9E /* 394.ya */,
+			);
+			path = regression;
+			sourceTree = "<group>";
+		};
+		5AA02C752F557C8900382A9E /* return */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C6E2F557C8900382A9E /* after_else.ya */,
+				5AA02C6F2F557C8900382A9E /* after_if.ya */,
+				5AA02C702F557C8900382A9E /* after_while.ya */,
+				5AA02C712F557C8900382A9E /* at_top_level.ya */,
+				5AA02C722F557C8900382A9E /* in_function.ya */,
+				5AA02C732F557C8900382A9E /* in_method.ya */,
+				5AA02C742F557C8900382A9E /* return_nil_if_no_value.ya */,
+			);
+			path = return;
+			sourceTree = "<group>";
+		};
+		5AA02C772F557C8900382A9E /* rp2040-pico */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C762F557C8900382A9E /* hello_led.ya */,
+			);
+			path = "rp2040-pico";
+			sourceTree = "<group>";
+		};
+		5AA02C7C2F557C8900382A9E /* string */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C782F557C8900382A9E /* error_after_multiline.ya */,
+				5AA02C792F557C8900382A9E /* literals.ya */,
+				5AA02C7A2F557C8900382A9E /* multiline.ya */,
+				5AA02C7B2F557C8900382A9E /* unterminated.ya */,
+			);
+			path = string;
+			sourceTree = "<group>";
+		};
+		5AA02C822F557C8900382A9E /* struct */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C7D2F557C8900382A9E /* assignment.ya */,
+				5AA02C7E2F557C8900382A9E /* basic.ya */,
+				5AA02C7F2F557C8900382A9E /* nested_structs.ya */,
+				5AA02C802F557C8900382A9E /* struct_array.ya */,
+				5AA02C812F557C8900382A9E /* struct_struct.ya */,
+			);
+			path = struct;
+			sourceTree = "<group>";
+		};
+		5AA02C972F557C8900382A9E /* super */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C832F557C8900382A9E /* bound_method.ya */,
+				5AA02C842F557C8900382A9E /* call_other_method.ya */,
+				5AA02C852F557C8900382A9E /* call_same_method.ya */,
+				5AA02C862F557C8900382A9E /* closure.ya */,
+				5AA02C872F557C8900382A9E /* constructor.ya */,
+				5AA02C882F557C8900382A9E /* extra_arguments.ya */,
+				5AA02C892F557C8900382A9E /* indirectly_inherited.ya */,
+				5AA02C8A2F557C8900382A9E /* missing_arguments.ya */,
+				5AA02C8B2F557C8900382A9E /* no_superclass_bind.ya */,
+				5AA02C8C2F557C8900382A9E /* no_superclass_call.ya */,
+				5AA02C8D2F557C8900382A9E /* no_superclass_method.ya */,
+				5AA02C8E2F557C8900382A9E /* parenthesized.ya */,
+				5AA02C8F2F557C8900382A9E /* reassign_superclass.ya */,
+				5AA02C902F557C8900382A9E /* super_at_top_level.ya */,
+				5AA02C912F557C8900382A9E /* super_in_closure_in_inherited_method.ya */,
+				5AA02C922F557C8900382A9E /* super_in_inherited_method.ya */,
+				5AA02C932F557C8900382A9E /* super_in_top_level_function.ya */,
+				5AA02C942F557C8900382A9E /* super_without_dot.ya */,
+				5AA02C952F557C8900382A9E /* super_without_name.ya */,
+				5AA02C962F557C8900382A9E /* this_in_superclass_method.ya */,
+			);
+			path = super;
+			sourceTree = "<group>";
+		};
+		5AA02C9A2F557C8900382A9E /* test_system */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C982F557C8900382A9E /* test_handler.ya */,
+				5AA02C992F557C8900382A9E /* test_read_write.ya */,
+			);
+			path = test_system;
+			sourceTree = "<group>";
+		};
+		5AA02CA12F557C8900382A9E /* this */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02C9B2F557C8900382A9E /* closure.ya */,
+				5AA02C9C2F557C8900382A9E /* nested_class.ya */,
+				5AA02C9D2F557C8900382A9E /* nested_closure.ya */,
+				5AA02C9E2F557C8900382A9E /* this_at_top_level.ya */,
+				5AA02C9F2F557C8900382A9E /* this_in_method.ya */,
+				5AA02CA02F557C8900382A9E /* this_in_top_level_function.ya */,
+			);
+			path = this;
+			sourceTree = "<group>";
+		};
+		5AA02CB02F557C8900382A9E /* typed_assignment */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02CA22F557C8900382A9E /* array_wrong_assign.ya */,
+				5AA02CA32F557C8900382A9E /* bool_wrong_assign.ya */,
+				5AA02CA42F557C8900382A9E /* const_local.ya */,
+				5AA02CA52F557C8900382A9E /* const_only_local.ya */,
+				5AA02CA62F557C8900382A9E /* const_only_upvalue.ya */,
+				5AA02CA72F557C8900382A9E /* const_upvalue.ya */,
+				5AA02CA82F557C8900382A9E /* const_variables.ya */,
+				5AA02CA92F557C8900382A9E /* integer_wrong_assign.ya */,
+				5AA02CAA2F557C8900382A9E /* mfloat64_wrong_assign.ya */,
+				5AA02CAB2F557C8900382A9E /* muint32_wrong_assign.ya */,
+				5AA02CAC2F557C8900382A9E /* string_wrong_assign.ya */,
+				5AA02CAD2F557C8900382A9E /* typed_globals.ya */,
+				5AA02CAE2F557C8900382A9E /* typed_locals.ya */,
+				5AA02CAF2F557C8900382A9E /* upvalue_wrong_assign.ya */,
+			);
+			path = typed_assignment;
+			sourceTree = "<group>";
+		};
+		5AA02CCC2F557C8900382A9E /* variable */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02CB12F557C8900382A9E /* collide_with_parameter.ya */,
+				5AA02CB22F557C8900382A9E /* duplicate_local.ya */,
+				5AA02CB32F557C8900382A9E /* duplicate_parameter.ya */,
+				5AA02CB42F557C8900382A9E /* duplicate_typed_local.ya */,
+				5AA02CB52F557C8900382A9E /* early_bound.ya */,
+				5AA02CB62F557C8900382A9E /* in_middle_of_block.ya */,
+				5AA02CB72F557C8900382A9E /* in_nested_block.ya */,
+				5AA02CB82F557C8900382A9E /* local_from_method.ya */,
+				5AA02CB92F557C8900382A9E /* redeclare_global.ya */,
+				5AA02CBA2F557C8900382A9E /* redefine_global.ya */,
+				5AA02CBB2F557C8900382A9E /* scope_reuse_in_different_blocks.ya */,
+				5AA02CBC2F557C8900382A9E /* shadow_and_local.ya */,
+				5AA02CBD2F557C8900382A9E /* shadow_global.ya */,
+				5AA02CBE2F557C8900382A9E /* shadow_local.ya */,
+				5AA02CBF2F557C8900382A9E /* type_only_variables.ya */,
+				5AA02CC02F557C8900382A9E /* typed_collide_with_parameter.ya */,
+				5AA02CC12F557C8900382A9E /* typed_default_initialisation.ya */,
+				5AA02CC22F557C8900382A9E /* typed_variables.ya */,
+				5AA02CC32F557C8900382A9E /* undefined_global.ya */,
+				5AA02CC42F557C8900382A9E /* undefined_local.ya */,
+				5AA02CC52F557C8900382A9E /* uninitialized.ya */,
+				5AA02CC62F557C8900382A9E /* unreached_undefined.ya */,
+				5AA02CC72F557C8900382A9E /* use_false_as_var.ya */,
+				5AA02CC82F557C8900382A9E /* use_global_in_initializer.ya */,
+				5AA02CC92F557C8900382A9E /* use_local_in_initializer.ya */,
+				5AA02CCA2F557C8900382A9E /* use_nil_as_var.ya */,
+				5AA02CCB2F557C8900382A9E /* use_this_as_var.ya */,
+			);
+			path = variable;
+			sourceTree = "<group>";
+		};
+		5AA02CD42F557C8900382A9E /* while */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02CCD2F557C8900382A9E /* class_in_body.ya */,
+				5AA02CCE2F557C8900382A9E /* closure_in_body.ya */,
+				5AA02CCF2F557C8900382A9E /* fun_in_body.ya */,
+				5AA02CD02F557C8900382A9E /* return_closure.ya */,
+				5AA02CD12F557C8900382A9E /* return_inside.ya */,
+				5AA02CD22F557C8900382A9E /* syntax.ya */,
+				5AA02CD32F557C8900382A9E /* var_in_body.ya */,
+			);
+			path = while;
+			sourceTree = "<group>";
+		};
+		5AA02CD82F557C8900382A9E /* hostyarg */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02B722F557C8900382A9E /* array */,
+				5AA02B7C2F557C8900382A9E /* assignment */,
+				5AA02B812F557C8900382A9E /* bitops */,
+				5AA02B842F557C8900382A9E /* block */,
+				5AA02B872F557C8900382A9E /* bool */,
+				5AA02B8D2F557C8900382A9E /* call */,
+				5AA02B902F557C8900382A9E /* channel */,
+				5AA02B982F557C8900382A9E /* class */,
+				5AA02BA62F557C8900382A9E /* closure */,
+				5AA02BAB2F557C8900382A9E /* comments */,
+				5AA02BAD2F557C8900382A9E /* compile */,
+				5AA02BB92F557C8900382A9E /* constructor */,
+				5AA02BBC2F557C8900382A9E /* coroutine */,
+				5AA02BBE2F557C8900382A9E /* exec */,
+				5AA02BD42F557C8900382A9E /* field */,
+				5AA02BE02F557C8900382A9E /* for */,
+				5AA02BEF2F557C8900382A9E /* function */,
+				5AA02BFA2F557C8900382A9E /* if */,
+				5AA02C022F557C8900382A9E /* inheritance */,
+				5AA02C052F557C8900382A9E /* int */,
+				5AA02C0A2F557C8900382A9E /* integer_sizes */,
+				5AA02C0E2F557C8900382A9E /* interrupts */,
+				5AA02C132F557C8900382A9E /* len */,
+				5AA02C1C2F557C8900382A9E /* limit */,
+				5AA02C212F557C8900382A9E /* logical_operator */,
+				5AA02C2B2F557C8900382A9E /* method */,
+				5AA02C2D2F557C8900382A9E /* modulo */,
+				5AA02C2F2F557C8900382A9E /* nil */,
+				5AA02C372F557C8900382A9E /* number */,
+				5AA02C592F557C8900382A9E /* operator */,
+				5AA02C5C2F557C8900382A9E /* peek_poke */,
+				5AA02C622F557C8900382A9E /* place */,
+				5AA02C652F557C8900382A9E /* pointer */,
+				5AA02C672F557C8900382A9E /* print */,
+				5AA02C6A2F557C8900382A9E /* read_source */,
+				5AA02C6D2F557C8900382A9E /* regression */,
+				5AA02C752F557C8900382A9E /* return */,
+				5AA02C772F557C8900382A9E /* rp2040-pico */,
+				5AA02C7C2F557C8900382A9E /* string */,
+				5AA02C822F557C8900382A9E /* struct */,
+				5AA02C972F557C8900382A9E /* super */,
+				5AA02C9A2F557C8900382A9E /* test_system */,
+				5AA02CA12F557C8900382A9E /* this */,
+				5AA02CB02F557C8900382A9E /* typed_assignment */,
+				5AA02CCC2F557C8900382A9E /* variable */,
+				5AA02CD42F557C8900382A9E /* while */,
+				5AA02CD52F557C8900382A9E /* empty_file.ya */,
+				5AA02CD62F557C8900382A9E /* precedence.ya */,
+				5AA02CD72F557C8900382A9E /* unexpected_character.ya */,
+			);
+			path = hostyarg;
+			sourceTree = "<group>";
+		};
+		5AA02CDC2F557C8900382A9E /* test */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02B5A2F557C8900382A9E /* bc */,
+				5AA02B682F557C8900382A9E /* benchmark */,
+				5AA02CD82F557C8900382A9E /* hostyarg */,
+				5AA02CD92F557C8900382A9E /* bc-run.sh */,
+				5AA02CDA2F557C8900382A9E /* hostyarg-run.sh */,
+				5AA02CDB2F557C8900382A9E /* README.md */,
+			);
+			name = test;
+			path = /Users/lorin/Documents/Personal/Dev/yarg/test;
+			sourceTree = "<absolute>";
+		};
+		5ADA7C9E2EE8CB8F00319EC0 /* Products */ = {
+			isa = PBXGroup;
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5AE149B42EDDBB4800CBDF09 /* yarg */ = {
+			isa = PBXGroup;
+			children = (
+				5AA02CDC2F557C8900382A9E /* test */,
+				5AE149B52EDDBB7400CBDF09 /* build.sh */,
+				5AE149B62EDDBB7400CBDF09 /* BUILD.md */,
+				5AE149B72EDDBB7400CBDF09 /* clean.sh */,
+				5AE149EA2EDDBB7400CBDF09 /* cyarg */,
+				5AE149EC2EDDBB7400CBDF09 /* docs */,
+				5AE14A002EDDBB7400CBDF09 /* hostyarg */,
+				5AE14A012EDDBB7400CBDF09 /* LICENSE */,
+				5AE14A022EDDBB7400CBDF09 /* LICENSE_NOTICES */,
+				5AE14A032EDDBB7400CBDF09 /* README.md */,
+				5AE14A042EDDBB7400CBDF09 /* test.sh */,
+				5AE14A0A2EDDBB7400CBDF09 /* tools */,
+				5AE14A102EDDBB7400CBDF09 /* vscode-yarg */,
+				5AE14B9F2EDDBB7400CBDF09 /* yarg */,
+			);
+			path = yarg;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5A8D28312EDDB59F0068C8C3 /* xcode-yarg */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5A8D28392EDDB59F0068C8C3 /* Build configuration list for PBXNativeTarget "xcode-yarg" */;
+			buildPhases = (
+				5A8D282E2EDDB59F0068C8C3 /* Sources */,
+				5A8D282F2EDDB59F0068C8C3 /* Frameworks */,
+				5A8D28302EDDB59F0068C8C3 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				5AE149EA2EDDBB7400CBDF09 /* cyarg */,
+				5AE149EC2EDDBB7400CBDF09 /* docs */,
+				5AE14A002EDDBB7400CBDF09 /* hostyarg */,
+				5AE14A0A2EDDBB7400CBDF09 /* tools */,
+				5AE14A102EDDBB7400CBDF09 /* vscode-yarg */,
+				5AE14B9F2EDDBB7400CBDF09 /* yarg */,
+			);
+			name = "xcode-yarg";
+			packageProductDependencies = (
+			);
+			productName = "xcode-yarg";
+			productReference = 5A8D28322EDDB59F0068C8C3 /* xcode-yarg */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5A8D282A2EDDB59F0068C8C3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					5A8D28312EDDB59F0068C8C3 = {
+						CreatedOnToolsVersion = 26.1.1;
+					};
+				};
+			};
+			buildConfigurationList = 5A8D282D2EDDB59F0068C8C3 /* Build configuration list for PBXProject "xcode-yarg" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 5A8D28292EDDB59F0068C8C3;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 5A8D28332EDDB59F0068C8C3 /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 5ADA7C9E2EE8CB8F00319EC0 /* Products */;
+					ProjectRef = 5ADA7C9D2EE8CB8F00319EC0 /* xcode-yarg.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				5A8D28312EDDB59F0068C8C3 /* xcode-yarg */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5A8D282E2EDDB59F0068C8C3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		5A8D28372EDDB59F0068C8C3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = NO;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = c11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"CYARG_PTHREADS_SYNC=1",
+					"CYARG_FEATURE_TEST_SYSTEM=1",
+					"CYARG_FEATURE_TEST_INT=1",
+					"nCYARG_FEATURE_HOSTED_REPL=1",
+					"nDEBUG_TRACE_EXECUTION=1",
+					"nDEBUG_AST_OPTIMISE=1",
+					"nDEBUG_AST_PARSE=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$SRCROOT/**";
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.7;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		5A8D28382EDDB59F0068C8C3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = NO;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = c11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"CYARG_PTHREADS_SYNC=1",
+					"CYARG_FEATURE_TEST_SYSTEM=1",
+					"CYARG_FEATURE_TEST_INT=1",
+					"nCYARG_FEATURE_HOSTED_REPL=1",
+					"nDEBUG_TRACE_EXECUTION=1",
+					"nDEBUG_AST_OPTIMISE=1",
+					"nDEBUG_AST_PARSE=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$SRCROOT/**";
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.7;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		5A8D283A2EDDB59F0068C8C3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		5A8D283B2EDDB59F0068C8C3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5A8D282D2EDDB59F0068C8C3 /* Build configuration list for PBXProject "xcode-yarg" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A8D28372EDDB59F0068C8C3 /* Debug */,
+				5A8D28382EDDB59F0068C8C3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5A8D28392EDDB59F0068C8C3 /* Build configuration list for PBXNativeTarget "xcode-yarg" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A8D283A2EDDB59F0068C8C3 /* Debug */,
+				5A8D283B2EDDB59F0068C8C3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5A8D282A2EDDB59F0068C8C3 /* Project object */;
+}
