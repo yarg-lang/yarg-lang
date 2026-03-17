@@ -12,7 +12,6 @@ import (
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/deviceimage"
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/devicerunner"
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/hostrunner"
-	"github.com/yarg-lang/yarg-lang/hostyarg/internal/testrunner"
 	"mellium.im/sysexit"
 )
 
@@ -98,9 +97,10 @@ func dispatchSubCommand(args []string) {
 	case "runtests":
 		testRunInterpreter := flags.String("interpreter", "cyarg", "default interpreter")
 		testRunTests := flags.String("tests", "", "default tests")
+		testRunLib := flags.String("lib", "", "library to include in test runs")
 		flags.Parse(args[1:])
 
-		err, failedtests := testrunner.CmdRunTests(*testRunInterpreter, *testRunTests)
+		err, failedtests := hostyarg.CmdRunTests(*testRunInterpreter, *testRunLib, *testRunTests)
 		if err != nil {
 			exitWithError(err.Error())
 		}
@@ -142,6 +142,7 @@ func dispatchSubCommand(args []string) {
 	case "run":
 		devicePort := flags.String("port", "", "serial port to use as device console")
 		localRunInterpreter := flags.String("interpreter", "", "default interpreter")
+		localLib := flags.String("lib", "", "library to include")
 		flags.Parse(args[1:])
 		positionals := flags.Args()
 		if len(positionals) != 1 {
@@ -151,7 +152,7 @@ func dispatchSubCommand(args []string) {
 			exitWithUsageError("expect source to run")
 		}
 
-		runner, err := hostyarg.DefaultYargRunner(*devicePort, *localRunInterpreter)
+		runner, err := hostyarg.DefaultYargRunner(*devicePort, *localRunInterpreter, *localLib)
 		if err != nil {
 			exitWithError(err.Error())
 		}
@@ -164,9 +165,10 @@ func dispatchSubCommand(args []string) {
 	case "test":
 		testRunInterpreter := flags.String("interpreter", "cyarg", "default interpreter")
 		testRunSource := flags.String("source", "", "source of test to run")
+		testRunLib := flags.String("lib", "", "library to include in test runs")
 		flags.Parse(args[1:])
 
-		err, failedtests := testrunner.CmdRunTests(*testRunInterpreter, *testRunSource)
+		err, failedtests := hostyarg.CmdRunTests(*testRunInterpreter, *testRunLib, *testRunSource)
 		if err != nil {
 			exitWithError(err.Error())
 		}

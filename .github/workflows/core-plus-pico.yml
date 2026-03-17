@@ -156,7 +156,7 @@ jobs:
            cd ..
 
       - name: Run Hostyarg Yarg test suite
-        run: ./bin/yarg runtests -tests "test/hostyarg" -interpreter "cyarg/build/host-test/cyarg"
+        run: ./bin/yarg runtests -tests "test/hostyarg" -interpreter "cyarg/build/host-test/cyarg" -lib "yarg/specimen"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

@@ -3,16 +3,13 @@ package testrunner
 import (
 	"bufio"
 	"fmt"
-	"io/fs"
 	"log"
 	"os"
-	"os/exec"
-	"path/filepath"
 	"reflect"
 	"regexp"
 	"strconv"
 
-	"github.com/yarg-lang/yarg-lang/hostyarg/internal/runbinary"
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/hostrunner"
 )
 
 const (
@@ -28,57 +25,11 @@ type expectationTest struct {
 	expectedError            []string
 }
 
-func CmdRunTests(interpreter string, tests string) (err error, failedtests int) {
-
-	tests = filepath.Clean(tests)
-	interpreter = filepath.Clean(interpreter)
-
-	info, err := os.Stat(tests)
-	if err != nil {
-		return
-	}
-
-	_, err = os.Stat(interpreter)
-	if err != nil {
-		return fmt.Errorf("Could not stat %v, no interpreter to run", interpreter), 0
-	}
-
-	var grandtotal, grandpass int
-
-	if info.IsDir() {
-		fileSystem := os.DirFS(tests)
-
-		err = fs.WalkDir(fileSystem, ".", func(path string, d fs.DirEntry, walkerr error) error {
-			if walkerr != nil {
-				return walkerr
-			}
-
-			if !d.IsDir() {
-				testfile := filepath.Join(tests, path)
-				total, pass := runTestFile(interpreter, testfile, path)
-				grandtotal += total
-				grandpass += pass
-			}
-
-			return nil
-		})
-	} else {
-		logname := filepath.Base(tests)
-
-		grandtotal, grandpass = runTestFile(interpreter, tests, logname)
-	}
-
-	fmt.Printf("%s tests: %v, passed: %v\n", tests, grandtotal, grandpass)
-	return err, grandtotal - grandpass
-}
-
-func runTestFile(interpreter string, testfile, fsname string) (total, pass int) {
+func RunTestFile(interpreter hostrunner.HostRunner, testfile, fsname string) (total, pass int) {
 
 	test := createFromSource(testfile)
 
-	runner := exec.Command(interpreter, testfile)
-
-	output, errors, code, ok := runbinary.RunCommand(runner)
+	output, errors, code, ok := interpreter.RunLocally(testfile)
 	if ok {
 
 		if test.validateCode(code) {

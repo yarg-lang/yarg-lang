@@ -10,6 +10,18 @@ import (
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/runbinary"
 )
 
+type HostRunner struct {
+	Interpreter string
+	YargLib     string
+}
+
+func (hr HostRunner) RunLocally(source string) (output []string, errors []string, returncode int, ok bool) {
+	runner := exec.Command(hr.Interpreter, "--lib", hr.YargLib, source)
+
+	output, errors, returncode, ok = runbinary.RunCommand(runner)
+	return
+}
+
 func CmdCompile(source string, interpreter string) bool {
 
 	source = filepath.Clean(source)

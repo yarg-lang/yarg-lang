@@ -71,10 +71,10 @@ jobs:
           cmake --build build/xcode-host
 
       - name: Run Hostyarg Yarg test suite
-        run: ./bin/yarg runtests -tests "test/hostyarg" -interpreter "cyarg/build/xcode-host/Debug/cyarg"
+        run: ./bin/yarg runtests -tests "test/hostyarg" -interpreter "cyarg/build/xcode-host/Debug/cyarg" -lib "yarg/specimen"
       
       - name: Run BC test suite
-        run: ./cyarg/build/xcode-host/Debug/cyarg test/bc/int.ya | bc -lLS 0 | diff - test/bc/int.expected
+        run: ./cyarg/build/xcode-host/Debug/cyarg --lib "yarg/specimen" test/bc/int.ya | bc -lLS 0 | diff - test/bc/int.expected
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

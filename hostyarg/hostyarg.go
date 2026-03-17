@@ -2,12 +2,17 @@ package hostyarg
 
 import (
 	"fmt"
+	"io/fs"
 	"log"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/devicerunner"
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/hostrunner"
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/runbinary"
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/testrunner"
 	"go.bug.st/serial/enumerator"
 )
 
@@ -54,6 +59,7 @@ func (d *DeviceRunner) Run(source string) error {
 
 type HostRunner struct {
 	Interpreter string
+	LibPath     string
 }
 
 func (h *HostRunner) Run(source string) error {
@@ -62,7 +68,7 @@ func (h *HostRunner) Run(source string) error {
 		return fmt.Errorf("cannot run device path locally")
 	}
 
-	runner := exec.Command(h.Interpreter, source)
+	runner := exec.Command(h.Interpreter, "--lib", h.LibPath, source)
 
 	output, errors, _, ok := runbinary.RunCommand(runner)
 	fmt.Println(h.Interpreter)
@@ -77,7 +83,7 @@ func (h *HostRunner) Run(source string) error {
 	return nil
 }
 
-func DefaultYargRunner(suppliedPort, suppliedInterpreter string) (runner YargRunner, err error) {
+func DefaultYargRunner(suppliedPort, suppliedInterpreter, suppliedLib string) (runner YargRunner, err error) {
 
 	if suppliedPort == "" && suppliedInterpreter == "" {
 		port, ok := devicerunner.DefaultPort()
@@ -89,7 +95,7 @@ func DefaultYargRunner(suppliedPort, suppliedInterpreter string) (runner YargRun
 	} else if suppliedPort != "" && suppliedInterpreter != "" {
 		return nil, fmt.Errorf("cannot specify both device port and local interpreter")
 	} else if suppliedInterpreter != "" {
-		runner = &HostRunner{Interpreter: suppliedInterpreter}
+		runner = &HostRunner{Interpreter: suppliedInterpreter, LibPath: suppliedLib}
 		return runner, nil
 	} else if suppliedPort != "" {
 		port, ok := devicerunner.PicoPortFor(suppliedPort)
@@ -130,4 +136,56 @@ func CmdListDevices() bool {
 		}
 	}
 	return true
+}
+
+func CmdRunTests(interpreter, lib, tests string) (err error, failedtests int) {
+
+	tests = filepath.Clean(tests)
+	interpreter = filepath.Clean(interpreter)
+	lib = filepath.Clean(lib)
+
+	info, err := os.Stat(tests)
+	if err != nil {
+		return
+	}
+
+	_, err = os.Stat(interpreter)
+	if err != nil {
+		return fmt.Errorf("Could not stat %v, no interpreter to run", interpreter), 0
+	}
+
+	_, err = os.Stat(lib)
+	if err != nil {
+		return fmt.Errorf("Could not stat %v, no library to include in test runs", lib), 0
+	}
+
+	runner := hostrunner.HostRunner{Interpreter: interpreter, YargLib: lib}
+
+	var grandtotal, grandpass int
+
+	if info.IsDir() {
+		fileSystem := os.DirFS(tests)
+
+		err = fs.WalkDir(fileSystem, ".", func(path string, d fs.DirEntry, walkerr error) error {
+			if walkerr != nil {
+				return walkerr
+			}
+
+			if !d.IsDir() {
+				testfile := filepath.Join(tests, path)
+				total, pass := testrunner.RunTestFile(runner, testfile, path)
+				grandtotal += total
+				grandpass += pass
+			}
+
+			return nil
+		})
+	} else {
+		logname := filepath.Base(tests)
+
+		grandtotal, grandpass = testrunner.RunTestFile(runner, tests, logname)
+	}
+
+	fmt.Printf("%s tests: %v, passed: %v\n", tests, grandtotal, grandpass)
+	return err, grandtotal - grandpass
 }

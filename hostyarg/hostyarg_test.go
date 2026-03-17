@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/deviceimage"
-	"github.com/yarg-lang/yarg-lang/hostyarg/internal/testrunner"
 )
 
 func copyFile(src, dst string) {
@@ -93,7 +92,7 @@ var interpreter = flag.String("interpreter", "../bin/cyarg", "interpreter to use
 
 func TestRunTests(t *testing.T) {
 
-	err, failedtests := testrunner.CmdRunTests(*interpreter, "testdata/tests")
+	err, failedtests := CmdRunTests(*interpreter, "../yarg/specimen", "testdata/tests")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
