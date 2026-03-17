@@ -613,7 +613,7 @@ InterpretResult run(ObjRoutine* routine) {
         } else if (IS_INT(peek(routine, 0)) && IS_INT(peek(routine, 1))) { \
             binaryIntOp(routine, #op); \
         } else { \
-            runtimeError(routine, "Operands must both be numbers, integers or unsigned integers." #op); \
+            runtimeError(routine, "Operands must both be numbers, integers or unsigned integers."); \
             return INTERPRET_RUNTIME_ERROR; \
         } \
     } while (false)
@@ -658,7 +658,7 @@ InterpretResult run(ObjRoutine* routine) {
         } else if (IS_INT(peek(routine, 0)) && IS_INT(peek(routine, 1))) { \
             binaryIntBoolOp(routine, #op); \
         } else { \
-            runtimeError(routine, "Operands must both be numbers, integers or unsigned integers." #op); \
+            runtimeError(routine, "Operands must both be numbers, integers or unsigned integers."); \
             return INTERPRET_RUNTIME_ERROR; \
         } \
     } while (false)
@@ -686,7 +686,7 @@ InterpretResult run(ObjRoutine* routine) {
             uint64_t c = a op b; \
             push(routine, UI64_VAL(c)); \
         } else { \
-runtimeError(routine, "Operands must be unsigned integers." #op); \
+            runtimeError(routine, "Operands must be unsigned integers."); \
             return INTERPRET_RUNTIME_ERROR; \
         } \
     } while (false)
@@ -1004,7 +1004,7 @@ runtimeError(routine, "Operands must be unsigned integers." #op); \
                 } else if (IS_INT(peek(routine, 0)) && IS_INT(peek(routine, 1))) {
                     binaryIntOp(routine, "+");
                 } else {
-                    runtimeError(routine, "Operands must be two numbers or two strings." " +");
+                    runtimeError(routine, "Operands must be two numbers or two strings.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
