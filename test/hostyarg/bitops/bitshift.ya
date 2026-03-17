@@ -1,3 +1,3 @@
-print 0d1 << 0d2; // expect: 4
-print 0d4 >> 0d2; // expect: 1
-print 0b1 << 0d32; // expect: 1
+print uint8(0d1) << 0d2; // expect: 4
+print uint16(0d4) >> 0d2; // expect: 1
+print uint32(0b1) << 0d32; // expect: 1

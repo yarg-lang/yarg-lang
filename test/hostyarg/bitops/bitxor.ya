@@ -1,2 +1,2 @@
-print 0b01010101 ^ 0b10101010; // expect: 255
-print 0b1010 ^ 0b1011; // expect: 1
+print uint8(0b01010101) ^ uint8(0b10101010); // expect: 255
+print uint8(0b1010) ^ uint8(0b1011); // expect: 1
