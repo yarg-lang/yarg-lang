@@ -175,6 +175,12 @@ ObjExprLiteral* newExprLiteral(ExprLiteral literal) {
     return lit;
 }
 
+ObjExprAddress* newExprAddress(uintptr_t value) {
+    ObjExprAddress* addr = ALLOCATE_OBJ(ObjExprAddress, OBJ_EXPR_ADDRESS);
+    addr->address = value;
+    return addr;
+}
+
 ObjExprString* newExprString(const char* str, int strLength) {
     ObjExprString* string = ALLOCATE_OBJ(ObjExprString, OBJ_EXPR_STRING);
     string->expr.nextExpr = NULL;

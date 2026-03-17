@@ -586,7 +586,7 @@ static ObjExpr* number(bool canAssign) {
     int radix = 0;
     const char* number_start = parser.previous.start;
     int number_len = parser.previous.length;
-    if (number_len > 2 && (number_start[0] == '0' || number_start[0] == '@')) {
+    if (number_len > 2 && (number_start[0] == '0')) {
         switch (number_start[1]) {
         case 'x': case 'X':
             radix = 16;
@@ -712,6 +712,16 @@ static ObjExpr* number(bool canAssign) {
     return (ObjExpr*) val;
 }
 
+static ObjExpr* address(bool canAssign) {
+
+    const char* hex_digit_start = &parser.previous.start[2];
+    int hex_digit_len = parser.previous.length - 2;
+    uint64_t value = strtoNum(hex_digit_start, hex_digit_len, 16);
+
+    ObjExprAddress* val = newExprAddress(value);
+    return (ObjExpr*) val;
+}
+
 static AstParseRule rules[] = {
     [TOKEN_LEFT_PAREN]           = {grouping,  call,   PREC_CALL},
     [TOKEN_RIGHT_PAREN]          = {NULL,      NULL,   PREC_NONE},
@@ -740,6 +750,7 @@ static AstParseRule rules[] = {
     [TOKEN_LESS]                 = {NULL,      binary, PREC_COMPARISON},
     [TOKEN_LESS_EQUAL]           = {NULL,      binary, PREC_COMPARISON},
     [TOKEN_LEFT_SHIFT]           = {NULL,      binary, PREC_FACTOR},
+    [TOKEN_ADDRESS]              = {address,   NULL,   PREC_NONE},
     [TOKEN_IDENTIFIER]           = {variable,  NULL,   PREC_NONE},
     [TOKEN_STRING]               = {string,    NULL,   PREC_NONE},
     [TOKEN_NUMBER]               = {number,    NULL,   PREC_NONE},

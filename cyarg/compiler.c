@@ -228,11 +228,12 @@ static uint8_t makeConstant(Value value) {
 
 #define UINT24_MAX 16777215
 static void emitConstant(Value value) {
-   // either DOUBLE_VAL or OBJ_VAL(String or Int)
+    // DOUBLE_VAL, ADDRESS_VAL or OBJ_VAL(String or Int)
     int32_t v = 0;
     bool asObject = true;
     switch (value.type)
     {
+    case VAL_ADDRESS: // fall through
     case VAL_DOUBLE:
         break;
     case VAL_OBJ:
@@ -251,7 +252,7 @@ static void emitConstant(Value value) {
         }
         break;
     default:
-        assert(!"unexpected type");
+        assert(!"unsupported type as constant");
         break;
     }
 
@@ -378,6 +379,10 @@ static void generateNumber(ObjExprNumber* num) {
     default:
         assert(!"fatal");
     }
+}
+
+static void generateExprAddress(ObjExprAddress* addr) {
+    emitConstant(ADDRESS_VAL(addr->address));
 }
 
 static void generateExprString(ObjExprString* str) {
@@ -712,6 +717,11 @@ static void generateExprElt(ObjExpr* expr) {
         case OBJ_EXPR_LITERAL: {
             ObjExprLiteral* lit = (ObjExprLiteral*)expr;
             generateExprLiteral(lit);
+            break;
+        }
+        case OBJ_EXPR_ADDRESS: {
+            ObjExprAddress* addr = (ObjExprAddress*)expr;
+            generateExprAddress(addr);
             break;
         }
         case OBJ_EXPR_STRING: {

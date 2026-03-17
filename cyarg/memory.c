@@ -325,6 +325,11 @@ static void blackenObject(Obj* object) {
             ObjExprNumber* expr = (ObjExprNumber*)object;
             markObject((Obj*)expr->expr.nextExpr);
             break;
+        }
+        case OBJ_EXPR_ADDRESS: {
+            ObjExprAddress* addr = (ObjExprAddress*)object;
+            markObject((Obj*)addr->expr.nextExpr);
+            break;
         }       
         case OBJ_EXPR_OPERATION: {
             markExpr(object);
@@ -535,6 +540,7 @@ static void freeObject(Obj* object) {
             break;
         }
         case OBJ_EXPR_NUMBER: FREE(ObjExprNumber, object); break;
+        case OBJ_EXPR_ADDRESS: FREE(ObjExprAddress, object); break;
         case OBJ_EXPR_OPERATION: FREE(ObjExprOperation, object); break;
         case OBJ_EXPR_GROUPING: FREE(ObjExprGrouping, object); break;
         case OBJ_EXPR_NAMEDVARIABLE: FREE(ObjExprNamedVariable, object); break;

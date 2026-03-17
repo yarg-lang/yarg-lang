@@ -134,6 +134,11 @@ typedef struct {
 
 typedef struct {
     ObjExpr expr;
+    uintptr_t address;
+} ObjExprAddress;
+
+typedef struct {
+    ObjExpr expr;
     ObjString* string;
 } ObjExprString;
 
@@ -289,6 +294,7 @@ ObjExprNumber* newExprNumberDouble(double value);
 ObjExprNumber* newExprNumberInt(int numberDecimalDigits);
 ObjExprNumber* newExprNumberFromCint(int constant);
 ObjExprLiteral* newExprLiteral(ExprLiteral literal);
+ObjExprAddress* newExprAddress(uintptr_t value);
 ObjExprString* newExprString(const char* str, int strLength);
 ObjExprOperation* newExprOperation(ObjExpr* rhs, ExprOp op);
 ObjExprGrouping* newExprGrouping(ObjExpr* expression);
