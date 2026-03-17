@@ -127,9 +127,9 @@ bool interruptBuiltin(ObjRoutine *routineContext, int argCount, Value *result) {
     if (argCount == 1)
     {
         Value arg0 = nativeArgument(routineContext, argCount, 0);
-        if (!IS_OBJ(arg0))
+        if (is_positive_integer32(arg0))
         {
-            uint32_t interruptNumber = AS_UI32(arg0);
+            uint32_t interruptNumber = as_positive_integer32(arg0);
             ok = TestIntrinsics::triggerInterrupt(interruptNumber);
         }
         else if (IS_STRING(arg0))
