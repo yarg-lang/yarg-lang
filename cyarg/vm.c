@@ -549,28 +549,6 @@ static void promote(Value *left, Value *right)
                 toPromote->as.ui64 = int_to_u64(bigInt);
             }
             break;
-        case VAL_ADDRESS:
-            if (int_is_range(bigInt, INT32_MIN, INT32_MAX) == INT_WITHIN)
-            {
-                toPromote->type = VAL_I32;
-                toPromote->as.i32 = int_to_i32(bigInt);
-            }
-            else if (int_is_range(bigInt, 0, UINT32_MAX) == INT_WITHIN)
-            {
-                toPromote->type = VAL_UI32;
-                toPromote->as.ui32 = int_to_u32(bigInt);
-            }
-            break;
-        case VAL_OBJ:
-            if (IS_POINTER(*promotionToTypeOf))
-            {
-                if (int_is_range(bigInt, 0, UINT32_MAX) == INT_WITHIN)
-                {
-                    toPromote->type = VAL_UI32;
-                    toPromote->as.ui32 = int_to_u32(bigInt);
-                }
-            }
-            // else can’t promote to this type
 
         default:
             // can’t promote to this type
