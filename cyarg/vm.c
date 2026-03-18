@@ -476,12 +476,12 @@ static void promote(Value *left, Value *right)
     assert(left != 0 && right != 0);
 
     Value *toPromote = 0, *promotionToTypeOf;
-    if (IS_INT(*left) && ((ObjInt *) (left->as.obj))->isLiteral)
+    if (IS_INT(*left) && (AS_INTOBJ(*left)->isLiteral))
     {
         toPromote = left;
         promotionToTypeOf = right;
     }
-    else if (IS_INT(*right) && ((ObjInt *) (right->as.obj))->isLiteral)
+    else if (IS_INT(*right) && (AS_INTOBJ(*right)->isLiteral))
     {
         toPromote = right;
         promotionToTypeOf = left;
@@ -489,7 +489,7 @@ static void promote(Value *left, Value *right)
     if (toPromote != 0)
     {
         ValueType promoteTo = promotionToTypeOf->type;
-        Int *bigInt = &((ObjInt *) (toPromote->as.obj))->bigInt;
+        Int *bigInt = AS_INT(*toPromote);
 
         switch (promoteTo)
         {
