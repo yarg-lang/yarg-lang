@@ -67,8 +67,8 @@ place struct {
     } @x40014000 io_bank0;
 
 // the built in LED on a Pico.
-const pico_led = 0d25;
-const gpio_field = 0x1 << pico_led;
+const pico_led = uint32(0d25);
+const gpio_field = uint32(0x1) << pico_led;
 
 // minimally configure a GPIO, assuming core was reset first.
 const GPIO_FUNC_SIO = 0d5;
