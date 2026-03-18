@@ -642,17 +642,18 @@ static ObjExpr* number(bool canAssign) {
                     state = NUMBER_DOT_AND_MSB;
                 }
                 break;
-            case 'e': case 'E':
-                state = NUMBER_END;
-                *heapChars = '\0';
-                char *end;
-                long value = strtol(number, &end, 10);
-                assert(end == heapChars_start + number_len);
-                assert(value <= INT_MAX && value >= INT_MIN);
-                expAdd += (int) value;
-                assert(expAdd <= 10000 && expAdd >= -10000);
-
-               break;
+            case 'e': case 'E': 
+                {
+                    state = NUMBER_END;
+                    *heapChars = '\0';
+                    char *end;
+                    long value = strtol(number, &end, 10);
+                    assert(end == heapChars_start + number_len);
+                    assert(value <= INT_MAX && value >= INT_MIN);
+                    expAdd += (int) value;
+                    assert(expAdd <= 10000 && expAdd >= -10000);
+                }
+                break;
             default:
                 if (state == NUMBER_NO_DOT_OR_MSB)
                 {
@@ -670,13 +671,13 @@ static ObjExpr* number(bool canAssign) {
                 *heapChars++ = *number;
                 break;
             }
+
             if (++number >= number_start + number_len)
             {
                 *heapChars = '\0';
                 if (state == NUMBER_NO_DOT_OR_MSB) // zero
                 {
-                    val = newExprNumberInt(1);
-                    int_set_i(0u, &val->bigInt);
+                    val = newExprNumberFromCint(0);
                 }
                 else if (state == NUMBER_MSB) // int
                 {
