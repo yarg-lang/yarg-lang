@@ -552,7 +552,7 @@ static void promote(Value *left, Value *right)
         case VAL_ADDRESS:
             if (int_is_range(bigInt, INT32_MIN, INT32_MAX) == INT_WITHIN)
             {
-                toPromote->type = INT32_MAX;
+                toPromote->type = VAL_I32;
                 toPromote->as.i32 = int_to_i32(bigInt);
             }
             else if (int_is_range(bigInt, 0, UINT32_MAX) == INT_WITHIN)
