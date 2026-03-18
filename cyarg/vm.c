@@ -849,7 +849,8 @@ runtimeError(routine, "Operands must be unsigned integers." #op); \
             }
             case OP_GET_PROPERTY: {
                 if (!IS_INSTANCE(peek(routine, 0)) && !IS_STRUCT(peek(routine, 0)) && !isStructPointer(peek(routine, 0)) && !IS_INT(peek(routine, 0))) {
-                    runtimeError(routine, "Only instances, structs, pointers to structs and ints have properties.");
+                    // int is a very special case, so we'll document the general case for ease of understanding.
+                    runtimeError(routine, "Only instances, structs, pointers to structs have properties.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 if (IS_INSTANCE(peek(routine, 0))) {
@@ -904,7 +905,7 @@ runtimeError(routine, "Operands must be unsigned integers." #op); \
                     }
                     else
                     {
-                        runtimeError(routine, "Undefined property '%s'.", name->chars);
+                        runtimeError(routine, "Undefined property '%s' on int. Only 'overflow' is available.", name->chars);
                         return INTERPRET_RUNTIME_ERROR;
                     }
                 }

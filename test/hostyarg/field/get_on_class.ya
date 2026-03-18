@@ -1,2 +1,2 @@
 class Foo {}
-Foo.bar; // expect runtime error: Only instances, structs, pointers to structs and ints have properties.
+Foo.bar; // expect runtime error: Only instances, structs, pointers to structs have properties.
