@@ -1449,6 +1449,16 @@ InterpretResult bootstrapVM(const uint8_t bootstrap[], Value* bootstrapResult, O
     return result;
 }
 
+InterpretResult bootScript(const char* script, size_t length) {
+    ObjString* scriptObj = copyString(script, length);
+    tempRootPush(OBJ_VAL(scriptObj));
+    // Yarg scripts have no mechanism to return a result, so we discard it (it will always be nil).
+    Value discardedResult;
+    InterpretResult result = bootstrapVM(exec_bootstrap, &discardedResult, scriptObj);
+    tempRootPop();
+    return result;
+}
+
 void binaryIntOp(ObjRoutine* routine, char const *c)
 {
     Int *a = AS_INT(peek(routine, 1));

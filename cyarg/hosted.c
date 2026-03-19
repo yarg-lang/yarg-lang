@@ -38,9 +38,7 @@ int runFile(const char* libraryPath, const char* path) {
     tempRootPush(OBJ_VAL(replPathString));
     free(replPath);
 
-    // Yarg scripts have no mechanism to return a result, so we discard it (it will always be nil).
-    Value discardedResult;
-    InterpretResult result = bootstrapVM(exec_bootstrap, &discardedResult, replPathString);
+    InterpretResult result = bootScript(replPathString->chars, replPathString->length);
 
     tempRootPop();
     if (result == INTERPRET_COMPILE_ERROR) {

@@ -44,7 +44,6 @@ typedef struct {
 } VM;
 
 extern VM vm;
-extern uint8_t exec_bootstrap[];
 extern uint8_t compile_bootstrap[];
 
 // two-phase init, broadly get the memory manager up, and then get the yarg env up.
@@ -53,6 +52,7 @@ void initVMRuntime();
 void freeVM();
 void markVMRoots();
 
+InterpretResult bootScript(const char* script, size_t length);
 InterpretResult bootstrapVM(const uint8_t bootstrap[], Value* bootstrapResult, ObjString* script);
 
 InterpretResult run(ObjRoutine* routine);

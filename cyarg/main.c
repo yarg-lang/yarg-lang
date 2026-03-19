@@ -1,6 +1,6 @@
 #include <stdlib.h>
-#include <string.h>
 #ifdef CYARG_FEATURE_HOSTED_REPL
+#include <string.h>
 #include <stdio.h>
 #include <sysexits.h>
 #endif
@@ -47,17 +47,10 @@ int main() {
     platform_hal_init();
 
     initVMMemory();
-
-    ObjString* replPathString = copyString("cyarg.ya", strlen("cyarg.ya"));
-    tempRootPush(OBJ_VAL(replPathString));
-
     initVMRuntime();
 
-    Value discardedResult;
-    // Yarg scripts have no mechanism to return a result, so we discard it (it will always be nil).
-    bootstrapVM(exec_bootstrap, &discardedResult, replPathString);
-
-    tempRootPop();
+    const char script[] = "cyarg.ya";
+    bootScript(script, (sizeof(script) / sizeof(script[0])) - 1);
 
     freeVM();
     return 0;
@@ -81,7 +74,7 @@ int main(int argc, const char* argv[]) {
     if (libPath) {
         vm.libraryPath = copyString(libPath, strlen(libPath));
     }
-
+    
     int returnCode = EX_OK;
 
     if ((argv[1] && strcmp(argv[1], "--compile") == 0) && argc == 3) {
