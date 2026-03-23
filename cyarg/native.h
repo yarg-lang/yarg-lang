@@ -13,4 +13,9 @@ bool stdin_getsNative(ObjRoutine* routine, int argCount, Value* result);
 bool stdin_eofNative(ObjRoutine* routine, int argCount, Value* result);
 bool stdout_putsNative(ObjRoutine* routine, int argCount, Value* result);
 
+#if defined(CYARG_FEATURE_HOSTED_REPL)
+bool host_argcNative(ObjRoutine* routine, int argCount, Value* result);
+bool host_argnNative(ObjRoutine* routine, int argCount, Value* result);
+#endif
+
 #endif

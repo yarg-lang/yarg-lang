@@ -114,6 +114,13 @@ add_executable(cyarg
     big-int/big-int.c
     )
 
+if (CYARG_HOSTING STREQUAL "HOSTED")
+target_sources(cyarg
+    PRIVATE
+      hosted.c
+      hosted.h)
+endif()
+
 if (CYARG_FEATURE_FILESYSTEM STREQUAL "LITTLEFS")
 target_sources(cyarg
     PRIVATE

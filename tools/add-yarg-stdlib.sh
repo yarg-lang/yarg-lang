@@ -16,5 +16,8 @@ pushd yarg/specimen > /dev/null
 ../../bin/yarg cp -fs "../../$FS_PATH" -src dma.ya -dest dma.ya
 ../../bin/yarg cp -fs "../../$FS_PATH" -src ws2812.ya -dest ws2812.ya
 ../../bin/yarg cp -fs "../../$FS_PATH" -src apa102.ya -dest apa102.ya
+../../bin/yarg cp -fs "../../$FS_PATH" -src repl.ya -dest repl.ya
+../../bin/yarg cp -fs "../../$FS_PATH" -src yarg.ya -dest yarg.ya
+../../bin/yarg cp -fs "../../$FS_PATH" -src cyarg.ya -dest cyarg.ya
 
 popd > /dev/null

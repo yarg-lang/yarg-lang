@@ -120,6 +120,11 @@ void markDynamicObjArray(DynamicObjArray* array) {
     }
 }
 
+void markFunction(ObjFunction* function) {
+    markObject((Obj*)function->name);
+    markArray(&function->chunk.constants);
+}
+
 static void blackenObject(Obj* object) {
 #ifdef DEBUG_LOG_GC
     PRINTERR("%p blacken ", (void*)object);

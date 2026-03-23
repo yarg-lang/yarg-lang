@@ -213,6 +213,7 @@ ObjBoundMethod* newBoundMethod(Value receiver,
 ObjClass* newClass(ObjString* name);
 ObjClosure* newClosure(ObjFunction* function);
 ObjFunction* newFunction();
+void initFunction(ObjFunction* function);
 ObjInstance* newInstance(ObjClass* klass);
 ObjNative* newNative(NativeFn function);
 ObjPackedUniformArray* newPackedUniformArray(ObjConcreteYargTypeArray* type);

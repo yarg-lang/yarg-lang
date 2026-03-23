@@ -127,23 +127,19 @@ static void defineNative(const char* name, NativeFn function) {
     tempRootPop();
 }
 
-void initVM() {
-    
-    // must be done before initRoutine as initRoutine does a realloc
+void initVMMemory() {
+
+    memset(&vm, 0, sizeof(VM));
+
+    vm.tempRootsTop = vm.tempRoots;
+
+    vm.nextGC = FIRST_GC_AT;
+
     platform_mutex_init(&vm.heap);
     platform_mutex_init(&vm.env);
-    initTable(&vm.strings);
+}
 
-    // We have an Obj here not on the heap. hack up its init.
-    vm.core0.obj.type = OBJ_ROUTINE;
-    vm.core0.obj.isMarked = false;
-    vm.core0.obj.next = NULL;
-    initRoutine(&vm.core0);
-
-    vm.core1 = NULL;
-    for (int i = 0; i < MAX_PINNED_ROUTINES; i++) {
-        vm.pinnedRoutines[i] = NULL;
-    }
+void initVMRuntime() {
     vm.pinnedRoutineHandlers[0] = pinnedRoutine0;
     vm.pinnedRoutineHandlers[1] = pinnedRoutine1;
     vm.pinnedRoutineHandlers[2] = pinnedRoutine2;
@@ -155,20 +151,17 @@ void initVM() {
     vm.pinnedRoutineHandlers[8] = pinnedRoutine8;
     vm.pinnedRoutineHandlers[9] = pinnedRoutine9;
 
-    vm.tempRootsTop = vm.tempRoots;
+    // We have two Obj here not on the heap. hack up their init.
+    vm.core0.obj.type = OBJ_ROUTINE;
+    initRoutine(&vm.core0);
 
-    vm.objects = NULL;
-    vm.bytesAllocated = 0;
-    vm.nextGC = FIRST_GC_AT;
-
-    vm.grayCount = 0;
-    vm.grayCapacity = 0;
-    vm.grayStack = NULL;
+    vm.bootFunction.obj.type = OBJ_FUNCTION;
+    initFunction(&vm.bootFunction);
 
     initCellTable(&vm.globals);
     initTable(&vm.imports);
-
-    vm.initString = NULL;
+    initTable(&vm.strings);
+    
     vm.initString = copyString("init", 4);
 
     defineNative("clock", clockNative);
@@ -180,6 +173,11 @@ void initVM() {
     defineNative("c_stdin_gets", stdin_getsNative);
     defineNative("c_stdin_eof", stdin_eofNative);
     defineNative("c_stdout_puts", stdout_putsNative);
+
+#if defined(CYARG_FEATURE_HOSTED_REPL)
+    defineNative("host_argc", host_argcNative);
+    defineNative("host_argn", host_argnNative);
+#endif
 }
 
 void freeVM() {
@@ -187,13 +185,15 @@ void freeVM() {
     freeTable(&vm.strings);
     freeTable(&vm.imports);
     vm.initString = NULL;
+    vm.libraryPath = NULL;
     freeObjects();
 }
 
 void markVMRoots() {
     
-    // Don't use markObject, as this is not on the heap.
+    // Don't use markObject, as these are not on the heap.
     markRoutine(&vm.core0);
+    markFunction(&vm.bootFunction);
     
     markObject((Obj*)vm.core1);
 
@@ -206,6 +206,7 @@ void markVMRoots() {
     }
 
     markTable(&vm.imports);
+    markObject((Obj*)vm.libraryPath);
     markCellTable(&vm.globals);
     markObject((Obj*)vm.initString);
 }
@@ -1400,33 +1401,51 @@ InterpretResult run(ObjRoutine* routine) {
 #undef BINARY_OP
 }
 
-InterpretResult interpret(const char* source) {
-    ObjFunction* function = compile(source);
-    if (function == NULL) return INTERPRET_COMPILE_ERROR;
+uint8_t exec_bootstrap[] = {
+    OP_GET_BUILTIN, BUILTIN_EXEC,
+    OP_GET_BUILTIN, BUILTIN_READ_SOURCE,
+    OP_CONSTANT, 0,
+    OP_CALL, 1,
+    OP_CALL, 1,
+    OP_RETURN
+};
 
-#ifdef DEBUG_TRACE_EXECUTION
-    disassembleChunk(&function->chunk, "<script>");
-    for (int i = 0; i < function->chunk.constants.count; i++) {
-        if (IS_FUNCTION(function->chunk.constants.values[i])) {
-            ObjFunction* fun = AS_FUNCTION(function->chunk.constants.values[i]);
-            disassembleChunk(&fun->chunk, fun->name->chars);
-        }
+uint8_t compile_bootstrap[] = {
+    OP_GET_BUILTIN, BUILTIN_COMPILE,
+    OP_GET_BUILTIN, BUILTIN_READ_SOURCE,
+    OP_CONSTANT, 0,
+    OP_CALL, 1,
+    OP_CALL, 1,
+    OP_RETURN
+};
+
+static void installBootstrap(const uint8_t bootstrap[], ObjString* script) {
+
+    vm.bootFunction.name = copyString("boot", 4);
+
+    for (size_t i = 0; i < sizeof(exec_bootstrap); i++) {
+        writeChunk(&vm.bootFunction.chunk, bootstrap[i], 0);
     }
-#endif
+    uint8_t constant = addConstant(&vm.bootFunction.chunk, OBJ_VAL(script));
+    assert(constant == vm.bootFunction.chunk.code[5]);
+}
 
-    tempRootPush(OBJ_VAL(function));
-    ObjClosure* closure = newClosure(function);
-    tempRootPop();
+InterpretResult bootstrapVM(const uint8_t bootstrap[], Value* bootstrapResult, ObjString* script) {
+    installBootstrap(bootstrap, script);
+
+    ObjClosure* closure = newClosure(&vm.bootFunction);
 
     bindEntryFn(&vm.core0, closure);
     pushEntryElements(&vm.core0);
 
     enterEntryFunction(&vm.core0);
+
     InterpretResult result = run(&vm.core0);
     if (result == INTERPRET_OK) {
-        pop(&vm.core0);
+        *bootstrapResult = pop(&vm.core0);
+    } else {
+        *bootstrapResult = NIL_VAL;
     }
-
     return result;
 }
 

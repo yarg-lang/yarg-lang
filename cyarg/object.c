@@ -98,11 +98,16 @@ ObjClosure* newClosure(ObjFunction* function) {
 
 ObjFunction* newFunction() {
     ObjFunction* function = ALLOCATE_OBJ(ObjFunction, OBJ_FUNCTION);
+    initFunction(function);
+    return function;
+}
+
+void initFunction(ObjFunction* function) {
+    // may not be called after alloc, so init all fields.
     function->arity = 0;
     function->upvalueCount = 0;
     function->name = NULL;
     initChunk(&function->chunk);
-    return function;
 }
 
 ObjInstance* newInstance(ObjClass* klass) {

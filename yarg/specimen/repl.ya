@@ -1,4 +1,4 @@
-fun repl() {
+fun line_repl() {
     c_stdout_puts("yarg> ");
     while (true) {
         var line = c_stdin_gets();
@@ -15,4 +15,7 @@ fun repl() {
     }
 }
 
-repl();
+fun repl() {
+    import("main");
+    line_repl();
+}
