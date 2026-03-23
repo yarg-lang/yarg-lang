@@ -1,7 +1,7 @@
 #ifndef cyarg_platform_hal_h
 #define cyarg_platform_hal_h
 
-void plaform_hal_init();
+void platform_hal_init();
 
 #if defined(CYARG_PICO_SDK_SYNC)
 #include <pico/sync.h>

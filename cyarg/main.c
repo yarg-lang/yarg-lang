@@ -82,7 +82,7 @@ static void disassembleFile(const char* path) {
 
 #if defined(CYARG_FEATURE_SELF_HOSTED_REPL)
 int main() {
-    plaform_hal_init();
+    platform_hal_init();
 
     initVM();
     char* source = readFile("main.ya");
@@ -97,7 +97,7 @@ int main() {
 }
 #elif defined(CYARG_FEATURE_HOSTED_REPL)
 int main(int argc, const char* argv[]) {
-    plaform_hal_init();
+    platform_hal_init();
     initVM();
 
     if (argc == 1) {
