@@ -42,14 +42,14 @@ static char* libraryNameFor(const char* importname) {
     return filename;
 }
 
-bool importBuiltin(ObjRoutine* routineContext, int argCount) {
+InterpretResult importBuiltin(ObjRoutine* routineContext, int argCount) {
     if (argCount != 1) {
         runtimeError(routineContext, "Expected 1 arguments but got %d.", argCount);
-        return false;
+        return INTERPRET_RUNTIME_ERROR;
     }
     if (!IS_STRING(peek(routineContext, 0))) {
         runtimeError(routineContext, "Argument to import must be string.");
-        return false;
+        return INTERPRET_RUNTIME_ERROR;
     }
 
     Value val;
@@ -57,7 +57,7 @@ bool importBuiltin(ObjRoutine* routineContext, int argCount) {
         pop(routineContext);
         pop(routineContext);
         push(routineContext, NIL_VAL);
-        return true;
+        return INTERPRET_OK;
     }
 
     char* source = NULL;
@@ -71,8 +71,7 @@ bool importBuiltin(ObjRoutine* routineContext, int argCount) {
         ObjFunction* function = compile(source);
         free(source);
         if (function == NULL) {
-            runtimeError(routineContext, "Interpret error; compiling source failed.");
-            return false;
+            return INTERPRET_COMPILE_ERROR;
         }
 
         tempRootPush(OBJ_VAL(function));
@@ -90,11 +89,11 @@ bool importBuiltin(ObjRoutine* routineContext, int argCount) {
         tempRootPop();
 
         callfn(routineContext, closure, 0);
-        return true;
+        return INTERPRET_OK;
     }
     else {
         runtimeError(routineContext, "source not found");
-        return false;
+        return INTERPRET_RUNTIME_ERROR;
     }
 
 }
@@ -148,21 +147,20 @@ bool compileBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     return true;
 }
 
-bool execBuiltin(ObjRoutine* routineContext, int argCount) {
+InterpretResult execBuiltin(ObjRoutine* routineContext, int argCount) {
     if (argCount != 1) {
         runtimeError(routineContext, "Expected 1 arguments but got %d.", argCount);
-        return false;
+        return INTERPRET_RUNTIME_ERROR;
     }
     if (!IS_STRING(peek(routineContext, 0))) {
         runtimeError(routineContext, "Argument to exec must be string.");
-        return false;
+        return INTERPRET_RUNTIME_ERROR;
     }
 
     char* source = AS_CSTRING(peek(routineContext, 0));
     ObjFunction* function = compile(source);
     if (function == NULL) {
-        runtimeError(routineContext, "Interpret error; compiling source failed.");
-        return false;
+        return INTERPRET_COMPILE_ERROR;
     }
 
     tempRootPush(OBJ_VAL(function));
@@ -178,7 +176,7 @@ bool execBuiltin(ObjRoutine* routineContext, int argCount) {
     tempRootPop();
 
     callfn(routineContext, closure, 0);
-    return true;
+    return INTERPRET_OK;
 }
 
 bool makeChannelBuiltin(ObjRoutine* routine, int argCount, Value* result) {

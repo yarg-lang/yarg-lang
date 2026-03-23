@@ -226,7 +226,7 @@ bool callfn(ObjRoutine* routine, ObjClosure* closure, int argCount) {
     return true;
 }
 
-static bool callValue(ObjRoutine* routine, Value callee, int argCount) {
+static InterpretResult callValue(ObjRoutine* routine, Value callee, int argCount) {
     if (IS_OBJ(callee)) {
         switch (OBJ_TYPE(callee)) {
             case OBJ_BOUND_METHOD: {
@@ -234,7 +234,7 @@ static bool callValue(ObjRoutine* routine, Value callee, int argCount) {
                 ValueCell* target = peekCell(routine, argCount);
                 target->value = bound->reciever;
                 target->cellType = NULL;
-                return callfn(routine, bound->method, argCount);
+                return callfn(routine, bound->method, argCount) ? INTERPRET_OK : INTERPRET_RUNTIME_ERROR;
             }
             case OBJ_CLASS: {
                 ObjClass* klass = AS_CLASS(callee);
@@ -243,15 +243,15 @@ static bool callValue(ObjRoutine* routine, Value callee, int argCount) {
                 target->cellType = NULL;
                 Value initializer;
                 if (tableGet(&klass->methods, vm.initString, &initializer)) {
-                    return callfn(routine, AS_CLOSURE(initializer), argCount);
+                    return callfn(routine, AS_CLOSURE(initializer), argCount) ? INTERPRET_OK : INTERPRET_RUNTIME_ERROR;
                 } else if (argCount != 0) {
                     runtimeError(routine, "Expected 0 arguments but got %d.", argCount);
-                    return false;
+                    return INTERPRET_RUNTIME_ERROR;
                 }
-                return true;
+                return INTERPRET_OK;
             }
             case OBJ_CLOSURE:
-                return callfn(routine, AS_CLOSURE(callee), argCount);
+                return callfn(routine, AS_CLOSURE(callee), argCount) ? INTERPRET_OK : INTERPRET_RUNTIME_ERROR;
             case OBJ_NATIVE: {
                 NativeFn native = AS_NATIVE(callee);
                 if (native == importBuiltinDummy) {
@@ -263,9 +263,9 @@ static bool callValue(ObjRoutine* routine, Value callee, int argCount) {
                     if (native(routine, argCount, &result)) {
                         popN(routine, argCount + 1);
                         push(routine, result);
-                        return true;
+                        return INTERPRET_OK;
                     } else {
-                        return false;
+                        return INTERPRET_RUNTIME_ERROR;
                     }
                 }
             }
@@ -274,25 +274,25 @@ static bool callValue(ObjRoutine* routine, Value callee, int argCount) {
         }
     }
     runtimeError(routine, "Can only call functions and classes.");
-    return false;
+    return INTERPRET_RUNTIME_ERROR;
 }
 
-static bool invokeFromClass(ObjRoutine* routine, ObjClass* klass, ObjString* name,
+static InterpretResult invokeFromClass(ObjRoutine* routine, ObjClass* klass, ObjString* name,
                             int argCount) {
     Value method;
     if (!tableGet(&klass->methods, name, &method)) {
         runtimeError(routine, "Undefined property '%s'.", name->chars);
-        return false;
+        return INTERPRET_RUNTIME_ERROR;
     }
-    return callfn(routine, AS_CLOSURE(method), argCount);
+    return callfn(routine, AS_CLOSURE(method), argCount) ? INTERPRET_OK : INTERPRET_RUNTIME_ERROR;
 }
 
-static bool invoke(ObjRoutine* routine, ObjString* name, int argCount) {
+static InterpretResult invoke(ObjRoutine* routine, ObjString* name, int argCount) {
     Value receiver = peek(routine, argCount);
 
     if (!IS_INSTANCE(receiver)) {
         runtimeError(routine, "Only instances have methods.");
-        return false;
+        return INTERPRET_RUNTIME_ERROR;
     }
 
     ObjInstance* instance = AS_INSTANCE(receiver);
@@ -1176,8 +1176,9 @@ InterpretResult run(ObjRoutine* routine) {
             }
             case OP_CALL: {
                 int argCount = READ_BYTE();
-                if (!callValue(routine, peek(routine, argCount), argCount)) {
-                    return INTERPRET_RUNTIME_ERROR;
+                InterpretResult result = callValue(routine, peek(routine, argCount), argCount);
+                if (result != INTERPRET_OK) {
+                    return result;
                 }
                 frame = &routine->frames[routine->frameCount - 1];
                 break;
@@ -1185,8 +1186,9 @@ InterpretResult run(ObjRoutine* routine) {
             case OP_INVOKE: {
                 ObjString* method = READ_STRING();
                 int argCount = READ_BYTE();
-                if (!invoke(routine, method, argCount)) {
-                    return INTERPRET_RUNTIME_ERROR;
+                InterpretResult result = invoke(routine, method, argCount);
+                if (result != INTERPRET_OK) {
+                    return result;
                 }
                 frame = &routine->frames[routine->frameCount - 1];
                 break;
@@ -1195,8 +1197,9 @@ InterpretResult run(ObjRoutine* routine) {
                 ObjString* method = READ_STRING();
                 int argCount = READ_BYTE();
                 ObjClass* superclass = AS_CLASS(pop(routine));
-                if (!invokeFromClass(routine, superclass, method, argCount)) {
-                    return INTERPRET_RUNTIME_ERROR;
+                InterpretResult result = invokeFromClass(routine, superclass, method, argCount);
+                if (result != INTERPRET_OK) {
+                    return result;
                 }
                 frame = &routine->frames[routine->frameCount - 1];
                 break;

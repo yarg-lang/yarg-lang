@@ -4,6 +4,7 @@
 #include "object.h"
 #include "table.h"
 #include "value.h"
+#include "vm-result.h"
 
 #include "memory.h"
 #include "routine.h"
@@ -39,12 +40,6 @@ typedef struct {
     int grayCapacity;
     Obj** grayStack;
 } VM;
-
-typedef enum {
-    INTERPRET_OK,
-    INTERPRET_COMPILE_ERROR,
-    INTERPRET_RUNTIME_ERROR,
-} InterpretResult;
 
 extern VM vm;
 
