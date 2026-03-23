@@ -114,12 +114,15 @@ void fatalVMError(const char* format, ...) {
 }
 
 static void defineNative(const char* name, NativeFn function) {
-    tempRootPush(OBJ_VAL(copyString(name, (int)strlen(name))));
-    tempRootPush(OBJ_VAL(newNative(function)));
+    ObjString* nameString = copyString(name, (int)strlen(name));
+    tempRootPush(OBJ_VAL(nameString));
+    ObjNative* native = newNative(function);
+    tempRootPush(OBJ_VAL(native));
+
     ValueCell cell;
-    cell.value = vm.tempRoots[1];
+    cell.value = OBJ_VAL(native);
     cell.cellType = NULL;
-    tableCellSet(&vm.globals, AS_STRING(vm.tempRoots[0]), cell);
+    tableCellSet(&vm.globals, nameString, cell);
     tempRootPop();
     tempRootPop();
 }
