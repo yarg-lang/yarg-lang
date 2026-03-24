@@ -317,7 +317,8 @@ static void generateNumber(ObjExprNumber* num) {
         case NUMBER_UINTEGER64: emitConstant(UI64_VAL(num->val.ui64)); break;
         case NUMBER_ADDRESS: emitConstant(ADDRESS_VAL(num->val.address)); break;
         case NUMBER_INT: {
-            ObjInt* objInt = ALLOCATE_OBJ(ObjInt, OBJ_INT);
+            ObjInt *objInt = (ObjInt *) allocateObject(sizeof (ObjInt) + num->val.bigInt.m_ * sizeof (uint16_t), OBJ_INT);
+            objInt->bigInt.m_ = num->val.bigInt.m_;
             int_set_t(&num->val.bigInt, &objInt->bigInt);
             emitConstant(OBJ_VAL(objInt));
             break;

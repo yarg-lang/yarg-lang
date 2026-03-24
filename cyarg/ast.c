@@ -164,10 +164,16 @@ ObjExprNumber* newExprNumberInt(const char* numbers, int numberDigits) {
     char* heapChars = ALLOCATE(char, numberDigits + 1);
     memcpy(heapChars, numbers, numberDigits);
     heapChars[numberDigits] = 0;
-    ObjExprNumber* num = ALLOCATE_OBJ(ObjExprNumber, OBJ_EXPR_NUMBER);
+
+    uint8_t s = INT_DIGITS_FOR_S(numberDigits);
+    s += s % 2;
+    ObjExprNumber *num = (ObjExprNumber *) allocateObject(sizeof (ObjExprNumber) + sizeof (uint16_t) * s, OBJ_EXPR_NUMBER);
     num->type = NUMBER_INT;
+    num->val.bigInt.m_ = s;
+
     int_set_s(heapChars, &num->val.bigInt);
     FREE(char, heapChars);
+
     return num;
 }
 

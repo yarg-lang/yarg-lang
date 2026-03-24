@@ -29,14 +29,12 @@ union FourDigits
     struct
     {
         uint16_t a16_;
-        uint16_t b16_;
-        uint16_t c16_;
-        uint16_t d16_;
+        uint16_t b_[3];
     };
     struct
     {
-        uint32_t x16_;
-        uint32_t y16_;
+        uint32_t l32_;
+        uint32_t h32_;
     };
     int64_t ll64_;
     uint64_t ull64_;
@@ -58,27 +56,48 @@ typedef union FourDigits FourDigits;
  a - A        => -(A - a)
  */
 
-void addPos(Int const *, Int const *, Int *);
-void int_sub_abs(Int const *, Int const *, Int *);
+static void addPos(Int const *, Int const *, Int *);
+static void int_sub_abs(Int const *, Int const *, Int *);
 static void subAGtB(Int const *, Int const *, Int *);
 
 void int_init(Int *i)
 {
+    assert(i->m_ != 0 && i->m_ % 2 == 0);
     i->neg_ = false;
     i->overflow_ = false;
     i->d_ = 1;
-    i->m_ = INT_MAX_DIGITS;
     i->w_[0] = 0;
 }
 
+Int *int_init_concrete2(IntConcrete2 *i)
+{
+    i->m_ = 2;
+    int_init((Int *) i);
+    return (Int *) i;
+}
+
+Int *int_init_concrete4(IntConcrete4 *i)
+{
+    i->m_ = 4;
+    int_init((Int *) i);
+    return (Int *) i;
+}
+
+Int *int_init_concrete254(IntConcrete254 *i)
+{
+    i->m_ = 254;
+    int_init((Int *) i);
+    return (Int *) i;
+}
+
+
 void int_set_i(int64_t to, Int *i)
 {
-    i->m_ = INT_MAX_DIGITS;
+    assert(i->m_ != 0 && i->m_ % 2 == 0);
     i->overflow_ = false;
 
     uint64_t v;
-    i->neg_ = to < 0;
-    if (i->neg_)
+    if (to < 0)
     {
         if (to == INT64_MIN)
         {
@@ -93,30 +112,13 @@ void int_set_i(int64_t to, Int *i)
     {
         v = (uint64_t) to;
     }
-    uint32_t *ip = i->w_;
-    for (; ip < &i->w_[i->m_ / 2] && v > 0;)
-    {
-        *ip++ = (uint32_t) v;
-        v /= 4294967296u;
-    }
-    i->d_ = (uint8_t)((ip - i->w_) * 2);
-    if (i->d_ == 0)
-    {
-        i->w_[0] = 0u;
-        i->d_ = 1;
-    }
-    else
-    {
-        if (i->h_[i->d_ - 1] == 0u) // overshot
-        {
-            i->d_--;
-        }
-    }
+    int_set_u(v, i);
+    i->neg_ = to < 0;
 }
 
 void int_set_u(uint64_t to, Int *i)
 {
-    i->m_ = INT_MAX_DIGITS;
+    assert(i->m_ != 0 && i->m_ % 2 == 0);
     i->overflow_ = false;
     i->neg_ = false;
 
@@ -126,6 +128,10 @@ void int_set_u(uint64_t to, Int *i)
         *ip++ = (uint32_t) to;
         to /= 4294967296u;
     }
+    if (to > 0)
+    {
+        i->overflow_ = true;
+    }
     i->d_ = (uint8_t)((ip - i->w_) * 2);
     if (i->d_ == 0)
     {
@@ -134,21 +140,23 @@ void int_set_u(uint64_t to, Int *i)
     }
     else
     {
-        if (i->h_[i->d_ - 1] == 0u) // overshot
+        uint16_t const *const h = (uint16_t *) i->w_;
+        if (h[i->d_ - 1] == 0u) // overshot
         {
             i->d_--;
         }
     }
 }
 
+static IntConcrete2 const ten = {.m_ = 2, .d_ = 1, .w_[0] = 10};
+
 void int_set_s(char const *s, Int *i)
 {
     int_init(i);
-    i->overflow_ = false;
-
-    Int ten, acc;
-    int_set_i(10, &ten);
-    int_init(&acc);
+    IntConcrete2 digit;
+    int_init_concrete2(&digit);
+    IntConcrete254 acc;
+    int_init_concrete254(&acc);
 
     bool neg;
     if (*s == '-')
@@ -162,23 +170,22 @@ void int_set_s(char const *s, Int *i)
     }
     while (*s != 0)
     {
-        int_mul(&ten, i, &acc); // todo mul by uint16 optimisation
+        int_mul((Int *) &ten, i, (Int *) &acc); // todo mul by uint16 optimisation
         int d = *s++ - '0';
-        Int digit;
-        int_set_i(d, &digit); // todo add to uint16 optimisation
-        int_add(&acc, &digit, i);
+        int_set_i(d, (Int *) &digit); // todo add to uint16 optimisation
+        int_add((Int *) &acc, (Int *) &digit, i);
     }
     i->neg_ = neg;
 }
 
 void int_set_t(Int const *v, Int *i)
 {
+    assert(i->m_ != 0 && i->m_ % 2 == 0 && i->m_ >= v->d_);
     i->neg_ = v->neg_;
     i->overflow_ = v->overflow_;
     i->d_ = v->d_;
-    i->m_ = INT_MAX_DIGITS;
-    assert(i->m_ == v->m_);
-    memcpy(i->h_, v->h_, (v->d_ + 1) / 2 * sizeof v->w_[0]);
+    assert(i->m_ >= v->d_);
+    memcpy(i->w_, v->w_, (v->d_ + 1) / 2 * sizeof v->w_[0]);
 }
 
 void int_add(Int const *a, Int const *b, Int *r)
@@ -212,16 +219,20 @@ void int_add(Int const *a, Int const *b, Int *r)
 void addPos(Int const *a, Int const *b, Int *r)
 {
     uint16_t carry = 0;
-    uint16_t *rp = r->h_;
-    uint16_t const *bp = b->h_;
-    for (uint16_t const *ap = a->h_; ap < &a->h_[a->d_] || bp < &b->h_[b->d_]; ap++, bp++)
+    uint16_t *rp = (uint16_t *) r->w_;
+    uint16_t *const re = &rp[r->m_];
+    uint16_t const *ap = (uint16_t const *) a->w_;
+    uint16_t const *bp = (uint16_t const *) b->w_;
+    uint16_t const *const ae = &ap[a->d_];
+    uint16_t const *const be = &bp[b->d_];
+    for (; ap < ae || bp < be; ap++, bp++)
     {
         TwoDigits ps;
-        if (ap >= &a->h_[a->d_])
+        if (ap >= ae)
         {
             ps.u32_ = (uint32_t) *bp + (uint32_t) carry;
         }
-        else if (bp >= &b->h_[b->d_])
+        else if (bp >= be)
         {
             ps.u32_ = (uint32_t) *ap + (uint32_t) carry;
         }
@@ -229,16 +240,27 @@ void addPos(Int const *a, Int const *b, Int *r)
         {
             ps.u32_ = (uint32_t) *ap + (uint32_t) *bp + (uint32_t) carry;
         }
-        *rp++ = ps.l16_;
-        carry = ps.h16_;
+        if (rp < re)
+        {
+            *rp++ = ps.l16_;
+            carry = ps.h16_;
+        }
+        else
+        {
+            if (ps.u32_ != 0)
+            {
+                r->overflow_ = true;
+                return;
+            }
+        }
     }
-    if (rp < &r->h_[r->m_])
+    if (rp < re)
     {
         *rp = carry; // only needs to be done (if carry is zero) of odd number of digits but saves a test
         if (carry > 0)
         {
             rp++;
-            if (rp < &r->h_[r->m_]) // only needs to be done of odd number of digits but saves a test
+            if (rp < re) // only needs to be done of odd number of digits but saves a test
             {
                 *rp = 0;
             }
@@ -251,7 +273,7 @@ void addPos(Int const *a, Int const *b, Int *r)
             r->overflow_ = true;
         }
     }
-    r->d_ = (uint8_t)(rp - r->h_);
+    r->d_ = (uint8_t)(rp - (uint16_t *) r->w_);
 }
 
 void int_sub(Int const *a, Int const *b, Int *r)
@@ -284,31 +306,36 @@ void int_sub(Int const *a, Int const *b, Int *r)
 
 void int_shift(int shift, Int *i)
 {
-    if (i->d_ != 1 || i->h_[0] != 0u)
+    uint16_t *const h = (uint16_t *) i->w_;
+    if (i->d_ != 1 || h[0] != 0u)
     {
         if (shift >= 0)
         {
-            assert(i->d_ + shift <= i->m_);
+            if (i->d_ + shift > i->m_)
+            {
+                i->overflow_ = true;
+                return;
+            }
 
-            memmove(&i->h_[shift], &i->h_[0], i->d_ * sizeof i->h_[0]);
-            memset(&i->h_[0], 0, shift * sizeof (uint16_t));
+            memmove(&h[shift], &h[0], i->d_ * sizeof h[0]);
+            memset(&h[0], 0, shift * sizeof h[0]);
             i->d_ += shift;
             if (i->d_ < i->m_)
             {
-                i->h_[i->d_] = 0u; // only need to do if rd.d_ + shift && shift is odd - but why not
+                h[i->d_] = 0u; // only need to do if rd.d_ + shift && shift is odd - but why not
             }
         }
         else
         {
             assert(i->d_ + shift >= 0);
 
-            memmove(&i->h_[0], &i->h_[-shift], ((int)i->d_ + shift) * sizeof i->h_[0]);
-            memset(&i->h_[i->d_ + shift], 0, -shift *  sizeof i->h_[0]);
+            memmove(&h[0], &h[-shift], ((int)i->d_ + shift) * sizeof h[0]);
+            memset(&h[i->d_ + shift], 0, -shift *  sizeof h[0]);
             i->d_ += shift;
             if (i->d_ == 0)
             {
                 i->d_ = 1;
-                assert(i->h_[0] == 0u);
+                assert(h[0] == 0u);
             }
         }
     }
@@ -332,12 +359,16 @@ void int_sub_abs(Int const *a, Int const *b, Int *r)
 static void subAGtB(Int const *a, Int const *b, Int *r)
 {
     uint16_t borrow = 0;
-    uint16_t *rp = r->h_;
-    uint16_t const *bp = b->h_;
-    for (uint16_t const *ap = a->h_; ap < &a->h_[a->d_]; ap++, bp++)
+    uint16_t *rp = (uint16_t *) r->w_;
+    uint16_t *const re = &rp[r->m_];
+    uint16_t const *ap = (uint16_t const *) a->w_;
+    uint16_t const *const ae = &ap[a->d_];
+    uint16_t const *bp = (uint16_t const *) b->w_;
+    uint16_t const *const be = &bp[b->d_];
+    for (; ap < ae; ap++, bp++)
     {
         uint16_t ad = *ap, bd;
-        if (bp < &b->h_[b->d_])
+        if (bp < be)
         {
             bd = *bp;
         }
@@ -359,14 +390,26 @@ static void subAGtB(Int const *a, Int const *b, Int *r)
             pd.u32_ = (uint32_t) ad - pd.u32_;
             assert(pd.h16_ == 0u);
         }
-        *rp++ = pd.l16_;
+        if (rp < re)
+        {
+            *rp++ = pd.l16_;
+        }
+        else
+        {
+            if (pd.l16_ != 0u)
+            {
+                r->overflow_ = true;
+                return;
+            }
+        }
     }
-    r->d_ = (uint8_t)(rp - r->h_);
+    uint16_t *const rh = (uint16_t *) r->w_;
+    r->d_ = (uint8_t)(rp - rh);
     if (r->d_ % 2 == 1)
     {
-        r->h_[r->d_] = 0; // todo optimize - don’t need to do this if the following is true
+        rh[r->d_] = 0; // todo optimize - don’t need to do this if the following is true
     }
-    while (r->d_ > 1 && r->h_[r->d_ - 1] == 0)
+    while (r->d_ > 1 && rh[r->d_ - 1] == 0)
     {
         r->d_--;
     }
@@ -374,31 +417,32 @@ static void subAGtB(Int const *a, Int const *b, Int *r)
 
 void int_mul(Int const *a, Int const *b, Int *r)
 {
-    int_set_i(0, r);
-    if (a->d_ == 1 && a->h_[0] == 0 || b->d_ == 1 && b->h_[0] == 0) // todo remove - no need for this optimisation
-    {
-        return;
-    }
+    IntConcrete254 pp;
+    int_init_concrete254(&pp);
 
-    uint16_t *rpn = r->h_;
-    for (uint16_t const *ap = a->h_; ap < &a->h_[a->d_]; ap++)
+    int_set_i(0, r);
+    uint16_t *const rh = (uint16_t *) r->w_;
+    uint16_t const *const ah = (uint16_t const *) a->w_;
+    uint16_t const *const bh = (uint16_t const *) b->w_;
+
+    uint16_t *rpn = rh;
+    for (uint16_t const *ap = ah; ap < &ah[a->d_]; ap++)
     {
         uint16_t *rp = rpn;
         rpn = rp + 1;
 //        printf("%ld->%ld", ap - a->h_, rp - r->h_);
-        for (uint16_t const *bp = b->h_; bp < &b->h_[b->d_]; bp++, rp++)
+        for (uint16_t const *bp = bh; bp < &bh[b->d_]; bp++, rp++)
         {
 //            printf(".%ld/%ld", ap - a->h_, bp - b->h_);
-            Int pp;
-            int_set_i((uint32_t) *ap * (uint32_t) *bp, &pp); // todo cast to int32 to use M0 single instruction mul
-            if (rp - r->h_ + pp.d_ > r->m_)
+            int_set_i((uint32_t) *ap * (uint32_t) *bp, (Int *) &pp); // todo cast to int32 to use M0 single instruction mul
+            if (rp - rh + pp.d_ > r->m_)
             {
                 r->overflow_ = true;
                 break;
             }
-            int_shift((int)(rp - r->h_), &pp);
+            int_shift((int)(rp - rh), (Int *) &pp);
 //            printf("%d:%d := %d %d\n", (int)pp.h16_, (int)pp.l16_, (int)*ap, (int)*bp);
-            int_add(r, &pp, r); // todo add shifted uint32 optimisation
+            int_add(r, (Int *) &pp, r); // todo add shifted uint32 optimisation
             if (r->overflow_)
             {
                 break;
@@ -444,31 +488,40 @@ void int_div(Int const *n, Int const *d, Int *q, Int *r)
             {
                 int_add(r, d, r);
             }
-       }
+        }
+        return;
+    }
+
+    if (r != 0 && r->m_ < d->d_)
+    {
+        r->overflow_ = true;
         return;
     }
 
     bool nSign = n->neg_;
     bool dSign = d->neg_;
 
-    Int qDigit;
-    int_init(&qDigit);
-    Int reduceBy;
-    int_init(&reduceBy);
+    IntConcrete254 qDigit;
+    int_init_concrete254(&qDigit);
+    IntConcrete254 reduceBy;
+    int_init_concrete254(&reduceBy);
+    IntConcrete254 reducingNumerator;
+    int_init_concrete254(&reducingNumerator);
+    IntConcrete254 shiftingDenominator;
+    int_init_concrete254(&shiftingDenominator);
 
-    uint32_t testDenominator = d->h_[d->d_ - 1];
+    uint16_t const *const dh = (uint16_t const *) d->w_;
+    uint32_t testDenominator = dh[d->d_ - 1];
     assert(testDenominator != 0);
     testDenominator++;
 
     // Shift denominator to be one digit to the right of the numerator
     // if n and d are the same length, assume numerator is one longer. Increase wirh a leading zero.
-    Int reducingNumerator;
-    int_set_t(n, &reducingNumerator);
+    int_set_t(n, (Int *) &reducingNumerator);
     reducingNumerator.neg_ = false;
     int nDigit = reducingNumerator.d_ - 1;
 
-    Int shiftingDenominator;
-    int_set_t(d, &shiftingDenominator);
+    int_set_t(d, (Int *) &shiftingDenominator);
     shiftingDenominator.neg_ = false;
     int shift = reducingNumerator.d_ - shiftingDenominator.d_ - 1;
     if (shift == -1)
@@ -478,7 +531,7 @@ void int_div(Int const *n, Int const *d, Int *q, Int *r)
     }
     else if (shift >= 1)
     {
-        int_shift(shift, &shiftingDenominator);
+        int_shift(shift, (Int *) &shiftingDenominator);
     }
     else
     {
@@ -488,7 +541,7 @@ void int_div(Int const *n, Int const *d, Int *q, Int *r)
 
     while (1)
     {
-        if (int_is_abs(&reducingNumerator, &shiftingDenominator) == INT_LT) // should never be true on first iteration
+        if (int_is_abs((Int *) &reducingNumerator, (Int *) &shiftingDenominator) == INT_LT) // should never be true on first iteration
         {
             if (shift == 0)
             {
@@ -499,16 +552,21 @@ void int_div(Int const *n, Int const *d, Int *q, Int *r)
                 shift--;
                 nDigit--;
                 //shifts++;
-                int_shift(-1, &shiftingDenominator);
+                int_shift(-1, (Int *) &shiftingDenominator);
                 int_shift(1, q);
+                if (q->overflow_)
+                {
+                    return;
+                }
             }
         }
 
+        uint16_t const *const rnh = (uint16_t const *) reducingNumerator.w_;
         TwoDigits guessNumerator;
         if (nDigit < 1)
         {
             assert(nDigit == 0);
-            guessNumerator.u32_ = reducingNumerator.h_[0];
+            guessNumerator.u32_ = rnh[0];
         }
         else
         {
@@ -518,9 +576,9 @@ void int_div(Int const *n, Int const *d, Int *q, Int *r)
             }
             else
             {
-                guessNumerator.h16_ = reducingNumerator.h_[nDigit];
+                guessNumerator.h16_ = rnh[nDigit];
             }
-            guessNumerator.l16_ = reducingNumerator.h_[nDigit - 1];
+            guessNumerator.l16_ = rnh[nDigit - 1];
         }
         uint32_t guessMultiplier = guessNumerator.u32_ / testDenominator; // todo compare div_u32u32();
         if (guessMultiplier == 0u)
@@ -528,13 +586,13 @@ void int_div(Int const *n, Int const *d, Int *q, Int *r)
             guessMultiplier = 1u;
         }
 
-        int_set_i(guessMultiplier, &qDigit);
-        int_mul(&shiftingDenominator, &qDigit, &reduceBy);
+        int_set_i(guessMultiplier, (Int *) &qDigit);
+        int_mul((Int *) &shiftingDenominator, (Int *) &qDigit, (Int *) &reduceBy);
 
-        if (int_is_abs(&reducingNumerator, &reduceBy) != INT_LT)
+        if (int_is_abs((Int *) &reducingNumerator, (Int *) &reduceBy) != INT_LT)
         {
-            subAGtB(&reducingNumerator, &reduceBy, &reducingNumerator);
-            addPos(&qDigit, q, q);
+            subAGtB((Int *) &reducingNumerator, (Int *) &reduceBy, (Int *) &reducingNumerator);
+            addPos((Int *) &qDigit, q, q);
         }
         else // Guessed too high
             ;
@@ -542,7 +600,7 @@ void int_div(Int const *n, Int const *d, Int *q, Int *r)
     q->neg_ = nSign ^ dSign;
     if (r != 0)
     {
-        int_set_t(&reducingNumerator, r);
+        int_set_t((Int *) &reducingNumerator, r);
         r->neg_ = nSign;
         // adjust for yarg’s weird %
         if (nSign)
@@ -559,15 +617,18 @@ void int_neg(Int *i)
 
 bool int_is_zero(Int const *i)
 {
-    return i->h_[0] == 0 && i->d_ == 1;
+    uint16_t const *const ih = (uint16_t const *) i->w_;
+    return ih[0] == 0 && i->d_ == 1;
 }
 
 IntComp int_is(Int const *a, Int const *b)
 {
+    uint16_t const *const ah = (uint16_t const *) a->w_;
+    uint16_t const *const bh = (uint16_t const *) b->w_;
     IntComp r;
     if (a->neg_ != b->neg_) // check for zero and -ve zero
     {
-        if (a->d_ == 1 && b->d_ == 1 && a->h_[0] == 0 && b->h_[0]  == 0)
+        if (a->d_ == 1 && b->d_ == 1 && ah[0] == 0 && bh[0]  == 0)
         {
             r = INT_EQ;
         }
@@ -627,17 +688,19 @@ IntComp int_is_abs(Int const *a, Int const *b)
 IntRange int_is_range(Int const *i, int64_t l, uint64_t u)
 {
     IntRange r;
+    IntConcrete254 t;
 
-    Int t;
-    int_set_u(u, &t);
-    if (int_is(i, &t) == INT_GT)
+    int_init_concrete254(&t);
+
+    int_set_u(u, (Int *) &t);
+    if (int_is(i, (Int *) &t) == INT_GT)
     {
         r = INT_ABOVE;
     }
     else
     {
-        int_set_i(l, &t);
-        if (int_is(i, &t) == INT_LT)
+        int_set_i(l, (Int *) &t);
+        if (int_is(i, (Int *) &t) == INT_LT)
         {
             r = INT_BELOW;
         }
@@ -650,36 +713,40 @@ IntRange int_is_range(Int const *i, int64_t l, uint64_t u)
     return r;
 }
 
+static const IntConcrete2 tenToTheFour = {.m_ = 2, .d_ = 1, .w_[0] = 10000u};
+static const IntConcrete4 tenToTheNineteen = {.m_ = 4, .d_ = 4, .w_ = {2313682944u, 2328306436u}}; // 10000000000000000000
+
 char const *int_to_s(Int const *i, char *s, int n)
 {
     char *out = &s[n - 1];
     *out = '\0';
 
-    Int v;
-    int_set_t(i, &v);
+    IntConcrete254 v;
+    int_init_concrete254(&v);
+
+    int_set_t(i, (Int *) &v);
     v.neg_ = false;
-    Int tenToTheFour;
-    int_set_i(10000u, &tenToTheFour);
 
-    while (!int_is_zero(&v))
+    static IntConcrete4 r;
+    int_init_concrete4(&r);
+
+    while (!int_is_zero((Int *) &v))
     {
-        Int r;
-        int_div(&v, &tenToTheFour, &v, &r);
+        int_div((Int *) &v, (Int *) &tenToTheNineteen, (Int *) &v, (Int *) &r);
 
-        assert(r.d_ == 1);
-        uint16_t rem = r.h_[0];
-        bool leading = int_is_zero(&v);
-        for (int c = 0; c < 4 && out > s; c++)
+        FourDigits rem = {.l32_ = r.w_[0], .h32_ = r.d_ > 2 ? r.w_[1] : 0u};
+        bool leading = int_is_zero((Int *) &v);
+        for (int c = 0; c < 19 && out > s; c++)
         {
-            char ch = (char) (rem % 10u + '0');
-            if (!leading || rem != 0)
+            char ch = (char) (rem.ull64_ % 10u + '0');
+            if (!leading || rem.ull64_ != 0)
             {
                 *--out = ch;
             }
-            rem /= 10u;
+            rem.ull64_ /= 10u;
         }
     }
-    if (out == &s[310]) // todo optimise - break to for loop above if rem and v are zero
+    if (out == &s[n - 1]) // todo optimise - break to for loop above if rem and v are zero
     {
         *--out = '0';
     }
@@ -687,6 +754,7 @@ char const *int_to_s(Int const *i, char *s, int n)
     {
         *--out = '-';
     }
+
     return out;
 }
 
@@ -699,8 +767,9 @@ int64_t int_to_i64(Int const *i)
 {
     FourDigits r;
     r.ll64_ = 0;
-    uint16_t const *s = i->h_;
-    uint16_t const *e = min(&i->h_[4], &i->h_[i->d_]);
+    uint16_t const *const ih = (uint16_t const *) i->w_;
+    uint16_t const *s = ih;
+    uint16_t const *e = min(&ih[4], &ih[i->d_]);
     uint16_t *d = &r.a16_;
     while (s < e)
     {
@@ -731,8 +800,9 @@ uint64_t int_to_u64(Int const *i)
 {
     FourDigits r;
     r.ull64_ = 0;
-    uint16_t const *s = i->h_;
-    uint16_t const *e = min(&i->h_[4], &i->h_[i->d_]);
+    uint16_t const *const ih = (uint16_t const *) i->w_;
+    uint16_t const *s = ih;
+    uint16_t const *e = min(&ih[4], &ih[i->d_]);
     uint16_t *d = &r.a16_;
     while (s < e)
     {
@@ -745,8 +815,9 @@ int32_t int_to_i32(Int const *i)
 {
     TwoDigits r;
     r.i32_ = 0;
-    uint16_t const *s = i->h_;
-    uint16_t const *e = min(&i->h_[2], &i->h_[i->d_]);
+    uint16_t const *const ih = (uint16_t const *) i->w_;
+    uint16_t const *s = ih;
+    uint16_t const *e = min(&ih[2], &ih[i->d_]);
     uint16_t *d = &r.l16_;
     while (s < e)
     {
@@ -777,8 +848,9 @@ uint32_t int_to_u32(Int const *i)
 {
     TwoDigits r;
     r.u32_ = 0;
-    uint16_t const *s = i->h_;
-    uint16_t const *e = min(&i->h_[2], &i->h_[i->d_]);
+    uint16_t const *const ih = (uint16_t const *) i->w_;
+    uint16_t const *s = ih;
+    uint16_t const *e = min(&ih[2], &ih[i->d_]);
     uint16_t *d = &r.l16_;
     while (s < e)
     {
@@ -791,45 +863,49 @@ void int_invariant(Int const *i)
 {
     assert((int) i->neg_ == 1 || (int)i->neg_ == 0);
     assert(!i->overflow_);
-    assert(i->m_ == INT_MAX_DIGITS); // todo - this will change when arbitrary length
+    assert(i->m_ % 2 == 0);
     assert(i->d_ >= 1 && i->d_ <= i->m_);
     // check top half-word is zero if length is odd
+    uint16_t const *const ih = (uint16_t const *) i->w_;
     if (i->d_ % 2 == 1)
     {
-        assert(i->h_[i->d_] == 0);
+        assert(ih[i->d_] == 0);
     }
     // check no leading zeros
     if (i->d_ > 1)
     {
-        assert(i->h_[i->d_ - 1] != 0);
+        assert(ih[i->d_ - 1] != 0);
     }
 }
 
+static const int randMaxDigits = 254;
+
 void int_make_random(Int *i)
 {
-    i->m_ = INT_MAX_DIGITS;
     i->overflow_ = false;
     i->neg_ = rand() > RAND_MAX / 2;
-    i->d_ = 1 + rand() / (RAND_MAX / 64);
-    assert(i->d_ <= INT_MAX_DIGITS);
+    i->d_ = 1 + rand() / (RAND_MAX / randMaxDigits);
+    i->m_ = i->d_ + i->d_ % 2;
+    assert(i->d_ <= randMaxDigits);
+    uint16_t *const ih = (uint16_t *) i->w_;
     for (int x = 0; x < i->d_; x++)
     {
-        i->h_[x] = (uint16_t) rand();
+        ih[x] = (uint16_t) rand();
     }
-    while (i->h_[i->d_ - 1] == 0)
+    while (ih[i->d_ - 1] == 0)
     {
-        i->h_[i->d_ - 1] = (uint16_t) rand();
+        ih[i->d_ - 1] = (uint16_t) rand();
     }
-    if (i->d_ < 64)
+    if (i->d_ < i->m_)
     {
-        i->h_[i->d_] = 0u;
+        ih[i->d_] = 0u;
     }
 }
 
 void int_print(Int const *i)
 {
-    char s[311];
-    const char *out = int_to_s(i, s, 311);
+    char s[INT_STRLEN_FOR_INT254];
+    const char *out = int_to_s(i, s, INT_STRLEN_FOR_INT254);
     printf("%s", out);
 }
 
@@ -840,11 +916,12 @@ void int_for_bc(Int const *a)
     {
         printf("(-");
     }
+    uint16_t const *const ah = (uint16_t const *) a->w_;
     for (; i < a->d_ - 1; i++)
     {
-        printf("(%d+65536*", a->h_[i]);
+        printf("(%d+65536*", ah[i]);
     }
-        printf("%d", a->h_[i]);
+    printf("%d", ah[i]);
     for (i = 0; i < a->d_ - 1; i++)
     {
         printf(")");
@@ -865,229 +942,244 @@ int main(void)
 
 void int_run_tests(void)
 {
-    char ss[311];
+    char ss[INT_STRLEN_FOR_INT254];
 
-    Int a, b, s, r, t, d, q, p, t2;
-    int_init(&d);
-    int_init(&p);
-    int_init(&q);
-    int_init(&s);
-    int_init(&r);
-    Int tenToTheFour;
-    int_set_i(10000u, &tenToTheFour);
+    IntConcrete2 cl;
+    Int *l = int_init_concrete2(&cl);
+
+    IntConcrete254 c[9];
+    Int *a, *b, *s, *r, *t, *d, *q, *p, *t2;
+    Int **all[9] = {&a, &b, &s, &r, &t, &d, &q, &p, &t2};
+    for (int i = 0; i < 9; i++)
+    {
+        *(all[i]) = int_init_concrete254(&c[i]);
+    }
 
 //    goto div;
 //    goto rand;
-    int_set_i(0, &a);
-    int_invariant(&a);
-    int_print(&a); printf("\n");
-    assert(int_is_zero(&a));
+    int_set_i(0, a);
+    int_invariant(a);
+    int_print(a); printf("\n");
+    assert(int_is_zero(a));
 
-    int_set_i(123, &a);
-    int_set_i(4567, &b);
-    int_invariant(&a);
-    int_invariant(&b);
-    assert(int_is(&a, &b) == INT_LT);
-    assert(int_is_abs(&a, &b) == INT_LT);
+    int_set_i(123, a);
+    int_set_i(4567, b);
+    int_invariant(a);
+    int_invariant(b);
+    assert(int_is(a, b) == INT_LT);
+    assert(int_is_abs(a, b) == INT_LT);
 
-    int_set_i(9223372036854775807L, &a);
-    int_set_i(9223372036854775806ll, &b);
-    int_invariant(&a);
-    int_invariant(&b);
-    assert(int_is(&a, &b) == INT_GT);
-    assert(int_is_abs(&a, &b) == INT_GT);
+    int_set_i(123, l);
+    int_invariant(l);
+    assert(int_is(l, a) == INT_EQ);
 
-    int_set_i(0ll, &a);
-    int_set_i(-1, &b);
-    int_invariant(&a);
-    int_invariant(&b);
-    assert(int_is(&a, &b) == INT_GT);
-    assert(int_is_abs(&a, &b) == INT_LT);
+    int_set_i(-123, l);
+    int_invariant(l);
+    l->neg_ = false;
+    assert(int_is(l, a) == INT_EQ);
 
-    int_set_i(0ll, &b); b.neg_ = true;
-    int_invariant(&b);
-    assert(int_is(&a, &b) == INT_EQ);
-    assert(int_is_abs(&a, &b) == INT_EQ);
+    int_set_u(4294967296, l);
+    assert(l->overflow_);
 
-    int_set_i(-2, &a);
-    int_set_i(-1, &b);
-    int_invariant(&a);
-    int_invariant(&b);
-    assert(int_is(&a, &b) == INT_LT);
-    assert(int_is_abs(&a, &b) == INT_GT);
+    int_set_i(9223372036854775807L, a);
+    int_set_i(9223372036854775806ll, b);
+    int_invariant(a);
+    int_invariant(b);
+    assert(int_is(a, b) == INT_GT);
+    assert(int_is_abs(a, b) == INT_GT);
 
-    int_set_i(2, &b);
-    int_invariant(&b);
-    assert(int_is(&a, &b) == INT_LT);
-    assert(int_is_abs(&a, &b) == INT_EQ);
+    int_set_i(0ll, a);
+    int_set_i(-1, b);
+    int_invariant(a);
+    int_invariant(b);
+    assert(int_is(a, b) == INT_GT);
+    assert(int_is_abs(a, b) == INT_LT);
 
-    int_set_i(123, &a);
-    int_set_i(4567, &b);
-    int_invariant(&a);
-    int_invariant(&b);
-    int_add(&a, &b, &r);
-    int_invariant(&r);
-    int_set_i(123+4567, &t);
-    int_invariant(&t);
-    assert(int_is(&r, &t) == INT_EQ);
+    int_set_i(0ll, b); b->neg_ = true;
+    int_invariant(b);
+    assert(int_is(a, b) == INT_EQ);
+    assert(int_is_abs(a, b) == INT_EQ);
 
-    int_set_i(1230000001, &a);
-    int_set_i(45675555555, &b);
-    int_invariant(&a);
-    int_invariant(&b);
-    int_add(&a, &b, &r); //buggy
-    int_invariant(&r);
-    int_set_i(1230000001+45675555555, &t);
-    int_invariant(&t);
-    assert(int_is(&r, &t) == INT_EQ);
+    int_set_i(-2, a);
+    int_set_i(-1, b);
+    int_invariant(a);
+    int_invariant(b);
+    assert(int_is(a, b) == INT_LT);
+    assert(int_is_abs(a, b) == INT_GT);
 
-    int_set_i(9223372036854775807L, &a);
-    int_set_i(9223372036854775806ll, &b);
-    int_invariant(&a);
-    int_invariant(&b);
-    int_add(&a, &b, &r);
-    int_invariant(&r);
-    int_set_t(&r, &a);
-    int_invariant(&a);
-    int_set_i(3, &b);
-    int_invariant(&b);
-    int_add(&a, &b, &r);
-    int_invariant(&r);
+    int_set_i(2, b);
+    int_invariant(b);
+    assert(int_is(a, b) == INT_LT);
+    assert(int_is_abs(a, b) == INT_EQ);
 
-    int_set_i(4567, &a);
-    int_set_i(123, &b);
-    int_invariant(&a);
-    int_invariant(&b);
-    int_sub(&a, &b, &r);
-    int_invariant(&r);
-    int_set_i(4567-123, &t);
-    int_invariant(&t);
-    assert(int_is(&r, &t) == INT_EQ);
+    int_set_i(123, a);
+    int_set_i(4567, b);
+    int_invariant(a);
+    int_invariant(b);
+    int_add(a, b, r);
+    int_invariant(r);
+    int_set_i(123+4567, t);
+    int_invariant(t);
+    assert(int_is(r, t) == INT_EQ);
 
-    int_set_i(1230000001, &a);
-    int_set_i(45675555555, &b);
-    int_invariant(&a);
-    int_invariant(&b);
-    int_sub(&a, &b, &r);
-    int_invariant(&r);
-    int_set_i(45675555555-1230000001, &t);
-    int_invariant(&t);
-    int_set_i(-1, &a);
-    int_set_t(&t, &b);
-    int_invariant(&a);
-    int_invariant(&b);
-    int_mul(&a, &b, &t);
-    int_invariant(&t);
-    assert(int_is(&r, &t) == INT_EQ);
+    int_set_i(1230000001, a);
+    int_set_i(45675555555, b);
+    int_invariant(a);
+    int_invariant(b);
+    int_add(a, b, r); //buggy
+    int_invariant(r);
+    int_set_i(1230000001+45675555555, t);
+    int_invariant(t);
+    assert(int_is(r, t) == INT_EQ);
 
-    int_set_i(1, &a);
-    int_set_i(2147483649, &b);
-    int_invariant(&a);
-    int_invariant(&b);
-    int_mul(&a, &b, &r);
-    int_invariant(&r);
-    assert(int_is(&r, &b) == INT_EQ);
+    int_set_i(9223372036854775807L, a);
+    int_set_i(9223372036854775806ll, b);
+    int_invariant(a);
+    int_invariant(b);
+    int_add(a, b, r);
+    int_invariant(r);
+    int_set_t(r, a);
+    int_invariant(a);
+    int_set_i(3, b);
+    int_invariant(b);
+    int_add(a, b, r);
+    int_invariant(r);
 
-    int_set_i(4567, &a);
-    int_set_i(123, &b);
-    int_invariant(&a);
-    int_invariant(&b);
-    int_mul(&a, &b, &r);
-    int_invariant(&r);
-    int_set_i(4567*123, &t);
-    int_invariant(&t);
-    assert(int_is(&r, &t) == INT_EQ);
+    int_set_i(4567, a);
+    int_set_i(123, b);
+    int_invariant(a);
+    int_invariant(b);
+    int_sub(a, b, r);
+    int_invariant(r);
+    int_set_i(4567-123, t);
+    int_invariant(t);
+    assert(int_is(r, t) == INT_EQ);
 
-    int_set_i(-4567, &a);
-    int_set_i(-123, &b);
-    int_invariant(&a);
-    int_invariant(&b);
-    int_mul(&a, &b, &r);
-    int_invariant(&r);
-    int_set_i(4567*123, &t);
-    int_invariant(&t);
-    assert(int_is(&r, &t) == INT_EQ);
+    int_set_i(1230000001, a);
+    int_set_i(45675555555, b);
+    int_invariant(a);
+    int_invariant(b);
+    int_sub(a, b, r);
+    int_invariant(r);
+    int_set_i(45675555555-1230000001, t);
+    int_invariant(t);
+    int_set_i(-1, a);
+    int_set_t(t, b);
+    int_invariant(a);
+    int_invariant(b);
+    int_mul(a, b, t);
+    int_invariant(t);
+    assert(int_is(r, t) == INT_EQ);
 
-    int_set_i(-4567, &a);
-    int_set_i(123, &b);
-    int_invariant(&a);
-    int_invariant(&b);
-    int_mul(&a, &b, &r);
-    int_invariant(&r);
-    int_set_i(-4567*123, &t);
-    int_invariant(&t);
-    assert(int_is(&r, &t) == INT_EQ);
+    int_set_i(1, a);
+    int_set_i(2147483649, b);
+    int_invariant(a);
+    int_invariant(b);
+    int_mul(a, b, r);
+    int_invariant(r);
+    assert(int_is(r, b) == INT_EQ);
 
-    int_set_i(1230000001, &a);
-    int_set_i(45675, &b);
-    int_invariant(&a);
-    int_invariant(&b);
-    int_mul(&a, &b, &r);
-    int_invariant(&r);
-    int_set_i(45675*1230000001ll, &t);
-    int_invariant(&t);
-    assert(int_is(&r, &t) == INT_EQ);
-    assert(strcmp(int_to_s(&r, ss, sizeof ss / sizeof ss[0]), "56180250045675") == 0);
-    assert(int_to_i64(&r) == 56180250045675);
+    int_set_i(4567, a);
+    int_set_i(123, b);
+    int_invariant(a);
+    int_invariant(b);
+    int_mul(a, b, r);
+    int_invariant(r);
+    int_set_i(4567*123, t);
+    int_invariant(t);
+    assert(int_is(r, t) == INT_EQ);
 
-    int_set_i(10000u, &d);
-    int_div(&t, &d, &q, &r);
-    int_invariant(&q);
-    int_invariant(&r);
-    int_set_i(5618025004, &t);
-    assert(int_is(&q, &t) == INT_EQ);
-    int_set_i(5675, &t);
-    assert(int_is(&r, &t) == INT_EQ);
+    int_set_i(-4567, a);
+    int_set_i(-123, b);
+    int_invariant(a);
+    int_invariant(b);
+    int_mul(a, b, r);
+    int_invariant(r);
+    int_set_i(4567*123, t);
+    int_invariant(t);
+    assert(int_is(r, t) == INT_EQ);
 
-    int_div(&q, &d, &q, &r);
-    int_invariant(&q);
-    int_invariant(&r);
-    int_set_i(561802, &t);
-    assert(int_is(&q, &t) == INT_EQ);
-    int_set_i(5004, &t);
-    assert(int_is(&r, &t) == INT_EQ);
+    int_set_i(-4567, a);
+    int_set_i(123, b);
+    int_invariant(a);
+    int_invariant(b);
+    int_mul(a, b, r);
+    int_invariant(r);
+    int_set_i(-4567*123, t);
+    int_invariant(t);
+    assert(int_is(r, t) == INT_EQ);
 
-    int_div(&q, &d, &q, &r);
-    int_invariant(&q);
-    int_invariant(&r);
-    int_set_i(56, &t);
-    assert(int_is(&q, &t) == INT_EQ);
-    int_set_i(1802, &t);
-    assert(int_is(&r, &t) == INT_EQ);
+    int_set_i(1230000001, a);
+    int_set_i(45675, b);
+    int_invariant(a);
+    int_invariant(b);
+    int_mul(a, b, r);
+    int_invariant(r);
+    int_set_i(45675*1230000001ll, t);
+    int_invariant(t);
+    assert(int_is(r, t) == INT_EQ);
+    char const *rr = int_to_s(r, ss, sizeof ss / sizeof ss[0]);
+    assert(strcmp(rr, "56180250045675") == 0);
+    assert(int_to_i64(r) == 56180250045675);
 
-    int_div(&q, &d, &q, &r);
-    int_invariant(&q);
-    int_invariant(&r);
-    int_set_i(0, &t);
-    assert(int_is(&q, &t) == INT_EQ);
-    int_set_i(56, &t);
-    assert(int_is(&r, &t) == INT_EQ);
+    int_set_i(10000u, d);
+    int_div(t, d, q, r);
+    int_invariant(q);
+    int_invariant(r);
+    int_set_i(5618025004, t);
+    assert(int_is(q, t) == INT_EQ);
+    int_set_i(5675, t);
+    assert(int_is(r, t) == INT_EQ);
 
-    int_set_s("-12345", &a);
-    int_set_i(-12345, &b);
-    int_invariant(&a);
-    int_invariant(&b);
-    assert(int_is(&a, &b) == INT_EQ);
+    int_div(q, d, q, r);
+    int_invariant(q);
+    int_invariant(r);
+    int_set_i(561802, t);
+    assert(int_is(q, t) == INT_EQ);
+    int_set_i(5004, t);
+    assert(int_is(r, t) == INT_EQ);
 
-    int_set_i(13421772800000, &a);
-    int_set_i(13421772800000, &b);
-    int_invariant(&a);
-    int_invariant(&b);
-    int_div(&a, &b, &q, 0);
-    int_invariant(&q);
-    int_set_i(13421772800000/13421772800000, &t);
-    int_invariant(&t);
-    assert(int_is(&q, &t) == INT_EQ);
+    int_div(q, d, q, r);
+    int_invariant(q);
+    int_invariant(r);
+    int_set_i(56, t);
+    assert(int_is(q, t) == INT_EQ);
+    int_set_i(1802, t);
+    assert(int_is(r, t) == INT_EQ);
 
-    int_set_i(13421772800700, &a);
-    int_set_i(444, &b);
-    int_invariant(&a);
-    int_invariant(&b);
-    int_div(&a, &b, &q, 0);
-    int_invariant(&q);
-    int_set_i(13421772800700/444, &t);
-    int_invariant(&t);
-    assert(int_is(&q, &t) == INT_EQ);
+    int_div(q, d, q, r);
+    int_invariant(q);
+    int_invariant(r);
+    int_set_i(0, t);
+    assert(int_is(q, t) == INT_EQ);
+    int_set_i(56, t);
+    assert(int_is(r, t) == INT_EQ);
+
+    int_set_s("-12345", a);
+    int_set_i(-12345, b);
+    int_invariant(a);
+    int_invariant(b);
+    assert(int_is(a, b) == INT_EQ);
+
+    int_set_i(13421772800000, a);
+    int_set_i(13421772800000, b);
+    int_invariant(a);
+    int_invariant(b);
+    int_div(a, b, q, 0);
+    int_invariant(q);
+    int_set_i(13421772800000/13421772800000, t);
+    int_invariant(t);
+    assert(int_is(q, t) == INT_EQ);
+
+    int_set_i(13421772800700, a);
+    int_set_i(444, b);
+    int_invariant(a);
+    int_invariant(b);
+    int_div(a, b, q, 0);
+    int_invariant(q);
+    int_set_i(13421772800700/444, t);
+    int_invariant(t);
+    assert(int_is(q, t) == INT_EQ);
 
     int64_t tm[][2] =
     {
@@ -1101,29 +1193,29 @@ void int_run_tests(void)
 
     for (int x = 0; x < sizeof tm / sizeof tm[0]; x++)
     {
-        int_set_i(tm[x][0], &a);
-        int_set_i(tm[x][1], &b);
-        int_invariant(&a);
-        int_invariant(&b);
-        int_mul(&a, &b, &p);
-        int_invariant(&p);
-        int_set_i(tm[x][0] * tm[x][1], &t);
-        int_invariant(&t);
-        assert(int_is(&p, &t) == INT_EQ);
+        int_set_i(tm[x][0], a);
+        int_set_i(tm[x][1], b);
+        int_invariant(a);
+        int_invariant(b);
+        int_mul(a, b, p);
+        int_invariant(p);
+        int_set_i(tm[x][0] * tm[x][1], t);
+        int_invariant(t);
+        assert(int_is(p, t) == INT_EQ);
     }
 
     char const *bb = "45004569476097716405600188052489096276589659783372385398756134755718969568599212452839780406252029736959022214045678577312955372997557808011166351368242024169330770738287024721942327258131593587116073102711494427349137261153163351227207";
-    int_set_s(bb, &a);
-    int_print(&a);printf("\n%s\n", bb);
-    int_for_bc(&a);printf("\n");
+    int_set_s(bb, a);
+    int_print(a);printf("\n%s\n", bb);
+    int_for_bc(a);printf("\n");
 
     int outit=0;
-    while (!int_is_zero(&a))
+    while (!int_is_zero(a))
     {
-        if (outit) {int_for_bc(&a);printf("\n");}
-        int_div(&a, &tenToTheFour, &a, &r);
-        if (outit) {int_for_bc(&a);printf("\n");int_for_bc(&r);printf("\n");outit--;}
-        if (int_to_u32(&r) == 6933)
+        if (outit) {int_for_bc(a);printf("\n");}
+        int_div(a, (Int *) &tenToTheFour, a, r);
+        if (outit) {int_for_bc(a);printf("\n");int_for_bc(r);printf("\n");outit--;}
+        if (int_to_u32(r) == 6933)
         {
             outit=3;
         }
@@ -1136,19 +1228,19 @@ void int_run_tests(void)
 
     for (int x = 0; x < sizeof tss / sizeof tss[0]; x++)
     {
-        int_set_s(tss[x][0], &a);
-        int_set_s(tss[x][1], &b);
-        int_set_s(tss[x][2], &t);
-        int_invariant(&a);
-        int_invariant(&b);
-        int_invariant(&t);
-        int_print(&a);printf(" - ");int_print(&b);printf(" => ");int_print(&t);printf("\n");
-        int_for_bc(&t);printf("\n");
-        int_sub(&a, &b, &d);
-        int_invariant(&d);
-        int_print(&a);printf(" - ");int_print(&b);printf(" => ");int_print(&d);printf("\n");
-        int_for_bc(&d);printf("\n");
-        assert(int_is(&d, &t) == INT_EQ);
+        int_set_s(tss[x][0], a);
+        int_set_s(tss[x][1], b);
+        int_set_s(tss[x][2], t);
+        int_invariant(a);
+        int_invariant(b);
+        int_invariant(t);
+        int_print(a);printf(" - ");int_print(b);printf(" => ");int_print(t);printf("\n");
+        int_for_bc(t);printf("\n");
+        int_sub(a, b, d);
+        int_invariant(d);
+        int_print(a);printf(" - ");int_print(b);printf(" => ");int_print(d);printf("\n");
+        int_for_bc(d);printf("\n");
+        assert(int_is(d, t) == INT_EQ);
     }
 
     div: ;
@@ -1161,28 +1253,28 @@ void int_run_tests(void)
 
     for (int x = 0; x < sizeof tds / sizeof tds[0]; x++)
     {
-        int_set_s(tds[x][0], &a);
-        int_set_s(tds[x][1], &b);
-        int_set_s(tds[x][2], &t);
-        int_set_s(tds[x][3], &t2);
-        //        printf("%s - ", tds[x][0]);int_for_bc(&a);printf("\n");
-        //        printf("%s - ", tds[x][1]);int_for_bc(&b);printf("\n");
-        //        printf("%s - ", tds[x][2]);int_for_bc(&t);printf("\n");
-        //        printf("%s - ", tds[x][3]);int_for_bc(&t2);printf("\n");
-        int_invariant(&a);
-        int_invariant(&b);
-        int_invariant(&t);
-        int_invariant(&t2);
-        int_div(&a, &b, &q, &r);
-        int_invariant(&d);
-        int_invariant(&r);
+        int_set_s(tds[x][0], a);
+        int_set_s(tds[x][1], b);
+        int_set_s(tds[x][2], t);
+        int_set_s(tds[x][3], t2);
+        //        printf("%s - ", tds[x][0]);int_for_bc(a);printf("\n");
+        //        printf("%s - ", tds[x][1]);int_for_bc(b);printf("\n");
+        //        printf("%s - ", tds[x][2]);int_for_bc(t);printf("\n");
+        //        printf("%s - ", tds[x][3]);int_for_bc(t2);printf("\n");
+        int_invariant(a);
+        int_invariant(b);
+        int_invariant(t);
+        int_invariant(t2);
+        int_div(a, b, q, r);
+        int_invariant(d);
+        int_invariant(r);
 
-        printf("%s\n%s\n", tds[x][0], tds[x][1]);int_for_bc(&q);printf("\n");int_for_bc(&r);printf("\n");
+        printf("%s\n%s\n", tds[x][0], tds[x][1]);int_for_bc(q);printf("\n");int_for_bc(r);printf("\n");
 
-        //        int_for_bc(&q);printf("%s\n", int_is(&q, &t) == INT_EQ ? "÷✔️" : "÷⨯");
-        assert(int_is(&q, &t) == INT_EQ);
-        //        int_for_bc(&r);printf("%s\n", int_is(&q, &t) == INT_EQ ? "%✔️" : "%⨯");
-        assert(int_is(&r, &t2) == INT_EQ);
+        //        int_for_bc(q);printf("%s\n", int_is(q, t) == INT_EQ ? "÷✔️" : "÷⨯");
+        assert(int_is(q, t) == INT_EQ);
+        //        int_for_bc(r);printf("%s\n", int_is(q, t) == INT_EQ ? "%✔️" : "%⨯");
+        assert(int_is(r, t2) == INT_EQ);
     }
 //    goto rand;
     char const *tms[][3] =
@@ -1200,17 +1292,17 @@ void int_run_tests(void)
 
     for (int x = 0; x < sizeof tms / sizeof tms[0]; x++)
     {
-        int_set_s(tms[x][0], &a);
-        int_set_s(tms[x][1], &b);
-        int_set_s(tms[x][2], &t);
-        int_invariant(&a);
-        int_invariant(&b);
-        int_invariant(&t);
-        int_print(&a);printf(" * ");int_print(&b);printf(" - ");int_print(&t);printf("\n");
-        int_mul(&a, &b, &p);
-        int_invariant(&p);
-        int_print(&a);printf(" * ");int_print(&b);printf(" - ");int_print(&p);printf("\n");
-        assert(int_is(&p, &t) == INT_EQ);
+        int_set_s(tms[x][0], a);
+        int_set_s(tms[x][1], b);
+        int_set_s(tms[x][2], t);
+        int_invariant(a);
+        int_invariant(b);
+        int_invariant(t);
+        int_print(a);printf(" * ");int_print(b);printf(" - ");int_print(t);printf("\n");
+        int_mul(a, b, p);
+        int_invariant(p);
+        int_print(a);printf(" * ");int_print(b);printf(" - ");int_print(p);printf("\n");
+        assert(int_is(p, t) == INT_EQ);
     }
 
     int64_t td[][2] =
@@ -1234,68 +1326,94 @@ void int_run_tests(void)
 
     for (int x = 0; x < sizeof td / sizeof td[0]; x++)
     {
-        int_set_i(td[x][0], &a);
-        int_set_i(td[x][1], &b);
-        int_invariant(&a);
-        int_invariant(&b);
-        int_div(&a, &b, &q, &r);
-        int_invariant(&q);
-        int_invariant(&r);
-        int_set_i(td[x][0] / td[x][1], &t);
-        int_invariant(&t);
-        assert(int_is(&q, &t) == INT_EQ);
-        int_set_i(td[x][0] % td[x][1], &t);
-        int_invariant(&t);
-        assert(int_is(&r, &t) == INT_EQ);
+        int_set_i(td[x][0], a);
+        int_set_i(td[x][1], b);
+        int_invariant(a);
+        int_invariant(b);
+        int_div(a, b, q, r);
+        int_invariant(q);
+        int_invariant(r);
+        int_set_i(td[x][0] / td[x][1], t);
+        int_invariant(t);
+        assert(int_is(q, t) == INT_EQ);
+        int_set_i(td[x][0] % td[x][1], t);
+        if (a->neg_) // put r back to normal c/bc modulus
+        {
+            int_sub(r, b, r);
+        }
+        int_invariant(t);
+        int_print(r);printf(" ");int_print(t);printf("\n");
+        assert(int_is(r, t) == INT_EQ);
     }
 
 //    return;
 rand: // pipe the output from here into `bc -lLS 0`
     for (int x = 0; x < 100000; x++)
     {
+        s->m_ = (rand() % 127 + 1) * 2;
+        d->m_ = (rand() % 127 + 1) * 2;
+        q->m_ = (rand() % 127 + 1) * 2;
+        p->m_ = (rand() % 127 + 1) * 2;
+
         printf("%d\n", x);
 
-        int_make_random(&a);int_invariant(&a);
-        int_make_random(&b);int_invariant(&b);
+        int_make_random(a);int_invariant(a);
+        int_make_random(b);int_invariant(b);
 
-        int_add(&a, &b, &s);
-        if (!s.overflow_)
+        int_add(a, b, s);
+        if (!s->overflow_)
         {
-            int_invariant(&s);
-            int_for_bc(&a);printf(" + ");int_for_bc(&b);printf(" - ");int_for_bc(&s);printf("\n");
+            int_invariant(s);
+            int_for_bc(a);printf(" + ");int_for_bc(b);printf(" - ");int_for_bc(s);printf("\n");
         }
         else
         {
             //            printf("%d\n", x);
-            s.overflow_ = false;
+            s->overflow_ = false;
         }
 
-        int_sub(&a, &b, &d);
-        if (!d.overflow_)
+        int_sub(a, b, d);
+        if (!d->overflow_)
         {
-            int_invariant(&d);
-            int_for_bc(&a);printf(" - ");int_for_bc(&b);printf(" - ");int_for_bc(&d);printf("\n");
+            int_invariant(d);
+            int_for_bc(a);printf(" - ");int_for_bc(b);printf(" - ");int_for_bc(d);printf("\n");
         }
         else
         {
             //            printf("%d\n", x);
-            d.overflow_ = false;
+            d->overflow_ = false;
         }
 
-        int_mul(&a, &b, &p);
-        if (!p.overflow_)
+        int_mul(a, b, p);
+        if (!p->overflow_)
         {
-            int_invariant(&p);
-            int_print(&a);printf(" * ");int_print(&b); printf(" - ");int_print(&p);printf("\n");
+            int_invariant(p);
+            int_print(a);printf(" * ");int_print(b); printf(" - ");int_print(p);printf("\n");
         }
         else
         {
             //            printf("%d\n", x);
-            p.overflow_ = false;
+            p->overflow_ = false;
         }
 
-        int_div(&a, &b, &q, &r);int_invariant(&q);int_invariant(&r);
-        int_for_bc(&a);printf(" / ");int_for_bc(&b);printf(" - ");int_for_bc(&q);printf("\n");
-        int_for_bc(&a);printf(" %% ");int_for_bc(&b);printf(" - ");int_for_bc(&r);printf("\n");
+        int_div(a, b, q, r);
+        if (!q->overflow_ && !r->overflow_)
+        {
+            int_invariant(q); int_invariant(r);
+
+            if (a->neg_) // put r back to normal c/bc modulus
+            {
+                int_sub(r, b, r);
+            }
+
+            int_for_bc(a);printf(" / ");int_for_bc(b);printf(" - ");int_for_bc(q);printf("\n");
+            int_for_bc(a);printf(" %% ");int_for_bc(b);printf(" - ");int_for_bc(r);printf("\n");
+        }
+        else
+        {
+            //            printf("%d\n", x);
+            q->overflow_ = false;
+            r->overflow_ = false;
+        }
     }
 }

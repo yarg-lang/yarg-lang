@@ -1354,7 +1354,28 @@ void binaryIntOp(ObjRoutine* routine, char const *c)
     Int *a = AS_INT(peek(routine, 1));
     Int *b = AS_INT(peek(routine, 0));
 
-    ObjInt *r = ALLOCATE_OBJ(ObjInt, OBJ_INT);
+    int s = 0;
+    switch (*c)
+    {
+    case '+': case '-':
+        s = 1 + (a->m_ > b->m_ ? a->m_ : b->m_);
+        break;
+    case '*':
+        s = a->m_ + b->m_;
+        break;
+    case '/':
+        s = a->m_ ;
+        break;
+    case '%':
+        s = a->m_ > b->m_ ? a->m_ : b->m_;
+        break;
+    default:
+        assert(!"IntOp");
+    }
+    if (s > 254) s = 254;
+    s += s % 2;
+    ObjInt *r = (ObjInt *)allocateObject(sizeof (ObjInt) + s * sizeof (uint16_t), OBJ_INT);
+    r->bigInt.m_ = s;
     int_init(&r->bigInt);
 
     switch (*c)
@@ -1364,9 +1385,9 @@ void binaryIntOp(ObjRoutine* routine, char const *c)
     case '*': int_mul(a, b, &r->bigInt); break;
     case '/': int_div(a, b, &r->bigInt, 0); break; // todo - compiler should optimise for /%
     case '%': {
-        Int q;
-        int_init(&q);
-        int_div(a, b, &q, &r->bigInt); // todo int_div should handle q == 0
+        IntConcrete254 q;
+        int_init_concrete254(&q);
+        int_div(a, b, (Int *) &q, &r->bigInt); // todo int_div should handle q == 0
         break;
     }
     default:

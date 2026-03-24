@@ -119,7 +119,8 @@ ObjNative* newNative(NativeFn function) {
 }
 
 Value defaultIntValue() {
-    ObjInt* intObj = ALLOCATE_OBJ(ObjInt, OBJ_INT);
+    ObjInt *intObj = (ObjInt *) allocateObject(sizeof (ObjInt) + 2 * sizeof (uint16_t), OBJ_INT);
+    intObj->bigInt.m_ = 2;
     int_init(&intObj->bigInt);
     return OBJ_VAL(intObj);
 }
