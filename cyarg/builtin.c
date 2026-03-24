@@ -825,7 +825,7 @@ bool uint8Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
         return true;
     } else if (IS_INT(arg)) {
         Int *i = AS_INT(arg);
-        if (int_is_range(i, 0, INT8_MAX) == INT_WITHIN)
+        if (int_is_range(i, 0, UINT8_MAX) == INT_WITHIN)
         {
             *result = UI8_VAL((uint8_t) int_to_u32(i));
             return true;
