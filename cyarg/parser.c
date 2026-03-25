@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
+#include <assert.h>
 
 #include "parser.h"
 #include "ast.h"
@@ -581,57 +582,132 @@ static ObjExpr* binary(bool canAssign) {
 
 static ObjExpr* number(bool canAssign) {
     int radix = 0;
-    bool sign_bit = true;
     const char* number_start = parser.previous.start;
     int number_len = parser.previous.length;
-    if (parser.previous.length > 1) {
-        switch (parser.previous.start[1]) {
-            case 'x': radix = 16; sign_bit = false; break;
-            case 'X': radix = 16; sign_bit = false; break;
-            case 'b': radix = 2; sign_bit = false; break;
-            case 'B': radix = 2; sign_bit = false; break;
-            case 'd': radix = 10; sign_bit = false; break;
-            case 'D': radix = 10; sign_bit = false; break;
-        }
-        if (radix != 0) {
-            number_start = &parser.previous.start[2];
-            number_len -= 2;
+    if (number_len > 2 && (number_start[0] == '0' || number_start[0] == '@')) {
+        switch (number_start[1]) {
+        case 'x': case 'X':
+            radix = 16;
+            break;
+        case 'b': case 'B':
+            radix = 2;
+            break;
+        case 'd': case 'D':
+            radix = 10;
+            break;
         }
     }
-    if (radix == 0) {
+    if (radix != 0) {
+        number_start = &number_start[2];
+        number_len -= 2;
+    } else {
         radix = 10;
     }
 
     ObjExprNumber* val = NULL;
 
-    if (radix == 10 && sign_bit) {
-        if (memchr(number_start, '.', number_len)) {
-            // for now, use C's stdlib to reuse double formatting.
-            double value = strtod(number_start, NULL);
-            val = newExprNumberDouble(value);
-        } else {
-            val = newExprNumberInt(number_start, number_len);
-            if (int_is_range(&val->val.bigInt, INT32_MIN, INT32_MAX) == INT_WITHIN) // this won’t work for INT32_MIN or INT64_MIN as the - is not parsed here
+    if (radix == 10) {
+        int expAdd = 0;
+        enum {NUMBER_NO_DOT_OR_MSB, NUMBER_DOT, NUMBER_MSB, NUMBER_DOT_AND_MSB, NUMBER_END} state = NUMBER_NO_DOT_OR_MSB;
+        const char *number = number_start;
+        char *heapChars_start = ALLOCATE(char, number_len + 1);
+        char *heapChars = heapChars_start;
+        while (state != NUMBER_END)
+        {
+            switch (*number)
             {
-                val = newExprNumberInteger32(int_to_i32(&val->val.bigInt)); // todo will GC sort this?
-            } // todo what about i64?
+            case '0':
+                if (state == NUMBER_DOT)
+                {
+                    expAdd--;
+                }
+                else if (state == NUMBER_MSB || state == NUMBER_DOT_AND_MSB)
+                {
+                    if (state == NUMBER_MSB)
+                    {
+                        expAdd++;
+                    }
+                    *heapChars++ = *number;
+                }
+                break;
+            case '.':
+                if (state == NUMBER_NO_DOT_OR_MSB)
+                {
+                    state = NUMBER_DOT;
+                }
+                else if (state == NUMBER_MSB)
+                {
+                    state = NUMBER_DOT_AND_MSB;
+                }
+                break;
+            case 'e': case 'E':
+                state = NUMBER_END;
+                *heapChars = '\0';
+                char *end;
+                long value = strtol(number, &end, 10);
+                assert(end == heapChars_start + number_len);
+                assert(value <= INT_MAX && value >= INT_MIN);
+                expAdd += (int) value;
+                assert(expAdd <= 10000 && expAdd >= -10000);
+
+               break;
+            default:
+                if (state == NUMBER_NO_DOT_OR_MSB)
+                {
+                    state = NUMBER_MSB;
+                }
+                else if (state == NUMBER_DOT)
+                {
+                    state = NUMBER_DOT_AND_MSB;
+                    expAdd--;
+                }
+                else if (state == NUMBER_MSB)
+                {
+                    expAdd++;
+                }
+                *heapChars++ = *number;
+                break;
+            }
+            if (++number >= number_start + number_len)
+            {
+                *heapChars = '\0';
+                if (state == NUMBER_NO_DOT_OR_MSB) // zero
+                {
+                    val = newExprNumberInt(1);
+                    int_set_i(0u, &val->bigInt);
+                }
+                else if (state == NUMBER_MSB) // int
+                {
+                    val = newExprNumberInt((int)(heapChars - heapChars_start));
+                    int_set_s(heapChars_start, &val->bigInt);
+                }
+                else // double NUMBER_END xEy|0.Ey -- NUMBER_DOT 0. -- NUMBER_DOT_AND_MSB .y|x.y|x.
+                {
+                    char *end;
+                    val = newExprNumberDouble(strtod(number_start, &end));
+                    assert(end - number_start == number_len);
+                }
+                state = NUMBER_END;
+            }
         }
-    }
-    else {
+
+        FREE(char, heapChars_start);
+    } else {
         uint64_t value = strtoNum(number_start, number_len, radix);
-        if (value <= UINT32_MAX) {
-            val = newExprNumberUInteger32((uint32_t)value);
-        } else {
-            val = newExprNumberUInteger64(value);
-        }
+        int decimalDigits;
+        if (value <= UINT8_MAX)
+            decimalDigits = 3;
+        else if (value <= UINT16_MAX)
+            decimalDigits = 5;
+        else if (value <= UINT32_MAX)
+            decimalDigits = 10;
+        else
+            decimalDigits = 20;
+
+        val = newExprNumberInt(decimalDigits);
+        int_set_u(value, &val->bigInt);
     }
     return (ObjExpr*) val;
-}
-
-static ObjExpr* address(bool canAssign) {
-    uintptr_t value = strtoNum(parser.previous.start, parser.previous.length, 16);
-    ObjExprNumber* addr = newExprNumberAddress(value);
-    return (ObjExpr*) addr;
 }
 
 static AstParseRule rules[] = {
@@ -662,7 +738,6 @@ static AstParseRule rules[] = {
     [TOKEN_LESS]                 = {NULL,      binary, PREC_COMPARISON},
     [TOKEN_LESS_EQUAL]           = {NULL,      binary, PREC_COMPARISON},
     [TOKEN_LEFT_SHIFT]           = {NULL,      binary, PREC_FACTOR},
-    [TOKEN_ADDRESS]              = {address,   NULL,   PREC_NONE},
     [TOKEN_IDENTIFIER]           = {variable,  NULL,   PREC_NONE},
     [TOKEN_STRING]               = {string,    NULL,   PREC_NONE},
     [TOKEN_NUMBER]               = {number,    NULL,   PREC_NONE},

@@ -425,7 +425,10 @@ static bool isInitializableArray(ObjConcreteYargTypeArray* lhsConcreteType, ObjC
     }
 }
 
-bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue) {
+bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue, Value *promotedRhs) {
+
+    promotedRhs->type = VAL_NIL;
+
     if (lhsType->yt == TypeAny) {
         return true;
     }
@@ -440,15 +443,83 @@ bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue) {
     if (lhsType->yt == TypeArray && rhsConcreteType->yt == TypeArray) {       
         return isInitializableArray((ObjConcreteYargTypeArray*)lhsType, (ObjConcreteYargTypeArray*)rhsConcreteType); 
     } else {
+        if (IS_INT(rhsValue))
+        {
+            ObjInt *i = (ObjInt *) rhsValue.as.obj;
+            if (i->isLiteral)
+            {
+                switch (lhsType->yt)
+                {
+                case TypeInt8:
+                    if (int_is_range(&i->bigInt, INT8_MIN, INT8_MAX) == INT_WITHIN)
+                    {
+                        *promotedRhs = I8_VAL(int_to_i32(&i->bigInt));
+                        return true;
+                    }
+                    break;
+                case TypeUint8:
+                    if (int_is_range(&i->bigInt, 0, UINT8_MAX) == INT_WITHIN)
+                    {
+                        *promotedRhs = UI8_VAL(int_to_u32(&i->bigInt));
+                        return true;
+                    }
+                    break;
+                case TypeInt16:
+                    if (int_is_range(&i->bigInt, INT16_MIN, INT16_MAX) == INT_WITHIN)
+                    {
+                        *promotedRhs = I16_VAL(int_to_i32(&i->bigInt));
+                        return true;
+                    }
+                    break;
+                case TypeUint16:
+                    if (int_is_range(&i->bigInt, 0, UINT16_MAX) == INT_WITHIN)
+                    {
+                        *promotedRhs = UI16_VAL(int_to_u32(&i->bigInt));
+                        return true;
+                    }
+                    break;
+                case TypeInt32:
+                    if (int_is_range(&i->bigInt, INT32_MIN, INT32_MAX) == INT_WITHIN)
+                    {
+                        *promotedRhs = I32_VAL(int_to_i32(&i->bigInt));
+                        return true;
+                    }
+                    break;
+                case TypeUint32:
+                    if (int_is_range(&i->bigInt, 0, UINT32_MAX) == INT_WITHIN)
+                    {
+                        *promotedRhs = UI32_VAL(int_to_u32(&i->bigInt));
+                        return true;
+                    }
+                    break;
+                case TypeInt64:
+                    if (int_is_range(&i->bigInt, INT64_MIN, INT64_MAX) == INT_WITHIN)
+                    {
+                        *promotedRhs = I64_VAL(int_to_i64(&i->bigInt));
+                        return true;
+                    }
+                    break;
+                case TypeUint64:
+                    if (int_is_range(&i->bigInt, 0, UINT64_MAX) == INT_WITHIN)
+                    {
+                        *promotedRhs = UI64_VAL(int_to_u64(&i->bigInt));
+                        return true;
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
         return lhsType->yt == rhsConcreteType->yt;
     }
 }
 
-bool isCompatibleType(ObjConcreteYargType* lhsType, Value rhsValue) {
+bool isCompatibleType(ObjConcreteYargType* lhsType, Value rhsValue, Value *promotedRhs) {
     if (lhsType->isConst) {
         return false;
     } else {
-        return isInitialisableType(lhsType, rhsValue);
+        return isInitialisableType(lhsType, rhsValue, promotedRhs);
     }
 }
 

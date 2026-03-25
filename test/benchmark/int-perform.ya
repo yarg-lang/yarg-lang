@@ -3,52 +3,52 @@ const reps_mul = 500;
 const reps_div = 500;
 
 // https://github.com/kraj/uClibc/blob/master/libc/stdlib/rand_r.c#L25
-const maxRand = 0x7fffffff;
-var seed = 0d173993;
+const maxRand = uint32(0x7fffffff);
+var seed = uint32(0d173993);
 fun rand()
 {
     var next = seed;
     var result;
 
-    next = next * 0d1103515245;
-    next = next + 0d12345;
-    result = (next / 0d65536) % 0d2048;
+    next = next * uint32(1103515245);
+    next = next + uint32(12345);
+    result = (next / uint32(65536)) % uint32(2048);
 
-    next = next * 0d1103515245;
-    next = next + 0d12345;
-    result = result << 0d10;
-    result = result ^ ((next / 0d65536) % 0d1024);
+    next = next * uint32(0d1103515245);
+    next = next + uint32(0d12345);
+    result = result << uint32(0d10);
+    result = result ^ ((next / uint32(65536)) % uint32(1024));
 
-    next = next * 0d1103515245;
-    next = next + 0d12345;
-    result = result << 0d10;
-    result = result ^ ((next / 0d65536) % 0d1024);
+    next = next * uint32(0d1103515245);
+    next = next + uint32(0d12345);
+    result = result << uint32(0d10);
+    result = result ^ ((next / uint32(65536)) % uint32(1024));
 
     seed = next;
     return next & maxRand;
 }
 
-const shifter = int(0x80000000);
+const shifter = 0x80000000;
 var temp = new(int[4]);
 fun int_rand()
 {
-    const size = rand() % 0d33; // max 33 * 31 => 1023 bits
+    const size = int(rand() % uint32(33)); // max 33 * 31 => 1023 bits
     var int x = int(rand());
 
-    for (var i = 0d0; i < size; i = i + 0d1)
+    for (var i = 0; i < size; i = 1 + i)
     {
         x = x * shifter + int(rand());
     }
 
-    if (size == 0d32)
+    if (size == 32)
     {
-        if (rand() % 0d2 == 0d1)
+        if (rand() % uint32(2) == uint32(1))
         {
             x = x + 89884656743115795386465259539451236680898848947115328636715040578866337902750481566354238661203768010560056939935696678829394884407208311246423715319737062188883946712432742638151109800623047059726541476042502884419075341171231440736956555270413618581675255342293149119973622969239858152417678164812112068608;
         }
     }
 
-    if (rand() % 0d2 == 0d1)
+    if (rand() % uint32(2) == uint32(1))
     {
         return -x;
     }
@@ -61,7 +61,7 @@ fun int_rand()
 var rts = new(int[500]);
 const zint = int(0);
 
-for (var x = 0; x < 500; x = x + 1)
+for (var x = 0; x < 500; x = 1 + x)
 {
     var i = int_rand();
     if (i == zint)
@@ -83,38 +83,41 @@ for (var x = 0; x < 500; x = x + 1)
 
 var s1 = clock();
 print "Add";
-for (var i = 0; i < 500; i = i + 1) for (var j = 0; j < 500; j = j + 1) for (var k = 0; k < reps_addsub; k = k + 1)
+for (var i = 0; i < 500; i = 1 + i) for (var j = 0; j < 500; j = 1 + j) for (var k = 0; k < reps_addsub; k = 1 + k)
 {
     rts[i] + rts[j];
 }
-var t = mfloat64(clock() - s1);
-print t;
-print t / 500.0 / 500.0 / mfloat64(reps_addsub) * 1000.0;
+var t = clock() - s1;
+var ti = 10000000 * int(t);
+ti = ti / 500 / 500 / reps_addsub;
+print string(ti / 1000) + "." + string (ti % 1000) + " ms / add";
 
 s1 = clock();
 print "Sub";
-for (var i = 0; i < 500; i = i + 1) for (var j = 0; j < 500; j = j + 1) for (var k = 0; k < reps_addsub; k = k + 1)
+for (var i = 0; i < 500; i = 1 + i) for (var j = 0; j < 500; j = 1 + j) for (var k = 0; k < reps_addsub; k = 1 + k)
 {
     rts[i] - rts[j];
 }
-t = mfloat64(clock() - s1);
-print t;
-print t / 500.0 / 500.0 / mfloat64(reps_addsub) * 1000.0;
+t = clock() - s1;
+ti = 10000000 * int(t);
+ti = ti / 500 / 500 / reps_addsub;
+print string(ti / 1000) + "." + string (ti % 1000) + " ms / sub";
 
 s1 = clock();
 print "Mul";
-for (var i = 0; i < reps_mul; i = i + 1) for (var j = 500 - reps_mul; j < 500; j = j + 1)
+for (var i = 0; i < reps_mul; i = 1 + i) for (var j = 500 - reps_mul; j < 500; j = 1 + j)
 {
     rts[i] * rts[j];
 }
-t = mfloat64(clock() - s1);
-print t;
-print t / mfloat64(reps_mul * reps_mul) * 1000.0;
+t = clock() - s1;
+ti = 10000000 * int(t);
+ti = ti / reps_mul / reps_mul;
+print string(ti / 1000) + "." + string (ti % 1000) + " ms / mul";
 
 const zint = int(0);
 s1 = clock();
 print "Div";
-for (var i = 0; i < 500; i = i + 1) for (var j = 500 - reps_div; j < 500; j = j + 1)
+for (var i = 0; i < reps_div; i = 1 + i) for (var j = 500 - reps_div; j < 500; j = 1 + j)
 {
     if (rts[j] != zint)
     {
@@ -126,8 +129,7 @@ for (var i = 0; i < 500; i = i + 1) for (var j = 500 - reps_div; j < 500; j = j 
         print "/ " + string(j) + " " + string(rts[j]);
     }
 }
-t = mfloat64(clock() - s1);
-print t;
-print t / mfloat64(reps_div * reps_div) * 1000.0;
-
-//print rts;
+t = clock() - s1;
+ti = 10000000 * int(t);
+ti = ti / reps_div / reps_div;
+print string(ti / 1000) + "." + string (ti % 1000) + " ms / div";

@@ -41,6 +41,21 @@ static int byteInstruction(const char* name, Chunk* chunk, int offset) {
     return offset + 2;
 }
 
+static int twoByteInstruction(const char* name, Chunk* chunk, int offset) {
+    uint16_t slot = chunk->code[offset + 1];
+    slot += chunk->code[offset + 2] * 256;
+    printf("%-16s %6d\n", name, slot);
+    return offset + 3;
+}
+
+static int threeByteInstruction(const char* name, Chunk* chunk, int offset) {
+    uint32_t slot = chunk->code[offset + 1];
+    slot += chunk->code[offset + 2] * 256;
+    slot += chunk->code[offset + 3] * 65536;
+    printf("%-16s %9d\n", name, slot);
+    return offset + 4;
+}
+
 static int jumpInstruction(const char* name, int sign, Chunk* chunk, int offset) {
     uint16_t jump = (uint16_t)(chunk->code[offset + 1] << 8);
     jump |= chunk->code[offset + 2];
@@ -235,22 +250,18 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             return simpleInstruction("OP_ELEMENT", offset);
         case OP_SET_ELEMENT:
             return simpleInstruction("OP_SET_ELEMENT", offset);
-        case OP_IMMEDIATEi8:
-            return byteInstruction("OP_IMMEDIATEi8", chunk, offset);
-        case OP_IMMEDIATEui8:
-            return byteInstruction("OP_IMMEDIATEui8", chunk, offset);
-        case OP_IMMEDIATEi16:
-            return byteInstruction("OP_IMMEDIATEi16", chunk, offset);
-        case OP_IMMEDIATEui16:
-            return byteInstruction("OP_IMMEDIATEui16", chunk, offset);
-        case OP_IMMEDIATEi32:
-            return byteInstruction("OP_IMMEDIATEi32", chunk, offset);
-        case OP_IMMEDIATEui32:
-            return byteInstruction("OP_IMMEDIATEui32", chunk, offset);
-        case OP_IMMEDIATEi64:
-            return byteInstruction("OP_IMMEDIATEi64", chunk, offset);
-        case OP_IMMEDIATEui64:
-            return byteInstruction("OP_IMMEDIATEui64", chunk, offset);
+        case OP_IMMEDIATE_N8:
+            return byteInstruction("OP_IMMEDIATE_N8", chunk, offset);
+        case OP_IMMEDIATE_P8:
+            return byteInstruction("OP_IMMEDIATE_P8", chunk, offset);
+        case OP_IMMEDIATE_N16:
+            return twoByteInstruction("OP_IMMEDIATE_N16", chunk, offset);
+        case OP_IMMEDIATE_P16:
+            return twoByteInstruction("OP_IMMEDIATE_P16", chunk, offset);
+        case OP_IMMEDIATE_N24:
+            return threeByteInstruction("OP_IMMEDIATE_N24", chunk, offset);
+        case OP_IMMEDIATE_P24:
+            return threeByteInstruction("OP_IMMEDIATE_P24", chunk, offset);
         case OP_TYPE_LITERAL:
             return typeLiteralInstruction("OP_TYPE_LITERAL", chunk, offset);
         case OP_TYPE_MODIFIER:

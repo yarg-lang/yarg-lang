@@ -202,7 +202,10 @@ void offsetPointerDestination(ObjPackedPointer* pointer, size_t offset) {
 }
 
 bool isAddressValue(Value val) {
-    if (IS_ADDRESS(val)) {
+    if (IS_INT(val)) {
+        ObjInt *i = AS_INTOBJ(val);
+        return i->isLiteral;
+    } else if (IS_ADDRESS(val)) {
         return true;
     } else if (IS_POINTER(val)) {
         return true;

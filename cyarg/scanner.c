@@ -400,7 +400,7 @@ static Token address() {
     advance(); // the 'x' or 'X'
     while (isRadixDigit(peek(), 16)) advance();
 
-    return makeToken(TOKEN_ADDRESS); 
+    return makeToken(TOKEN_NUMBER); 
 }
 
 static Token string() {
