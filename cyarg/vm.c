@@ -129,6 +129,7 @@ void initVM() {
     // must be done before initRoutine as initRoutine does a realloc
     platform_mutex_init(&vm.heap);
     platform_mutex_init(&vm.env);
+    initTable(&vm.strings);
 
     // We have an Obj here not on the heap. hack up its init.
     vm.core0.obj.type = OBJ_ROUTINE;
@@ -162,7 +163,6 @@ void initVM() {
     vm.grayStack = NULL;
 
     initCellTable(&vm.globals);
-    initTable(&vm.strings);
     initTable(&vm.imports);
 
     vm.initString = NULL;
