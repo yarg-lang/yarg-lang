@@ -25,7 +25,7 @@ print test.b; // expect: <*Type:uint64:0xd0000008>
 uint32 high = 0xff;
 uint32 low  = 0xdd;
 uint64 val = uint64(low) | uint64(high) << uint64(32);
-var expect = 0x000000FF000000dd;
+var expect = uint64(0x000000FF000000dd);
 print val == expect; // expect: true
 
 uint32 llow = uint32(val & uint64(0xffffffff));
