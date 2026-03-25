@@ -510,8 +510,8 @@ void fprintObject(FILE* op, Value value) {
             break;
         case OBJ_INT: {
             Int *i = AS_INT(value);
-            char sb[311];
-            char const* s = int_to_s(i, sb, 311);
+            char sb[INT_STRLEN_FOR_INT254];
+            char const* s = int_to_s(i, sb, INT_STRLEN_FOR_INT254);
             FPRINTMSG(op, "%s", s);
             break;
     }
