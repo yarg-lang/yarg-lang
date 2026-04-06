@@ -111,7 +111,7 @@ fun set_pixel(k, colour) {
                     clamp_brightness(colour[1]),
                     clamp_brightness(colour[2]) ];
 
-    cube_pixels[k] = clamped[1] << 0d24 | clamped[0] << 0d16 | clamped[2] << 0d8;
+    cube_pixels[k] = uint32(clamped[1]) << 0d24 | uint32(clamped[0]) << 0d16 | uint32(clamped[2]) << 0d8;
 }
 
 fun write_pixels() {

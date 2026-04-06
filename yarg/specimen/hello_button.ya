@@ -9,8 +9,8 @@ fun button_routine(gpio, chan) {
     const core = coreNum();
 
     fun gpio_events() {
-        const events8 = peek(io_bank0.proc[core].ints[gpio >> 0d3]);
-        const events = events8 >> (0d4 * (gpio % 0d8));
+        const events8 = peek(io_bank0.proc[core].ints[uint32(gpio) >> uint32(3)]);
+        const uint32 events = events8 >> (4 * (uint32(gpio) % uint32(8)));
         return events;
     }
 

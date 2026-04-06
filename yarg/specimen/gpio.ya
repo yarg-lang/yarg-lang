@@ -1,7 +1,7 @@
 import("machine");
 import("irq");
 
-const pico_led = 0d25;
+const pico_led = uint32(0d25);
 
 const GPIO_OUT = true;
 const GPIO_IN = false;
@@ -19,12 +19,12 @@ const gpio_func_clock = 0d8;
 const gpio_func_usb = 0d9;
 const gpio_func_null = 0d31;
 
-const GPIO_IRQ_EDGE_FALL = 0x4;
-const GPIO_IRQ_EDGE_RISE = 0x8;
+const GPIO_IRQ_EDGE_FALL = uint32(0x4);
+const GPIO_IRQ_EDGE_RISE = uint32(0x8);
 const NUM_BANK0_GPIOS = 0d30;
 
-const PADS_BANK0_GPIO_IE_BITS = 0x00000040;
-const PADS_BANK0_GPIO_OD_BITS = 0x00000080;
+const PADS_BANK0_GPIO_IE_BITS = uint32(0x00000040);
+const PADS_BANK0_GPIO_OD_BITS = uint32(0x00000080);
 
 place struct {
     struct {
@@ -54,25 +54,25 @@ place struct {
 fun gpio_set_direction(gpio, dir) {
 
     if (dir) {
-        poke sio_hw.gpio_oe.set, 0x1 << gpio;
+        poke sio_hw.gpio_oe.set, uint32(0x1) << uint32(gpio);
     }
     else {
-        poke sio_hw.gpio_oe.clr, 0x1 << gpio;
+        poke sio_hw.gpio_oe.clr, uint32(0x1) << uint32(gpio);
     }
 }
 
 fun gpio_put(gpio, value) {
 
     if (value) {
-        poke sio_hw.gpio_out.set, 0x1 << gpio;
+        poke sio_hw.gpio_out.set, uint32(0x1) << uint32(gpio);
     }
     else {
-        poke sio_hw.gpio_out.clr, 0x1 << gpio;
+        poke sio_hw.gpio_out.clr, uint32(0x1) << uint32(gpio);
     }
 }
 
 fun gpio_get(gpio) {
-    return ((peek(sio_hw.gpio_in) >> gpio) & 0x1) == 0x1;
+    return ((peek(sio_hw.gpio_in) >> uint32(gpio)) & uint32(0x1)) == uint32(0x1);
 }
 
 fun gpio_init(gpio) {
@@ -87,12 +87,12 @@ fun gpio_set_function(gpio, function) {
     reg_write_masked(pads_bank0.gpio[gpio], 
                  PADS_BANK0_GPIO_IE_BITS, PADS_BANK0_GPIO_IE_BITS | PADS_BANK0_GPIO_OD_BITS);
 
-    poke io_bank0.gpio[gpio].ctrl, function;
+    poke io_bank0.gpio[gpio].ctrl, uint32(function);
 }
 
 fun gpio_acknowledge_irq(gpio, events) {
 
-    poke io_bank0.intr[(gpio / 0d8)], events << (0d4 * (gpio % 0d8));
+    poke io_bank0.intr[(gpio / 0d8)], uint32(events) << (0d4 * (uint32(gpio) % uint32(0d8)));
 }
 
 var struct {
@@ -140,13 +140,13 @@ fun gpio_set_irq_routine(response) {
 fun gpio_set_irq_enabled(gpio, events, enabled) {
     gpio_acknowledge_irq(gpio, events);
 
-    events = events << (0d4 * (gpio % 0d8));
+    events = events << (0d4 * (uint32(gpio) % uint32(0d8)));
 
     if (enabled) {
-        poke io_bank0.proc[coreNum()].inte[gpio >> 0d3], REG_ALIAS_SET_BITS, events;
+        poke io_bank0.proc[coreNum()].inte[uint32(gpio) >> uint32(3)], uint32(REG_ALIAS_SET_BITS), uint32(events);
     }
     else {
-        poke io_bank0.proc[coreNum()].inte[gpio >> 0d3], REG_ALIAS_CLR_BITS, events;
+        poke io_bank0.proc[coreNum()].inte[uint32(gpio) >> uint32(3)], uint32(REG_ALIAS_CLR_BITS), uint32(events);
     }
 }
 

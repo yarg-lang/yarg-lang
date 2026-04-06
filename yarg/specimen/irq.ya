@@ -37,13 +37,13 @@ const rtc_irq = 0d25;
 
 fun irq_set_mask_n_enabled(n, mask, enabled) {
     if (enabled) {
-        poke m0plus.nvic_icpr, mask;
-        poke m0plus.nvic_iser, mask;
+        poke m0plus.nvic_icpr, uint32(mask);
+        poke m0plus.nvic_iser, uint32(mask);
     } else {
-        poke m0plus.nvic_icer, mask;
+        poke m0plus.nvic_icer, uint32(mask);
     }
 }
 
 fun irq_set_enabled(bank, enabled) {
-    irq_set_mask_n_enabled(bank / 0d32, 0d1 << (bank % 0d32), enabled);
+    irq_set_mask_n_enabled(bank / 0d32, uint32(0x1) << (uint32(bank) % uint32(0d32)), enabled);
 }
