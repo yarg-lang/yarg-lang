@@ -4,7 +4,7 @@ print *test.i;  // expect: nil
 print *test.i;  // expect: 42
 test = new(struct { uint32 i; bool j; });
 print *test.i;  // expect: 0
-*test.i = 0d78;
+*test.i = 78;
 print *test.i;  // expect: 78
 *test.j = true;
 print *test.j;  // expect: true

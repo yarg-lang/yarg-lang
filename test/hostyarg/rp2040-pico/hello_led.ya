@@ -1,5 +1,5 @@
-const GPIO_FUNC_SIO = 0d5;
-const NUM_BANK0_GPIOS = 0d30;
+const GPIO_FUNC_SIO = uint32(5);
+const NUM_BANK0_GPIOS = 30;
 
 // the memory locations we need.
 
@@ -19,7 +19,7 @@ place struct {
     } @x40014000 io_bank0;
 
 
-const pico_led = uint32(0d25);
+const pico_led = uint32(25);
 const gpio_field = uint32(0x1) << pico_led;
 
 

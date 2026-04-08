@@ -4,9 +4,9 @@ print 0XFf;     // expect: 255
 print 0b010;    // expect: 2
 print 0B1011;   // expect: 11
 
-print 0d10;     // expect: 10
-print 0D30;     // expect: 30
+print 10;     // expect: 10
+print 30;     // expect: 30
 
 print 012.5;    // expect: 12.5000
-print 0d3489660928 == 0xd0000000; // expect: true
+print 3489660928 == 0xd0000000; // expect: true
 

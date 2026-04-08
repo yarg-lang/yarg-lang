@@ -13,9 +13,9 @@ fun af() {
     var i16 = int16(-20000);
     var u16 = uint16(50000);
     var i32 = int32(-2000000000);
-    var u32 = uint32(0d3000000000);
+    var u32 = uint32(3000000000);
     var i64 = int64(-int(5000000000000000000));
-    var u64 = uint64(0d10000000000000000000);
+    var u64 = uint64(10000000000000000000);
     print i8; // expect: -123
     print u8; // expect: 200
     print i16; // expect: -20000
@@ -96,7 +96,7 @@ fun bf() {
 
     r = a + b;
 
-    int64 t64 = int64(0d1230000001)+int64(0d45675555555);
+    int64 t64 = int64(1230000001)+int64(45675555555);
 
     print r==int(t64); // expect: true
 

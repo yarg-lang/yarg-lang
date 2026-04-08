@@ -1,7 +1,6 @@
-poke @xd0000000, uint32(0x1) << 0d12, 0;    // expect: poke 0xd0001000, 0x00000000
+poke @xd0000000, uint32(0x1) << 12, 0;      // expect: poke 0xd0001000, 0x00000000
 poke @xd0000000, uint32(0);                 // expect: poke 0xd0000000, 0x00000000
 poke @xd0000000, uint32(255);               // expect: poke 0xd0000000, 0x000000ff
-poke @xd0000000, uint32(0d255);             // expect: poke 0xd0000000, 0x000000ff
 poke @xd0000004, uint32(0xFF);              // expect: poke 0xd0000004, 0x000000ff
-var offset = uint32(0d8);
+var offset = uint32(8);
 poke @xd0000000, offset, 0xff;      // expect: poke 0xd0000008, 0x000000ff

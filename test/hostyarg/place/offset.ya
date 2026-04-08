@@ -6,10 +6,10 @@ peek(more_registers.ctrl);     // expect: peek(0xc000000a) -> a5a5a5
 peek(more_registers.flags);    // expect: peek(0xc0000014) -> a5a5a5
 
 place struct { 
-    uint32@uint32(0d0) << 0d12 rw;
-    uint32@uint32(0d1) << 0d12 xor;
-    uint32@uint32(0d2) << 0d12 set;
-    uint32@uint32(0d3) << 0d12 clr;
+    uint32@uint32(0) << 12 rw;
+    uint32@uint32(1) << 12 xor;
+    uint32@uint32(2) << 12 set;
+    uint32@uint32(3) << 12 clr;
     } @xc0000000 fourkregister;
 peek(fourkregister.rw);     // expect: peek(0xc0000000) -> a5a5a5
 peek(fourkregister.xor);    // expect: peek(0xc0001000) -> a5a5a5
@@ -18,9 +18,9 @@ peek(fourkregister.clr);    // expect: peek(0xc0003000) -> a5a5a5
 
 place struct { 
     uint32 begin;
-    uint32@uint32(0d1) << 0d4 ctrl;
+    uint32@uint32(1) << 4 ctrl;
     uint32 ctrl2;
-    uint32[2]@uint32(0d2) << 0d4 flags;
+    uint32[2]@uint32(2) << 4 flags;
     uint32 flags2;
     } @xc0000000 registers2;
 peek(registers2.ctrl);     // expect: peek(0xc0000010) -> a5a5a5
