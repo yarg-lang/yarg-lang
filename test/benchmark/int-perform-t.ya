@@ -4,25 +4,25 @@ const reps_div = 185;
 
 // https://github.com/kraj/uClibc/blob/master/libc/stdlib/rand_r.c#L25
 const maxRand = 0x7fffffff;
-var seed = 0d173993;
+var uint32 seed = 173993;
 fun rand()
 {
-    var next = seed;
-    var result;
+    var uint32 next = seed;
+    var uint32 result;
 
-    next = next * 0d1103515245;
-    next = next + 0d12345;
-    result = (next / 0d65536) % 0d2048;
+    next = next * 1103515245;
+    next = next + 12345;
+    result = (next / 65536) % 2048;
 
-    next = next * 0d1103515245;
-    next = next + 0d12345;
-    result = result << 0d10;
-    result = result ^ ((next / 0d65536) % 0d1024);
+    next = next * 1103515245;
+    next = next + 12345;
+    result = result << 10;
+    result = result ^ ((next / 65536) % 1024);
 
-    next = next * 0d1103515245;
-    next = next + 0d12345;
-    result = result << 0d10;
-    result = result ^ ((next / 0d65536) % 0d1024);
+    next = next * 1103515245;
+    next = next + 12345;
+    result = result << 10;
+    result = result ^ ((next / 65536) % 1024);
 
     seed = next;
     return next & maxRand;
