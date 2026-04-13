@@ -67,11 +67,11 @@ place struct {
     } @x40014000 io_bank0;
 
 // the built in LED on a Pico.
-const pico_led = uint32(0d25);
+const pico_led = uint32(25);
 const gpio_field = uint32(0x1) << pico_led;
 
 // minimally configure a GPIO, assuming core was reset first.
-const GPIO_FUNC_SIO = 0d5;
+const GPIO_FUNC_SIO = 5;
 
 poke io_bank0.gpio[pico_led].ctrl, GPIO_FUNC_SIO;
 poke sio_hw.gpio_oe_set, gpio_field;
@@ -94,16 +94,16 @@ Assumes a button is wired to GPIO 2, and a LED+Resistor are connected to GPIO 3.
 import("gpio");
 
 // GPIO pins to use
-const led_io = 0d12;
-const button_io = 0d11;
+const led_io = 12;
+const button_io = 11;
 
 fun button_routine(gpio, chan) {
 
     const core = coreNum();
 
     fun gpio_events() {
-        const events8 = peek(io_bank0.proc[core].ints[gpio >> 0d3]);
-        const events = events8 >> (0d4 * (gpio % 0d8));
+        const events8 = peek(io_bank0.proc[core].ints[uint32(gpio) >> uint32(3)]);
+        const uint32 events = events8 >> (4 * (uint32(gpio) % uint32(8)));
         return events;
     }
 
@@ -127,7 +127,7 @@ var button_handler_routine = button_routine(button_io, button_channel);
 var button_handler_address = pin(button_handler_routine);
 
 gpio_init(button_io);
-irq_add_shared_handler(io_irq_bank0, button_handler_address, 0d0);
+irq_add_shared_handler(io_irq_bank0, button_handler_address, 0);
 
 // enable interrupts for this gpio
 gpio_set_irq_enabled(button_io, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);
@@ -143,7 +143,6 @@ while (true) {
     }
     gpio_put(led_io, state);
 }
-
 ```
 
 ## Name
