@@ -59,8 +59,6 @@ static bool isRadix(char c) {
         case 'X': return true;
         case 'b': return true;
         case 'B': return true;
-        case 'd': return true;
-        case 'D': return true;
         default: return false;
     }
 }
@@ -71,8 +69,6 @@ static int radixType(char c) {
         case 'X': return 16;
         case 'b': return 2;
         case 'B': return 2;
-        case 'd': return 10;
-        case 'D': return 10;
         default: return 10;
     }
 }

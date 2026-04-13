@@ -1,0 +1,2 @@
+// withdrawn support for explicit decimal radix
+print 0d123;    // [line 2] Error at 'd123': Expect ';' after value.
