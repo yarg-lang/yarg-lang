@@ -30,11 +30,11 @@ fun apa102_init(pixel_count, gpio_tx, gpio_clk, pio_num, sm_num, offset) {
 
     // SET instructions to set pin directions
     poke pio[pio_num].sm[sm_num].pinctrl, (uint32(1) << PIO_SM_PINCTRL_SET_COUNT_LSB) | (gpio_tx << PIO_SM_PINCTRL_SET_BASE_LSB);
-    uint16 instruction = pio_encode_instr_and_args(pio_instr_bits_set, pio_pindirs & 7, 0x1f);
+    uint16 instruction = pio_encode_instr_and_args(pio_instr_bits_set, pio_pindirs & uint32(7), 0x1f);
     poke pio[pio_num].sm[sm_num].instr, instruction;
 
     poke pio[pio_num].sm[sm_num].pinctrl, (uint32(1) << PIO_SM_PINCTRL_SET_COUNT_LSB) | (gpio_clk << PIO_SM_PINCTRL_SET_BASE_LSB);
-    instruction = pio_encode_instr_and_args(pio_instr_bits_set, pio_pindirs & 7, 0x1f);
+    instruction = pio_encode_instr_and_args(pio_instr_bits_set, pio_pindirs & uint32(7), 0x1f);
     poke pio[pio_num].sm[sm_num].instr, instruction;
 
     gpio_set_function(gpio_tx, gpio_func_pio[pio_num]);

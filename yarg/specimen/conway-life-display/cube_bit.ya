@@ -94,11 +94,11 @@ fun cube_bit_init() {
 
 fun clamp_brightness(channel) {
     
-    const uint32 max = 127;
+    const max = 127;
     
     if (max < 255) {
-        var divider = 256 / (max + 1);
-        return channel / divider;
+        var divider = 256 / ((max) + 1);
+        return channel / uint8(divider);
     }
     else {
         return channel;

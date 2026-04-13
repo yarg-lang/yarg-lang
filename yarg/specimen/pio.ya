@@ -65,28 +65,28 @@ const PIO_SM_EXECCTRL_WRAP_TOP_LSB  = uint32(12);
 const PIO_SM_EXECCTRL_WRAP_TOP_BITS = 0b11111 << PIO_SM_EXECCTRL_WRAP_TOP_LSB;
 const PIO_SM_EXECCTRL_SIDE_EN_LSB = uint32(30);
 const PIO_SM_EXECCTRL_SIDE_PINDIR_LSB = uint32(29);
-const PIO_SM_EXECCTRL_SIDE_EN_BITS = 0x40000000;
-const PIO_SM_EXECCTRL_SIDE_PINDIR_BITS = 0x20000000;
+const PIO_SM_EXECCTRL_SIDE_EN_BITS = uint32(0x40000000);
+const PIO_SM_EXECCTRL_SIDE_PINDIR_BITS = uint32(0x20000000);
 
 const PIO_SM_SHIFTCTRL_IN_SHIFTDIR_LSB = uint32(18);
-const PIO_SM_SHIFTCTRL_IN_SHIFTDIR_BITS = 0b1 << PIO_SM_SHIFTCTRL_IN_SHIFTDIR_LSB;
+const PIO_SM_SHIFTCTRL_IN_SHIFTDIR_BITS = uint32(0b1) << PIO_SM_SHIFTCTRL_IN_SHIFTDIR_LSB;
 const PIO_SM_SHIFTCTRL_AUTOPUSH_LSB = uint32(16);
 const PIO_SM_SHIFTCTRL_PUSH_THRESH_LSB = uint32(20);
 const PIO_SM_SHIFTCTRL_OUT_SHIFTDIR_LSB = uint32(19);
-const PIO_SM_SHIFTCTRL_OUT_SHIFTDIR_BITS = 0b1 << PIO_SM_SHIFTCTRL_OUT_SHIFTDIR_LSB;
-const PIO_SM_SHIFTCTRL_AUTOPULL_BITS = 0x00020000;
+const PIO_SM_SHIFTCTRL_OUT_SHIFTDIR_BITS = uint32(0b1) << PIO_SM_SHIFTCTRL_OUT_SHIFTDIR_LSB;
+const PIO_SM_SHIFTCTRL_AUTOPULL_BITS = uint32(0x00020000);
 const PIO_SM_SHIFTCTRL_AUTOPULL_LSB = uint32(17);
-const PIO_SM_SHIFTCTRL_PULL_THRESH_BITS = 0x3e000000;
+const PIO_SM_SHIFTCTRL_PULL_THRESH_BITS = uint32(0x3e000000);
 const PIO_SM_SHIFTCTRL_PULL_THRESH_LSB = uint32(25);
-const PIO_SM_SHIFTCTRL_FJOIN_TX_BITS = 0x40000000;
+const PIO_SM_SHIFTCTRL_FJOIN_TX_BITS = uint32(0x40000000);
 const PIO_SM_SHIFTCTRL_FJOIN_TX_LSB = uint32(30);
-const PIO_SM_SHIFTCTRL_FJOIN_RX_BITS = 0x80000000;
+const PIO_SM_SHIFTCTRL_FJOIN_RX_BITS = uint32(0x80000000);
 const PIO_SM_SHIFTCTRL_FJOIN_RX_LSB = uint32(31);
 
 const PIO_SM_CLKDIV_FRAC_LSB = uint32(8);
-const PIO_SM_CLKDIV_FRAC_BITS = 0xff << PIO_SM_CLKDIV_FRAC_LSB;
+const PIO_SM_CLKDIV_FRAC_BITS = uint32(0xff) << PIO_SM_CLKDIV_FRAC_LSB;
 const PIO_SM_CLKDIV_INT_LSB = uint32(16);
-const PIO_SM_CLKDIV_INT_BITS = 0xffff << PIO_SM_CLKDIV_INT_LSB;
+const PIO_SM_CLKDIV_INT_BITS = uint32(0xffff) << PIO_SM_CLKDIV_INT_LSB;
 
 const PIO_FIFO_JOIN_NONE = uint32(0);
 const PIO_FIFO_JOIN_TX = uint32(1);
@@ -103,10 +103,11 @@ const PIO_CTRL_CLKDIV_RESTART_LSB = uint32(8);
 const PIO_FSTAT_TXFULL_LSB = uint32(16);
 
 fun pio_sm_set_enabled(pio_num, sm_num, enabled) {
+    const uint32 sm = uint32(sm_num);
     if (enabled) {
-        reg_write_masked(pio[pio_num].ctrl, uint32(1) << sm_num, uint32(1) << sm_num);
+        reg_write_masked(pio[pio_num].ctrl, uint32(1) << sm, uint32(1) << sm);
     } else {
-        reg_write_masked(pio[pio_num].ctrl, uint32(0) << sm_num, uint32(1) << sm_num);
+        reg_write_masked(pio[pio_num].ctrl, uint32(0) << sm, uint32(1) << sm);
     }
 }
 
@@ -128,10 +129,10 @@ fun pio_sm_init(pio_num, sm_num, initial_pc, clkdiv, execctrl, shiftctrl, pinctr
             (uint32(1) << PIO_FDEBUG_RXUNDER_LSB) |
             (uint32(1) << PIO_FDEBUG_TXSTALL_LSB) |
             (uint32(1) << PIO_FDEBUG_RXSTALL_LSB);
-    poke pio[pio_num].fdebug, fdebug_sm_mask << sm_num;
+    poke pio[pio_num].fdebug, fdebug_sm_mask << uint32(sm_num);
 
-    poke pio[pio_num].ctrl, REG_ALIAS_SET_BITS, uint32(1) << (PIO_CTRL_SM_RESTART_LSB + sm_num);
-    poke pio[pio_num].ctrl, REG_ALIAS_SET_BITS, uint32(1) << (PIO_CTRL_CLKDIV_RESTART_LSB + sm_num);
+    poke pio[pio_num].ctrl, REG_ALIAS_SET_BITS, uint32(1) << uint32(PIO_CTRL_SM_RESTART_LSB + uint32(sm_num));
+    poke pio[pio_num].ctrl, REG_ALIAS_SET_BITS, uint32(1) << uint32(PIO_CTRL_CLKDIV_RESTART_LSB + uint32(sm_num));
 
 
     uint16 instr = pio_encode_instr_and_args(pio_instr_bits_jmp, uint32(0), initial_pc);

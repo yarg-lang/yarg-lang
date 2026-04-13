@@ -23,7 +23,7 @@ place struct {
         uint32 f;
         uint32 s;
         uint8[4] reserved;
-    }[2]@0x414 int;
+    }[2]@0x414 interrupt;
     uint32[3]@0x420 timer;
     uint32 multi_chan_trigger;
     uint32 sniff_ctrl;
