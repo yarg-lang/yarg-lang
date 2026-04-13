@@ -1,24 +1,24 @@
 # Yarg Test
 
-Yarg tests present in test/hostyarg exercise the complete Yarg stack. Currently these are run as an automated suite on host.
+Yarg tests present in test/yarg-expect exercise the complete Yarg stack. Currently these are run as an automated suite on host.
 
 ## yarg runtests
 
 To run the test suite, first build the repo, and then:
 
 ```
-% ./bin/yarg runtests -tests "test/hostyarg" -interpreter "bin/cyarg"
+% ./bin/yarg runtests -tests "test/yarg-expect" -interpreter "bin/cyarg"
 Interpreter: bin/cyarg
-Tests: test/hostyarg
+Tests: test/yarg-expect
 Total tests: 1065, passed: 1065
 ```
 
-This walks every folder in the supplied directory (test/hostyarg), using bin/cyarg to run every .ya file found in each directory. Currently a folder named 'benchmark' is skipped.
+This walks every folder in the supplied directory (test/yarg-expect), using bin/cyarg to run every .ya file found in each directory. Currently a folder named 'benchmark' is skipped.
 
 If some tests fail, their output is provided, and the return code from `yarg` will be the count of failing tests (ie, non-zero), eg:
 
 ```
-% ./bin/yarg runtests -tests test/hostyarg -interpreter bin/cyarg
+% ./bin/yarg runtests -tests test/yarg-expect -interpreter bin/cyarg
 test: call/bool.ya
 tests supplied: 2
 tests passed: 1
@@ -27,7 +27,7 @@ Undefined variable (OP_GET_GLOBAL) 'tru'.
 [line 1] in script
 ---
 Interpreter: bin/cyarg
-Tests: test/hostyarg
+Tests: test/yarg-expect
 Total tests: 1065, passed: 1064
 % echo $?
 1
@@ -36,7 +36,7 @@ Total tests: 1065, passed: 1064
 The failing test can then run directly with `cyarg` to inspect the failure:
 
 ```
-% ./bin/cyarg test/hostyarg/call/bool.ya
+% ./bin/cyarg test/yarg-expect/call/bool.ya
 Undefined variable (OP_GET_GLOBAL) 'tru'.
 [line 1] in script
 ```

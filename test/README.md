@@ -2,13 +2,13 @@
 
 test/ contains test suites:
 
-`hostyarg/` - the primary Yarg Language test suite, hosted by `yarg`.
+`yarg-expect/` - the primary Yarg Language test suite, hosted by `yarg`.
 
 `bc/` - a 'bc' based test suite of the cyarg/big-int integer library.
 
 `benchmark/` - ad-hoc benchmarks
 
-## hostyarg Yarg Language
+## yarg-expect Yarg Language
 
 A test suite that exercises the Yarg Language. Each file is parsed twice, once by `yarg` for expected results, and then by `cyarg` itself. 
 
@@ -17,13 +17,13 @@ See [yarg_test.md](../docs/yarg_test.md).
 Sample Usage:
 
 ```
-./bin/hostyarg runtests -tests "test/hostyarg" -interpreter "bin/cyarg"
+./bin/yarg-expect runtests -tests "test/yarg-expect" -interpreter "bin/cyarg"
 ```
 
 As a convenience, the suite can be run from the repo's root directory with:
 
 ```
-% ./test/hostyarg-run.sh
+% ./test/yarg-expect-run.sh
 ```
 
 
