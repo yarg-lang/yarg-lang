@@ -861,7 +861,7 @@ bool uint8Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
         uint64_t i = strtoull(AS_CSTRING(arg), &end, 10);
         if (*end == 0 && i <= UINT8_MAX)
         {
-            *result = UI8_VAL((int8_t) i);
+            *result = UI8_VAL((uint8_t) i);
             return true;
         }
     }
