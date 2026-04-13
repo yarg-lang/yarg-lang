@@ -448,16 +448,16 @@ bool lenBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (IS_STRING(arg)) {
         ObjString* string = AS_STRING(arg);
         size_t length = string->length;
-        *result = SIZE_T_UI_VAL(length);
+        *result = OBJ_VAL(newIntU(length));
         return true;
     } else if (IS_UNIFORMARRAY(arg)) {
         ObjPackedUniformArray* array = AS_UNIFORMARRAY(arg);
-        *result = SIZE_T_UI_VAL(arrayCardinality(array->store));
+        *result = OBJ_VAL(newIntU(arrayCardinality(array->store)));
         return true;
     } else if (IS_MAP(arg)) {
         ObjMap* map = AS_MAP(arg);
         size_t count = map->entries.count;
-        *result = SIZE_T_UI_VAL(count);
+        *result = OBJ_VAL(newIntU(count));
         return true;
     } else {
         runtimeError(routineContext, "Expected a string, array or map.");
@@ -931,12 +931,8 @@ bool intBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     } else if (IS_UI32(arg)) {
         i = AS_UI32(arg);
     } else if (IS_UI64(arg)) {
-        uint64_t i = AS_UI64(arg);
-        ObjInt *newObj = (ObjInt *)allocateObject(sizeof (ObjInt) + sizeof i, OBJ_INT);
-        result->as.obj = &newObj->obj;
-        result->type = VAL_OBJ;
-        newObj->bigInt.m_ = sizeof i / sizeof (uint16_t);
-        int_set_u(i, &newObj->bigInt);
+        uint64_t u = AS_UI64(arg);
+        *result = OBJ_VAL(newIntU(u));
         return true;
     } else if (IS_STRING(arg)) {
         char *s = AS_CSTRING(arg);
@@ -961,11 +957,8 @@ bool intBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     } else {
         return false;
     }
-    ObjInt *newObj = (ObjInt *)allocateObject(sizeof (ObjInt) + sizeof i, OBJ_INT);
-    result->as.obj = &newObj->obj;
-    result->type = VAL_OBJ;
-    newObj->bigInt.m_ = sizeof i / sizeof (uint16_t);
-    int_set_i(i, &newObj->bigInt);
+
+    *result = OBJ_VAL(newInt(i));
     return true;
 }
 

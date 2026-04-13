@@ -123,6 +123,22 @@ ObjNative* newNative(NativeFn function) {
     return native;
 }
 
+ObjInt* newInt(int64_t value) {
+    ObjInt *i = (ObjInt *) allocateObject(sizeof (ObjInt) + 2 * sizeof (uint16_t), OBJ_INT);
+    i->isLiteral = false;
+    i->bigInt.m_ = sizeof (value) / sizeof (uint16_t);
+    int_set_i(value, &i->bigInt);
+    return i;
+}
+
+ObjInt* newIntU(uint64_t value) {
+    ObjInt *i = (ObjInt *) allocateObject(sizeof (ObjInt) + 2 * sizeof (uint16_t), OBJ_INT);
+    i->isLiteral = false;
+    i->bigInt.m_ = sizeof (value) / sizeof (uint16_t);
+    int_set_u(value, &i->bigInt);
+    return i;
+}
+
 Value defaultIntValue() {
     ObjInt *intObj = (ObjInt *) allocateObject(sizeof (ObjInt) + 2 * sizeof (uint16_t), OBJ_INT);
     intObj->bigInt.m_ = 2;

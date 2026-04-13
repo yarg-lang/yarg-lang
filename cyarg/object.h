@@ -233,6 +233,8 @@ ObjString* takeString(char* chars, int length);
 ObjString* copyString(const char* chars, int length);
 ObjString* copyStringWithEscapes(const char* chars, int length);
 ObjUpvalue* newUpvalue(ValueCell* slot, size_t stackOffset);
+ObjInt* newInt(int64_t value);
+ObjInt* newIntU(uint64_t value);
 
 PackedValue arrayElement(PackedValue array, size_t index);
 size_t arrayCardinality(PackedValue array);

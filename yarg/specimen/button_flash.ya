@@ -8,7 +8,7 @@ const gpio_led2 = 5;
 
 var any[2] events;
 
-for (var i = 0; i < int(len(events)); i = i + 1) {
+for (var i = 0; i < len(events); i = i + 1) {
     events[i] = make_channel();
 }
 

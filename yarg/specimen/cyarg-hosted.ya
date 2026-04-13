@@ -6,16 +6,16 @@ for (var i = 0; i < int(host_argc()); i = i + 1) {
 }
 
 fun getArgument(name) {
-    for (var uint64 i = uint64(0); i < len(hostArgs); i = i + uint64(1)) {
-        if (hostArgs[i] == name and i + uint64(1) < len(hostArgs)) {
-            return hostArgs[i + uint64(1)];
+    for (var i = 0; i < len(hostArgs); i = i + 1) {
+        if (hostArgs[i] == name and i + 1 < len(hostArgs)) {
+            return hostArgs[i + 1];
         }
     }
     return nil;
 }
 
 fun getBoolArgument(name) {
-    for (var uint64 i = uint64(0); i < len(hostArgs); i = i + uint64(1)) {
+    for (var i = 0; i < len(hostArgs); i = i + 1) {
         if (hostArgs[i] == name) {
             return true;
         }
@@ -23,7 +23,7 @@ fun getBoolArgument(name) {
     return false;
 }
 
-if (len(hostArgs) == uint64(4)) {
+if (len(hostArgs) == 4) {
     var source = read_source(hostArgs[3]);
     exec(source);
 } else {
