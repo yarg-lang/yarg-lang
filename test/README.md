@@ -8,16 +8,16 @@ test/ contains test suites:
 
 `benchmark/` - ad-hoc benchmarks
 
-## yarg-expect Yarg Language
+## yarg-expect (Yarg Language)
 
-A test suite that exercises the Yarg Language. Each file is parsed twice, once by `yarg` for expected results, and then by `cyarg` itself. 
+A test suite that exercises the Yarg Language. Each file is parsed twice, once by `yarg` for 'expect'ed results, and then by `cyarg` itself. 
 
-See [yarg_test.md](../docs/yarg_test.md).
+See [yarg-expect_test.md](../docs/yarg-expect_test.md).
 
 Sample Usage:
 
 ```
-./bin/yarg-expect runtests -tests "test/yarg-expect" -interpreter "bin/cyarg"
+./bin/yarg runtests -tests "test/yarg-expect" -interpreter "bin/cyarg"
 ```
 
 As a convenience, the suite can be run from the repo's root directory with:

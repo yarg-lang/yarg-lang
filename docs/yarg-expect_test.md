@@ -1,4 +1,4 @@
-# Yarg Test
+# Yarg Expect Tests
 
 Yarg tests present in test/yarg-expect exercise the complete Yarg stack. Currently these are run as an automated suite on host.
 
