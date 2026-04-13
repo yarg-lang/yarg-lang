@@ -45,6 +45,15 @@ As a convenience, the tests can be run from the repo's root diretory with:
 % ./test/bc-run.sh
 ```
 
+## cyarg
+
+A simple test to exercise the command line interface of `cyarg`, as required by `yarg`
+
+```
+% ./test/cyarg-run.sh
+```
+
+
 ## benchmark
 
 Ad-hoc benchmarks that output a report when run, eg:
