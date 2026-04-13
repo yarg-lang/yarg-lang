@@ -21,11 +21,11 @@ fun setup_button_led(led_io, button_io) {
     gpio_init(button_io);
 }
 
-const gpio_button1 = 0d2;
-const gpio_led1 = 0d3;
+const gpio_button1 = 2;
+const gpio_led1 = 3;
 
-const gpio_button2 = 0d4;
-const gpio_led2 = 0d5;
+const gpio_button2 = 4;
+const gpio_led2 = 5;
 
 setup_button_led(gpio_led1, gpio_button1);
 setup_button_led(gpio_led2, gpio_button2);

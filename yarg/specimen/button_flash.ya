@@ -1,10 +1,10 @@
 import("timer");
 import("gpio");
 
-const gpio_button1 = 0d2;
+const gpio_button1 = 2;
 
-const gpio_led1 = 0d3;
-const gpio_led2 = 0d5;
+const gpio_led1 = 3;
+const gpio_led2 = 5;
 
 var any[2] events;
 
@@ -37,7 +37,7 @@ gpio_set_irq_routine(gpio_response);
 gpio_set_irq_enabled(gpio_button1, GPIO_IRQ_EDGE_FALL, true);
 irq_set_enabled(io_irq_bank0, true);
 
-repeating_alarm_ms(0d0, 500, alarm_toggle);
+repeating_alarm_ms(0, 500, alarm_toggle);
 var led = gpio_led1;
 
 while (true) {

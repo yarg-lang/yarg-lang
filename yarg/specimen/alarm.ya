@@ -11,12 +11,12 @@ fun led() {
     gpio_put(pico_led, led_state); 
 } 
 
-alarm_in_ms(0d0, 500, led);
+alarm_in_ms(0, 500, led);
 
 sleep_ms(1000);
 
-repeating_alarm_ms(0d0, 500, led);
+repeating_alarm_ms(0, 500, led);
 
 sleep_ms(3000); 
 
-cancel_repeating_alarm(0d0);
+cancel_repeating_alarm(0);

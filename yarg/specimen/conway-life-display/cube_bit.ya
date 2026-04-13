@@ -4,10 +4,10 @@
 
 import("ws2812");
 
-const ws2812_pio = 0d0;
-const ws2812_sm = 0d0;
-const ws2812_offset = 0d0;
-const ws2812_dma_channel = 0d0;
+const ws2812_pio = 0;
+const ws2812_sm = 0;
+const ws2812_offset = 0;
+const ws2812_dma_channel = 0;
 
 var uint32[64] cube_pixels;
 
@@ -89,15 +89,15 @@ const surface_neighbourhoods = [ [  7,  6,  1,  7,  1, 29, 28, 27 ],  // Led: 0 
                                  [ 40, 47, 46, 62, 56, 62, 57, 56 ] ]; // Led: 63 (corner)
 
 fun cube_bit_init() {
-    ws2812_init(0d18, ws2812_pio, ws2812_sm, ws2812_offset);
+    ws2812_init(18, ws2812_pio, ws2812_sm, ws2812_offset);
 }
 
 fun clamp_brightness(channel) {
     
-    const uint32 max = 0d127;
+    const uint32 max = 127;
     
-    if (max < 0d255) {
-        var divider = 0d256 / (max + 0d1);
+    if (max < 255) {
+        var divider = 256 / (max + 1);
         return channel / divider;
     }
     else {
@@ -111,7 +111,7 @@ fun set_pixel(k, colour) {
                     clamp_brightness(colour[1]),
                     clamp_brightness(colour[2]) ];
 
-    cube_pixels[k] = uint32(clamped[1]) << 0d24 | uint32(clamped[0]) << 0d16 | uint32(clamped[2]) << 0d8;
+    cube_pixels[k] = uint32(clamped[1]) << 24 | uint32(clamped[0]) << 16 | uint32(clamped[2]) << 8;
 }
 
 fun write_pixels() {

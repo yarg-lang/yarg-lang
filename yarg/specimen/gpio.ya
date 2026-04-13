@@ -1,27 +1,27 @@
 import("machine");
 import("irq");
 
-const pico_led = uint32(0d25);
+const pico_led = uint32(25);
 
 const GPIO_OUT = true;
 const GPIO_IN = false;
 
-const gpio_func_ixp = 0d0;
-const gpio_func_spi = 0d1;
-const gpio_func_uart = 0d2;
-const gpio_func_i2c = 0d3;
-const gpio_func_pwm = 0d4;
-const gpio_func_sio = 0d5;
-const gpio_func_pio0 = 0d6;
-const gpio_func_pio1 = 0d7;
+const gpio_func_ixp = 0;
+const gpio_func_spi = 1;
+const gpio_func_uart = 2;
+const gpio_func_i2c = 3;
+const gpio_func_pwm = 4;
+const gpio_func_sio = 5;
+const gpio_func_pio0 = 6;
+const gpio_func_pio1 = 7;
 const gpio_func_pio = [ gpio_func_pio0, gpio_func_pio1 ];
-const gpio_func_clock = 0d8;
-const gpio_func_usb = 0d9;
-const gpio_func_null = 0d31;
+const gpio_func_clock = 8;
+const gpio_func_usb = 9;
+const gpio_func_null = 31;
 
 const GPIO_IRQ_EDGE_FALL = uint32(0x4);
 const GPIO_IRQ_EDGE_RISE = uint32(0x8);
-const NUM_BANK0_GPIOS = 0d30;
+const NUM_BANK0_GPIOS = 30;
 
 const PADS_BANK0_GPIO_IE_BITS = uint32(0x00000040);
 const PADS_BANK0_GPIO_OD_BITS = uint32(0x00000080);
@@ -92,7 +92,7 @@ fun gpio_set_function(gpio, function) {
 
 fun gpio_acknowledge_irq(gpio, events) {
 
-    poke io_bank0.intr[(gpio / 0d8)], uint32(events) << (0d4 * (uint32(gpio) % uint32(0d8)));
+    poke io_bank0.intr[(gpio / 8)], uint32(events) << (4 * (uint32(gpio) % uint32(8)));
 }
 
 var struct {
@@ -102,19 +102,19 @@ var struct {
 
 fun gpio_set_irq_routine(response) {
     const core = coreNum();
-    const GPIO_IRQ_CALLBACK_ORDER_PRIORITY = 0d0;
+    const GPIO_IRQ_CALLBACK_ORDER_PRIORITY = 0;
 
     fun irq_response() {
-        for (var gpio = 0d0; gpio < NUM_BANK0_GPIOS; gpio= gpio + 0d8) {
-            var events8 = peek(io_bank0.proc[core].ints[gpio >> 0d3]);
+        for (var gpio = 0; gpio < NUM_BANK0_GPIOS; gpio= gpio + 8) {
+            var events8 = peek(io_bank0.proc[core].ints[gpio >> 3]);
         
-            for(var i = gpio; (events8 != 0d0) and (i < (gpio + 0d8)); i = i + 0d1) {
+            for(var i = gpio; (events8 != 0) and (i < (gpio + 8)); i = i + 1) {
                 var events = events8 & 0xf;
-                if (events != 0d0) {
+                if (events != 0) {
                     gpio_acknowledge_irq(i, events);
                     response(i, events);
                 }
-                events8 = events8 >> 0d4;
+                events8 = events8 >> 4;
             }
         }
     }
@@ -140,7 +140,7 @@ fun gpio_set_irq_routine(response) {
 fun gpio_set_irq_enabled(gpio, events, enabled) {
     gpio_acknowledge_irq(gpio, events);
 
-    events = events << (0d4 * (uint32(gpio) % uint32(0d8)));
+    events = events << (4 * (uint32(gpio) % uint32(8)));
 
     if (enabled) {
         poke io_bank0.proc[coreNum()].inte[uint32(gpio) >> uint32(3)], uint32(REG_ALIAS_SET_BITS), uint32(events);

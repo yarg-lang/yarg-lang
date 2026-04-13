@@ -1,8 +1,8 @@
 import("gpio");
 
 // GPIO pins to use
-const led_io = 0d12;
-const button_io = 0d11;
+const led_io = 12;
+const button_io = 11;
 
 fun button_routine(gpio, chan) {
 
@@ -34,7 +34,7 @@ var button_handler_routine = button_routine(button_io, button_channel);
 var button_handler_address = pin(button_handler_routine);
 
 gpio_init(button_io);
-irq_add_shared_handler(io_irq_bank0, button_handler_address, 0d0);
+irq_add_shared_handler(io_irq_bank0, button_handler_address, 0);
 
 // enable interrupts for this gpio
 gpio_set_irq_enabled(button_io, GPIO_IRQ_EDGE_FALL | GPIO_IRQ_EDGE_RISE, true);

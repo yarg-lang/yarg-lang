@@ -20,7 +20,7 @@ const pico_led = uint32(25);
 const gpio_field = uint32(0x1) << pico_led;
 
 // minimally configure a GPIO, assuming core was reset first.
-const GPIO_FUNC_SIO = 0d5;
+const GPIO_FUNC_SIO = 5;
 
 poke io_bank0.gpio[pico_led].ctrl, GPIO_FUNC_SIO;
 poke sio_hw.gpio_oe_set, gpio_field;

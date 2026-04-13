@@ -5,18 +5,18 @@ import("gpio");
 import("dma");
 
 const uint16[4] ws2812_program;
-const ws2812_wrap_target = 0d0;
+const ws2812_wrap_target = 0;
 ws2812_program[0] = uint16(0x6321); // out    x, 1            side 0 [3]
 ws2812_program[1] = uint16(0x1223); // jmp    !x, 3           side 1 [2]
 ws2812_program[2] = uint16(0x1200); // jmp    0               side 1 [2]
 ws2812_program[3] = uint16(0xa242); // nop                    side 0 [2]
-const ws2812_wrap = 0d3;
+const ws2812_wrap = 3;
 
-const ws2812_T1 = 0d3;
-const ws2812_T2 = 0d3;
-const ws2812_T3 = 0d4;
+const ws2812_T1 = 3;
+const ws2812_T2 = 3;
+const ws2812_T3 = 4;
 
-const ws2812freq = 0d800000;
+const ws2812freq = 800000;
 const rgbw = false;
 
 fun local_write_masked(variable, val, mask) {
@@ -26,23 +26,23 @@ fun local_write_masked(variable, val, mask) {
 
 fun ws2812_init(gpio_pin, pio_num, sm_num, offset) {
 
-    pio_add_program_at_offset(pio_num, ws2812_program, 0d0);
+    pio_add_program_at_offset(pio_num, ws2812_program, 0);
     gpio_set_function(gpio_pin, gpio_func_pio[pio_num]);
 
     poke pio[pio_num].sm[sm_num].execctrl, REG_ALIAS_CLR_BITS, 0x1 << PIO_SM_EXECCTRL_OUT_STICKY_LSB;
 
-    poke pio[pio_num].sm[sm_num].pinctrl, (0d1 << PIO_SM_PINCTRL_SET_COUNT_LSB) | (gpio_pin << PIO_SM_PINCTRL_SET_BASE_LSB);
-    uint16 instruction = pio_encode_instr_and_args(pio_instr_bits_set, pio_pindirs & 0d7, 0x1f);
+    poke pio[pio_num].sm[sm_num].pinctrl, (uint32(1) << PIO_SM_PINCTRL_SET_COUNT_LSB) | (gpio_pin << PIO_SM_PINCTRL_SET_BASE_LSB);
+    uint16 instruction = pio_encode_instr_and_args(pio_instr_bits_set, pio_pindirs & 7, 0x1f);
     poke pio[pio_num].sm[sm_num].instr, uint32(instruction);
 
-    uint32 shiftctrl = (0d1 << PIO_SM_SHIFTCTRL_IN_SHIFTDIR_LSB) |
-                   (0d0 << PIO_SM_SHIFTCTRL_AUTOPUSH_LSB) |
-                   ((0d32 & 0x1f) << PIO_SM_SHIFTCTRL_PUSH_THRESH_LSB);
+    uint32 shiftctrl = (uint32(1) << PIO_SM_SHIFTCTRL_IN_SHIFTDIR_LSB) |
+                   (uint32(0) << PIO_SM_SHIFTCTRL_AUTOPUSH_LSB) |
+                   (uint32(32 & 0x1f) << PIO_SM_SHIFTCTRL_PUSH_THRESH_LSB);
 
     uint32 execctrl = (offset + ws2812_wrap_target << PIO_SM_EXECCTRL_WRAP_BOTTOM_LSB) |
                  (offset + ws2812_wrap << PIO_SM_EXECCTRL_WRAP_TOP_LSB);
 
-    uint32 pinctrl = (0d1 << PIO_SM_PINCTRL_SIDESET_COUNT_LSB);
+    uint32 pinctrl = (uint32(1) << PIO_SM_PINCTRL_SIDESET_COUNT_LSB);
 
     execctrl = local_write_masked(execctrl, 0x0 << PIO_SM_EXECCTRL_SIDE_EN_LSB | 0x0 << PIO_SM_EXECCTRL_SIDE_PINDIR_LSB
                                 , PIO_SM_EXECCTRL_SIDE_EN_BITS | PIO_SM_EXECCTRL_SIDE_PINDIR_BITS);
@@ -50,9 +50,9 @@ fun ws2812_init(gpio_pin, pio_num, sm_num, offset) {
     pinctrl = local_write_masked(pinctrl, gpio_pin << PIO_SM_PINCTRL_SIDESET_BASE_LSB
                                 , PIO_SM_PINCTRL_SIDESET_BASE_BITS);
 
-    uint32 rgbval = 0d32;
+    uint32 rgbval = 32;
     if (!rgbw) {
-        rgbval = 0d24;
+        rgbval = 24;
     }
     
     shiftctrl = local_write_masked(shiftctrl, (0x0 << PIO_SM_SHIFTCTRL_OUT_SHIFTDIR_LSB) |
@@ -70,9 +70,9 @@ fun ws2812_init(gpio_pin, pio_num, sm_num, offset) {
     const uint32 sm_target_freq = ws2812freq * sm_cycles_per_bit;
     const uint32 sys_clock_hz = c_clock_get_hz(clock_sys);
     const uint32 clkdiv_int_target = sys_clock_hz / sm_target_freq;
-    uint32 clkdiv_frac_target = 0d0;
-    if (clkdiv_int_target != 0d0) {
-        clkdiv_frac_target = ((0d256 * sys_clock_hz) - (0d256 * sm_target_freq * clkdiv_int_target)) / sm_target_freq;
+    uint32 clkdiv_frac_target = 0;
+    if (clkdiv_int_target != 0) {
+        clkdiv_frac_target = ((256 * sys_clock_hz) - (256 * sm_target_freq * clkdiv_int_target)) / sm_target_freq;
     }
     
     const uint16 clkdiv_int = uint16(clkdiv_int_target);

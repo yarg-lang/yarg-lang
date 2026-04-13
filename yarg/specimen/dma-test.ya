@@ -2,7 +2,7 @@ import("dma");
 import("machine");
 
 var uint32[64] raw_pixels;
-for (var i = 0d0; i < len(raw_pixels); i = i + 0d1) {
+for (var i = 0; i < len(raw_pixels); i = i + 1) {
     raw_pixels[i] = 0x11882244;
 }
 
@@ -33,6 +33,6 @@ reg_write_masked(dma.channel[0].ctrl_trig, 0x1, 0x1);
 while(peek(dma.channel[0].ctrl_trig) & 0x01000000 != 0x01000000) {
 }
 
-for (var i = 0d0; i < len(target_pixels); i = i + 0d1) {
+for (var i = 0; i < len(target_pixels); i = i + 1) {
     print target_pixels[i];
 }

@@ -54,7 +54,7 @@ var struct {
     }[4] alarm_handlers;
 
 fun enable_alarm_handler(al, irq_response) {
-    const ALARM_CALLBACK_ORDER_PRIORITY = 0d0;
+    const ALARM_CALLBACK_ORDER_PRIORITY = 0;
 
     if (alarm_handlers[al].irq_routine != nil) {
         irq_remove_handler(timer_irq[al], alarm_handlers[al].pinned_routine);
@@ -149,10 +149,10 @@ fun sleep_us(delay_us) {
     fun response() {
         share(done, true);
     }
-    alarm_in_us(0d2, delay_us, response);
+    alarm_in_us(2, delay_us, response);
     receive(done);
 
-    cancel_alarm(0d2);
+    cancel_alarm(2);
 }
 
 fun sleep_ms(delay_ms) {

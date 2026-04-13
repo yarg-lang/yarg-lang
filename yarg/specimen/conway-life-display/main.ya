@@ -8,11 +8,11 @@ import("cube_bit");
 var surface_world = make_world(56);
 
 // RGB array of two pixels. 0 for dead, 1 for live
-var display_pixels = [ [0d0, 0d255, 0d0], [0d255, 0d0, 0d0] ];
+var display_pixels = [ [uint8(0), uint8(255), uint8(0)], [uint8(255), uint8(0), uint8(0)] ];
 
 fun display_on_surface(world) {
 
-    for (var k = 0d0; k < len(world); k = k + 0d1) {
+    for (var k = 0; k < len(world); k = k + 1) {
         set_pixel(surface_leds[k], display_pixels[world[k]]);
     }
     
@@ -21,7 +21,7 @@ fun display_on_surface(world) {
 
 fun surface_neighbour_of(cell, neighbour) {
     const led = surface_neighbourhoods[cell][neighbour];
-    for (var i = 0d0; i < len(surface_neighbourhoods); i = i + 0d1) {
+    for (var i = 0; i < len(surface_neighbourhoods); i = i + 1) {
         if (surface_leds[i] == led) {
             return i;
         }
