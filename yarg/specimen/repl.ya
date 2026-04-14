@@ -2,7 +2,7 @@ fun line_repl() {
     c_stdout_puts("yarg> ");
     while (true) {
         var line = c_stdin_gets();
-        if (line != "") {
+        if (line != nil and line != "") {
             exec(line);
             c_stdout_puts("yarg> ");
         }
