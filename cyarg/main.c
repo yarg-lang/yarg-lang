@@ -24,6 +24,9 @@ void usageMessage(FILE* destination) {
           "\tcyarg --help\n"
           "\tDisplay this help message.\n"
           "\n"
+          "\tcyarg --bootstrap <path>\n"
+          "\tExecute a Yarg script, without the language context. For testing of cyarg.\n"
+          "\n"
           "\tcyarg --compile <path>\n"
           "\tCompile a Yarg script, reporting any compilation errors.\n"
           "\n"
@@ -50,7 +53,10 @@ int main() {
     initVMRuntime();
 
     const char script[] = "cyarg.ya";
-    bootScript(script, (sizeof(script) / sizeof(script[0])) - 1);
+    ObjString * scriptObj = copyString(script, sizeof(script) - 1);
+    tempRootPush(OBJ_VAL(scriptObj));
+    bootScript(scriptObj);
+    tempRootPop();
 
     freeVM();
     return 0;
@@ -71,6 +77,7 @@ int main(int argc, const char* argv[]) {
     initVMRuntime();
     vmHost.argc = argc;
     vmHost.argv = argv;
+    vmHost.exitCode = EX_OK;
     if (libPath) {
         vm.libraryPath = copyString(libPath, strlen(libPath));
     }
@@ -78,15 +85,13 @@ int main(int argc, const char* argv[]) {
     int returnCode = EX_OK;
 
     if ((argv[1] && strcmp(argv[1], "--compile") == 0) && argc == 3) {
-        Value result;
-        returnCode = compileFile(argv[2], &result);
-        if (returnCode == EX_SOFTWARE) {
-            returnCode = EX_DATAERR;
-        }
+        returnCode = compileFile(argv[2]);
+    } else if ((argv[1] && strcmp(argv[1], "--bootstrap") == 0) && argc == 3) {
+        returnCode = runHostedFile(NULL, argv[2]);
     } else if ((argv[1] && strcmp(argv[1], "--disassemble") == 0) && argc == 3) {
         returnCode = disassembleFile(argv[2]);
     } else if (argv[1] && strcmp(argv[1], "--lib") == 0 && (argc == 3 || argc == 4)) {
-        returnCode = runFile(libPath, "cyarg-hosted.ya");
+        returnCode = runHostedFile(libPath, "cyarg-hosted.ya");
     } else {
         usageMessage(stderr);
         returnCode = EX_USAGE;

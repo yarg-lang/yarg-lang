@@ -8,6 +8,9 @@ Usage:
 	cyarg --help
 	Display this help message.
 
+	cyarg --bootstrap <path>
+	Execute a Yarg script, without the language context. For testing of cyarg.
+
 	cyarg --compile <path>
 	Compile a Yarg script, reporting any compilation errors.
 
@@ -16,8 +19,6 @@ Usage:
 1
 [line 1] Error: Unexpected character.
 [line 1] Error: Unexpected character.
-Compile error; compiling source failed.
-[line 0] in boot()
 == test/cyarg/simple.ya ==
 0000    1 OP_IMMEDIATE_P8     1
 0002    | OP_PRINT

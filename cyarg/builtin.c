@@ -26,12 +26,6 @@ bool importBuiltinDummy(ObjRoutine* routineContext, int argCount, Value* result)
     return true;
 }
 
-bool execBuiltinDummy(ObjRoutine* routineContext, int argCount, Value* result) {
-    *result = NIL_VAL;
-    return true;
-}
-
-
 static char* libraryNameFor(const char* importname, const char* libraryPath) {
     size_t namelen = strlen(importname);
     size_t pathlen = 0;
@@ -84,7 +78,7 @@ InterpretResult importBuiltin(ObjRoutine* routineContext, int argCount) {
         ObjFunction* function = compile(source);
         free(source);
         if (function == NULL) {
-            return INTERPRET_COMPILE_ERROR;
+            return INTERPRET_RUNTIME_ERROR;
         }
 
         tempRootPush(OBJ_VAL(function));
@@ -148,48 +142,14 @@ bool compileBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     const char* source = AS_CSTRING(nativeArgument(routineContext, argCount, 0));
     ObjFunction* function = compile(source);
     if (function == NULL) {
-        runtimeError(routineContext, "Compile error; compiling source failed.");
-        return false;
+        *result = NIL_VAL;
+    } else {
+        push(routineContext, OBJ_VAL(function));
+        ObjClosure* closure = newClosure(function);
+        pop(routineContext);
+        *result = OBJ_VAL(closure);
     }
-
-    tempRootPush(OBJ_VAL(function));
-    ObjClosure* closure = newClosure(function);
-    tempRootPop();
-
-    *result = OBJ_VAL(closure);
     return true;
-}
-
-InterpretResult execBuiltin(ObjRoutine* routineContext, int argCount) {
-    if (argCount != 1) {
-        runtimeError(routineContext, "Expected 1 arguments but got %d.", argCount);
-        return INTERPRET_RUNTIME_ERROR;
-    }
-    if (!IS_STRING(peek(routineContext, 0))) {
-        runtimeError(routineContext, "Argument to exec must be string.");
-        return INTERPRET_RUNTIME_ERROR;
-    }
-
-    char* source = AS_CSTRING(peek(routineContext, 0));
-    ObjFunction* function = compile(source);
-    if (function == NULL) {
-        return INTERPRET_COMPILE_ERROR;
-    }
-
-    tempRootPush(OBJ_VAL(function));
-
-    Value sourceVal = pop(routineContext);
-    tempRootPush(sourceVal);
-    pop(routineContext);
-
-    ObjClosure* closure = newClosure(function);
-    push(routineContext, OBJ_VAL(closure));
-
-    tempRootPop();
-    tempRootPop();
-
-    callfn(routineContext, closure, 0);
-    return INTERPRET_OK;
 }
 
 bool makeChannelBuiltin(ObjRoutine* routine, int argCount, Value* result) {
@@ -1025,7 +985,6 @@ Value getBuiltin(uint8_t builtin) {
         case BUILTIN_PEEK: return OBJ_VAL(newNative(peekBuiltin));
         case BUILTIN_IMPORT: return OBJ_VAL(newNative(importBuiltinDummy));
         case BUILTIN_READ_SOURCE: return OBJ_VAL(newNative(readSourceBuiltin));
-        case BUILTIN_EXEC: return OBJ_VAL(newNative(execBuiltinDummy));
         case BUILTIN_COMPILE: return OBJ_VAL(newNative(compileBuiltin));
         case BUILTIN_MAKE_ROUTINE: return OBJ_VAL(newNative(makeRoutineBuiltin));
         case BUILTIN_RESUME: return OBJ_VAL(newNative(resumeBuiltin));

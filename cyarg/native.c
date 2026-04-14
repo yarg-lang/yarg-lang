@@ -193,4 +193,21 @@ bool host_argnNative(ObjRoutine* routine, int argCount, Value* result) {
     *result = OBJ_VAL(copyString(vmHost.argv[index], strlen(vmHost.argv[index])));
     return true;
 }
+
+bool host_exitCodeNative(ObjRoutine* routine, int argCount, Value* result) {
+    if (argCount != 1) {
+        runtimeError(routine, "Expected 1 argument but got %d.", argCount);
+        return false;
+    }
+
+    Value codeVal = nativeArgument(routine, argCount, 0);
+    if (!is_positive_integer32(codeVal)) {
+        runtimeError(routine, "Expected a positive integer.");
+        return false;
+    }
+    uint32_t code = as_positive_integer32(codeVal);
+    vmHost.exitCode = (int) code;
+    *result = NIL_VAL;
+    return true;
+}
 #endif

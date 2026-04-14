@@ -52,8 +52,8 @@ void initVMRuntime();
 void freeVM();
 void markVMRoots();
 
-InterpretResult bootScript(const char* script, size_t length);
-InterpretResult bootstrapVM(const uint8_t bootstrap[], Value* bootstrapResult, ObjString* script);
+InterpretResult bootScript(ObjString* script);
+InterpretResult compileScript(ObjString* script, Value* compileResult);
 
 InterpretResult run(ObjRoutine* routine);
 bool callfn(ObjRoutine* routine, ObjClosure* closure, int argCount);

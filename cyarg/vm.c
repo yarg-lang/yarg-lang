@@ -177,6 +177,7 @@ void initVMRuntime() {
 #if defined(CYARG_FEATURE_HOSTED_REPL)
     defineNative("host_argc", host_argcNative);
     defineNative("host_argn", host_argnNative);
+    defineNative("host_exitCode", host_exitCodeNative);
 #endif
 }
 
@@ -260,8 +261,6 @@ static InterpretResult callValue(ObjRoutine* routine, Value callee, int argCount
                 NativeFn native = AS_NATIVE(callee);
                 if (native == importBuiltinDummy) {
                     return importBuiltin(routine, argCount);
-                } else if (native == execBuiltinDummy) {
-                    return execBuiltin(routine, argCount);
                 } else {
                     Value result = NIL_VAL; 
                     if (native(routine, argCount, &result)) {
@@ -1478,14 +1477,33 @@ InterpretResult run(ObjRoutine* routine) {
 #undef BINARY_OP
 }
 
-uint8_t exec_bootstrap[] = {
-    OP_GET_BUILTIN, BUILTIN_EXEC,
+typedef void (*bindBootstrapFunction)(ObjString* script);
+
+static void bindBootstrapCode(const char* name, size_t nameLength, 
+                              const uint8_t code[], size_t codeLength, 
+                              ObjString* script, size_t constantIndex) {
+    vm.bootFunction.name = copyString(name, nameLength);
+
+    for (size_t i = 0; i < codeLength; i++) {
+        writeChunk(&vm.bootFunction.chunk, code[i], 0);
+    }
+    uint8_t constant = addConstant(&vm.bootFunction.chunk, OBJ_VAL(script));
+    assert(constant == vm.bootFunction.chunk.code[constantIndex]);
+}
+
+// note that it is assumed that the initial script is well-formed and won't
+// produce a compile error. (use --compile to check this when editing the script)
+uint8_t bootstrap[] = {
+    OP_GET_BUILTIN, BUILTIN_COMPILE,
     OP_GET_BUILTIN, BUILTIN_READ_SOURCE,
     OP_CONSTANT, 0,
     OP_CALL, 1,
     OP_CALL, 1,
+    OP_CALL, 0,
     OP_RETURN
 };
+
+size_t bootstrap_parameter_offset = 5;
 
 uint8_t compile_bootstrap[] = {
     OP_GET_BUILTIN, BUILTIN_COMPILE,
@@ -1496,20 +1514,9 @@ uint8_t compile_bootstrap[] = {
     OP_RETURN
 };
 
-static void installBootstrap(const uint8_t bootstrap[], ObjString* script) {
+size_t compile_bootstrap_parameter_offset = 5;
 
-    vm.bootFunction.name = copyString("boot", 4);
-
-    for (size_t i = 0; i < sizeof(exec_bootstrap); i++) {
-        writeChunk(&vm.bootFunction.chunk, bootstrap[i], 0);
-    }
-    uint8_t constant = addConstant(&vm.bootFunction.chunk, OBJ_VAL(script));
-    assert(constant == vm.bootFunction.chunk.code[5]);
-}
-
-InterpretResult bootstrapVM(const uint8_t bootstrap[], Value* bootstrapResult, ObjString* script) {
-    installBootstrap(bootstrap, script);
-
+InterpretResult bootstrapVM(Value* bootstrapResult, ObjString* script) {
     ObjClosure* closure = newClosure(&vm.bootFunction);
 
     bindEntryFn(&vm.core0, closure);
@@ -1526,15 +1533,23 @@ InterpretResult bootstrapVM(const uint8_t bootstrap[], Value* bootstrapResult, O
     return result;
 }
 
-InterpretResult bootScript(const char* script, size_t length) {
-    ObjString* scriptObj = copyString(script, length);
-    tempRootPush(OBJ_VAL(scriptObj));
-    // Yarg scripts have no mechanism to return a result, so we discard it (it will always be nil).
+InterpretResult bootScript(ObjString* script) {
+    bindBootstrapCode("boot", 4, bootstrap, sizeof(bootstrap), script, bootstrap_parameter_offset);
+
+    // Yarg scripts do not return values, so the bootstrap result is discarded.
     Value discardedResult;
-    InterpretResult result = bootstrapVM(exec_bootstrap, &discardedResult, scriptObj);
-    tempRootPop();
-    return result;
+    InterpretResult runResult = bootstrapVM(&discardedResult, script);
+    return runResult;
 }
+
+InterpretResult compileScript(ObjString* script, Value* result) {
+    bindBootstrapCode("compiler-host", 13, compile_bootstrap, sizeof(compile_bootstrap), script, compile_bootstrap_parameter_offset);
+
+    // Treat the compile bootstrap as a function, so we get a result.
+    InterpretResult runResult = bootstrapVM(result, script);
+    return runResult;
+}
+
 
 void binaryIntOp(ObjRoutine* routine, char const *c)
 {

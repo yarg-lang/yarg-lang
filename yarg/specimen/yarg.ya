@@ -1,1 +1,11 @@
+fun exec(source) {
+    var target = compile(source);
+    if (target != nil) {
+        return target();
+    } else {
+        print "Compilation failed.";
+        return nil;
+    }
+}
+
 import("repl");
