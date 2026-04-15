@@ -6,7 +6,11 @@ test/ contains test suites:
 
 `bc/` - a 'bc' based test suite of the cyarg/big-int integer library.
 
-`benchmark/` - ad-hoc benchmarks
+`cyarg/` - a test suite for the cyarg interfaces to yarg and hosted yarg scripts.
+
+`hardware/` - a minimal smoketest to ensure Yarg is functional on pico hardware.
+
+`benchmark/` - ad-hoc benchmarks.
 
 ## yarg-expect (Yarg Language)
 
@@ -29,7 +33,7 @@ As a convenience, the suite can be run from the repo's root directory with:
 
 ## bc
 
-A test suite that generates an input script for bc. Each test evaluates to an expected value, and any output becomes an error.
+A test suite that generates an input script for bc. Targets the big-int implementation in cyarg. Each test evaluates to an expected value, and any output becomes an error.
 
 Sample usage:
 
@@ -65,6 +69,17 @@ A simple test to exercise the command line interface of `cyarg`, as required by 
 % ./test/cyarg-run.sh
 ```
 
+## hardware
+
+A minimal smoke test to be run manually on a pico. Except hello_button, all will run on a stock pico with no additional peripherals. See [hello_button.pdf](../yarg/specimen/circuit-diagrams/hello_button.pdf) for the circuit needed for [hello_button.ya](../yarg/specimen/hello_button.ya)
+
+Runs a suite that establishes yarg is mimimally functional, can import scripts, and can run the two examples from the [README.md](../README.md). Requires manual interaction to reset the board and confirm correct peripheral behaviour.
+
+```
+./tools/build-test-hardware.sh
+```
+
+the file `build/test-hardware.uf2` can be flashed on any pico. See the [hardware/README.md](hardware/README.md) for further instructions.
 
 ## benchmark
 

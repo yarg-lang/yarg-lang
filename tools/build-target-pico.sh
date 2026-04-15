@@ -25,5 +25,6 @@ cp cyarg/build/target-pico-debug/cyarg.uf2 build/yarg-lang-debug.uf2 || BUILD_ER
 ./tools/add-yarg-stdlib.sh build/yarg-lang-debug.uf2
 
 ./tools/build-specimen.sh
+./tools/build-test-hardware.sh
 
 exit $BUILD_ERROR
