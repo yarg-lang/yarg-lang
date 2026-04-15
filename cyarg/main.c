@@ -18,8 +18,9 @@ void usageMessage(FILE* destination) {
           "\tcyarg --lib <dir>\n"
           "\tLaunch a Yarg REPL, using <dir> as the root of the Yarg library.\n"
           "\n"
-          "\tcyarg --lib <dir> <path>\n"
+          "\tcyarg --lib <dir> <path> [-- [args]]\n"
           "\tRun a Yarg script at <path>, using <dir> as the root of the Yarg library.\n"
+          "\t\tOptional [args] following -- are available to the script in hostArgs.\n"
           "\n"
           "\tcyarg --help\n"
           "\tDisplay this help message.\n"
@@ -90,7 +91,9 @@ int main(int argc, const char* argv[]) {
         returnCode = runHostedFile(NULL, argv[2]);
     } else if ((argv[1] && strcmp(argv[1], "--disassemble") == 0) && argc == 3) {
         returnCode = disassembleFile(argv[2]);
-    } else if (argv[1] && strcmp(argv[1], "--lib") == 0 && (argc == 3 || argc == 4)) {
+    } else if (argv[1] && strcmp(argv[1], "--lib") == 0 && ((argc == 3) || (argc == 4))) {
+        returnCode = runHostedFile(libPath, "cyarg-hosted.ya");
+    } else if (argv[1] && strcmp(argv[1], "--lib") == 0 && argc > 4 && strcmp(argv[4], "--") == 0) {
         returnCode = runHostedFile(libPath, "cyarg-hosted.ya");
     } else {
         usageMessage(stderr);

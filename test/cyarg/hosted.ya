@@ -1,0 +1,4 @@
+print len(hostArgs);
+for (var i = 0; i < len(hostArgs); i = i + 1) {
+    print hostArgs[i];
+}

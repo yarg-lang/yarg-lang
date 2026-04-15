@@ -2,10 +2,7 @@ import("yarg");
 
 const int EX_DATAERR = 65;
 
-var hostArgs = new(any[host_argc()]);
-for (var i = 0; i < int(host_argc()); i = i + 1) {
-    hostArgs[i] = host_argn(i);
-}
+var hostArgs;
 
 fun getArgument(name) {
     for (var i = 0; i < len(hostArgs); i = i + 1) {
@@ -25,8 +22,22 @@ fun getBoolArgument(name) {
     return false;
 }
 
-if (len(hostArgs) == 4) {
-    var source = read_source(hostArgs[3]);
+if (int(host_argc()) == 4 or (int(host_argc()) > 4 and host_argn(4) == "--")) {
+    var argsCount = 1;
+    if (int(host_argc()) > 4) {
+        argsCount = int(host_argc()) - 4;
+    }
+    hostArgs = new(any[argsCount]);
+    hostArgs[0] = host_argn(3);
+
+    if (int(host_argc()) > 4 and host_argn(4) == "--") {
+        for (var i = 5; i < int(host_argc()); i = i + 1) {
+            hostArgs[i - 5 + 1] = host_argn(i);
+        }
+    }
+
+    var source = read_source(hostArgs[0]);
+
     var target = compile(source);
     if (target != nil) {
         target();
