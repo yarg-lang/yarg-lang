@@ -1,8 +1,16 @@
-const reps = 10000;
+var reps = 500;
+var uint32 seed = 173993;
+
+if (len(hostArgs) > 1) {
+    seed = uint32(hostArgs[1]);
+}
+
+if (len(hostArgs) > 2) {
+    reps = int(hostArgs[2]);
+}
 
 // https://github.com/kraj/uClibc/blob/master/libc/stdlib/rand_r.c#L25
 const uint32 maxRand = 0x7fffffff;
-var uint32 seed = 173993;
 fun rand()
 {
     var uint32 next = seed;

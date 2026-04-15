@@ -34,16 +34,28 @@ A test suite that generates an input script for bc. Each test evaluates to an ex
 Sample usage:
 
 ```
-./bin/cyarg test/bc/int.ya | bc -lLS 0 | diff - test/bc/int.expected
-```
-
-Note pass through diff to get an exitcode that is non-zero on error.
-
-As a convenience, the tests can be run from the repo's root diretory with:
-
-```
 % ./test/bc-run.sh
+./test/bc-run.sh REPETITIONS=200, SEED=15415
 ```
+
+The numbers are logged in build/bc-seed.txt.
+
+The seed and a number of repetitions can be passed in to the script to reproduce problems.
+
+Optionally, a number of iterations can be specified on its own.
+
+eg:
+
+```
+% ./test/bc-run.sh 500
+```
+or
+```
+% ./test/bc-run.sh 200 15415
+```
+
+The first case is intended for use by a CI build to run more iterations than a local build, and the second case is intended to be used to reproduce failures.
+
 
 ## cyarg
 

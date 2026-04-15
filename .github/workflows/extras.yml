@@ -40,7 +40,7 @@ jobs:
           path: vscode-yarg/*.vsix
 
   build-xcode:
-    name: Xcode (tools/build-xcode.sh)
+    name: Xcode and bc (tools/build-xcode.sh, test/bc-run.sh)
     runs-on: macos-latest
     permissions:
       contents: read
@@ -74,7 +74,11 @@ jobs:
         run: ./bin/yarg runtests -tests "test/yarg-expect" -interpreter "cyarg/build/xcode-host/Debug/cyarg" -lib "yarg/specimen"
       
       - name: Run BC test suite
-        run: ./cyarg/build/xcode-host/Debug/cyarg --lib "yarg/specimen" test/bc/int.ya | bc -lLS 0 | diff - test/bc/int.expected
+        run: |
+          cp cyarg/build/xcode-host/Debug/cyarg bin/cyarg
+          ./test/bc-run.sh 1000
+          echo "build/bc-seeds.txt:"
+          cat build/bc-seeds.txt
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

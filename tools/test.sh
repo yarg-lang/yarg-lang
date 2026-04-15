@@ -10,6 +10,6 @@ popd >/dev/null
 
 ./bin/yarg runtests -tests "test/yarg-expect" -interpreter "bin/cyarg" -lib "yarg/specimen" || TEST_ERROR=1
 
-./bin/cyarg --lib yarg/specimen test/bc/int.ya | bc -lLS 0 | diff - test/bc/int.expected || TEST_ERROR=1
+./test/bc-run.sh || TEST_ERROR=1
 
 exit $TEST_ERROR
