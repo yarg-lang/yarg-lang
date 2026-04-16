@@ -10,7 +10,7 @@ if (len(hostArgs) > 2) {
 }
 
 // https://github.com/kraj/uClibc/blob/master/libc/stdlib/rand_r.c#L25
-const uint32 maxRand = 0x7fffffff;
+var uint32 maxRand = 0x7fffffff;
 fun rand()
 {
     var uint32 next = seed;
@@ -34,11 +34,11 @@ fun rand()
     return next & maxRand;
 }
 
-const shifter = int(0x80000000);
+var shifter = int(0x80000000);
 var temp = new(int[4]);
 fun int_rand()
 {
-    const size = rand() % uint32(33); // max 33 * 31 => 1023 bits
+    var size = rand() % uint32(33); // max 33 * 31 => 1023 bits
     var int x = int(rand());
 
     for (var i = 0; i < int(size); i = i + 1)
@@ -64,7 +64,7 @@ fun int_rand()
     }
 }
 
-const zint = int(0);
+var zint = int(0);
 
 fun bool_to_int8(x) {
     if (x) {

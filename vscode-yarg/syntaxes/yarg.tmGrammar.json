@@ -19,11 +19,15 @@
       },
       "keywords": {
         "name": "keyword.yarg",
-        "match": "\\b(and|any|bool|class|compile|const|cpeek|else|exec|false|for|fun|if|import|int|int8|int16|int32|int64|len|mfloat64|make_channel|make_routine|make_sync_group|new|nil|or|peek|pin|place|poke|print|read_source|receive|resume|return|send|share|start|string|struct|super|this|true|uint8|uint16|uint32|uint64|var|while|yield)\\b"
+        "match": "\\b(and|any|bool|class|compile|cpeek|else|exec|false|for|fun|if|import|int|int8|int16|int32|int64|len|mfloat64|make_channel|make_routine|make_sync_group|new|nil|or|peek|pin|place|poke|print|read_source|receive|resume|return|send|share|start|string|struct|super|this|true|uint8|uint16|uint32|uint64|var|while|yield)\\b"
       },
       "test_system": {
         "name": "keyword.testsystem.yarg",
         "match": "\\b(test_interrupt|test_read|test_set|test_sync|test_write)\\b"
+      },
+      "reserved_words": {
+        "name": "keyword.reserved.yarg",
+        "match": "\\b(const)\\b"
       }
     }
 }

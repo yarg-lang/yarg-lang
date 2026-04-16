@@ -43,7 +43,7 @@ fun get_time() {
 }
 
 fun elapsed_time(start_time) {
-    const time_now = get_time();
+    var time_now = get_time();
 
     return  time_now - start_time;
 }
@@ -54,7 +54,7 @@ var struct {
     }[4] alarm_handlers;
 
 fun enable_alarm_handler(al, irq_response) {
-    const ALARM_CALLBACK_ORDER_PRIORITY = 0;
+    var ALARM_CALLBACK_ORDER_PRIORITY = 0;
 
     if (alarm_handlers[al].irq_routine != nil) {
         irq_remove_handler(timer_irq[al], alarm_handlers[al].pinned_routine);

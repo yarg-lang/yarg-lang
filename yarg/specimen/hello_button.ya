@@ -1,21 +1,21 @@
 import("gpio");
 
 // GPIO pins to use
-const led_io = 12;
-const button_io = 11;
+var led_io = 12;
+var button_io = 11;
 
 fun button_routine(gpio, chan) {
 
-    const core = coreNum();
+    var core = coreNum();
 
     fun gpio_events() {
-        const events8 = peek(io_bank0.proc[core].ints[uint32(gpio) >> uint32(3)]);
-        const uint32 events = events8 >> (4 * (uint32(gpio) % uint32(8)));
+        var events8 = peek(io_bank0.proc[core].ints[uint32(gpio) >> uint32(3)]);
+        var uint32 events = events8 >> (4 * (uint32(gpio) % uint32(8)));
         return events;
     }
 
     fun gpio_response() {
-        const events = gpio_events();
+        var events = gpio_events();
         gpio_acknowledge_irq(gpio, events);
         share(chan, events);
     }

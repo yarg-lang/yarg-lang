@@ -1,10 +1,10 @@
 import("timer");
 import("gpio");
 
-const gpio_button1 = 2;
+var gpio_button1 = 2;
 
-const gpio_led1 = 3;
-const gpio_led2 = 5;
+var gpio_led1 = 3;
+var gpio_led2 = 5;
 
 var any[2] events;
 

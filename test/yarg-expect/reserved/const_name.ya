@@ -1,0 +1,1 @@
+var const = 3; // [line 1] Error at 'const': Expect variable name.

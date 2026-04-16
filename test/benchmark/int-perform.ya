@@ -1,9 +1,9 @@
-const reps_addsub = 90;
-const reps_mul = 500;
-const reps_div = 500;
+var reps_addsub = 90;
+var reps_mul = 500;
+var reps_div = 500;
 
 // https://github.com/kraj/uClibc/blob/master/libc/stdlib/rand_r.c#L25
-const maxRand = uint32(0x7fffffff);
+var maxRand = uint32(0x7fffffff);
 var uint32 seed = 173993;
 fun rand()
 {
@@ -28,11 +28,11 @@ fun rand()
     return next & maxRand;
 }
 
-const shifter = 0x80000000;
+var shifter = 0x80000000;
 var temp = new(int[4]);
 fun int_rand()
 {
-    const size = int(rand() % uint32(33)); // max 33 * 31 => 1023 bits
+    var size = int(rand() % uint32(33)); // max 33 * 31 => 1023 bits
     var int x = int(rand());
 
     for (var i = 0; i < size; i = 1 + i)
@@ -59,7 +59,7 @@ fun int_rand()
 }
 
 var rts = new(int[500]);
-const zint = int(0);
+var zint = int(0);
 
 for (var x = 0; x < 500; x = 1 + x)
 {
@@ -114,7 +114,7 @@ ti = 10000000 * int(t);
 ti = ti / reps_mul / reps_mul;
 print string(ti / 1000) + "." + string (ti % 1000) + " ms / mul";
 
-const zint = int(0);
+var zint = int(0);
 s1 = clock();
 print "Div";
 for (var i = 0; i < reps_div; i = 1 + i) for (var j = 500 - reps_div; j < 500; j = 1 + j)

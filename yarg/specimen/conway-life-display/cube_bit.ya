@@ -4,15 +4,15 @@
 
 import("ws2812");
 
-const ws2812_pio = 0;
-const ws2812_sm = 0;
-const ws2812_offset = 0;
-const ws2812_dma_channel = 0;
+var ws2812_pio = 0;
+var ws2812_sm = 0;
+var ws2812_offset = 0;
+var ws2812_dma_channel = 0;
 
 var uint32[64] cube_pixels;
 
 // the leds that are on the surface of the cube.
-const surface_leds = [  0,  1,  2,  3,  4,  5,  6,  7, 
+var surface_leds = [  0,  1,  2,  3,  4,  5,  6,  7, 
                         8,  9, 10, 11, 12, 13, 14, 15,
                        16, 17, 18, 19, 20,         23,
                        24,         27, 28, 29, 30, 31,
@@ -23,7 +23,7 @@ const surface_leds = [  0,  1,  2,  3,  4,  5,  6,  7,
 
 
 // a topological map of the neighbours for each surface led.
-const surface_neighbourhoods = [ [  7,  6,  1,  7,  1, 29, 28, 27 ],  // Led: 0 (corner)
+var surface_neighbourhoods = [ [  7,  6,  1,  7,  1, 29, 28, 27 ],  // Led: 0 (corner)
                                  [  7,  6,  5,  0,  2, 28, 27, 20 ],
                                  [  6,  5,  4,  1,  3, 27, 20, 19 ],
                                  [  2,  5,  4,  2,  4, 20, 19, 18 ],  // Led: 3 (corner)
@@ -94,7 +94,7 @@ fun cube_bit_init() {
 
 fun clamp_brightness(channel) {
     
-    const max = 127;
+    var max = 127;
     
     if (max < 255) {
         var divider = 256 / ((max) + 1);

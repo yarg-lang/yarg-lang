@@ -1,6 +1,6 @@
 import("yarg");
 
-const int EX_DATAERR = 65;
+var int EX_DATAERR = 65;
 
 var hostArgs;
 

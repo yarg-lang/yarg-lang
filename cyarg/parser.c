@@ -745,6 +745,11 @@ static ObjExpr* address(bool canAssign) {
     return (ObjExpr*) val;
 }
 
+static ObjExpr* reserved(bool canAssign) {
+    error("Can't use reserved word as expression.");
+    return NULL;
+}
+
 static AstParseRule rules[] = {
     [TOKEN_LEFT_PAREN]           = {grouping,  call,   PREC_CALL},
     [TOKEN_RIGHT_PAREN]          = {NULL,      NULL,   PREC_NONE},
@@ -782,7 +787,7 @@ static AstParseRule rules[] = {
     [TOKEN_BOOL]                 = {type,      NULL,   PREC_NONE},
     [TOKEN_CLASS]                = {NULL,      NULL,   PREC_NONE},
     [TOKEN_COMPILE]              = {builtin,   NULL,   PREC_NONE},
-    [TOKEN_CONST]                = {NULL,      NULL,   PREC_NONE},
+    [TOKEN_CONST]                = {reserved,  reserved, PREC_NONE},
     [TOKEN_CPEEK]                = {builtin,   NULL,   PREC_NONE},
     [TOKEN_ELSE]                 = {NULL,      NULL,   PREC_NONE},
     [TOKEN_FALSE]                = {literal,   NULL,   PREC_NONE},
@@ -915,8 +920,6 @@ static ObjStmtExpression* expressionStatement() {
 static ObjExpr* typeExpression() {
     ObjExpr* expression = NULL;
 
-    bool isConst = match(TOKEN_CONST);
-
     if (checkTypeToken()) {
         advance();
         switch (parser.previous.type) {
@@ -939,10 +942,6 @@ static ObjExpr* typeExpression() {
         }
     }
     
-    if (isConst && expression == NULL) {
-        expression = (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL);
-    }
-
     if (expression) {
         ObjExpr* cursor = expression;
         pushWorkingNode((Obj*)expression);
@@ -950,10 +949,6 @@ static ObjExpr* typeExpression() {
 
         if (cursor->nextExpr) {
             cursor = cursor->nextExpr;
-        }
-
-        if (isConst) {
-            cursor->nextExpr = (ObjExpr*) newExprType(EXPR_TYPE_MODIFIER_CONST);
         }
 
         popWorkingNode();
@@ -1202,7 +1197,7 @@ ObjStmt* declaration() {
         stmt = (ObjStmt*) classDeclaration();
     } else if (match(TOKEN_FUN)) {
         stmt = (ObjStmt*) funDeclaration("Expect function name.");
-    } else if (match(TOKEN_VAR) || check(TOKEN_CONST) || checkTypeToken()) {
+    } else if (match(TOKEN_VAR) || checkTypeToken()) {
         stmt = varDeclaration();
     } else if (match(TOKEN_PLACE)) {
         stmt = (ObjStmt*) placeDeclaration();

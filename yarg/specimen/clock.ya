@@ -55,17 +55,17 @@ place struct {
     uint32 ints;
     } @x40008000 clock;
 
-const clock_gpout0 = 0;
-const clock_gpout1 = 1;
-const clock_gpout2 = 2;
-const clock_gpout3 = 3;
-const clock_gpout = [ clock_gpout0, clock_gpout1, clock_gpout2, clock_gpout3 ];
-const clock_ref = 4;
-const clock_sys = 5;
-const clock_peri = 6;
-const clock_usb = 7;
-const clock_adc = 8;
-const clock_rtc = 9;
+var clock_gpout0 = 0;
+var clock_gpout1 = 1;
+var clock_gpout2 = 2;
+var clock_gpout3 = 3;
+var clock_gpout = [ clock_gpout0, clock_gpout1, clock_gpout2, clock_gpout3 ];
+var clock_ref = 4;
+var clock_sys = 5;
+var clock_peri = 6;
+var clock_usb = 7;
+var clock_adc = 8;
+var clock_rtc = 9;
 
 // native functions (so that C libs can depend on this too)
 // c_clock_get_hz

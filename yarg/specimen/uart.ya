@@ -25,7 +25,7 @@ place struct {
         @x40038000 uart1;
     }
 
-const uart = [ uart0, uart1 ];
+var uart = [ uart0, uart1 ];
 
 fun uart_reset(id) {
     reset_block(reset_uart[id]);
@@ -65,7 +65,7 @@ fun uart_set_baudrate(id, baudrate) {
     return (uint32(4) * uart_clock_get_hz(id)) / (uint32(64) * baud_ibrd + baud_fbrd);
 }
 
-const uint32 UART_PARITY_NONE = uint32(0);
+var uint32 UART_PARITY_NONE = uint32(0);
 
 fun uart_init(id, baud, fifo_enable) {
     uart_reset(id);
@@ -93,8 +93,8 @@ fun uart_init(id, baud, fifo_enable) {
     poke uart[id].cr, 0x00000001 | 0x00000100 | 0x00000200;
 }
 
-const UART_UARTFR_TXFF_BITS = 0x20;
-const UART_UARTFR_RXFF_BITS = 0x40;
+var UART_UARTFR_TXFF_BITS = 0x20;
+var UART_UARTFR_RXFF_BITS = 0x40;
 
 fun uart_is_writeable(id) {
     return peek(uart[id].fr) & UART_UARTFR_TXFF_BITS != UART_UARTFR_TXFF_BITS;

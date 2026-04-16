@@ -1,6 +1,6 @@
 import("uart");
 
-const device = 1;
+var device = 1;
 
 // connect gpio before init to avoid spurious 0 byte appearing.
 gpio_set_function(8, gpio_func_uart); // TX

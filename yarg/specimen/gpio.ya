@@ -1,30 +1,30 @@
 import("machine");
 import("irq");
 
-const pico_led = uint32(25);
+var pico_led = uint32(25);
 
-const GPIO_OUT = true;
-const GPIO_IN = false;
+var GPIO_OUT = true;
+var GPIO_IN = false;
 
-const gpio_func_ixp = 0;
-const gpio_func_spi = 1;
-const gpio_func_uart = 2;
-const gpio_func_i2c = 3;
-const gpio_func_pwm = 4;
-const gpio_func_sio = 5;
-const gpio_func_pio0 = 6;
-const gpio_func_pio1 = 7;
-const gpio_func_pio = [ gpio_func_pio0, gpio_func_pio1 ];
-const gpio_func_clock = 8;
-const gpio_func_usb = 9;
-const gpio_func_null = 31;
+var gpio_func_ixp = 0;
+var gpio_func_spi = 1;
+var gpio_func_uart = 2;
+var gpio_func_i2c = 3;
+var gpio_func_pwm = 4;
+var gpio_func_sio = 5;
+var gpio_func_pio0 = 6;
+var gpio_func_pio1 = 7;
+var gpio_func_pio = [ gpio_func_pio0, gpio_func_pio1 ];
+var gpio_func_clock = 8;
+var gpio_func_usb = 9;
+var gpio_func_null = 31;
 
-const GPIO_IRQ_EDGE_FALL = uint32(0x4);
-const GPIO_IRQ_EDGE_RISE = uint32(0x8);
-const NUM_BANK0_GPIOS = 30;
+var GPIO_IRQ_EDGE_FALL = uint32(0x4);
+var GPIO_IRQ_EDGE_RISE = uint32(0x8);
+var NUM_BANK0_GPIOS = 30;
 
-const PADS_BANK0_GPIO_IE_BITS = uint32(0x00000040);
-const PADS_BANK0_GPIO_OD_BITS = uint32(0x00000080);
+var PADS_BANK0_GPIO_IE_BITS = uint32(0x00000040);
+var PADS_BANK0_GPIO_OD_BITS = uint32(0x00000080);
 
 place struct {
     struct {
@@ -101,8 +101,8 @@ var struct {
     }[2] gpio_handlers;
 
 fun gpio_set_irq_routine(response) {
-    const core = coreNum();
-    const GPIO_IRQ_CALLBACK_ORDER_PRIORITY = 0;
+    var core = coreNum();
+    var GPIO_IRQ_CALLBACK_ORDER_PRIORITY = 0;
 
     fun irq_response() {
         for (var gpio = 0; gpio < NUM_BANK0_GPIOS; gpio= gpio + 8) {

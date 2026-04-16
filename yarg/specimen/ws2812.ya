@@ -4,20 +4,20 @@ import("clock");
 import("gpio");
 import("dma");
 
-const uint16[4] ws2812_program;
-const ws2812_wrap_target = 0;
+var uint16[4] ws2812_program;
+var ws2812_wrap_target = 0;
 ws2812_program[0] = uint16(0x6321); // out    x, 1            side 0 [3]
 ws2812_program[1] = uint16(0x1223); // jmp    !x, 3           side 1 [2]
 ws2812_program[2] = uint16(0x1200); // jmp    0               side 1 [2]
 ws2812_program[3] = uint16(0xa242); // nop                    side 0 [2]
-const ws2812_wrap = 3;
+var ws2812_wrap = 3;
 
-const ws2812_T1 = 3;
-const ws2812_T2 = 3;
-const ws2812_T3 = 4;
+var ws2812_T1 = 3;
+var ws2812_T2 = 3;
+var ws2812_T3 = 4;
 
-const ws2812freq = 800000;
-const rgbw = false;
+var ws2812freq = 800000;
+var rgbw = false;
 
 fun local_write_masked(variable, val, mask) {
     uint32 reg = uint32(variable) ^ ((uint32(variable) ^ uint32(val)) & uint32(mask));
@@ -66,17 +66,17 @@ fun ws2812_init(gpio_pin, pio_num, sm_num, offset) {
                         PIO_FIFO_JOIN_TX << PIO_SM_SHIFTCTRL_FJOIN_TX_LSB
                         , PIO_SM_SHIFTCTRL_FJOIN_TX_BITS | PIO_SM_SHIFTCTRL_FJOIN_RX_BITS);
 
-    const uint32 sm_cycles_per_bit = uint32(ws2812_T1 + ws2812_T2 + ws2812_T3);
-    const uint32 sm_target_freq = uint32(ws2812freq) * sm_cycles_per_bit;
-    const uint32 sys_clock_hz = c_clock_get_hz(clock_sys);
-    const uint32 clkdiv_int_target = sys_clock_hz / sm_target_freq;
+    var uint32 sm_cycles_per_bit = uint32(ws2812_T1 + ws2812_T2 + ws2812_T3);
+    var uint32 sm_target_freq = uint32(ws2812freq) * sm_cycles_per_bit;
+    var uint32 sys_clock_hz = c_clock_get_hz(clock_sys);
+    var uint32 clkdiv_int_target = sys_clock_hz / sm_target_freq;
     uint32 clkdiv_frac_target = 0;
     if (clkdiv_int_target != 0) {
         clkdiv_frac_target = ((256 * sys_clock_hz) - (256 * sm_target_freq * clkdiv_int_target)) / sm_target_freq;
     }
     
-    const uint16 clkdiv_int = uint16(clkdiv_int_target);
-    const uint8 clkdiv_frac = uint8(clkdiv_frac_target);
+    var uint16 clkdiv_int = uint16(clkdiv_int_target);
+    var uint8 clkdiv_frac = uint8(clkdiv_frac_target);
 
     uint32 clkdiv = (uint32(clkdiv_frac) << PIO_SM_CLKDIV_FRAC_LSB) |
                 (uint32(clkdiv_int) << PIO_SM_CLKDIV_INT_LSB);

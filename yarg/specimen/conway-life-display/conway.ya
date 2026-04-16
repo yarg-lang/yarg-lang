@@ -12,11 +12,11 @@
 // nnn
 
 // characters handing for ascii state reports
-const live = 1;
-const dead = 0;
+var live = 1;
+var dead = 0;
 
 // https://github.com/kraj/uClibc/blob/master/libc/stdlib/rand_r.c#L25
-const uint32 maxRand = 0x7fffffff;
+var uint32 maxRand = 0x7fffffff;
 var uint32 seed = 4;
 fun rand()
 {
@@ -85,7 +85,7 @@ fun next_state(state, alive_neighbours) {
 fun next_generation(world, neighbour_of) {
     var next_gen = new(any[len(world)]);
     for (var cell = 0; cell < len(world); cell = cell + 1) {
-        const nw = neighbour_weight(world, cell, neighbour_of);
+        var nw = neighbour_weight(world, cell, neighbour_of);
         next_gen[cell] = next_state(world[cell], nw);
     }
 

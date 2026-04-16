@@ -1,6 +1,6 @@
 import("uart");
 
-const device = 1;
+var device = 1;
 var input_channel = make_channel(5);
 var overflow = false;
 
@@ -30,12 +30,12 @@ reg_write_masked(uart[device].ifls, 0, 0b111000);
 
 reg_write_masked(uart[device].imsc, 0b1010000, 0b1010000);
 
-const scanning = 1;
-const esc_seen = 2;
-const start_command = 3;
-const command_seen = 4;
-const eol_expected = 5;
-const eol_seen = 6;
+var scanning = 1;
+var esc_seen = 2;
+var start_command = 3;
+var command_seen = 4;
+var eol_expected = 5;
+var eol_seen = 6;
 
 var state = scanning;
 
@@ -96,7 +96,7 @@ var cursor = 0;
 var length = 0;
 
 while (true) {
-    const uint32 input = receive(input_channel);
+    var uint32 input = receive(input_channel);
     if (overflow) {
         print "overflow";
     }
