@@ -527,14 +527,6 @@ bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue, Value *pr
     }
 }
 
-bool isCompatibleType(ObjConcreteYargType* lhsType, Value rhsValue, Value *promotedRhs) {
-    if (lhsType->isConst) {
-        return false;
-    } else {
-        return isInitialisableType(lhsType, rhsValue, promotedRhs);
-    }
-}
-
 // this is a temporary measure, until we have a more complete hashing setup.
 bool isSupportedMapKeyType(Value type) {
     if (IS_YARGTYPE(type)) {
@@ -559,9 +551,6 @@ static void printTypeLiteral(FILE* op, ObjConcreteYargType* type) {
         return;
     }
 
-    if (type->isConst) {
-        FPRINTMSG(op, "const ");
-    }
     switch (type->yt) {
         case TypeAny: FPRINTMSG(op, "any"); break;
         case TypeBool: FPRINTMSG(op, "bool"); break;
@@ -609,9 +598,6 @@ static void printTypeLiteral(FILE* op, ObjConcreteYargType* type) {
         }
         case TypePointer: {
             ObjConcreteYargTypePointer* st = (ObjConcreteYargTypePointer*) type;
-            if (type->isConst) {
-                FPRINTMSG(op, "const ");
-            }
             FPRINTMSG(op, "*");
             if (st->target_type) {
                 printTypeLiteral(op, st->target_type);

@@ -507,11 +507,6 @@ static void generateExprNamedVariable(ObjExprNamedVariable* var) {
     }
 }
 
-static void generateExprNamedConstant(ObjExprNamedConstant* const_) {
-
-        generateExpr(const_->value);
-}
-
 static void generateExprLiteral(ObjExprLiteral* lit) {
     switch (lit->literal) {
         case EXPR_LITERAL_FALSE: emitByte(OP_FALSE); break;
@@ -669,7 +664,6 @@ static void generateExprType(ObjExprTypeLiteral* type) {
         case EXPR_TYPE_LITERAL_INT64: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_INT64); return;
         case EXPR_TYPE_LITERAL_UINT64: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_UINT64); return;
         case EXPR_TYPE_LITERAL_STRING: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_STRING); return;
-        case EXPR_TYPE_MODIFIER_CONST: emitBytes(OP_TYPE_MODIFIER, TYPE_MODIFIER_CONST); return;
         case EXPR_TYPE_LITERAL_INT: emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_INT); return;
         default: return; // unreachable.
     }
@@ -716,11 +710,6 @@ static void generateExprElt(ObjExpr* expr) {
         case OBJ_EXPR_NAMEDVARIABLE: {
             ObjExprNamedVariable* var = (ObjExprNamedVariable*)expr;
             generateExprNamedVariable(var);
-            break;
-        }
-        case OBJ_EXPR_NAMEDCONSTANT: {
-            ObjExprNamedConstant* const_ = (ObjExprNamedConstant*)expr;
-            generateExprNamedConstant(const_);
             break;
         }
         case OBJ_EXPR_LITERAL: {

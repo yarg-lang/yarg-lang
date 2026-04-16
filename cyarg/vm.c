@@ -520,20 +520,6 @@ static void concatenate(ObjRoutine* routine) {
     push(routine, OBJ_VAL(result));
 }
 
-static void makeConcreteTypeConst(ObjRoutine* routine) {
-    if (IS_NIL(peek(routine, 0))) {
-        pop(routine);
-        ObjConcreteYargType* typeObject = newYargTypeFromType(TypeAny);
-        typeObject->isConst = true;
-        push(routine, OBJ_VAL(typeObject));
-        return;
-    } else {
-        ObjConcreteYargType* typeObj = (ObjConcreteYargType*) AS_OBJ(peek(routine, 0));
-        typeObj->isConst = true;
-        return;
-    }
-}
-
 static void promote(Value *left, Value *right)
 {
     assert(left != 0 && right != 0);
@@ -1358,13 +1344,6 @@ InterpretResult run(ObjRoutine* routine) {
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 push(routine, OBJ_VAL(typeObj));
-                break;
-            }
-            case OP_TYPE_MODIFIER: {
-                uint8_t typeCode = READ_BYTE();
-                switch (typeCode) {
-                    case TYPE_MODIFIER_CONST: makeConcreteTypeConst(routine); break;
-                }
                 break;
             }
             case OP_TYPE_STRUCT: {

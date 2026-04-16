@@ -106,7 +106,6 @@ static int typeLiteralInstruction(const char* name, Chunk* chunk, int offset) {
     uint8_t type = chunk->code[offset + 1];
     printf("%-16s ", name);
     switch (type) {
-        case TYPE_MODIFIER_CONST: printf("const"); break;
         case TYPE_LITERAL_BOOL: printf("bool"); break;
         case TYPE_LITERAL_INT8: printf("int8"); break;
         case TYPE_LITERAL_UINT8: printf("uint8"); break;
@@ -263,8 +262,6 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             return threeByteInstruction("OP_IMMEDIATE_P24", chunk, offset);
         case OP_TYPE_LITERAL:
             return typeLiteralInstruction("OP_TYPE_LITERAL", chunk, offset);
-        case OP_TYPE_MODIFIER:
-            return typeLiteralInstruction("OP_TYPE_MODIFIER", chunk, offset);
         case OP_TYPE_STRUCT:
             return byteInstruction("OP_TYPE_STRUCT", chunk, offset);
         case OP_TYPE_INDEXED_COLLECTION:

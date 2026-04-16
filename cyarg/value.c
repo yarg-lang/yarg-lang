@@ -241,7 +241,7 @@ bool assignToPackedValue(PackedValue lhs, Value rhsValue) {
         return true;
     } else {
         Value promoted;
-        if (isCompatibleType(lhs.storedType, rhsValue, &promoted)) {
+        if (isInitialisableType(lhs.storedType, rhsValue, &promoted)) {
             if (promoted.type == VAL_NIL)
             {
                 noLongerLiteralInt(&rhsValue);
@@ -265,7 +265,7 @@ bool assignToValueCellTarget(ValueCellTarget lhs, Value rhsValue) {
         return true;
     } else {
         Value promoted;
-        if (isCompatibleType(lhs.cellType, rhsValue, &promoted)) {
+        if (isInitialisableType(lhs.cellType, rhsValue, &promoted)) {
             if (promoted.type == VAL_NIL)
             {
                 noLongerLiteralInt(&rhsValue);

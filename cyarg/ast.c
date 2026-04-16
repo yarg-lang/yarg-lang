@@ -159,15 +159,6 @@ ObjExprNamedVariable* newExprNamedVariable(const char* name, int nameLength) {
     return var;
 }
 
-ObjExprNamedConstant* newExprNamedConstant(const char* name, int nameLength) {
-    ObjExprNamedConstant* var = ALLOCATE_OBJ(ObjExprNamedConstant, OBJ_EXPR_NAMEDCONSTANT);
-    tempRootPush(OBJ_VAL(var));
-    var->name = copyString(name, nameLength);
-    tempRootPop();
-    return var;
-}
-
-
 ObjExprLiteral* newExprLiteral(ExprLiteral literal) {
     ObjExprLiteral* lit = ALLOCATE_OBJ(ObjExprLiteral, OBJ_EXPR_LITERAL);
     lit->expr.nextExpr = NULL;
@@ -397,7 +388,6 @@ static void printExprType(ObjExpr* type) {
             case EXPR_TYPE_LITERAL_UINT64: printf("uint64"); break;
             case EXPR_TYPE_LITERAL_BOOL: printf("bool"); break;
             case EXPR_TYPE_LITERAL_STRING: printf("string"); break;
-            case EXPR_TYPE_MODIFIER_CONST: printf("<const>"); break;
             case EXPR_TYPE_LITERAL_INT: printf("int"); break;
             default: printf("<unknown>"); break;
         }

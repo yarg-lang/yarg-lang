@@ -108,12 +108,6 @@ typedef struct {
 
 typedef struct {
     ObjExpr expr;
-    ObjString* name;
-    ObjExpr* value;
-} ObjExprNamedConstant;
-
-typedef struct {
-    ObjExpr expr;
     ExprLiteral literal;
 } ObjExprLiteral;
 
@@ -197,7 +191,6 @@ typedef enum {
     EXPR_TYPE_LITERAL_UINT64,
     EXPR_TYPE_LITERAL_MFLOAT64,
     EXPR_TYPE_LITERAL_STRING,
-    EXPR_TYPE_MODIFIER_CONST,
     EXPR_TYPE_LITERAL_INT
 } ExprTypeLiteral;
 
@@ -306,7 +299,6 @@ ObjExprPair* newExprPair(ObjExpr* a, ObjExpr* b);
 ObjExprOperation* newExprOperation(ObjExpr* rhs, ExprOp op);
 ObjExprGrouping* newExprGrouping(ObjExpr* expression);
 ObjExprNamedVariable* newExprNamedVariable(const char* name, int nameLength);
-ObjExprNamedConstant* newExprNamedConstant(const char* name, int nameLength);
 ObjExprCall* newExprCall();
 ObjExprCollectionInitializer* newExprCollectionInitializer();
 ObjExprCollectionElement* newExprCollectionElement();

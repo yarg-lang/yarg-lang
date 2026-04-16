@@ -33,7 +33,6 @@ typedef enum {
 typedef struct ObjConcreteYargType {
     Obj obj;
     ConcreteYargType yt;
-    bool isConst;
 } ObjConcreteYargType;
 
 typedef struct ObjConcreteYargTypeArray {
@@ -87,7 +86,6 @@ size_t yt_sizeof_type_storage(Value type);
 Value defaultValue(Value type);
 
 bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue, Value *promotedRhs); // promotedRhs will be VAL_NIL if no promotion
-bool isCompatibleType(ObjConcreteYargType* lhsType, Value rhsValue, Value *promotedRhs); // promotedRhs will be VAL_NIL if no promotion
 
 bool isSupportedMapKeyType(Value type);
 
