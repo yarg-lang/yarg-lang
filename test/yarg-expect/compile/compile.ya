@@ -1,2 +1,5 @@
 var result = compile("print 1 + 1;");
 result(); // expect: 2
+// compile returns nil if an error occurs during compilation
+result = compile("print 2 * 3");
+print result == nil; // expect: true
