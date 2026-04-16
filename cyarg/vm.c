@@ -1176,7 +1176,9 @@ InterpretResult run(ObjRoutine* routine) {
                 {
                     nominal_address = int_to_u64(AS_INT(location));
                 }
+#if defined (CYARG_SELF_HOSTED)
                 volatile uint32_t* reg = (volatile uint32_t*) nominal_address;
+#endif
 
                 uint32_t val = 0;
 
