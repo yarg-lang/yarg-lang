@@ -942,7 +942,7 @@ bool stringBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     } else if (IS_UI64(arg)) {
         uint64_t i = AS_UI64(arg);
         char sb[22];
-        int l = sprintf(sb, "%" PRIu64, i);
+        int l = snprintf(sb, 22, "%" PRIu64, i);
         ObjString* string = copyString(sb, l);
         result->as.obj = &string->obj;
         result->type = VAL_OBJ;
@@ -964,7 +964,7 @@ bool stringBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     } else if (IS_DOUBLE(arg)) {
         char sb[22];
         double f = AS_DOUBLE(arg);
-        int l = sprintf(sb, "%#g", f);
+        int l = snprintf(sb, 22, "%#g", f);
         ObjString* string = copyString(sb, l);
         result->as.obj = &string->obj;
         result->type = VAL_OBJ;
@@ -973,7 +973,7 @@ bool stringBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         return false;
     }
     char sb[22];
-    int l = sprintf(sb, "%" PRId64, i);
+    int l = snprintf(sb, 22, "%" PRId64, i);
     ObjString* string = copyString(sb, l);
     result->as.obj = &string->obj;
     result->type = VAL_OBJ;
