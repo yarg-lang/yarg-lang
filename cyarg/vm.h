@@ -44,7 +44,6 @@ typedef struct {
 } VM;
 
 extern VM vm;
-extern uint8_t compile_bootstrap[];
 
 // two-phase init, broadly get the memory manager up, and then get the yarg env up.
 void initVMMemory();
