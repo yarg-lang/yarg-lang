@@ -741,8 +741,10 @@ InterpretResult run(ObjRoutine* routine) {
     } while (false)
 
     for (;;) {
-        if (routine->state == EXEC_ERROR) return INTERPRET_RUNTIME_ERROR;
-
+        if (routine->state == EXEC_ERROR) {
+            runtimeError(routine, "Error");
+            return INTERPRET_RUNTIME_ERROR;
+        }
         if (routine->traceExecution) {
             PRINTERR("[%p]", routine);
             printValueStack(routine, "          ");
@@ -892,6 +894,7 @@ InterpretResult run(ObjRoutine* routine) {
                     }
 
                     if (!bindMethod(routine, instance->klass, name)) {
+                        runtimeError(routine, "Error");
                         return INTERPRET_RUNTIME_ERROR;
                     }
                 } else if (IS_STRUCT(peek(routine, 0))) {
@@ -973,6 +976,7 @@ InterpretResult run(ObjRoutine* routine) {
                 ObjClass* superclass = AS_CLASS(pop(routine));
 
                 if (!bindMethod(routine, superclass, name)) {
+                    runtimeError(routine, "Error");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
@@ -1314,12 +1318,14 @@ InterpretResult run(ObjRoutine* routine) {
                 break;
             case OP_ELEMENT: {
                 if (!derefElement(routine)) {
+                    runtimeError(routine, "Error");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
             }
             case OP_SET_ELEMENT: {
                 if (!setElement(routine)) {
+                    runtimeError(routine, "Error");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 break;
