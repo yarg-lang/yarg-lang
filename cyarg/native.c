@@ -132,7 +132,7 @@ bool stdin_getsNative(ObjRoutine* routine, int argCount, Value* result) {
         buffer[length - 1] = '\0';
         length--;
     }
-    *result = OBJ_VAL(copyString(buffer, length));
+    *result = OBJ_VAL(copyString(buffer, (int) length));
     return true;
 }
 
@@ -190,7 +190,7 @@ bool host_argnNative(ObjRoutine* routine, int argCount, Value* result) {
         return false;
     }
 
-    *result = OBJ_VAL(copyString(vmHost.argv[index], strlen(vmHost.argv[index])));
+    *result = OBJ_VAL(copyString(vmHost.argv[index], (int) strlen(vmHost.argv[index])));
     return true;
 }
 

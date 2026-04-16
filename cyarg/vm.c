@@ -1461,7 +1461,7 @@ typedef void (*bindBootstrapFunction)(ObjString* script);
 static void bindBootstrapCode(const char* name, size_t nameLength, 
                               const uint8_t code[], size_t codeLength, 
                               ObjString* script, size_t constantIndex) {
-    vm.bootFunction.name = copyString(name, nameLength);
+    vm.bootFunction.name = copyString(name, (int)nameLength);
 
     for (size_t i = 0; i < codeLength; i++) {
         writeChunk(&vm.bootFunction.chunk, code[i], 0);
