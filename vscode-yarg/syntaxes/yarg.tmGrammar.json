@@ -27,7 +27,7 @@
       },
       "reserved_words": {
         "name": "keyword.reserved.yarg",
-        "match": "\\b(const)\\b"
+        "match": "\\b(const|continue|break)\\b"
       }
     }
 }

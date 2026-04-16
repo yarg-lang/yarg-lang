@@ -1,0 +1,3 @@
+for (var i = 0; i < 10; i = i + 1) {
+    continue; // [line 2] Error at 'continue': Can't use reserved word as expression.
+}
