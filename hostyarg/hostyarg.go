@@ -26,6 +26,7 @@ func DevicePath(path string) string {
 
 type YargRunner interface {
 	Run(source string) error
+	REPL() error
 }
 
 type DeviceRunner struct {
@@ -57,6 +58,10 @@ func (d *DeviceRunner) Run(source string) error {
 	return error
 }
 
+func (d *DeviceRunner) REPL() error {
+	return fmt.Errorf("REPL not implemented for device runner")
+}
+
 type HostRunner struct {
 	Interpreter string
 	LibPath     string
@@ -81,6 +86,10 @@ func (h *HostRunner) Run(source string) error {
 		}
 	}
 	return nil
+}
+
+func (h *HostRunner) REPL() error {
+	return fmt.Errorf("REPL not implemented for host runner")
 }
 
 func DefaultYargRunner(suppliedPort, suppliedInterpreter, suppliedLib string) (runner YargRunner, err error) {

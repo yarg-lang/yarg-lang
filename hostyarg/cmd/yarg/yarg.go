@@ -161,7 +161,21 @@ func dispatchSubCommand(args []string) {
 		if err != nil {
 			exitWithError(err.Error())
 		}
+	case "repl":
+		devicePort := flags.String("port", "", "serial port to use as device console")
+		localRunInterpreter := flags.String("interpreter", "", "default interpreter")
+		localLib := flags.String("lib", "", "library to include")
+		flags.Parse(args[1:])
 
+		runner, err := hostyarg.DefaultYargRunner(*devicePort, *localRunInterpreter, *localLib)
+		if err != nil {
+			exitWithError(err.Error())
+		}
+
+		err = runner.REPL()
+		if err != nil {
+			exitWithError(err.Error())
+		}
 	case "test":
 		testRunInterpreter := flags.String("interpreter", "cyarg", "default interpreter")
 		testRunSource := flags.String("source", "", "source of test to run")
