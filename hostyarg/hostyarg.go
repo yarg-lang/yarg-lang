@@ -59,7 +59,7 @@ func (d *DeviceRunner) Run(source string) error {
 }
 
 func (d *DeviceRunner) REPL() error {
-	return fmt.Errorf("REPL not implemented for device runner")
+	return devicerunner.StreamSerialIO(d.Port.Name())
 }
 
 type HostRunner struct {
@@ -89,7 +89,13 @@ func (h *HostRunner) Run(source string) error {
 }
 
 func (h *HostRunner) REPL() error {
-	return fmt.Errorf("REPL not implemented for host runner")
+	runner := exec.Command(h.Interpreter, "--lib", h.LibPath)
+
+	runner.Stdin = os.Stdin
+	runner.Stdout = os.Stdout
+	runner.Stderr = os.Stderr
+
+	return runner.Run()
 }
 
 func DefaultYargRunner(suppliedPort, suppliedInterpreter, suppliedLib string) (runner YargRunner, err error) {

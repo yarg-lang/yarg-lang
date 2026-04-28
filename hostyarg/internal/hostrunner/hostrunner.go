@@ -74,18 +74,3 @@ func compileFile(interpreter string, source string, logname string) {
 		}
 	}
 }
-
-func CmdRunLocally(source string, interpreter string) error {
-	runner := exec.Command(interpreter, source)
-
-	output, errors, _, ok := runbinary.RunCommand(runner)
-	if ok {
-		for _, line := range output {
-			fmt.Println(line)
-		}
-		for _, line := range errors {
-			fmt.Println(line)
-		}
-	}
-	return nil
-}

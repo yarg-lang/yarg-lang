@@ -6,9 +6,12 @@ package devicerunner
 
 import (
 	"fmt"
+	"io"
 	"log"
+	"os"
 	"os/exec"
 	"strings"
+	"sync"
 
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/runbinary"
 
@@ -127,6 +130,68 @@ func GetSerialOutput(portName string, sourcePath string, done chan error) (outpu
 		}
 	}
 	return output
+}
+
+func StreamSerialIO(portName string) error {
+	serial, err := serial.Open(portName, &serial.Mode{BaudRate: 115200})
+	if err != nil {
+		log.Println("Failed to open serial port:", err)
+		return err
+	}
+	defer serial.Close()
+
+	fmt.Fprint(serial, "\r\n")
+
+	input_error := make(chan error)
+
+	var wg sync.WaitGroup
+	wg.Go(func() {
+		defer wg.Done()
+		buff := make([]byte, 1)
+		for {
+			n, err := os.Stdin.Read(buff)
+			if err != nil {
+				input_error <- err
+				return
+			}
+			if buff[:n][0] == '\n' {
+				fmt.Fprint(serial, "\r\n")
+				continue
+			}
+			serial.Write(buff[:n])
+		}
+	})
+
+	output_error := make(chan error)
+
+	wg.Go(func() {
+		defer wg.Done()
+
+		buff := make([]byte, 1)
+		for {
+			n, err := serial.Read(buff)
+			if err == io.EOF {
+				output_error <- nil
+				return
+			}
+			if err != nil {
+				output_error <- err
+				return
+			}
+			fmt.Print(string(buff[:n]))
+		}
+	})
+
+	wg.Wait()
+	ine := <-input_error
+	oute := <-output_error
+	if ine != nil {
+		return ine
+	} else if oute != nil {
+		return oute
+	} else {
+		return nil
+	}
 }
 
 func DefaultPort() (p PicoPort, ok bool) {
