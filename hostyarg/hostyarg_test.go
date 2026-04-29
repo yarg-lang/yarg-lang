@@ -1,7 +1,6 @@
 package hostyarg
 
 import (
-	"flag"
 	"io"
 	"log"
 	"os"
@@ -86,19 +85,6 @@ func TestFormat(t *testing.T) {
 		t.Fatalf("unexpected error: %v", e)
 	}
 	os.Remove("testdata/nonexistent.uf2")
-}
-
-var interpreter = flag.String("interpreter", "../bin/cyarg", "interpreter to use")
-
-func TestRunTests(t *testing.T) {
-
-	err, failedtests := CmdRunTests(*interpreter, "../yarg/specimen", "testdata/tests")
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if failedtests != 0 {
-		t.Fatalf("expected 0 failed tests, got %v", failedtests)
-	}
 }
 
 func TestFileSequence(t *testing.T) {

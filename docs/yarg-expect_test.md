@@ -13,7 +13,7 @@ Tests: test/yarg-expect
 Total tests: 1065, passed: 1065
 ```
 
-This walks every folder in the supplied directory (test/yarg-expect), using bin/cyarg to run every .ya file found in each directory. Currently a folder named 'benchmark' is skipped.
+This walks every folder in the supplied directory (test/yarg-expect), first parsing the found .ya source files for expected output (in comments) and then running the yarg source with bin/cyarg.
 
 If some tests fail, their output is provided, and the return code from `yarg` will be the count of failing tests (ie, non-zero), eg:
 

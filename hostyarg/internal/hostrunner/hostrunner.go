@@ -7,38 +7,70 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/deviceutil"
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/runbinary"
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/testrunner"
 )
 
-type HostRunner struct {
+type Compiler struct {
 	Interpreter string
-	YargLib     string
 }
 
-func (hr HostRunner) RunLocally(source string) (output []string, errors []string, returncode int, ok bool) {
-	runner := exec.Command(hr.Interpreter, "--lib", hr.YargLib, source)
-
-	output, errors, returncode, ok = runbinary.RunCommand(runner)
-	return
+type HostRunner struct {
+	Compiler
+	LibPath string
 }
 
-func CmdCompile(source string, interpreter string) bool {
+func (h *HostRunner) RunInteractively(source string) error {
 
-	source = filepath.Clean(source)
-	interpreter = filepath.Clean(interpreter)
-
-	info, err := os.Stat(source)
-	if err != nil {
-		return false
+	if deviceutil.IsDevicePath(source) {
+		return fmt.Errorf("cannot run device path locally")
 	}
 
-	_, err = os.Stat(interpreter)
+	runner := exec.Command(h.Interpreter, "--lib", h.LibPath, source)
+
+	runner.Stdin = os.Stdin
+	runner.Stdout = os.Stdout
+	runner.Stderr = os.Stderr
+
+	return runner.Run()
+}
+
+func (h *HostRunner) REPL() error {
+	runner := exec.Command(h.Interpreter, "--lib", h.LibPath)
+
+	runner.Stdin = os.Stdin
+	runner.Stdout = os.Stdout
+	runner.Stderr = os.Stderr
+
+	return runner.Run()
+}
+
+func (h *HostRunner) CmdExpectTest(hostsource string) (err error, failed int) {
+
+	tests := filepath.Clean(hostsource)
+	h.Interpreter = filepath.Clean(h.Interpreter)
+	h.LibPath = filepath.Clean(h.LibPath)
+
+	info, err := os.Stat(tests)
 	if err != nil {
-		return false
+		return
 	}
+
+	_, err = os.Stat(h.Interpreter)
+	if err != nil {
+		return fmt.Errorf("Could not stat %v, no interpreter to run", h.Interpreter), 0
+	}
+
+	_, err = os.Stat(h.LibPath)
+	if err != nil {
+		return fmt.Errorf("Could not stat %v, no library to include in test runs", h.LibPath), 0
+	}
+
+	var grandtotal, grandpass int
 
 	if info.IsDir() {
-		fileSystem := os.DirFS(source)
+		fileSystem := os.DirFS(tests)
 
 		err = fs.WalkDir(fileSystem, ".", func(path string, d fs.DirEntry, walkerr error) error {
 			if walkerr != nil {
@@ -46,31 +78,67 @@ func CmdCompile(source string, interpreter string) bool {
 			}
 
 			if !d.IsDir() {
-				testfile := filepath.Join(source, path)
-				compileFile(interpreter, testfile, path)
+				testfile := filepath.Join(tests, path)
+				total, pass := h.runTestFile(testfile, path)
+				grandtotal += total
+				grandpass += pass
 			}
 
 			return nil
 		})
 	} else {
-		logname := filepath.Base(source)
+		logname := filepath.Base(tests)
 
-		compileFile(interpreter, source, logname)
+		grandtotal, grandpass = h.runTestFile(tests, logname)
 	}
 
-	return true
+	fmt.Printf("%s tests: %v, passed: %v\n", tests, grandtotal, grandpass)
+	return err, grandtotal - grandpass
 }
 
-func compileFile(interpreter string, source string, logname string) {
+func (h *HostRunner) runTestFile(testfile, fsname string) (total, pass int) {
+
+	test, total := testrunner.CreateExpectationTest(testfile, fsname)
+
+	output, errors, code, ok := h.RunBatch(testfile)
+	if ok {
+		pass = testrunner.CmdReportTestResults(test, output, errors, code)
+	}
+
+	return total, pass
+}
+
+func (h *HostRunner) RunBatch(source string) (output []string, errors []string, returncode int, ok bool) {
+	runner := exec.Command(h.Interpreter, "--lib", h.LibPath, source)
+
+	output, errors, returncode, ok = runbinary.RunCommand(runner)
+	return
+}
+
+func (c *Compiler) CmdCompile(source string) error {
+
+	source = filepath.Clean(source)
+	c.Interpreter = filepath.Clean(c.Interpreter)
+
+	_, err := os.Stat(source)
+	if err != nil {
+		return err
+	}
+
+	_, err = os.Stat(c.Interpreter)
+	if err != nil {
+		return fmt.Errorf("Could not stat %v, no interpreter to run", c.Interpreter)
+	}
+
+	return compileFile(c.Interpreter, source)
+}
+
+func compileFile(interpreter string, source string) error {
 	runner := exec.Command(interpreter, "--compile", source)
 
-	output, errors, _, ok := runbinary.RunCommand(runner)
-	if ok {
-		for _, line := range output {
-			fmt.Println(logname, ":", line)
-		}
-		for _, line := range errors {
-			fmt.Println(logname, ":", line)
-		}
-	}
+	runner.Stdin = os.Stdin
+	runner.Stdout = os.Stdout
+	runner.Stderr = os.Stderr
+
+	return runner.Run()
 }

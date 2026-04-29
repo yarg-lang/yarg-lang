@@ -8,8 +8,6 @@ import (
 	"reflect"
 	"regexp"
 	"strconv"
-
-	"github.com/yarg-lang/yarg-lang/hostyarg/internal/hostrunner"
 )
 
 const (
@@ -18,6 +16,7 @@ const (
 )
 
 type expectationTest struct {
+	fsname                   string
 	expectations             int
 	expectedExitCode         int
 	expectedRuntimeErrorLine int
@@ -25,30 +24,48 @@ type expectationTest struct {
 	expectedError            []string
 }
 
-func RunTestFile(interpreter hostrunner.HostRunner, testfile, fsname string) (total, pass int) {
+func CreateExpectationTest(testfile, fsname string) (test *expectationTest, total int) {
 
-	test := createFromSource(testfile)
+	file, err := os.Open(testfile)
+	if err != nil {
+		log.Fatal("could not open test")
+	}
+	defer file.Close()
 
-	output, errors, code, ok := interpreter.RunLocally(testfile)
-	if ok {
-
-		if test.validateCode(code) {
-
-			switch code {
-			case RUNTIME_ERROR:
-				test.accountRuntimeErrorExpectations(errors, &pass)
-			case COMPILE_ERROR:
-				test.accountCompileErrorExpectations(errors, &pass)
-			}
-
-			test.accountEmptyTestExpectations(output, errors, &pass)
-		}
-
-		test.accountOutputExpectations(output, &pass)
+	test = &expectationTest{}
+	scanner := bufio.NewScanner(file)
+	var lineNo int
+	for scanner.Scan() {
+		lineNo++
+		test.parseLine(lineNo, scanner.Text())
 	}
 
+	if len(test.expectedOutput) == 0 && len(test.expectedError) == 0 {
+		test.expectations++
+	}
+
+	test.fsname = fsname
+	return test, test.expectations
+}
+
+func CmdReportTestResults(test *expectationTest, output, errors []string, code int) (pass int) {
+
+	if test.validateCode(code) {
+
+		switch code {
+		case RUNTIME_ERROR:
+			test.accountRuntimeErrorExpectations(errors, &pass)
+		case COMPILE_ERROR:
+			test.accountCompileErrorExpectations(errors, &pass)
+		}
+
+		test.accountEmptyTestExpectations(output, errors, &pass)
+	}
+
+	test.accountOutputExpectations(output, &pass)
+
 	if pass != test.expectations {
-		fmt.Printf("%v tests %v, passed %v", fsname, test.expectations, pass)
+		fmt.Printf("%v tests %v, passed %v", test.fsname, test.expectations, pass)
 		if !test.validateCode(code) {
 			fmt.Printf(", exitcode %v (expected: %v)", code, test.expectedExitCode)
 		}
@@ -61,7 +78,7 @@ func RunTestFile(interpreter hostrunner.HostRunner, testfile, fsname string) (to
 		}
 	}
 
-	return test.expectations, pass
+	return pass
 }
 
 func (test *expectationTest) validateCode(code int) bool {
@@ -106,29 +123,6 @@ func (test *expectationTest) accountOutputExpectations(output []string, pass *in
 	if reflect.DeepEqual(test.expectedOutput[0:len(output)], output) {
 		*pass += len(output)
 	}
-}
-
-func createFromSource(testfile string) *expectationTest {
-	file, err := os.Open(testfile)
-	if err != nil {
-		log.Fatal("could not open test")
-	}
-	defer file.Close()
-
-	var test expectationTest
-
-	scanner := bufio.NewScanner(file)
-	var lineNo int
-	for scanner.Scan() {
-		lineNo++
-		test.parseLine(lineNo, scanner.Text())
-	}
-
-	if len(test.expectedOutput) == 0 && len(test.expectedError) == 0 {
-		test.expectations++
-	}
-
-	return &test
 }
 
 func (test *expectationTest) parseLine(lineNo int, line string) {
