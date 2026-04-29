@@ -190,8 +190,10 @@ func dispatchSubCommand(args []string) {
 			os.Exit(1)
 		}
 	case "devices":
+		deviceInterpreter := flags.String("interpreter", "", "default interpreter")
+		deviceLib := flags.String("lib", "", "library to include in test runs")
 		flags.Parse(args[1:])
-		hostyarg.CmdListDevices()
+		hostyarg.CmdListDevices(*deviceInterpreter, *deviceLib)
 	default:
 		exitWithUsageError("unknown command")
 	}

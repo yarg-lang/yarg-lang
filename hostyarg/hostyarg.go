@@ -3,7 +3,6 @@ package hostyarg
 import (
 	"fmt"
 	"io/fs"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -123,31 +122,46 @@ func DefaultYargRunner(suppliedPort, suppliedInterpreter, suppliedLib string) (r
 	return nil, fmt.Errorf("invalid configuration")
 }
 
-func CmdListDevices() bool {
+func CmdListDevices(interpreter, lib string) bool {
+
+	if interpreter != "" && lib != "" {
+		if _, err := os.Stat(interpreter); err != nil {
+			fmt.Fprintln(os.Stderr, "could not stat interpreter at "+interpreter)
+			return false
+		}
+		if _, err := os.Stat(lib); err != nil {
+			fmt.Fprintln(os.Stderr, "could not stat library at "+lib)
+			return false
+		}
+		fmt.Printf("Host device interpreter %s and library %s\n", interpreter, lib)
+	} else if interpreter != "" || lib != "" {
+		fmt.Fprintln(os.Stderr, "cannot specify only one of interpreter and lib for devices command")
+		return false
+	}
 
 	detailedports, err := enumerator.GetDetailedPortsList()
 	if err != nil {
-		log.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		return false
 	}
 	if len(detailedports) == 0 {
-		log.Println("No device serial ports found!")
+		fmt.Fprintln(os.Stderr, "No device serial ports found!")
 		return false
 	}
 	for _, port := range detailedports {
 		if port.IsUSB && port.VID == devicerunner.RaspberryPiVID {
 			switch port.PID {
 			case devicerunner.DebugProbePID:
-				fmt.Printf("%s, Serial=%s, VID:PID=%s:%s (Debug Probe)\n", port.Name, port.SerialNumber, port.VID, port.PID)
+				fmt.Printf("Connected Debug Probe %s, Serial=%s, VID:PID=%s:%s\n", port.Name, port.SerialNumber, port.VID, port.PID)
 			case devicerunner.PicoPID:
-				fmt.Printf("%s, Serial=%s, VID:PID=%s:%s (Pico)\n", port.Name, port.SerialNumber, port.VID, port.PID)
+				fmt.Printf("Connected Pico %s, Serial=%s, VID:PID=%s:%s\n", port.Name, port.SerialNumber, port.VID, port.PID)
 			default:
-				fmt.Printf("%s, Serial=%s, VID:PID=%s:%s (Raspberry Pi Device)\n", port.Name, port.SerialNumber, port.VID, port.PID)
+				fmt.Printf("Connected Raspberry Pi Device %s, Serial=%s, VID:PID=%s:%s\n", port.Name, port.SerialNumber, port.VID, port.PID)
 			}
 		} else if port.IsUSB {
-			log.Printf("%s, VID:PID=%s:%s\n", port.Name, port.VID, port.PID)
+			fmt.Printf("Connected USB Serial %s, VID:PID=%s:%s\n", port.Name, port.VID, port.PID)
 		} else {
-			log.Printf("%s\n", port.Name)
+			fmt.Printf("Connected Serial%s\n", port.Name)
 		}
 	}
 	return true
