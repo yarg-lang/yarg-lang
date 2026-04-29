@@ -16,12 +16,13 @@ import (
 )
 
 func exitWithUsageError(usagenote string) {
-	fmt.Println(usagenote)
+	fmt.Fprintln(os.Stderr, usagenote)
+	fmt.Fprintln(os.Stderr, "Use 'yarg help' for more information.")
 	os.Exit(int(sysexit.ErrUsage))
 }
 
 func exitWithError(errnote string) {
-	fmt.Println(errnote)
+	fmt.Fprintln(os.Stderr, errnote)
 	os.Exit(1)
 }
 
@@ -33,6 +34,29 @@ func dispatchSubCommand(args []string) {
 
 	flags := flag.NewFlagSet(args[0], flag.ExitOnError)
 	switch args[0] {
+	case "help":
+		fmt.Println("yarg is a tool for working with Yarg sources, device images and devices running Yarg.")
+		fmt.Println("Usage: yarg [-v] <command> [options]")
+		fmt.Println("Commands:")
+		fmt.Println("  help - show this help message")
+		fmt.Println("  runtests - run tests on the host")
+		fmt.Println("  format - format a device image with a littlefs filesystem")
+		fmt.Println("  ls - list contents of a directory in a littlefs filesystem")
+		fmt.Println("  fsinfo - print information about a littlefs filesystem")
+		fmt.Println("  cp - copy a file to or from a littlefs filesystem")
+		fmt.Println("  mkdir - create a directory in a littlefs filesystem")
+		fmt.Println("  devices - list connected devices")
+		fmt.Println("  resetdevice - reset the connected device")
+		fmt.Println("  flashdevice - flash a binary to the connected device")
+		fmt.Println("  compile - compile a Yarg source file, reporting errors if any")
+		fmt.Println("  run - run a Yarg source file on the connected device")
+		fmt.Println("  repl - start a REPL connected to the device")
+		fmt.Println("  test - run tests on the connected device")
+		fmt.Println("device commands can specify:")
+		fmt.Println("  a connected device (which is the default if found) with: --port")
+		fmt.Println("  or a host based yarg system with:")
+		fmt.Println("     --interpreter path/to/cyarg --lib path/to/libraries")
+		os.Exit(0)
 	case "format":
 		formatFSFS := flags.String("image", "", "image containing filesystem to format")
 		formatCreate := flags.Bool("create", false, "create image if it doesn't exist")
