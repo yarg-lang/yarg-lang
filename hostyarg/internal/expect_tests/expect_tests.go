@@ -1,4 +1,4 @@
-package testrunner
+package expect_tests
 
 import (
 	"bufio"

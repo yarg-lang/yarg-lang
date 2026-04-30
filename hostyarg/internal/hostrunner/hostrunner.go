@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/deviceutil"
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/expect_tests"
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/runbinary"
-	"github.com/yarg-lang/yarg-lang/hostyarg/internal/testrunner"
 )
 
 type Compiler struct {
@@ -98,11 +98,11 @@ func (h *HostRunner) CmdExpectTest(hostsource string) (err error, failed int) {
 
 func (h *HostRunner) runTestFile(testfile, fsname string) (total, pass int) {
 
-	test, total := testrunner.CreateExpectationTest(testfile, fsname)
+	test, total := expect_tests.CreateExpectationTest(testfile, fsname)
 
 	output, errors, code, ok := h.RunBatch(testfile)
 	if ok {
-		pass = testrunner.CmdReportTestResults(test, output, errors, code)
+		pass = expect_tests.CmdReportTestResults(test, output, errors, code)
 	}
 
 	return total, pass
