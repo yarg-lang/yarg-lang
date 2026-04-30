@@ -8,14 +8,16 @@ import (
 	"reflect"
 	"regexp"
 	"strconv"
+
+	"mellium.im/sysexit"
 )
 
 const (
-	RUNTIME_ERROR = 70
-	COMPILE_ERROR = 65
+	RUNTIME_ERROR = int(sysexit.ErrSoftware)
+	COMPILE_ERROR = int(sysexit.ErrData)
 )
 
-type expectationTest struct {
+type testSuite struct {
 	fsname                   string
 	expectations             int
 	expectedExitCode         int
@@ -24,7 +26,7 @@ type expectationTest struct {
 	expectedError            []string
 }
 
-func CreateExpectationTest(testfile, fsname string) (test *expectationTest, total int) {
+func CreateExpectationTest(testfile, fsname string) (test *testSuite, total int) {
 
 	file, err := os.Open(testfile)
 	if err != nil {
@@ -32,7 +34,7 @@ func CreateExpectationTest(testfile, fsname string) (test *expectationTest, tota
 	}
 	defer file.Close()
 
-	test = &expectationTest{}
+	test = &testSuite{}
 	scanner := bufio.NewScanner(file)
 	var lineNo int
 	for scanner.Scan() {
@@ -48,7 +50,7 @@ func CreateExpectationTest(testfile, fsname string) (test *expectationTest, tota
 	return test, test.expectations
 }
 
-func CmdReportTestResults(test *expectationTest, output, errors []string, code int) (pass int) {
+func CmdReportTestResults(test *testSuite, output, errors []string, code int) (pass int) {
 
 	if test.validateCode(code) {
 
@@ -81,11 +83,11 @@ func CmdReportTestResults(test *expectationTest, output, errors []string, code i
 	return pass
 }
 
-func (test *expectationTest) validateCode(code int) bool {
+func (test *testSuite) validateCode(code int) bool {
 	return code == test.expectedExitCode
 }
 
-func (test *expectationTest) accountEmptyTestExpectations(output, errors []string, pass *int) {
+func (test *testSuite) accountEmptyTestExpectations(output, errors []string, pass *int) {
 
 	if len(test.expectedError) == 0 && len(test.expectedOutput) == 0 && test.expectations == 1 {
 		if len(output) == 0 && len(errors) == 0 {
@@ -94,7 +96,7 @@ func (test *expectationTest) accountEmptyTestExpectations(output, errors []strin
 	}
 }
 
-func (test *expectationTest) accountCompileErrorExpectations(errors []string, pass *int) {
+func (test *testSuite) accountCompileErrorExpectations(errors []string, pass *int) {
 
 	if len(test.expectedError) > 0 &&
 		reflect.DeepEqual(test.expectedError, errors) {
@@ -103,7 +105,7 @@ func (test *expectationTest) accountCompileErrorExpectations(errors []string, pa
 	}
 }
 
-func (test *expectationTest) accountRuntimeErrorExpectations(errors []string, pass *int) {
+func (test *testSuite) accountRuntimeErrorExpectations(errors []string, pass *int) {
 	if len(test.expectedError) > 0 {
 		if errors[0] == test.expectedError[0] {
 			*pass++
@@ -119,13 +121,13 @@ func (test *expectationTest) accountRuntimeErrorExpectations(errors []string, pa
 	}
 }
 
-func (test *expectationTest) accountOutputExpectations(output []string, pass *int) {
+func (test *testSuite) accountOutputExpectations(output []string, pass *int) {
 	if reflect.DeepEqual(test.expectedOutput[0:len(output)], output) {
 		*pass += len(output)
 	}
 }
 
-func (test *expectationTest) parseLine(lineNo int, line string) {
+func (test *testSuite) parseLine(lineNo int, line string) {
 	r := regexp.MustCompile(`// expect: ?(.*)`)
 	match := r.FindStringSubmatch(line)
 	if match != nil {
