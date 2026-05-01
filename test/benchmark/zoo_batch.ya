@@ -15,12 +15,16 @@ class Zoo {
   mouse()  { return this.fox; }
 }
 
+var batch_size = 100;
+var run_time = 10;
 var zoo = Zoo();
 var sum = 0;
-var begin = clock();
+print "zoo_batch: iterations: " + string(batch_size) + " per batch, for " + string(run_time) + " seconds";
+
+var begin = int(clock());
 var batch = 0;
-while (clock() - begin < 10) {
-  for (var i = 0; i < 10000; i = i + 1) {
+while (int(clock()) - begin < run_time) {
+  for (var i = 0; i < batch_size; i = i + 1) {
     sum = sum + zoo.ant()
               + zoo.banana()
               + zoo.tuna()
@@ -31,6 +35,4 @@ while (clock() - begin < 10) {
   batch = batch + 1;
 }
 
-print sum;
-print batch;
-print clock() - begin;
+print "zoo_batch: batches: " + string(batch);

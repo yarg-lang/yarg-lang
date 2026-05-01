@@ -21,9 +21,16 @@ class Tree {
   }
 }
 
-var tree = Tree(8);
+var depth = 3;
+var reps = 100;
+
+var tree = Tree(depth);
+var result = tree.walk();
+print "trees: depth: " + string(depth) + ", reps: " + string(reps);
+
 var begin = clock();
-for (var i = 0; i < 100; i = i + 1) {
-  if (tree.walk() != 122068) print "Error";
+for (var i = 0; i < reps; i = i + 1) {
+  if (tree.walk() != result) print "Error";
 }
-print clock() - begin;
+var elapsed = clock() - begin;
+print "Time: " + string(elapsed);

@@ -1,8 +1,10 @@
+var iterations = 2000;
+print "equality: iterations: " + string(iterations);
 var i = 0;
 
-var loopStart = clock();
+var loopStart = int(clock());
 
-while (i < 10000000) {
+while (i < iterations) {
   i = i + 1;
 
   1; 1; 1; 2; 1; nil; 1; "str"; 1; true;
@@ -11,12 +13,12 @@ while (i < 10000000) {
   "str"; "str"; "str"; "stru"; "str"; 1; "str"; nil; "str"; true;
 }
 
-var loopTime = clock() - loopStart;
+var loopTime = int(clock()) - loopStart;
 
-var begin = clock();
+var begin = int(clock());
 
 i = 0;
-while (i < 10000000) {
+while (i < iterations) {
   i = i + 1;
 
   1 == 1; 1 == 2; 1 == nil; 1 == "str"; 1 == true;
@@ -25,10 +27,7 @@ while (i < 10000000) {
   "str" == "str"; "str" == "stru"; "str" == 1; "str" == nil; "str" == true;
 }
 
-var elapsed = clock() - begin;
-print "loop";
-print loopTime;
-print "elapsed";
-print elapsed;
-print "equals";
-print elapsed - loopTime;
+var elapsed = int(clock()) - begin;
+print "baseline: " + string(loopTime);
+print "elapsed: " + string(elapsed);
+print "equality runtime: " + string(elapsed - loopTime);

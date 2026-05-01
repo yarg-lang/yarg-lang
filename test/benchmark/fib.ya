@@ -2,7 +2,10 @@ fun fib(n) {
   if (n < 2) return n;
   return fib(n - 2) + fib(n - 1);
 }
-
+var iterations = 12;
+print "fib: fib(" + string(iterations) + ")";
 var begin = clock();
-print fib(19) == 4181;
-print clock() - begin;
+var result = fib(iterations);
+var elapsed = clock() - begin;
+if (result != 144) print "Error";
+print "Time: " + string(elapsed);

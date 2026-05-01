@@ -23,15 +23,12 @@ class Tree {
 }
 
 var minDepth = 4;
-var maxDepth = 14;
+var maxDepth = 6;
 var stretchDepth = maxDepth + 1;
 
-var begin = clock();
+print "binary_trees: min depth: " + string(minDepth) + ", max depth: " + string(maxDepth);
 
-print "stretch tree of depth:";
-print stretchDepth;
-print "check:";
-print Tree(0, stretchDepth).check();
+var begin = clock();
 
 var longLivedTree = Tree(0, maxDepth);
 
@@ -52,20 +49,15 @@ while (depth < stretchDepth) {
     i = i + 1;
   }
 
-  print "num trees:";
-  print iterations * 2;
-  print "depth:";
-  print depth;
-  print "check:";
-  print check;
+  print "num trees:" + string(iterations * 2);
+  print "depth:" + string(depth);
+  print "check:" + string(check);
 
   iterations = iterations / 4;
   depth = depth + 2;
 }
+var elapsed = clock() - begin;
 
-print "long lived tree of depth:";
-print maxDepth;
-print "check:";
-print longLivedTree.check();
-print "elapsed:";
-print clock() - begin;
+print "long lived tree of depth:" + string(maxDepth);
+print "check:" + string(longLivedTree.check());
+print "elapsed:" + string(elapsed);

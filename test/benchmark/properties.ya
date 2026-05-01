@@ -66,10 +66,12 @@ class Foo {
   method29() { return this.field29; }
 }
 
+var iterations = 10000;
 var foo = Foo();
+print "properties: iterations: " + string(iterations);
 var begin = clock();
 var i = 0;
-while (i < 500000) {
+while (i < 10000) {
   foo.method0();
   foo.method1();
   foo.method2();
@@ -102,5 +104,6 @@ while (i < 500000) {
   foo.method29();
   i = i + 1;
 }
+var elapsed = clock() - begin;
 
-print clock() - begin;
+print "Time: " + string(elapsed);

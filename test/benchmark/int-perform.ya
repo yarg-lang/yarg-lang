@@ -1,6 +1,5 @@
-var reps_addsub = 90;
-var reps_mul = 500;
-var reps_div = 500;
+var int32 job_size = 100;
+var max_job_length = 10;
 
 // https://github.com/kraj/uClibc/blob/master/libc/stdlib/rand_r.c#L25
 var maxRand = uint32(0x7fffffff);
@@ -28,10 +27,9 @@ fun rand()
     return next & maxRand;
 }
 
-var shifter = 0x80000000;
-var temp = new(int[4]);
 fun int_rand()
 {
+    var shifter = 0x80000000;
     var size = int(rand() % uint32(33)); // max 33 * 31 => 1023 bits
     var int x = int(rand());
 
@@ -58,78 +56,89 @@ fun int_rand()
     }
 }
 
-var rts = new(int[500]);
-var zint = int(0);
+var int[job_size] rts;
+print "int-perform benchmark: job size: " + string(job_size) + ", max job length: " + string(max_job_length) + "secs";
 
-for (var x = 0; x < 500; x = 1 + x)
-{
-    var i = int_rand();
-    if (i == zint)
-    {
-        print string(x) + " " + string(i);
+var int32 count = 0;
+var int32 rand_calls = 0;
+while (count < int32(job_size)) {
+    var candidate = int_rand();
+    rand_calls = rand_calls + 1;
+    if (candidate != 0) {
+        rts[count] = candidate;
+        count = count + 1;
     }
-    rts[x] = i;
+}
+print "Generated " + string(job_size) + " non-zero random numbers in " + string(rand_calls) + " calls to int_rand()";
+
+fun add_job(i, n) {
+    for (var int32 j = 0; j < n; j = 1 + j)
+    {
+        rts[i] + rts[j];
+    }
 }
 
-//print "out";
-//for (var x = 0; x < 500; x = x + 1)
-//{
-//    var i = rts[x];
-//    print x;
-//    }
-//}
-//print rts[0];
-//print rts[499];
-
-var s1 = clock();
-print "Add";
-for (var i = 0; i < 500; i = 1 + i) for (var j = 0; j < 500; j = 1 + j) for (var k = 0; k < reps_addsub; k = 1 + k)
-{
-    rts[i] + rts[j];
+fun sub_job(i, n) {
+    for (var int32 j = 0; j < n; j = 1 + j)
+    {
+        rts[i] - rts[j];
+    }
 }
-var t = clock() - s1;
-var ti = 10000000 * int(t);
-ti = ti / 500 / 500 / reps_addsub;
-print string(ti / 1000) + "." + string (ti % 1000) + " ms / add";
 
-s1 = clock();
-print "Sub";
-for (var i = 0; i < 500; i = 1 + i) for (var j = 0; j < 500; j = 1 + j) for (var k = 0; k < reps_addsub; k = 1 + k)
-{
-    rts[i] - rts[j];
+fun mul_job(i, n) {
+    for (var int32 j = 0; j < n; j = 1 + j)
+    {
+        rts[i] * rts[j];
+    }
 }
-t = clock() - s1;
-ti = 10000000 * int(t);
-ti = ti / 500 / 500 / reps_addsub;
-print string(ti / 1000) + "." + string (ti % 1000) + " ms / sub";
 
-s1 = clock();
-print "Mul";
-for (var i = 0; i < reps_mul; i = 1 + i) for (var j = 500 - reps_mul; j < 500; j = 1 + j)
-{
-    rts[i] * rts[j];
-}
-t = clock() - s1;
-ti = 10000000 * int(t);
-ti = ti / reps_mul / reps_mul;
-print string(ti / 1000) + "." + string (ti % 1000) + " ms / mul";
-
-var zint = int(0);
-s1 = clock();
-print "Div";
-for (var i = 0; i < reps_div; i = 1 + i) for (var j = 500 - reps_div; j < 500; j = 1 + j)
-{
-    if (rts[j] != zint)
+fun div_job(i, n) {
+    for (var int32 j = 0; j < n; j = 1 + j)
     {
         rts[i] / rts[j];
     }
-    else
+}
+
+fun mod_job(i, n) {
+    for (var int32 j = 0; j < n; j = 1 + j)
     {
-        print string(i) + " " + string(rts[i]);
-        print "/ " + string(j) + " " + string(rts[j]);
+        rts[i] % rts[j];
     }
 }
-t = clock() - s1;
-ti = 10000000 * int(t);
-ti = ti / reps_div / reps_div;
-print string(ti / 1000) + "." + string (ti % 1000) + " ms / div";
+
+fun negate_job(i, n) {
+    for (var int32 j = 0; j < n; j = 1 + j)
+    {
+        -rts[i];
+    }
+}
+
+fun bench_job(job_size, op_job, limit) {
+    int32 jobs = 0;
+    while (int(clock()) < limit) {
+        for (var int32 i = 0; i < job_size; i = 1 + i)
+        {
+            op_job(i, job_size);
+            jobs = jobs + 1;
+            if (int(clock()) > limit) {
+                return i * job_size * jobs;
+            }
+        }
+    }
+    return job_size * job_size * jobs;
+}
+
+fun bench_op(name, batch_fun) {
+    var start_time = int(clock());
+    var total_ops = int(bench_job(job_size, batch_fun, start_time + max_job_length));
+    var time_taken = int(clock()) - start_time;
+    var ops_per_ms = total_ops / (1000 * time_taken);
+    print name + " time: " + string(time_taken) + "secs, ops: " + string(total_ops) + ", "  + string(ops_per_ms) + "ops/ms";
+}
+
+bench_op("Add (x+y)", add_job);
+bench_op("Sub (x-y)", sub_job);
+bench_op("Mul (x*y)", mul_job);
+bench_op("Div (x/y)", div_job);
+bench_op("Mod (x%y)", mod_job);
+bench_op("Negate (-x)", negate_job);

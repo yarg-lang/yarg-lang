@@ -1,12 +1,14 @@
 // This benchmark stresses instance creation and initializer calling.
+var iterations = 5000;
+print "instantiation: iterations: " + string(iterations);
 
 class Foo {
   init() {}
 }
 
-var begin = clock();
+var begin = int(clock());
 var i = 0;
-while (i < 500000) {
+while (i < iterations) {
   Foo();
   Foo();
   Foo();
@@ -40,4 +42,5 @@ while (i < 500000) {
   i = i + 1;
 }
 
-print clock() - begin;
+var elapsed = int(clock()) - begin;
+print "Time: " + string(elapsed);

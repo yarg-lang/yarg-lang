@@ -15,10 +15,12 @@ class Zoo {
   mouse()  { return this.fox; }
 }
 
+var iterations = 20000;
 var zoo = Zoo();
 var sum = 0;
+print "zoo: iterations: " + string(iterations);
 var begin = clock();
-while (sum < 10000000) {
+while (sum < iterations) {
   sum = sum + zoo.ant()
             + zoo.banana()
             + zoo.tuna()
@@ -26,6 +28,6 @@ while (sum < 10000000) {
             + zoo.grass()
             + zoo.mouse();
 }
+var elapsed = clock() - begin;
 
-print sum;
-print clock() - begin;
+print "zoo: time: " + string(elapsed);

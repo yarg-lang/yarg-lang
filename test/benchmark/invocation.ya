@@ -1,4 +1,6 @@
 // This benchmark stresses just method invocation.
+var iterations = 10000;
+print "invocation: iterations:" + string(iterations);
 
 class Foo {
   method0() {}
@@ -34,9 +36,9 @@ class Foo {
 }
 
 var foo = Foo();
-var begin = clock();
+var begin = int(clock());
 var i = 0;
-while (i < 500000) {
+while (i < iterations) {
   foo.method0();
   foo.method1();
   foo.method2();
@@ -70,4 +72,5 @@ while (i < 500000) {
   i = i + 1;
 }
 
-print clock() - begin;
+var elapsed = int(clock()) - begin;
+print "Time: " + string(elapsed);
