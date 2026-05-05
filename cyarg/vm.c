@@ -27,6 +27,7 @@ VM vm;
 
 static void binaryIntOp(ObjRoutine* routine, char const *c);
 static void binaryIntBoolOp(ObjRoutine* routine, char const *c);
+static void unaryIntOp(ObjRoutine* routine, int op);
 
 void vmPinnedRoutineHandler(size_t handler) {
     ObjRoutine* routine = vm.pinnedRoutines[handler];
@@ -1139,8 +1140,7 @@ InterpretResult run(ObjRoutine* routine) {
                 } else if (IS_I64(peek(routine, 0))) {
                     push(routine, I64_VAL(-AS_I64(pop(routine))));
                 } else if (IS_INT(peek(routine, 0))) {
-                    Int *b = AS_INT(peek(routine, 0));
-                    int_neg(b);
+                    unaryIntOp(routine, OP_NEGATE);
                 } else {
                     runtimeError(routine, "Operand must be a number or integer.");
                     return INTERPRET_RUNTIME_ERROR;
@@ -1537,6 +1537,31 @@ InterpretResult compileScript(ObjString* script, Value* result) {
     return runResult;
 }
 
+void unaryIntOp(ObjRoutine* routine, int op) {
+    Int* a = AS_INT(peek(routine, 0));
+    int s = 0;
+    switch (op) {
+        case OP_NEGATE:
+            s = a->m_;
+            break;
+        default:
+            assert(!"UnaryIntOp");
+    }
+    if (s > 254) s = 254;
+    s += s % 2;
+    ObjInt *r = (ObjInt *)allocateObject(sizeof (ObjInt) + s * sizeof (uint16_t), OBJ_INT);
+    r->bigInt.m_ = s;
+    int_set_t(a, &r->bigInt);
+    switch (op) {
+        case OP_NEGATE:
+            int_neg(&r->bigInt);
+            break;
+        default:
+            assert(!"IntUnaryOp");  
+    }
+    pop(routine);
+    push(routine, OBJ_VAL(r));
+}
 
 void binaryIntOp(ObjRoutine* routine, char const *c)
 {

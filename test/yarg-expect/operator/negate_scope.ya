@@ -1,0 +1,23 @@
+fun add(x) {
+    x = x + 1;
+    return x;
+}
+
+var a = 1;
+print a; // expect: 1
+var b = add(-a);
+print b; // expect: 0
+print a; // expect: 1
+
+var int c = 1;
+print c; // expect: 1
+var d = add(-c);
+print d; // expect: 0
+print c; // expect: 1
+
+var int32 e = 1;
+print e; // expect: 1
+var f = add(-e);
+print f; // expect: 0
+print e; // expect: 1
+
