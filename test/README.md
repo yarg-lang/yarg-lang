@@ -10,7 +10,7 @@ test/ contains test suites:
 
 `hardware/` - a minimal smoketest to ensure Yarg is functional on pico hardware.
 
-`benchmark/` - ad-hoc benchmarks.
+`benchmark/` - a benchmark suite.
 
 ## yarg-expect (Yarg Language)
 
@@ -83,10 +83,18 @@ the file `build/test-hardware.uf2` can be flashed on any pico. See the [hardware
 
 ## benchmark
 
-Ad-hoc benchmarks that output a report when run, eg:
+A collection of benchmarks originally seeded from the lox benchmark collection.
+
+Results are meaningful only on target, so to gather pico results use:
 
 ```
-./bin/cyarg test/benchmark/fib.ya
+./tools/pico-benchmark.sh
 ```
 
-The results are only really meaningful when run on a device, and not on the host.
+benchmarks can be tested for execution on host, (notably including our CI) with:
+
+```
+./test/test-benchmark.sh
+```
+
+The results are only meaningful if the behaviour on target is understood.

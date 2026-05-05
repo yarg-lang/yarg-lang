@@ -160,6 +160,9 @@ jobs:
 
       - name: Run Hostyarg Yarg test suite
         run: ./bin/yarg runtests -tests "test/yarg-expect" -interpreter "bin/cyarg" -lib "yarg/specimen"
+      
+      - name: Run benchmark tests
+        run: ./test/test-benchmark.sh
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

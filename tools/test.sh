@@ -12,4 +12,7 @@ popd >/dev/null
 
 ./test/bc-run.sh || TEST_ERROR=1
 
+./test/test-benchmark.sh || TEST_ERROR=1
+echo "Benchmark run for execution correctness. Results are only meaningful on target"
+
 exit $TEST_ERROR
