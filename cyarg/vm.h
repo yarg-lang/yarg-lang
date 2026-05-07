@@ -22,14 +22,14 @@ typedef struct {
     ObjRoutine* pinnedRoutines[MAX_PINNED_ROUTINES];
     PinnedRoutineHandler pinnedRoutineHandlers[MAX_PINNED_ROUTINES];
     
-    platform_mutex env;
+    platform_critical_section env;
     
     ValueCellTable globals;
     ValueTable strings;
     ObjString* initString;
     ObjString* libraryPath;
 
-    platform_mutex heap;
+    platform_critical_section heap;
 
     Value tempRoots[TEMP_ROOTS_MAX];
     Value* tempRootsTop;
