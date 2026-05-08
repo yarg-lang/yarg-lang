@@ -122,8 +122,15 @@ func (test *testSuite) accountRuntimeErrorExpectations(errors []string, pass *in
 }
 
 func (test *testSuite) accountOutputExpectations(output []string, pass *int) {
-	if reflect.DeepEqual(test.expectedOutput[0:len(output)], output) {
-		*pass += len(output)
+	for l := range output {
+		if l >= len(test.expectedOutput) {
+			return
+		}
+		if output[l] != test.expectedOutput[l] {
+			return
+		} else {
+			*pass++
+		}
 	}
 }
 
