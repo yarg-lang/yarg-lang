@@ -397,12 +397,14 @@ static Token number() {
 
     // Look for an exponent.
     if (radix == 10 &&
-        (peek() == 'e' || peek() == 'E') && (peekNext() == '-' || isDigit(peekNext())))
+        (peek() == 'e' || peek() == 'E') && (peekNext() == '-' || isDigit(peekNext()))) {
         // Consume the "e".
             advance();
 
-        if (peek() == '-')
+        if (peek() == '-') {
             advance();
+        }
+    }
 
     while (isRadixDigit(peek(), radix)) advance();
 
