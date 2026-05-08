@@ -631,92 +631,85 @@ static ObjExpr* number(bool canAssign) {
     ObjExprNumber* val = NULL;
 
     if (radix == 10) {
-        int expAdd = 0;
-        enum {NUMBER_NO_DOT_OR_MSB, NUMBER_DOT, NUMBER_MSB, NUMBER_DOT_AND_MSB, NUMBER_END} state = NUMBER_NO_DOT_OR_MSB;
+        // N == [0-9]
+        // N+ (int)
+        // N+.N+ (float)
+        // N+[eE]N+ (float)
+        // N+.N*[eE]N+ (float)
+        // N+[eE]-N+ (float)
+        // N+.N*[eE]-N+ (float)
+        enum {NUMBER_START, NUMBER_ZERO, NUMBER_MSB, NUMBER_DOT, NUMBER_DOT_AND_MSB, NUMBER_FRAC, NUMBER_E, NUMBER_EN, NUMBER_EXPONENT} state = NUMBER_START;
         const char *number = number_start;
-        char *heapChars_start = ALLOCATE(char, number_len + 1);
-        char *heapChars = heapChars_start;
-        while (state != NUMBER_END)
-        {
-            switch (*number)
-            {
+        const char *msb = number;
+        while (number < number_start + number_len) {
+            switch (*number) {
             case '0':
-                if (state == NUMBER_DOT)
-                {
-                    expAdd--;
-                }
-                else if (state == NUMBER_MSB || state == NUMBER_DOT_AND_MSB)
-                {
-                    if (state == NUMBER_MSB)
-                    {
-                        expAdd++;
-                    }
-                    *heapChars++ = *number;
+                if (state == NUMBER_START) {
+                    state = NUMBER_ZERO;
+                } else if (state == NUMBER_DOT || state == NUMBER_DOT_AND_MSB) {
+                    state = NUMBER_FRAC;
+                } else if (state == NUMBER_E || state == NUMBER_EN) {
+                    state = NUMBER_EXPONENT;
                 }
                 break;
             case '.':
-                if (state == NUMBER_NO_DOT_OR_MSB)
-                {
+                if (state == NUMBER_START || state == NUMBER_ZERO) {
                     state = NUMBER_DOT;
-                }
-                else if (state == NUMBER_MSB)
-                {
+                } else if (state == NUMBER_MSB) {
                     state = NUMBER_DOT_AND_MSB;
+                } else {
+                    errorAtCurrent("Only one decimal point allowed");
+                    return 0;
                 }
                 break;
-            case 'e': case 'E': 
-                {
-                    state = NUMBER_END;
-                    *heapChars = '\0';
-                    char *end;
-                    long value = strtol(number, &end, 10);
-                    assert(end == heapChars_start + number_len);
-                    assert(value <= INT_MAX && value >= INT_MIN);
-                    expAdd += (int) value;
-                    assert(expAdd <= 10000 && expAdd >= -10000);
+            case 'e': case 'E':
+                if (state == NUMBER_ZERO || state == NUMBER_MSB || state == NUMBER_DOT || state == NUMBER_DOT_AND_MSB || state == NUMBER_FRAC) {
+                    state = NUMBER_E;
+                }  else {
+                    errorAtCurrent("Only one E|e allowed");
+                    return 0;
+                }
+                break;
+            case '-':
+                if (state == NUMBER_E) {
+                    state = NUMBER_EN;
+                } else {
+                    errorAtCurrent("- only allowed after e or E");
+                    return 0;
                 }
                 break;
             default:
-                if (state == NUMBER_NO_DOT_OR_MSB)
-                {
+                if (state == NUMBER_START || state == NUMBER_ZERO) {
                     state = NUMBER_MSB;
+                    msb = number;
+                } else if (state == NUMBER_DOT ||state == NUMBER_DOT_AND_MSB) {
+                    state = NUMBER_FRAC;
+                } else if (state == NUMBER_E || state == NUMBER_EN) {
+                    state = NUMBER_EXPONENT;
                 }
-                else if (state == NUMBER_DOT)
-                {
-                    state = NUMBER_DOT_AND_MSB;
-                    expAdd--;
-                }
-                else if (state == NUMBER_MSB)
-                {
-                    expAdd++;
-                }
-                *heapChars++ = *number;
                 break;
             }
 
-            if (++number >= number_start + number_len)
-            {
-                *heapChars = '\0';
-                if (state == NUMBER_NO_DOT_OR_MSB) // zero
-                {
-                    val = newExprNumberFromCint(0);
-                }
-                else if (state == NUMBER_MSB) // int
-                {
-                    val = newExprNumberInt((int)(heapChars - heapChars_start));
-                    int_set_s(heapChars_start, &val->bigInt);
-                }
-                else // double NUMBER_END xEy|0.Ey -- NUMBER_DOT 0. -- NUMBER_DOT_AND_MSB .y|x.y|x.
-                {
-                    char *end;
-                    val = newExprNumberDouble(strtod(number_start, &end));
-                    assert(end - number_start == number_len);
-                }
-                state = NUMBER_END;
-            }
+            number++;
         }
-
-        FREE(char, heapChars_start);
+        if (state == NUMBER_ZERO || state == NUMBER_MSB) {
+            char *heapChars = ALLOCATE(char, number_len + 1);
+            heapChars[number - msb] = '\0';
+            memcpy(heapChars, msb, number - msb);
+            val = newExprNumberInt((int)(msb - number_start + number_len));
+            int_set_s(heapChars, &val->bigInt);
+            FREE(char, heapChars);
+        } else if (state == NUMBER_DOT_AND_MSB || state == NUMBER_FRAC || state == NUMBER_EXPONENT) {
+            char *end;
+            val = newExprNumberDouble(strtod(number_start, &end));
+            if (end - number_start != number_len) {
+                errorAtCurrent("misformed float literal");
+                return 0;
+            }
+        } else {
+            errorAtCurrent("misformed number");
+            return 0;
+        }
     } else {
         uint64_t value = strtoNum(number_start, number_len, radix);
         int decimalDigits;
