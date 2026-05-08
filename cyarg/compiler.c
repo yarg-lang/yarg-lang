@@ -1053,7 +1053,7 @@ static void generateStmtFieldDeclaration(ObjStmtFieldDeclaration* stmt) {
 }
 
 static void generateStmt(ObjStmt* stmt) {
-#if defined COMPILE_INCLUDE_LINE_NUMBERS
+
     if (current->function->chunk.numLines == 0 ||
         current->function->chunk.lines[current->function->chunk.numLines - 1].line != stmt->line) {
         if (current->function->chunk.numLines == current->function->chunk.lineCapacity) {
@@ -1064,7 +1064,7 @@ static void generateStmt(ObjStmt* stmt) {
         }
         current->function->chunk.lines[current->function->chunk.numLines++] = (ChunkSource){current->function->chunk.count, stmt->line};
     }
-#endif
+
     current->panicMode = false;
     current->recent = stmt;
     switch (stmt->obj.type) {
