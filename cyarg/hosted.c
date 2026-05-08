@@ -62,18 +62,14 @@ int compileFile(const char* path) {
     Value compilerResult;
     InterpretResult result = compileScript(pathString, &compilerResult);
     tempRootPush(compilerResult);
-
-    if (result == EX_OK) {
-        result = packageBinary(path, &compilerResult);
-    }
-
+    
     int exitCode = EX_OK;
     if (result == INTERPRET_RUNTIME_ERROR) {
         exitCode = EX_SOFTWARE;
     } else if (result == INTERPRET_OK && IS_NIL(compilerResult)) {
         exitCode = EX_DATAERR;
     } else {
-        exitCode = EX_OK;
+        exitCode = packageBinary(path, &compilerResult);
     }
 
     tempRootPop();
