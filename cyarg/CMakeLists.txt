@@ -112,13 +112,15 @@ add_executable(cyarg
     fs/fs.h
     big-int/big-int.h
     big-int/big-int.c
+    pack_load.c
+    pack_format.h
     pack.h
-    pack.c
     )
 
 if (CYARG_HOSTING STREQUAL "HOSTED")
 target_sources(cyarg
     PRIVATE
+      pack.c
       hosted.c
       hosted.h)
 endif()
