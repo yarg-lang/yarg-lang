@@ -7,8 +7,8 @@ fun da(cheese) {
         z.i = 99876545642134;
         return z;
     }
-    const int64 ffff=1;
-    const int32 gggg=2;
+    var int64 ffff=1;
+    var int32 gggg=2;
     print string(ffff) + string(gggg);
 
     class CheeseMaker {
@@ -51,8 +51,8 @@ fun da(cheese) {
         }
     }
 
-    const n = 1;
-    const an = [1, 5, nil, "j"];
+    var n = 1;
+    var an = [1, 5, nil, "j"];
     fun do2() {
         var m = verb + " " + string(n) + " " + *cheese;
         print m;

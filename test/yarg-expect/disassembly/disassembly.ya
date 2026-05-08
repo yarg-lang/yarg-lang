@@ -2,8 +2,8 @@
 
 var verb;
 fun do(cheese) {
-    const n = 1;
-    const an = [1, 5, nil, "j"];
+    var n = 1;
+    var an = [1, 5, nil, "j"];
     fun do2() {
             print 167772160;
         var m = verb + " " + string(n) + " " + *cheese;
@@ -22,14 +22,14 @@ fun do(cheese) {
     return do2();
 }
 
-const xa = [int8(-128), int16(213), int32(222), int64(444555566666667777), uint8(127), uint16(44444), uint32(1111999900), uint64(4445555666666677777), int8(0), 77.0, int8(1), 333777777788888888444555555566666666, int8(2), true];
+var xa = [int8(-128), int16(213), int32(222), int64(444555566666667777), uint8(127), uint16(44444), uint32(1111999900), uint64(4445555666666677777), int8(0), 77.0, int8(1), 333777777788888888444555555566666666, int8(2), true];
 print string(xa[0]);
 print xa;
 xa[0] = int8(-127);
 xa[3] = int64(7777777666666555444);
 xa[11] = 6666666666555555555544488888888887777777777333;
 print xa;
-const struct { int8 a; int16 b; int32 c; int64 d; uint8 ua; uint16 ub; uint32 uc; uint64 ud; int8 e; mfloat64 f; int8 g; int i; int8 j; bool k; any u; } xy;
+var struct { int8 a; int16 b; int32 c; int64 d; uint8 ua; uint16 ub; uint32 uc; uint64 ud; int8 e; mfloat64 f; int8 g; int i; int8 j; bool k; any u; } xy;
 print xy;
 xy.a = xa[0];
 xy.b = xa[1];
