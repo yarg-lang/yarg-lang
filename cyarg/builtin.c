@@ -456,7 +456,7 @@ bool pinBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
 bool newBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
 
     Value typeToCreate = NIL_VAL;
-    if (   argCount == 1
+    if (argCount == 1
         && IS_YARGTYPE(nativeArgument(routineContext, argCount, 0))) {
         typeToCreate = nativeArgument(routineContext, argCount, 0);
     }
