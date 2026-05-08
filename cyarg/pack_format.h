@@ -79,7 +79,7 @@ typedef struct {
     uint32_t *i_;
 } LinesFile;
 
-enum { PACK_CONST_TYPE_S, PACK_CONST_TYPE_I, PACK_CONST_TYPE_D, PACK_CONST_TYPE_F} type_;
+enum { PACK_CONST_TYPE_S, PACK_CONST_TYPE_I, PACK_CONST_TYPE_D, PACK_CONST_TYPE_F};
 
 typedef struct {
     uint8_t type_;
