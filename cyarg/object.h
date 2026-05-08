@@ -125,12 +125,12 @@ typedef struct {
     int objectCount;
 } DynamicObjArray;
 
-typedef struct {
+typedef struct ObjFunction {
     Obj obj;
     int arity;
     int upvalueCount;
     Chunk chunk;
-    ObjString* name;
+    ObjString* fName;
 } ObjFunction;
 
 typedef bool (*NativeFn)(ObjRoutine* routine, int argCount, Value* result);
@@ -161,11 +161,11 @@ typedef struct ObjUpvalue {
     struct ObjUpvalue* next;
 } ObjUpvalue;
 
-typedef struct {
+typedef struct ObjClosure {
     Obj obj;
     ObjFunction* function;
     ObjUpvalue** upvalues;
-    int upvalueCount;
+    int cUpvalueCount;
 } ObjClosure;
 
 typedef struct {

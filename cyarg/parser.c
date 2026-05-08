@@ -140,6 +140,7 @@ static void synchronize() {
             case TOKEN_WHILE:
             case TOKEN_PRINT:
             case TOKEN_RETURN:
+            case TOKEN_LOAD:
                 return;
             
             default:
@@ -395,6 +396,7 @@ static ObjExpr* builtin(bool canAssign) {
         case TOKEN_INT: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_INT, 1);
         case TOKEN_MACHINE_FLOAT64: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_MFLOAT64, 1);
         case TOKEN_TYPE_STRING: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_STRING, 1);
+        case TOKEN_LOAD: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_LOAD, 1);
         default: return NULL; // Unreachable.
     } 
 }
@@ -833,6 +835,7 @@ static AstParseRule rules[] = {
     [TOKEN_TS_INTERRUPT]         = {builtin,   NULL,   PREC_NONE},
     [TOKEN_TS_SYNC]              = {builtin,   NULL,   PREC_NONE},
     [TOKEN_INT]                  = {type,      NULL,   PREC_NONE},
+    [TOKEN_LOAD]                 = {builtin,   NULL,   PREC_NONE},
 
     [TOKEN_ERROR]                = {NULL,      NULL,   PREC_NONE},
     [TOKEN_EOF]                  = {NULL,      NULL,   PREC_NONE},

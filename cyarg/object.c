@@ -92,7 +92,7 @@ ObjClosure* newClosure(ObjFunction* function) {
     ObjClosure* closure = ALLOCATE_OBJ(ObjClosure, OBJ_CLOSURE);
     closure->function = function;
     closure->upvalues = upvalues;
-    closure->upvalueCount = function->upvalueCount;
+    closure->cUpvalueCount = function->upvalueCount;
     return closure;
 }
 
@@ -106,7 +106,7 @@ void initFunction(ObjFunction* function) {
     // may not be called after alloc, so init all fields.
     function->arity = 0;
     function->upvalueCount = 0;
-    function->name = NULL;
+    function->fName = NULL;
     initChunk(&function->chunk);
 }
 
@@ -442,11 +442,11 @@ ObjUpvalue* newUpvalue(ValueCell* slot, size_t stackOffset) {
 }
 
 static void printFunction(FILE* op, ObjFunction* function) {
-    if (function->name == NULL) {
+    if (function->fName == NULL) {
         FPRINTMSG(op, "<script>");
         return;
     }
-    FPRINTMSG(op, "<fn %s>", function->name->chars);
+    FPRINTMSG(op, "<fn %s>", function->fName->chars);
 }
 
 static void printRoutine(FILE* op, ObjRoutine* routine) {

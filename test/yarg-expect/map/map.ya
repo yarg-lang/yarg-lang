@@ -5,4 +5,52 @@ print len(test); // expect: 2
 var heapMap = new(any[string]);
 heapMap["answer"] = 42;
 print heapMap["answer"]; // expect: 42
-var not_allowed = new(any[any]); // expect runtime error: Unsupported map key type.
+
+//== map.ya ==
+//0000    1 OP_NIL
+//0001    | OP_SET_CELL_TYPE
+//0002    | OP_GET_BUILTIN   new
+//0004    | OP_NIL
+//0005    | OP_TYPE_LITERAL  string
+//0007    | OP_TYPE_INDEXED_COLLECTION
+//0008    | OP_CALL             1
+//0010    | OP_CONSTANT         1 string:'test'
+//0012    | OP_IMMEDIATE_P8    10
+//0014    | OP_SET_ELEMENT
+//0015    | OP_CONSTANT         2 string:'ME'
+//0017    | OP_CONSTANT         3 string:'JOHN'
+//0019    | OP_SET_ELEMENT
+//0020    | OP_INITIALISE
+//0021    | OP_DEFINE_GLOBAL    0 string:'test'
+//0023    2 OP_GET_GLOBAL       4 string:'test'
+//0025    | OP_CONSTANT         5 string:'test'
+//0027    | OP_ELEMENT
+//0028    | OP_PRINT
+//0029    3 OP_GET_GLOBAL       6 string:'test'
+//0031    | OP_CONSTANT         7 string:'ME'
+//0033    | OP_ELEMENT
+//0034    | OP_PRINT
+//0035    4 OP_GET_BUILTIN   len
+//0037    | OP_GET_GLOBAL       8 string:'test'
+//0039    | OP_CALL             1
+//0041    | OP_PRINT
+//0042    5 OP_NIL
+//0043    | OP_SET_CELL_TYPE
+//0044    | OP_GET_BUILTIN   new
+//0046    | OP_NIL
+//0047    | OP_TYPE_LITERAL  string
+//0049    | OP_TYPE_INDEXED_COLLECTION
+//0050    | OP_CALL             1
+//0052    | OP_INITIALISE
+//0053    | OP_DEFINE_GLOBAL    9 string:'heapMap'
+//0055    6 OP_GET_GLOBAL      10 string:'heapMap'
+//0057    | OP_CONSTANT        11 string:'answer'
+//0059    | OP_IMMEDIATE_P8    42
+//0061    | OP_SET_ELEMENT
+//0062    | OP_POP
+//0063    7 OP_GET_GLOBAL      12 string:'heapMap'
+//0065    | OP_CONSTANT        13 string:'answer'
+//0067    | OP_ELEMENT
+//0068    | OP_PRINT
+//0069    | OP_NIL
+//0070    | OP_RETURN

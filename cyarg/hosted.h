@@ -14,5 +14,6 @@ extern Host vmHost;
 int runHostedFile(const char* libraryPath, const char* path);
 int compileFile(const char* path);
 int disassembleFile(const char* path);
+int loadPackageFile(const char *path);
 
 #endif

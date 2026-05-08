@@ -1,14 +1,18 @@
 #include <stdlib.h>
 #include <sysexits.h>
+#include <assert.h>
 
 #include "common.h"
 #include "hosted.h"
 #include "object.h"
 #include "memory.h"
 #include "debug.h"
+#include "pack.h"
 #include "vm.h"
 
 Host vmHost;
+
+static int packageBinary(const char *path, Value const *yargResult);
 
 static char* libraryNameFor(const char* importname, const char* libraryPath) {
     size_t namelen = strlen(importname);
@@ -16,7 +20,7 @@ static char* libraryNameFor(const char* importname, const char* libraryPath) {
     if (libraryPath) {
         pathlen = strlen(libraryPath);
     }
-    char* filename = malloc(pathlen + 1 +namelen + 1);
+    char* filename = malloc(pathlen + 1 + namelen + 1);
     if (filename) {
         if (libraryPath) {
             strcpy(filename, libraryPath);
@@ -34,7 +38,7 @@ static char* libraryNameFor(const char* importname, const char* libraryPath) {
 int runHostedFile(const char* libraryPath, const char* path) {
 
     char* replPath = libraryNameFor(path, libraryPath);
-    ObjString* replPathString = copyString(replPath, strlen(replPath));
+    ObjString* replPathString = copyString(replPath, (int) strlen(replPath));
     tempRootPush(OBJ_VAL(replPathString));
     free(replPath);
 
@@ -52,12 +56,16 @@ int runHostedFile(const char* libraryPath, const char* path) {
 
 int compileFile(const char* path) {
 
-    ObjString* pathString = copyString(path, strlen(path));
+    ObjString* pathString = copyString(path, (int) strlen(path));
     tempRootPush(OBJ_VAL(pathString));
 
     Value compilerResult;
     InterpretResult result = compileScript(pathString, &compilerResult);
     tempRootPush(compilerResult);
+
+    if (result == EX_OK) {
+        result = packageBinary(path, &compilerResult);
+    }
 
     int exitCode = EX_OK;
     if (result == INTERPRET_RUNTIME_ERROR) {
@@ -73,14 +81,38 @@ int compileFile(const char* path) {
     return exitCode;
 }
 
+int loadPackageFile(const char *path) {
+
+    ObjString* pathString = copyString(path, (int) strlen(path));
+    tempRootPush(OBJ_VAL(pathString));
+
+    InterpretResult result = bootBinary(pathString);
+
+    tempRootPop();
+    if (result == INTERPRET_FILE_ERROR) {
+        return EX_DATAERR;
+    } else if (result == INTERPRET_RUNTIME_ERROR) {
+        return EX_SOFTWARE;
+    } else {
+        return EX_OK;
+    }
+}
+
 int disassembleFile(const char* path) {
 
-    ObjString* pathString = copyString(path, strlen(path));
+    ObjString* pathString = copyString(path, (int)strlen(path));
     tempRootPush(OBJ_VAL(pathString));
 
     Value compilerResult;
     InterpretResult result = compileScript(pathString, &compilerResult);
     tempRootPush(compilerResult);
+
+    char const *file = strrchr(path, '/');
+    if (file == 0) {
+        file = path;
+    } else {
+        file++;
+    }
 
     int returnCode = EX_OK;
 
@@ -92,16 +124,33 @@ int disassembleFile(const char* path) {
         returnCode = EX_OK;
         ObjFunction* function = AS_CLOSURE(compilerResult)->function;
 
-        disassembleChunk(&function->chunk, path);
-        for (int i = 0; i < function->chunk.constants.count; i++) {
-            if (IS_FUNCTION(function->chunk.constants.values[i])) {
-                ObjFunction* fun = AS_FUNCTION(function->chunk.constants.values[i]);
-                disassembleChunk(&fun->chunk, fun->name->chars);
-            }
-        }
+        disassembleChunk(&function->chunk, file);
     }
 
     tempRootPop();
     tempRootPop();
     return returnCode;
+}
+
+int packageBinary(const char *path, Value const *script) {
+
+    int r = EX_SOFTWARE;
+    if (IS_CLOSURE(*script)) {
+        char const *scriptFileName = strrchr(path, '/');
+        if (scriptFileName == 0) {
+            scriptFileName = path;
+        } else {
+            scriptFileName++;
+        }
+
+        size_t len = strlen(path);
+        char *packagePath = malloc(len + 1);
+        strcpy(packagePath, path);
+        assert(packagePath[len - 1] == 'a');
+        packagePath[len - 1] = 'b';
+
+        r = packScript(scriptFileName, AS_CLOSURE(*script)->function, true, packagePath);
+
+     }
+    return r;
 }

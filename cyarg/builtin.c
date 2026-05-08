@@ -15,6 +15,7 @@
 #include "channel.h"
 #include "yargtype.h"
 #include "sync_group.h"
+#include "pack.h"
 
 #ifdef CYARG_FEATURE_TEST_SYSTEM
 #include "test-system/testSystem.h"
@@ -22,6 +23,11 @@
 #endif
 
 bool importBuiltinDummy(ObjRoutine* routineContext, int argCount, Value* result) {
+    *result = NIL_VAL;
+    return true;
+}
+
+bool loadBuiltinDummy(ObjRoutine* routineContext, int argCount, Value* result) {
     *result = NIL_VAL;
     return true;
 }
@@ -150,6 +156,38 @@ bool compileBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         *result = OBJ_VAL(closure);
     }
     return true;
+}
+
+InterpretResult loadBuiltin(ObjRoutine* routineContext, int argCount) {
+    if (argCount != 1) {
+        runtimeError(routineContext, "Expected 1 arguments but got %d.", argCount);
+        return INTERPRET_RUNTIME_ERROR;
+    }
+    if (!IS_STRING(peek(routineContext, 0))) {
+        runtimeError(routineContext, "Argument to exec must be string.");
+        return INTERPRET_RUNTIME_ERROR;
+    }
+
+    char *source = AS_CSTRING(peek(routineContext, 0));
+    ObjFunction *function = loadPackage(source);
+    if (function == NULL) {
+        return INTERPRET_FILE_ERROR;
+    }
+
+    tempRootPush(OBJ_VAL(function));
+
+    Value sourceVal = pop(routineContext);
+    tempRootPush(sourceVal);
+    pop(routineContext);
+
+    ObjClosure* closure = newClosure(function);
+    push(routineContext, OBJ_VAL(closure));
+
+    tempRootPop();
+    tempRootPop();
+
+    callfn(routineContext, closure, 0);
+    return INTERPRET_OK;
 }
 
 bool makeChannelBuiltin(ObjRoutine* routine, int argCount, Value* result) {
@@ -1055,6 +1093,7 @@ Value getBuiltin(uint8_t builtin) {
         case BUILTIN_INT: return OBJ_VAL(newNative(intBuiltin));
         case BUILTIN_MFLOAT64: return OBJ_VAL(newNative(floatBuiltin));
         case BUILTIN_STRING: return OBJ_VAL(newNative(stringBuiltin));
+        case BUILTIN_LOAD: return OBJ_VAL(newNative(loadBuiltinDummy));
 #ifndef CYARG_FEATURE_TEST_SYSTEM
         default: return NIL_VAL;
 #else

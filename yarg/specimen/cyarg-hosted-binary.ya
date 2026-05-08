@@ -1,0 +1,28 @@
+import("yarg");
+
+var hostArgs = new(any[host_argc()]);
+for (var i = 0; i < int(host_argc()); i = i + 1) {
+    hostArgs[i] = host_argn(i);
+}
+
+fun getArgument(name) {
+    for (var i = 0; i < len(hostArgs); i = i + 1) {
+        if (hostArgs[i] == name and i + 1 < len(hostArgs)) {
+            return hostArgs[i + 1];
+        }
+    }
+    return nil;
+}
+
+fun getBoolArgument(name) {
+    for (var i = 0; i < len(hostArgs); i = i + 1) {
+        if (hostArgs[i] == name) {
+            return true;
+        }
+    }
+    return false;
+}
+
+var source = read_source(hostArgs[3]);
+print "x ----- " + hostArgs[3];
+import(source);

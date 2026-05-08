@@ -121,7 +121,7 @@ void markDynamicObjArray(DynamicObjArray* array) {
 }
 
 void markFunction(ObjFunction* function) {
-    markObject((Obj*)function->name);
+    markObject((Obj*)function->fName);
     markArray(&function->chunk.constants);
 }
 
@@ -148,14 +148,14 @@ static void blackenObject(Obj* object) {
         case OBJ_CLOSURE: {
             ObjClosure* closure = (ObjClosure*)object;
             markObject((Obj*)closure->function);
-            for (int i = 0; i < closure->upvalueCount; i++) {
+            for (int i = 0; i < closure->cUpvalueCount; i++) {
                 markObject((Obj*)closure->upvalues[i]);
             }
             break;
         }
         case OBJ_FUNCTION: {
             ObjFunction* function = (ObjFunction*)object;
-            markObject((Obj*)function->name);
+            markObject((Obj*)function->fName);
             markArray(&function->chunk.constants);
             break;
         }
@@ -460,7 +460,7 @@ static void freeObject(Obj* object) {
         }
         case OBJ_CLOSURE: {
             ObjClosure* closure = (ObjClosure*)object;
-            FREE_ARRAY(ObjUpvalue*, closure->upvalues, closure->upvalueCount);
+            FREE_ARRAY(ObjUpvalue*, closure->upvalues, closure->cUpvalueCount);
             FREE(ObjClosure, object);
             break;
         }

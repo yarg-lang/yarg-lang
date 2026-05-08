@@ -262,6 +262,8 @@ static InterpretResult callValue(ObjRoutine* routine, Value callee, int argCount
                 NativeFn native = AS_NATIVE(callee);
                 if (native == importBuiltinDummy) {
                     return importBuiltin(routine, argCount);
+                } else if (native == loadBuiltinDummy) {
+                    return loadBuiltin(routine, argCount);
                 } else {
                     Value result = NIL_VAL; 
                     if (native(routine, argCount, &result)) {
@@ -1260,7 +1262,7 @@ InterpretResult run(ObjRoutine* routine) {
                 ObjFunction* function = AS_FUNCTION(READ_CONSTANT());
                 ObjClosure* closure = newClosure(function);
                 push(routine, OBJ_VAL(closure));
-                for (int i = 0; i < closure->upvalueCount; i++) {
+                for (int i = 0; i < closure->cUpvalueCount; i++) {
                     uint8_t isLocal = READ_BYTE();
                     uint8_t index = READ_BYTE();
                     if (isLocal) {
@@ -1469,7 +1471,7 @@ typedef void (*bindBootstrapFunction)(ObjString* script);
 static void bindBootstrapCode(const char* name, size_t nameLength, 
                               const uint8_t code[], size_t codeLength, 
                               ObjString* script, size_t constantIndex) {
-    vm.bootFunction.name = copyString(name, (int)nameLength);
+    vm.bootFunction.fName = copyString(name, (int)nameLength);
 
     for (size_t i = 0; i < codeLength; i++) {
         writeChunk(&vm.bootFunction.chunk, code[i], 0);
@@ -1503,6 +1505,15 @@ uint8_t compile_bootstrap[] = {
 
 size_t compile_bootstrap_parameter_offset = 5;
 
+uint8_t load_bootstrap[] = {
+    OP_GET_BUILTIN, BUILTIN_LOAD,
+    OP_CONSTANT, 0,
+    OP_CALL, 1,
+    OP_RETURN
+};
+
+size_t load_bootstrap_parameter_offset = 3;
+
 InterpretResult bootstrapVM(Value* bootstrapResult, ObjString* script) {
     ObjClosure* closure = newClosure(&vm.bootFunction);
 
@@ -1527,6 +1538,16 @@ InterpretResult bootScript(ObjString* script) {
     Value discardedResult;
     InterpretResult runResult = bootstrapVM(&discardedResult, script);
     return runResult;
+}
+
+InterpretResult bootBinary(ObjString *script) {
+    bindBootstrapCode("boot", 4, load_bootstrap, sizeof(load_bootstrap), script, load_bootstrap_parameter_offset);
+
+    // Yarg scripts do not return values, so the bootstrap result is discarded.
+    Value discardedResult;
+    InterpretResult result = bootstrapVM(&discardedResult, script);
+    tempRootPop();
+    return result;
 }
 
 InterpretResult compileScript(ObjString* script, Value* result) {

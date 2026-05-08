@@ -89,12 +89,19 @@ int main(int argc, const char* argv[]) {
         returnCode = compileFile(argv[2]);
     } else if ((argv[1] && strcmp(argv[1], "--bootstrap") == 0) && argc == 3) {
         returnCode = runHostedFile(NULL, argv[2]);
-    } else if ((argv[1] && strcmp(argv[1], "--disassemble") == 0) && argc == 3) {
+    } else if (argc == 3 && strcmp(argv[1], "--disassemble") == 0) {
         returnCode = disassembleFile(argv[2]);
-    } else if (argv[1] && strcmp(argv[1], "--lib") == 0 && ((argc == 3) || (argc == 4))) {
+    } else if (argc == 3 && strcmp(argv[1], "--lib") == 0) {
         returnCode = runHostedFile(libPath, "cyarg-hosted.ya");
-    } else if (argv[1] && strcmp(argv[1], "--lib") == 0 && argc > 4 && strcmp(argv[4], "--") == 0) {
+    } else if (argc > 4 && strcmp(argv[1], "--lib") == 0 && strcmp(argv[4], "--") == 0) {
         returnCode = runHostedFile(libPath, "cyarg-hosted.ya");
+    } else if (argc == 4 && strcmp(argv[1], "--lib") == 0) { // work around until yarg gets substring()
+        char const *dotOn = strrchr(argv[3], '.');
+        if (dotOn != 0 && strcmp(dotOn, ".yb") == 0) {
+            returnCode = loadPackageFile(argv[3]);
+        } else {
+            returnCode = runHostedFile(libPath, "cyarg-hosted.ya");
+        }
     } else {
         usageMessage(stderr);
         returnCode = EX_USAGE;

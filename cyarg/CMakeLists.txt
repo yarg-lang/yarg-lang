@@ -112,6 +112,8 @@ add_executable(cyarg
     fs/fs.h
     big-int/big-int.h
     big-int/big-int.c
+    pack.h
+    pack.c
     )
 
 if (CYARG_HOSTING STREQUAL "HOSTED")

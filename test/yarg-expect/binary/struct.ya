@@ -1,0 +1,42 @@
+
+struct {mfloat64 f; int32 i32; int16 i16; int8 i8;} x;
+x.i8 = int8(1);
+x.i16 = int16(2);
+x.i32 = int32(3);
+x.f = 4.4;
+
+print x;
+
+struct { int8 i8; int16 i16; int32 i32; mfloat64 f; int8 i8; any a; } y;
+y.i8 = int8(1);
+y.i16 = int16(2);
+y.i32 = int32(3);
+y.f = 4.4;
+
+print y;
+
+ class c { x() {return 7;}}
+ print c().x();
+struct { int8 i8; int16 i16; int32 i32; mfloat64 f; int8 i8; any a; } y;
+y.a = c();
+ print y;
+print y.a.x();
+struct { int8 i8; int16 i16; int32 i32; mfloat64 f; int8 i8; any a; } y2;
+ y.a=y2;
+print y;
+y.a=[1,2,4];
+print y;
+
+fun f() {return 11;}
+y.a[0] = f;
+print y;
+
+// expect: struct{|4:23|4.40000; 3; 2; 1; }
+// expect: struct{|6:40|0; 2; 3; 4.40000; 1; nil; }
+// expect: 7
+// expect: struct{|6:40|0; 0; 0; 0.00000; 0; c instance; }
+// expect: 7
+// expect: struct{|6:40|0; 0; 0; 0.00000; 0; struct{|6:40|0; 0; 0; 0.00000; 0; nil; }; }
+// expect: struct{|6:40|0; 0; 0; 0.00000; 0; Type:any[3]:[1, 2, 4]; }
+// expect: struct{|6:40|0; 0; 0; 0.00000; 0; Type:any[3]:[<fn f>, 2, 4]; }
+

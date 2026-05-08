@@ -363,6 +363,7 @@ void printExprBuiltin(ObjExprBuiltin* fn) {
         case EXPR_BUILTIN_INT: printf("int"); break;
         case EXPR_BUILTIN_MFLOAT64: printf("mfloat64"); break;
         case EXPR_BUILTIN_STRING: printf("string"); break;
+        case EXPR_BUILTIN_LOAD: printf("load"); break;
     }
 }
 

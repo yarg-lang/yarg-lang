@@ -1,0 +1,142 @@
+// test packed binary file generation and loading
+
+var verb;
+fun do(cheese) {
+    const n = 1;
+    const an = [1, 5, nil, "j"];
+    fun do2() {
+            print 167772169;
+        var m = verb + " " + string(n) + " " + *cheese;
+        print m;
+        *cheese = nil;
+        struct { int32 i; int jj; mfloat64 f; } x;
+        fun do3() {
+            print 167772169;
+            x.i = 77777;
+            x.f = 0.00000123;
+            for (var i = 0; i < n; i = 1 + i) m;
+            return x;
+        }
+        return do3();
+    }
+    return do2();
+}
+
+const xa = [int8(-128), int16(213), int32(222), int64(444555566666667777), uint8(127), uint16(44444), uint32(1111999900), uint64(4445555666666677777), int8(0), 77.0, int8(1), 333777777788888888444555555566666666, int8(2), true];
+print string(xa[0]);
+print xa;
+xa[0] = int8(-127);
+xa[3] = int64(7777777666666555444);
+xa[11] = 6666666666555555555544488888888887777777777333;
+print xa;
+const struct { int8 a; int16 b; int32 c; int64 d; uint8 ua; uint16 ub; uint32 uc; uint64 ud; int8 e; mfloat64 f; int8 g; int i; int8 j; bool k; any u; } xy;
+print xy;
+xy.a = xa[0];
+xy.b = xa[1];
+xy.c = xa[2];
+xy.d = xa[3];
+xy.ua = xa[4];
+xy.ub = uint16(xa[1]);
+xy.uc = uint32(xa[2]);
+xy.ud = xa[7];
+xy.e = xa[8];
+xy.f = xa[9];
+xy.g = -xa[10];
+xy.i = xa[11];
+xy.j = xa[12];
+xy.k = xa[13];
+print xy;
+xy.u = [2, 3, 4];
+var za;
+za = xa;
+var xz;
+xz = xy;
+print za;
+print xz;
+
+class CheeseMaker {
+    init(cheese) {
+        print 167772169;
+        this.cheese = cheese;
+    }
+
+    ripenbergenhausenfloppen() {
+        print 167772169;
+        var n = "Enjoy ripened";
+        verb = n;
+        var tc = new(any);
+        *tc = this.cheese;
+        print *tc;
+        var y = do(tc);
+        print *tc;
+        print this.cheese;
+        return y;
+    }
+}
+
+class CheeseEater {
+    init(cheese) {
+        print 167772169;
+        this.cheese = "\"" + cheese + "\"";
+    }
+
+    ripen() {
+        print 167772169;
+        var n = "Already ripened " + string(xy.i);
+        verb = n;
+        var tc = new(any);
+        *tc = this.cheese;
+        print *tc;
+        var y = do(tc);
+        print *tc;
+        print this.cheese;
+        return y;
+    }
+
+    eat() {
+        print 167772169;
+        print "Eaten";
+    }
+}
+
+var maker = CheeseMaker("cheddar");
+var eater = CheeseEater("cheddar");
+
+var z = maker.ripenbergenhausenfloppen();
+print z.i;
+print maker.cheese;
+
+var w = eater.ripen();
+print w.i;
+
+eater.eat();
+
+
+// expect: -128
+// expect: Type:any[14]:[-128, 213, 222, 444555566666667777, 127, 44444, 1111999900, 4445555666666677777, 0, 77.0000, 1, 333777777788888888444555555566666666, 2, true]
+// expect: Type:any[14]:[-127, 213, 222, 7777777666666555444, 127, 44444, 1111999900, 4445555666666677777, 0, 77.0000, 1, 6666666666555555555544488888888887777777777333, 2, true]
+// expect: struct{|15:89|0; 0; 0; 0; 0; 0; 0; 0; 0; 0.00000; 0; 0; 0; false; nil; }
+// expect: struct{|15:89|-127; 213; 222; 7777777666666555444; 127; 213; 222; 4445555666666677777; 0; 77.0000; -1; 6666666666555555555544488888888887777777777333; 2; true; nil; }
+// expect: Type:any[14]:[-127, 213, 222, 7777777666666555444, 127, 44444, 1111999900, 4445555666666677777, 0, 77.0000, 1, 6666666666555555555544488888888887777777777333, 2, true]
+// expect: struct{|15:89|-127; 213; 222; 7777777666666555444; 127; 213; 222; 4445555666666677777; 0; 77.0000; -1; 6666666666555555555544488888888887777777777333; 2; true; Type:any[3]:[2, 3, 4]; }
+// expect: 167772169
+// expect: 167772169
+// expect: 167772169
+// expect: cheddar
+// expect: 167772169
+// expect: Enjoy ripened 1 cheddar
+// expect: 167772169
+// expect: nil
+// expect: cheddar
+// expect: 77777
+// expect: cheddar
+// expect: 167772169
+// expect: "cheddar"
+// expect: 167772169
+// expect: Already ripened 6666666666555555555544488888888887777777777333 1 "cheddar"
+// expect: 167772169
+// expect: nil
+// expect: "cheddar"
+// expect: 77777
+// expect: 167772169
+// expect: Eaten

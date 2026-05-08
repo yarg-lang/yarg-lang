@@ -1,0 +1,396 @@
+fun da(cheese) {
+    fun do(a)
+    {
+        print a;
+        struct { int i; mfloat64 f; } z;
+        z.f = 6.7;
+        z.i = 99876545642134;
+        return z;
+    }
+    const int64 ffff=1;
+    const int32 gggg=2;
+    print string(ffff) + string(gggg);
+
+    class CheeseMaker {
+        init(cheese) {
+            this.cheese = cheese;
+        }
+
+        ripen() {
+            var n = "Enjoy ripened";
+            verb = n;
+            var tc = new(any);
+            *tc = this.cheese;
+            print *tc;
+            var y = do(tc);
+            print *tc;
+            print this.cheese;
+            return y;
+        }
+    }
+
+    class CheeseEater {
+        init(cheese) {
+            this.cheese = "\"" + cheese + "\"";
+        }
+
+        ripen() {
+            var n = "Already ripened " + string(this.cheese);
+            verb = n;
+            var tc = new(any);
+            *tc = this.cheese;
+            print *tc;
+            var y = do(tc);
+            print *tc;
+            print this.cheese;
+            return y;
+        }
+
+        eat() {
+            print "Eaten";
+        }
+    }
+
+    const n = 1;
+    const an = [1, 5, nil, "j"];
+    fun do2() {
+        var m = verb + " " + string(n) + " " + *cheese;
+        print m;
+        *cheese = nil;
+        struct { int32 i; } x;
+        fun do3() {
+            x.i = 77777;
+            for (var i = 0; i < n; i = 1 + i) m;
+            return x;
+        }
+        return do3();
+    }
+
+    var maker = CheeseMaker("cheddar");
+    var eater = CheeseEater("cheddar");
+    var z = maker.ripen();
+    print z.i;
+    print maker.cheese;
+    var w = eater.ripen();
+    print w.i;
+    eater.eat();
+
+    return do2();
+}
+
+var verb = "where\"";
+print da("how\"");
+
+//== disassembly2.ya ==
+//0000    1 OP_CLOSURE          1 <fn da>
+//0002    | OP_DEFINE_GLOBAL    0 string:'da'
+//0004   81 OP_NIL
+//0005    | OP_SET_CELL_TYPE
+//0006    | OP_CONSTANT         3 string:'where"'
+//0008    | OP_INITIALISE
+//0009    | OP_DEFINE_GLOBAL    2 string:'verb'
+//0011   82 OP_GET_GLOBAL       4 string:'da'
+//0013    | OP_CONSTANT         5 string:'how"'
+//0015    | OP_CALL             1
+//0017    | OP_PRINT
+//0018    | OP_NIL
+//0019    | OP_RETURN
+//== disassembly2.ya/da(2) ==
+//0000    2 OP_CLOSURE          0 <fn do>
+//0002   10 OP_TYPE_LITERAL  int64
+//0004    | OP_TYPE_MODIFIER const
+//0006    | OP_SET_CELL_TYPE
+//0007    | OP_IMMEDIATE_P8     1
+//0009    | OP_INITIALISE
+//0010   11 OP_TYPE_LITERAL  int32
+//0012    | OP_TYPE_MODIFIER const
+//0014    | OP_SET_CELL_TYPE
+//0015    | OP_IMMEDIATE_P8     2
+//0017    | OP_INITIALISE
+//0018   12 OP_GET_BUILTIN   string
+//0020    | OP_GET_LOCAL        3
+//0022    | OP_CALL             1
+//0024    | OP_GET_BUILTIN   string
+//0026    | OP_GET_LOCAL        4
+//0028    | OP_CALL             1
+//0030    | OP_ADD
+//0031    | OP_PRINT
+//0032   14 OP_CLASS            1 string:'CheeseMaker'
+//0034    | OP_GET_LOCAL        5
+//0036    | OP_CLOSURE          3 <fn init>
+//0038    | OP_METHOD           2 string:'init'
+//0040    | OP_CLOSURE          5 <fn ripen>
+//0042       |                    local 2
+//0044    | OP_METHOD           4 string:'ripen'
+//0046    | OP_POP
+//0047   32 OP_CLASS            6 string:'CheeseEater'
+//0049    | OP_GET_LOCAL        6
+//0051    | OP_CLOSURE          8 <fn init>
+//0053    | OP_METHOD           7 string:'init'
+//0055    | OP_CLOSURE         10 <fn ripen>
+//0057       |                    local 2
+//0059    | OP_METHOD           9 string:'ripen'
+//0061    | OP_CLOSURE         12 <fn eat>
+//0063    | OP_METHOD          11 string:'eat'
+//0065    | OP_POP
+//0066   54 OP_NIL
+//0067    | OP_TYPE_MODIFIER const
+//0069    | OP_SET_CELL_TYPE
+//0070    | OP_IMMEDIATE_P8     1
+//0072    | OP_INITIALISE
+//0073   55 OP_NIL
+//0074    | OP_TYPE_MODIFIER const
+//0076    | OP_SET_CELL_TYPE
+//0077    | OP_GET_BUILTIN   new
+//0079    | OP_NIL
+//0080    | OP_IMMEDIATE_P8     4
+//0082    | OP_TYPE_ARRAY
+//0083    | OP_CALL             1
+//0085    | OP_IMMEDIATE_P8     0
+//0087    | OP_IMMEDIATE_P8     1
+//0089    | OP_SET_ELEMENT
+//0090    | OP_IMMEDIATE_P8     1
+//0092    | OP_IMMEDIATE_P8     5
+//0094    | OP_SET_ELEMENT
+//0095    | OP_IMMEDIATE_P8     2
+//0097    | OP_NIL
+//0098    | OP_SET_ELEMENT
+//0099    | OP_IMMEDIATE_P8     3
+//0101    | OP_CONSTANT        13 string:'j'
+//0103    | OP_SET_ELEMENT
+//0104    | OP_INITIALISE
+//0105   56 OP_CLOSURE         14 <fn do2>
+//0107       |                    local 7
+//0109       |                    local 1
+//0111   69 OP_NIL
+//0112    | OP_SET_CELL_TYPE
+//0113    | OP_GET_LOCAL        5
+//0115    | OP_CONSTANT        15 string:'cheddar'
+//0117    | OP_CALL             1
+//0119    | OP_INITIALISE
+//0120   70 OP_NIL
+//0121    | OP_SET_CELL_TYPE
+//0122    | OP_GET_LOCAL        6
+//0124    | OP_CONSTANT        16 string:'cheddar'
+//0126    | OP_CALL             1
+//0128    | OP_INITIALISE
+//0129   71 OP_NIL
+//0130    | OP_SET_CELL_TYPE
+//0131    | OP_GET_LOCAL       10
+//0133    | OP_INVOKE        (0 args)   17:'ripen'
+//0136    | OP_INITIALISE
+//0137   72 OP_GET_LOCAL       12
+//0139    | OP_GET_PROPERTY    18 string:'i'
+//0141    | OP_PRINT
+//0142   73 OP_GET_LOCAL       10
+//0144    | OP_GET_PROPERTY    19 string:'cheese'
+//0146    | OP_PRINT
+//0147   74 OP_NIL
+//0148    | OP_SET_CELL_TYPE
+//0149    | OP_GET_LOCAL       11
+//0151    | OP_INVOKE        (0 args)   20:'ripen'
+//0154    | OP_INITIALISE
+//0155   75 OP_GET_LOCAL       13
+//0157    | OP_GET_PROPERTY    21 string:'i'
+//0159    | OP_PRINT
+//0160   76 OP_GET_LOCAL       11
+//0162    | OP_INVOKE        (0 args)   22:'eat'
+//0165    | OP_POP
+//0166   78 OP_GET_LOCAL        9
+//0168    | OP_CALL             0
+//0170    | OP_RETURN
+//0171    | OP_NIL
+//0172    | OP_RETURN
+//== disassembly2.ya/da(2)/do(4) ==
+//0000    4 OP_GET_LOCAL        1
+//0002    | OP_PRINT
+//0003    5 OP_TYPE_LITERAL  mfloat64
+//0005    | OP_NIL
+//0006    | OP_CONSTANT         0 string:'f'
+//0008    | OP_TYPE_LITERAL  int32
+//0010    | OP_NIL
+//0011    | OP_CONSTANT         1 string:'i'
+//0013    | OP_TYPE_STRUCT      2
+//0015    | OP_SET_CELL_TYPE
+//0016    6 OP_GET_LOCAL        2
+//0018    | OP_CONSTANT         3 double:'6.70000'
+//0020    | OP_SET_PROPERTY     2 string:'f'
+//0022    | OP_POP
+//0023    7 OP_GET_LOCAL        2
+//0025    | OP_IMMEDIATE_P8    99
+//0027    | OP_SET_PROPERTY     4 string:'i'
+//0029    | OP_POP
+//0030    8 OP_GET_LOCAL        2
+//0032    | OP_RETURN
+//0033    | OP_NIL
+//0034    | OP_RETURN
+//== disassembly2.ya/da(2)/init(16) ==
+//0000   16 OP_GET_LOCAL        0
+//0002    | OP_GET_LOCAL        1
+//0004    | OP_SET_PROPERTY     0 string:'cheese'
+//0006    | OP_POP
+//0007    | OP_GET_LOCAL        0
+//0009    | OP_RETURN
+//== disassembly2.ya/da(2)/ripen(20) ==
+//0000   20 OP_NIL
+//0001    | OP_SET_CELL_TYPE
+//0002    | OP_CONSTANT         0 string:'Enjoy ripened'
+//0004    | OP_INITIALISE
+//0005   21 OP_GET_LOCAL        1
+//0007    | OP_SET_GLOBAL       1 string:'verb'
+//0009    | OP_POP
+//0010   22 OP_NIL
+//0011    | OP_SET_CELL_TYPE
+//0012    | OP_GET_BUILTIN   new
+//0014    | OP_NIL
+//0015    | OP_CALL             1
+//0017    | OP_INITIALISE
+//0018   23 OP_GET_LOCAL        2
+//0020    | OP_GET_LOCAL        0
+//0022    | OP_GET_PROPERTY     2 string:'cheese'
+//0024    | OP_SET_PTR_TARGET
+//0025    | OP_POP
+//0026   24 OP_GET_LOCAL        2
+//0028    | OP_DEREF_PTR
+//0029    | OP_PRINT
+//0030   25 OP_NIL
+//0031    | OP_SET_CELL_TYPE
+//0032    | OP_GET_UPVALUE      0
+//0034    | OP_GET_LOCAL        2
+//0036    | OP_CALL             1
+//0038    | OP_INITIALISE
+//0039   26 OP_GET_LOCAL        2
+//0041    | OP_DEREF_PTR
+//0042    | OP_PRINT
+//0043   27 OP_GET_LOCAL        0
+//0045    | OP_GET_PROPERTY     3 string:'cheese'
+//0047    | OP_PRINT
+//0048   28 OP_GET_LOCAL        3
+//0050    | OP_RETURN
+//0051    | OP_NIL
+//0052    | OP_RETURN
+//== disassembly2.ya/da(2)/init(34) ==
+//0000   34 OP_GET_LOCAL        0
+//0002    | OP_CONSTANT         1 string:'"'
+//0004    | OP_GET_LOCAL        1
+//0006    | OP_ADD
+//0007    | OP_CONSTANT         2 string:'"'
+//0009    | OP_ADD
+//0010    | OP_SET_PROPERTY     0 string:'cheese'
+//0012    | OP_POP
+//0013    | OP_GET_LOCAL        0
+//0015    | OP_RETURN
+//== disassembly2.ya/da(2)/ripen(38) ==
+//0000   38 OP_NIL
+//0001    | OP_SET_CELL_TYPE
+//0002    | OP_CONSTANT         0 string:'Already ripened '
+//0004    | OP_GET_BUILTIN   string
+//0006    | OP_GET_LOCAL        0
+//0008    | OP_GET_PROPERTY     1 string:'cheese'
+//0010    | OP_CALL             1
+//0012    | OP_ADD
+//0013    | OP_INITIALISE
+//0014   39 OP_GET_LOCAL        1
+//0016    | OP_SET_GLOBAL       2 string:'verb'
+//0018    | OP_POP
+//0019   40 OP_NIL
+//0020    | OP_SET_CELL_TYPE
+//0021    | OP_GET_BUILTIN   new
+//0023    | OP_NIL
+//0024    | OP_CALL             1
+//0026    | OP_INITIALISE
+//0027   41 OP_GET_LOCAL        2
+//0029    | OP_GET_LOCAL        0
+//0031    | OP_GET_PROPERTY     3 string:'cheese'
+//0033    | OP_SET_PTR_TARGET
+//0034    | OP_POP
+//0035   42 OP_GET_LOCAL        2
+//0037    | OP_DEREF_PTR
+//0038    | OP_PRINT
+//0039   43 OP_NIL
+//0040    | OP_SET_CELL_TYPE
+//0041    | OP_GET_UPVALUE      0
+//0043    | OP_GET_LOCAL        2
+//0045    | OP_CALL             1
+//0047    | OP_INITIALISE
+//0048   44 OP_GET_LOCAL        2
+//0050    | OP_DEREF_PTR
+//0051    | OP_PRINT
+//0052   45 OP_GET_LOCAL        0
+//0054    | OP_GET_PROPERTY     4 string:'cheese'
+//0056    | OP_PRINT
+//0057   46 OP_GET_LOCAL        3
+//0059    | OP_RETURN
+//0060    | OP_NIL
+//0061    | OP_RETURN
+//== disassembly2.ya/da(2)/eat(50) ==
+//0000   50 OP_CONSTANT         0 string:'Eaten'
+//0002    | OP_PRINT
+//0003    | OP_NIL
+//0004    | OP_RETURN
+//== disassembly2.ya/da(2)/do2(57) ==
+//0000   57 OP_NIL
+//0001    | OP_SET_CELL_TYPE
+//0002    | OP_GET_GLOBAL       0 string:'verb'
+//0004    | OP_CONSTANT         1 string:' '
+//0006    | OP_ADD
+//0007    | OP_GET_BUILTIN   string
+//0009    | OP_GET_UPVALUE      0
+//0011    | OP_CALL             1
+//0013    | OP_ADD
+//0014    | OP_CONSTANT         2 string:' '
+//0016    | OP_ADD
+//0017    | OP_GET_UPVALUE      1
+//0019    | OP_DEREF_PTR
+//0020    | OP_ADD
+//0021    | OP_INITIALISE
+//0022   58 OP_GET_LOCAL        1
+//0024    | OP_PRINT
+//0025   59 OP_GET_UPVALUE      1
+//0027    | OP_NIL
+//0028    | OP_SET_PTR_TARGET
+//0029    | OP_POP
+//0030   60 OP_TYPE_LITERAL  int32
+//0032    | OP_NIL
+//0033    | OP_CONSTANT         3 string:'i'
+//0035    | OP_TYPE_STRUCT      1
+//0037    | OP_SET_CELL_TYPE
+//0038   61 OP_CLOSURE          4 <fn do3>
+//0040       |                    local 2
+//0042       |                    upvalue 0
+//0044       |                    local 1
+//0046   66 OP_GET_LOCAL        3
+//0048    | OP_CALL             0
+//0050    | OP_RETURN
+//0051    | OP_NIL
+//0052    | OP_RETURN
+//== disassembly2.ya/da(2)/do2(57)/do3(62) ==
+//0000   62 OP_GET_UPVALUE      0
+//0002    | OP_IMMEDIATE_P24     77777
+//0006    | OP_SET_PROPERTY     0 string:'i'
+//0008    | OP_POP
+//0009   63 OP_NIL
+//0010    | OP_SET_CELL_TYPE
+//0011    | OP_IMMEDIATE_P8     0
+//0013    | OP_INITIALISE
+//0014    | OP_GET_LOCAL        1
+//0016    | OP_GET_UPVALUE      1
+//0018    | OP_LESS
+//0019    | OP_JUMP_IF_FALSE   19 -> 43
+//0022    | OP_POP
+//0023    | OP_JUMP            23 -> 37
+//0026    | OP_IMMEDIATE_P8     1
+//0028    | OP_GET_LOCAL        1
+//0030    | OP_ADD
+//0031    | OP_SET_LOCAL        1
+//0033    | OP_POP
+//0034    | OP_LOOP            34 -> 14
+//0037    | OP_GET_UPVALUE      2
+//0039    | OP_POP
+//0040    | OP_LOOP            40 -> 26
+//0043    | OP_POP
+//0044    | OP_POP
+//0045   64 OP_GET_UPVALUE      0
+//0047    | OP_RETURN
+//0048    | OP_NIL
+//0049    | OP_RETURN

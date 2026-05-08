@@ -243,7 +243,14 @@ static TokenType identifierType() {
                     }
                 }
             break;
-        case 'l': return checkKeyword(1, 2, "en", TOKEN_LEN);
+        case 'l':
+            if (scanner.current - scanner.start > 1) {
+                switch (scanner.start[1]) {
+                case 'e': return checkKeyword(2, 1, "n", TOKEN_LEN);
+                case 'o': return checkKeyword(2, 2, "ad", TOKEN_LOAD);
+                }
+            }
+            break;
         case 'm':
             if (scanner.current - scanner.start > 1) {
                 switch (scanner.start[1]) {
