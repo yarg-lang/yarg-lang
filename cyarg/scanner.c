@@ -389,12 +389,22 @@ static Token number() {
     while (isRadixDigit(peek(), radix)) advance();
 
     // Look for a fractional part.
-    if (radix == 10 && peek() == '.' && isDigit(peekNext())) {
+    if (radix == 10 && peek() == '.' && isDigit(peekNext()))
         // Consume the ".".
         advance();
-        
-        while (isRadixDigit(peek(), radix)) advance();
-    }
+
+    while (isRadixDigit(peek(), radix)) advance();
+
+    // Look for an exponent.
+    if (radix == 10 &&
+        (peek() == 'e' || peek() == 'E') && (peekNext() == '-' || isDigit(peekNext())))
+        // Consume the "e".
+            advance();
+
+        if (peek() == '-')
+            advance();
+
+    while (isRadixDigit(peek(), radix)) advance();
 
     return makeToken(TOKEN_NUMBER);
 }
