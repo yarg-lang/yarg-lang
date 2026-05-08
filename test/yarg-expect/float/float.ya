@@ -30,7 +30,7 @@ fun a1() {
             dd = 0.0e0099;
             print dd;                           // expect: 0.00000
             dd = 0.1e0099;
-            print dd;                           // expect: 1.10000e+98
+            print dd;                           // expect: 1.00000e+98
             dd = 1.1e99;
             print dd;                           // expect: 1.10000e+99
             dd = 01.1e99;
