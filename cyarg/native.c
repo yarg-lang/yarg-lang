@@ -123,9 +123,9 @@ bool stdin_getsNative(ObjRoutine* routine, int argCount, Value* result) {
     }
 
     char buffer[4096];
-    if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
+    while (fgets(buffer, sizeof(buffer), stdin) == NULL) {
         *result = NIL_VAL;
-        return true;
+//        return true;
     }
     size_t length = strlen(buffer);
     if (length > 0 && buffer[length - 1] == '\n') {
