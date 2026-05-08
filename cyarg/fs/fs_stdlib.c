@@ -8,6 +8,7 @@
 char* readFile(const char* path) {
     FILE* file = fopen(path, "rb");
     if (file == NULL) {
+        perror(path);
         FPRINTMSG(stderr, "Could not open file \"%s\".\n", path);
         char cwdpath[1024];
         if (getcwd(cwdpath, sizeof(cwdpath)) != NULL) {
