@@ -54,7 +54,7 @@ int runHostedFile(const char* libraryPath, const char* path) {
     }
 }
 
-int compileFile(const char* path) {
+int compileFile(const char* path, const char* outputPath) {
 
     ObjString* pathString = copyString(path, (int) strlen(path));
     tempRootPush(OBJ_VAL(pathString));
@@ -62,14 +62,16 @@ int compileFile(const char* path) {
     Value compilerResult;
     InterpretResult result = compileScript(pathString, &compilerResult);
     tempRootPush(compilerResult);
-    
+
     int exitCode = EX_OK;
     if (result == INTERPRET_RUNTIME_ERROR) {
         exitCode = EX_SOFTWARE;
     } else if (result == INTERPRET_OK && IS_NIL(compilerResult)) {
         exitCode = EX_DATAERR;
     } else {
-        exitCode = packageBinary(path, &compilerResult);
+        if (outputPath) {
+            exitCode = packageBinary(outputPath, &compilerResult);
+        }
     }
 
     tempRootPop();

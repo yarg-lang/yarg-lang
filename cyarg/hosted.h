@@ -12,7 +12,7 @@ typedef struct {
 extern Host vmHost;
 
 int runHostedFile(const char* libraryPath, const char* path);
-int compileFile(const char* path);
+int compileFile(const char* path, const char* outputPath);
 int disassembleFile(const char* path);
 int loadPackageFile(const char *path);
 
