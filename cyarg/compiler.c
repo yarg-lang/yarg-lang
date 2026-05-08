@@ -1138,6 +1138,7 @@ static ObjFunction* endCompiler() {
     ObjFunction* function = current->function;
 
     current = current->enclosing;
+
     return function;
 }
 
@@ -1167,7 +1168,7 @@ ObjFunction* compile(const char* source) {
     }
 
     ObjFunction* function = endCompiler();
-
+    
     bool compileError = parseError || hadCompilerError;
 
     return compileError ? NULL : function;
