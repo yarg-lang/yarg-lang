@@ -41,9 +41,9 @@ bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* resu
 
     unsigned int num = as_positive_integer32(numVal);
     uintptr_t isrRoutine = AS_ADDRESS(address);
-    unsigned int prio = as_positive_integer32(prioVal);
 
 #if defined(CYARG_PICO_SDK_TARGET)
+    unsigned int prio = as_positive_integer32(prioVal);
     irq_add_shared_handler(num, (irq_handler_t) isrRoutine, prio);
 #elif defined(CYARG_FEATURE_TEST_SYSTEM)
     tsAddInterruptHandler(num, (void *) isrRoutine);
