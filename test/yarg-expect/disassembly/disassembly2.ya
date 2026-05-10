@@ -79,7 +79,9 @@ fun da(cheese) {
 }
 
 var verb = "where\"";
-print da("how\"");
+var method = new("");
+*method = "how\"";
+print da(method);
 
 //== disassembly2.ya ==
 //0000    1 OP_CLOSURE          1 <fn da>

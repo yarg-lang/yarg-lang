@@ -312,8 +312,8 @@ int pack(char const *sourceFileName, FlatFiles *f, FILE *file) {
     DP(strings__ = offset__);
     for (int sI = 0; sI < f->stringsFile_.n_; sI++) {
         ObjString *s = f->stringsFile_.i_[sI];
-        written = fwrite__(s->chars, s->length, 1, file);
-        if (written != 1) return EX_SOFTWARE;
+        written = fwrite__(s->chars, 1, s->length, file);
+        if (written != s->length) return EX_SOFTWARE;
         char nullChar = 0;
         written = fwrite__(&nullChar, 1, 1, file);
         if (written != 1) return EX_SOFTWARE;
