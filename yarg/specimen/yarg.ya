@@ -8,4 +8,13 @@ fun exec(source) {
     }
 }
 
+fun yarg_load(path) {
+
+    var file_size = c_fileSize(path);
+    var buffer = new(uint8[file_size]);
+    var address = pin(buffer);
+    c_readFileIntoBuffer(path, address, file_size);
+    return load(buffer);
+}
+
 import("repl");
