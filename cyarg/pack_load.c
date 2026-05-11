@@ -12,10 +12,6 @@
 
 enum { EX_OK = 0, EX_DATAERR = 65, EX_PROTOCOL = 71, EX_SOFTWARE = 70 };
 
-struct ObjFunction *loadPackageFromBuffer(uint8_t* buffer, size_t bufferSize) {
-    return NULL;
-}
-
 struct ObjFunction *loadPackage(char const *path) {
     int r = EX_OK;
     ObjFunction **functions = 0;
@@ -23,13 +19,26 @@ struct ObjFunction *loadPackage(char const *path) {
     FILE *file = fopen(path, "rb");
     if (file == 0) return 0;
 
-    PackageFileHeader buffer;
-    memset(&buffer, 0, sizeof buffer);
-    PackageFileHeader* h = &buffer;
-    assert(sizeof *h == 24);
+    size_t fileSize = 0;
+    fseek(file, 0L, SEEK_END);
+    fileSize = ftell(file);
+    rewind(file);
 
-    size_t n = fread(h, sizeof *h, 1, file);
-    assert(n == 1);
+    uint8_t* fileBuffer = realloc(0, fileSize);
+    size_t n = fread(fileBuffer, 1, fileSize, file);
+    assert(n == fileSize);
+
+    fclose(file);
+
+    return loadPackageFromBuffer(fileBuffer, fileSize);
+}
+
+struct ObjFunction *loadPackageFromBuffer(uint8_t* buffer, size_t bufferSize) {
+    int r = EX_OK;
+    ObjFunction **functions = 0;
+
+    PackageFileHeader* h = (PackageFileHeader*)buffer;
+    assert(sizeof *h == 24);
 
     if (memcmp(h->magic_, magic, PACKAGE_MAGIC_LEN) != 0) {
         r = EX_PROTOCOL;
@@ -39,12 +48,10 @@ struct ObjFunction *loadPackage(char const *path) {
         goto exit;
     }
 
-    uint8_t* const body = realloc(0, h->bodyLength_);
+    assert(h->bodyLength_ == bufferSize - sizeof *h);
+
+    uint8_t* const body = (uint8_t*)buffer + sizeof *h;
     assert((long)body % 8 == 0);
-
-    size_t bodyLen = fread(body, 1, h->bodyLength_, file);
-    assert(bodyLen == h->bodyLength_);
-
     double *doubles = (double *)body;
 
     typedef uint8_t Uint24[3];
@@ -198,7 +205,6 @@ struct ObjFunction *loadPackage(char const *path) {
     }
 
 exit:
-    fclose(file);
     if (functions != 0) {
         currentFunction = functions[0];
         free(functions);
