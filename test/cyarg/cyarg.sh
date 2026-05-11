@@ -19,14 +19,16 @@ if [ $ERROR -ne 65 ]; then
     CYARG_ERROR=1
 fi
 
-OUTPUT_PATH=`mktemp -d`simple.yb
+OUTPUT_DIR=`mktemp -d`
+OUTPUT_FILE="$OUTPUT_DIR/simple.yb"
 
-$INTERPRETER --compile test/cyarg/simple.ya $OUTPUT_PATH || CYARG_ERROR=$?
-$INTERPRETER --lib yarg/specimen $OUTPUT_PATH || CYARG_ERROR=$?
-if [ -f "$OUTPUT_PATH" ]; then
-    rm -rf "$OUTPUT_PATH"
+$INTERPRETER --compile test/cyarg/simple.ya "$OUTPUT_FILE" || CYARG_ERROR=$?
+$INTERPRETER --lib yarg/specimen "$OUTPUT_FILE" || CYARG_ERROR=$?
+if [ -d "$OUTPUT_DIR" ] && [ -f "$OUTPUT_FILE" ]; then
+    rm "$OUTPUT_FILE"
+    rmdir "$OUTPUT_DIR"
 else
-    echo "Expected output path to be a file, got $OUTPUT_PATH"
+    echo "Expected output dir to exist at $OUTPUT_DIR and output file to exist at $OUTPUT_FILE"
     CYARG_ERROR=1
 fi
 
