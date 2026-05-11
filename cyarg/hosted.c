@@ -12,8 +12,6 @@
 
 Host vmHost;
 
-static int packageBinary(const char *path, Value const *yargResult);
-
 static char* libraryNameFor(const char* importname, const char* libraryPath) {
     size_t namelen = strlen(importname);
     size_t pathlen = 0;
@@ -69,8 +67,8 @@ int compileFile(const char* path, const char* outputPath) {
     } else if (result == INTERPRET_OK && IS_NIL(compilerResult)) {
         exitCode = EX_DATAERR;
     } else {
-        if (outputPath) {
-            exitCode = packageBinary(outputPath, &compilerResult);
+        if (outputPath && IS_CLOSURE(compilerResult)) {
+            exitCode = packScript(path, AS_CLOSURE(compilerResult)->function, true, outputPath);
         }
     }
 
@@ -128,27 +126,4 @@ int disassembleFile(const char* path) {
     tempRootPop();
     tempRootPop();
     return returnCode;
-}
-
-int packageBinary(const char *path, Value const *script) {
-
-    int r = EX_SOFTWARE;
-    if (IS_CLOSURE(*script)) {
-        char const *scriptFileName = strrchr(path, '/');
-        if (scriptFileName == 0) {
-            scriptFileName = path;
-        } else {
-            scriptFileName++;
-        }
-
-        size_t len = strlen(path);
-        char *packagePath = malloc(len + 1);
-        strcpy(packagePath, path);
-        assert(packagePath[len - 1] == 'a');
-        packagePath[len - 1] = 'b';
-
-        r = packScript(scriptFileName, AS_CLOSURE(*script)->function, true, packagePath);
-
-     }
-    return r;
 }

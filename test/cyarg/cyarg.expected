@@ -26,6 +26,7 @@ test
 test/cyarg/hosted.ya
 [line 1] Error: Unexpected character.
 [line 1] Error: Unexpected character.
+1
 == simple.ya ==
 0000    1 OP_IMMEDIATE_P8     1
 0002    | OP_PRINT
