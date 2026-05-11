@@ -163,31 +163,53 @@ InterpretResult loadBuiltin(ObjRoutine* routineContext, int argCount) {
         runtimeError(routineContext, "Expected 1 arguments but got %d.", argCount);
         return INTERPRET_RUNTIME_ERROR;
     }
-    if (!IS_STRING(peek(routineContext, 0))) {
-        runtimeError(routineContext, "Argument to exec must be string.");
+    if (IS_STRING(peek(routineContext, 0))) {
+        char *source = AS_CSTRING(peek(routineContext, 0));
+        ObjFunction *function = loadPackage(source);
+        if (function == NULL) {
+            return INTERPRET_FILE_ERROR;
+        }
+
+        tempRootPush(OBJ_VAL(function));
+
+        Value sourceVal = pop(routineContext);
+        tempRootPush(sourceVal);
+        pop(routineContext);
+
+        ObjClosure* closure = newClosure(function);
+        push(routineContext, OBJ_VAL(closure));
+
+        tempRootPop();
+        tempRootPop();
+
+        callfn(routineContext, closure, 0);
+        return INTERPRET_OK;
+    } else if (IS_UNIFORMARRAY(peek(routineContext, 0))) {
+        ObjPackedUniformArray* array = AS_UNIFORMARRAY(peek(routineContext, 0));
+        uintptr_t addr = pinUniformArray(array);
+        ObjFunction* function = loadPackageFromBuffer((uint8_t*)addr, arrayCardinality(array->store));
+        if (function == NULL) {
+            return INTERPRET_FILE_ERROR;
+        }
+
+        tempRootPush(OBJ_VAL(function));
+
+        Value arrayVal = pop(routineContext);
+        tempRootPush(arrayVal);
+        pop(routineContext);
+
+        ObjClosure* closure = newClosure(function);
+        push(routineContext, OBJ_VAL(closure));
+
+        tempRootPop();
+        tempRootPop();
+
+        callfn(routineContext, closure, 0);
+        return INTERPRET_OK;
+    } else {
+        runtimeError(routineContext, "Argument to load must be a string or uniform array.");
         return INTERPRET_RUNTIME_ERROR;
     }
-
-    char *source = AS_CSTRING(peek(routineContext, 0));
-    ObjFunction *function = loadPackage(source);
-    if (function == NULL) {
-        return INTERPRET_FILE_ERROR;
-    }
-
-    tempRootPush(OBJ_VAL(function));
-
-    Value sourceVal = pop(routineContext);
-    tempRootPush(sourceVal);
-    pop(routineContext);
-
-    ObjClosure* closure = newClosure(function);
-    push(routineContext, OBJ_VAL(closure));
-
-    tempRootPop();
-    tempRootPop();
-
-    callfn(routineContext, closure, 0);
-    return INTERPRET_OK;
 }
 
 bool makeChannelBuiltin(ObjRoutine* routine, int argCount, Value* result) {
@@ -470,23 +492,28 @@ bool pinBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     }
 
     Value arg = nativeArgument(routineContext, argCount, 0);
+    if (IS_ROUTINE(arg)) {
+        ObjRoutine* isrRoutine = AS_ROUTINE(arg);
+        if (isrRoutine->entryFunction->function->arity != 0) {
+            runtimeError(routineContext, "Can only pin routines with 0 argument entry functions.");
+            return false;        
+        }
 
-    if (!IS_ROUTINE(arg)) {
-        runtimeError(routineContext, "Argument to pin must be a routine.");
-        return false;
-    }
-    ObjRoutine* isrRoutine = AS_ROUTINE(arg);
-    if (isrRoutine->entryFunction->function->arity != 0) {
-        runtimeError(routineContext, "Can only pin routines with 0 argument entry functions.");
-        return false;        
-    }
-
-    uintptr_t addr;
-    if (pinRoutine(isrRoutine, &addr)) {
+        uintptr_t addr;
+        if (pinRoutine(isrRoutine, &addr)) {
+            *result = ADDRESS_VAL(addr);
+            return true;
+        } else {
+            runtimeError(routineContext, "No more pinned routines available.");
+            return false;
+        }
+    } else if (IS_UNIFORMARRAY(arg)) {
+        ObjPackedUniformArray* array = AS_UNIFORMARRAY(arg);
+        uintptr_t addr = pinUniformArray(array);
         *result = ADDRESS_VAL(addr);
         return true;
     } else {
-        runtimeError(routineContext, "No more pinned routines available.");
+        runtimeError(routineContext, "Expected a routine or uniform array.");
         return false;
     }
 }

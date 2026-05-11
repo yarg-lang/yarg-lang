@@ -114,3 +114,69 @@ char* readFile(const char* path) {
 
     return buffer;
 }
+
+size_t fileSize(const char* path) {
+    lfs_t lfs;
+    memset(&lfs, 0, sizeof(lfs));
+    
+    // mount the filesystem
+    int err = lfs_mount(&lfs, &cfg);
+    if (err < 0) {
+        FPRINTMSG(stderr, "Could not mount filesystem (%d).\n", err);
+        return 0;
+    }
+    struct lfs_info info;
+    memset(&info, 0, sizeof(info));
+
+    err = lfs_stat(&lfs, path, &info);
+    if (err < 0) {
+        return 0;
+    }
+    int fileSize = info.size;
+
+    lfs_unmount(&lfs);
+
+    return fileSize;
+}
+
+void readFileIntoBuffer(const char* path, uint8_t* buffer, size_t bufferSize) {
+    lfs_t lfs;
+    lfs_file_t file;
+    memset(&lfs, 0, sizeof(lfs));
+    memset(&file, 0, sizeof(file));
+    
+    // mount the filesystem
+    int err = lfs_mount(&lfs, &cfg);
+    if (err < 0) {
+        FPRINTMSG(stderr, "Could not mount filesystem (%d).\n", err);
+        return;
+    }
+    struct lfs_info info;
+    memset(&info, 0, sizeof(info));
+
+    err = lfs_stat(&lfs, path, &info);
+    if (err < 0) {
+        return;
+    }
+    int fileSize = info.size;
+
+    if (fileSize > bufferSize) {
+        FPRINTMSG(stderr, "Buffer too small to read file \"%s\".\n", path);
+        return;
+    }
+
+    err = lfs_file_open(&lfs, &file, path, LFS_O_RDONLY);
+    if (err < 0) {
+        FPRINTMSG(stderr, "Could not open file \"%s\".\n", path);
+        return;
+    }
+
+    int bytesRead = lfs_file_read(&lfs, &file, buffer, fileSize);
+    if (bytesRead < fileSize) {
+        FPRINTMSG(stderr, "could not read file \"%s\".\n", path);
+        return;
+    }
+    
+    lfs_file_close(&lfs, &file);    
+    lfs_unmount(&lfs);
+}

@@ -38,3 +38,42 @@ char* readFile(const char* path) {
     fclose(file);
     return buffer;
 }
+
+size_t fileSize(const char* path) {
+    FILE* file = fopen(path, "rb");
+    if (file == NULL) {
+        perror(path);
+        FPRINTMSG(stderr, "Could not open file \"%s\".\n", path);
+        char cwdpath[1024];
+        if (getcwd(cwdpath, sizeof(cwdpath)) != NULL) {
+            FPRINTMSG(stderr, "Current working directory: \"%s\"\n", cwdpath);
+        }
+        exit(74);
+    }
+
+    fseek(file, 0L, SEEK_END);
+    size_t fileSize = ftell(file);
+    fclose(file);
+    return fileSize;
+}
+
+void readFileIntoBuffer(const char* path, uint8_t* buffer, size_t bufferSize) {
+    FILE* file = fopen(path, "rb");
+    if (file == NULL) {
+        perror(path);
+        FPRINTMSG(stderr, "Could not open file \"%s\".\n", path);
+        char cwdpath[1024];
+        if (getcwd(cwdpath, sizeof(cwdpath)) != NULL) {
+            FPRINTMSG(stderr, "Current working directory: \"%s\"\n", cwdpath);
+        }
+        exit(74);
+    }
+
+    size_t bytesRead = fread(buffer, sizeof(uint8_t), bufferSize, file);
+    if (bytesRead < bufferSize) {
+        FPRINTMSG(stderr, "could not read file \"%s\".\n", path);
+        exit(74);
+    }
+
+    fclose(file);
+}

@@ -684,3 +684,7 @@ void printObjects() {
     }
     PRINTERR("=== End Objects (%zu) ===\n", count);
 }
+
+void pinObj(Obj* object) {
+    ; // currently a nop.
+}

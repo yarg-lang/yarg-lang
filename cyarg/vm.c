@@ -175,6 +175,9 @@ void initVMRuntime() {
     defineNative("c_stdin_eof", stdin_eofNative);
     defineNative("c_stdout_puts", stdout_putsNative);
 
+    defineNative("c_readFileIntoBuffer", readFileIntoBufferNative);
+    defineNative("c_fileSize", fileSizeNative);
+
 #if defined(CYARG_FEATURE_HOSTED_REPL)
     defineNative("host_argc", host_argcNative);
     defineNative("host_argn", host_argnNative);

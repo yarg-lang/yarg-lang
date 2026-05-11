@@ -186,7 +186,7 @@ typedef struct {
     ObjClosure* method;
 } ObjBoundMethod;
 
-typedef struct {
+typedef struct ObjPackedUniformArray {
     Obj obj;
     PackedValue store;
 } ObjPackedUniformArray;

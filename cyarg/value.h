@@ -11,6 +11,7 @@ typedef struct Obj Obj;
 typedef struct ObjString ObjString;
 typedef struct ObjRoutine ObjRoutine;
 typedef struct ObjConcreteYargType ObjConcreteYargType;
+typedef struct ObjPackedUniformArray ObjPackedUniformArray;
 
 typedef union {
     bool boolean;
@@ -155,5 +156,7 @@ void appendToDynamicValueArray(DynamicValueArray* array, Value value);
 void freeDynamicValueArray(DynamicValueArray* array);
 
 PackedValueStore* storedAddressof(Value value);
+
+uintptr_t pinUniformArray(ObjPackedUniformArray* array);
 
 #endif

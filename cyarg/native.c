@@ -7,6 +7,7 @@
 #include "native.h"
 #include "routine.h"
 #include "vm.h"
+#include "fs/fs.h"
 #if defined(CYARG_FEATURE_HOSTED_REPL)
 #include "hosted.h"
 #endif
@@ -211,3 +212,56 @@ bool host_exitCodeNative(ObjRoutine* routine, int argCount, Value* result) {
     return true;
 }
 #endif
+
+bool readFileIntoBufferNative(ObjRoutine* routine, int argCount, Value* result) {
+    if (argCount != 3) {
+        runtimeError(routine, "Expected 3 arguments but got %d.", argCount);
+        return false;
+    }
+
+    Value pathVal = nativeArgument(routine, argCount, 0);
+    Value bufferVal = nativeArgument(routine, argCount, 1);
+    Value bufferSizeVal = nativeArgument(routine, argCount, 2);
+
+    if (!is_positive_integer32(bufferSizeVal)) {
+        runtimeError(routine, "Expected a positive integer for the buffer size.");
+        return false;
+    }
+
+    if (!IS_STRING(pathVal)) {
+        runtimeError(routine, "Expected a string for the file path.");
+        return false;
+    }
+    if (!IS_ADDRESS(bufferVal)) {
+        runtimeError(routine, "Expected an address for the buffer.");
+        return false;
+    }
+
+    const char* path = AS_CSTRING(pathVal);
+    size_t bufferSize = as_positive_integer32(bufferSizeVal);
+    uint8_t* buf = (uint8_t*) AS_ADDRESS(bufferVal);
+
+    readFileIntoBuffer(path, buf, bufferSize);
+
+    return true;
+
+}
+
+bool fileSizeNative(ObjRoutine* routine, int argCount, Value* result) {
+    if (argCount != 1) {
+        runtimeError(routine, "Expected 1 argument but got %d.", argCount);
+        return false;
+    }
+
+    Value pathVal = nativeArgument(routine, argCount, 0);
+    if (!IS_STRING(pathVal)) {
+        runtimeError(routine, "Expected a string.");
+        return false;
+    }
+    const char* path = AS_CSTRING(pathVal);
+
+    size_t size = fileSize(path);
+
+    *result = SIZE_T_UI_VAL(size);
+    return true;
+}

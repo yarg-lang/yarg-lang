@@ -36,5 +36,6 @@ void markFunction(ObjFunction* function);
 void collectGarbage();
 void freeObjects();
 void printObjects();
+void pinObj(Obj* object);
 
 #endif

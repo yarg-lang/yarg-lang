@@ -11,6 +11,10 @@
 
 enum { EX_OK = 0, EX_DATAERR = 65, EX_PROTOCOL = 71, EX_SOFTWARE = 70 };
 
+struct ObjFunction *loadPackageFromBuffer(uint8_t* buffer, size_t bufferSize) {
+    return NULL;
+}
+
 struct ObjFunction *loadPackage(char const *path) {
     int r = EX_OK;
     ObjFunction **functions = 0;

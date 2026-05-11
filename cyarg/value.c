@@ -472,3 +472,8 @@ PackedValueStore* storedAddressof(Value value) {
     }
     return NULL;
 }
+
+uintptr_t pinUniformArray(ObjPackedUniformArray* array) {
+    pinObj((Obj*)array);
+    return (uintptr_t) array->store.storedValue;
+}
