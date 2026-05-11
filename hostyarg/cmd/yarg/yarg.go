@@ -74,7 +74,7 @@ func dispatchSubCommand(args []string) {
 		fmt.Println("  devices - list connected devices")
 		fmt.Println("  resetdevice - reset the connected device")
 		fmt.Println("  flashdevice - flash a binary to the connected device")
-		fmt.Println("  compile - compile a Yarg source file, reporting errors if any")
+		fmt.Println("  compile - compile a Yarg source file, optionally outputting a binary script")
 		fmt.Println("  run - run a Yarg source file on the connected device")
 		fmt.Println("  repl - start a REPL connected to the device")
 		fmt.Println("device commands can specify:")
@@ -165,7 +165,8 @@ func dispatchSubCommand(args []string) {
 		}
 	case "compile":
 		compileSource := flags.String("source", "", "source to compile")
-		compileInterpreter := flags.String("interpreter", "cyarg", "default interpreter")
+		compileInterpreter := flags.String("interpreter", "", "default interpreter")
+		compileOutput := flags.String("output", "", "optional output file for compiled binary script")
 		flags.Parse(args[1:])
 
 		if *compileSource == "" {
@@ -174,7 +175,7 @@ func dispatchSubCommand(args []string) {
 
 		runner := &hostrunner.Compiler{Interpreter: *compileInterpreter}
 
-		err := runner.CmdCompile(*compileSource)
+		err := runner.CmdCompile(*compileSource, *compileOutput)
 		if err != nil {
 			exitWithError("compile failed")
 		}

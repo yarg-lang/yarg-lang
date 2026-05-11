@@ -9,7 +9,7 @@ import (
 )
 
 type YargCompiler interface {
-	CmdCompile(source string) error
+	CmdCompile(source, output string) error
 }
 
 type YargRunner interface {

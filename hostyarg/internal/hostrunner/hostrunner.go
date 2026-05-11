@@ -115,7 +115,7 @@ func (h *HostRunner) RunBatch(source string) (output []string, errors []string, 
 	return
 }
 
-func (c *Compiler) CmdCompile(source string) error {
+func (c *Compiler) CmdCompile(source string, output string) error {
 
 	source = filepath.Clean(source)
 	c.Interpreter = filepath.Clean(c.Interpreter)
@@ -130,11 +130,15 @@ func (c *Compiler) CmdCompile(source string) error {
 		return fmt.Errorf("Could not stat %v, no interpreter to run", c.Interpreter)
 	}
 
-	return compileFile(c.Interpreter, source)
+	return compileFile(c.Interpreter, source, output)
 }
 
-func compileFile(interpreter string, source string) error {
-	runner := exec.Command(interpreter, "--compile", source)
+func compileFile(interpreter, source, output string) error {
+	args := []string{"--compile", source}
+	if output != "" {
+		args = append(args, output)
+	}
+	runner := exec.Command(interpreter, args...)
 
 	runner.Stdin = os.Stdin
 	runner.Stdout = os.Stdout
