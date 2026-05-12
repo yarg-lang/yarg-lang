@@ -51,7 +51,10 @@ struct ObjFunction *loadPackageFromBuffer(uint8_t* buffer, size_t bufferSize) {
 
     uint8_t* const body = (uint8_t*)buffer + sizeof *h;
     assert((long)body % 8 == 0);
-    double *doubles = (double *)body;
+
+    double const *doubles = (double *)body;
+    int64_t const *addresses = (int64_t *)(body + h->numDoubles_ * sizeof (double));
+    uint8_t const *next =  (uint8_t *)addresses + h->numAddresses_ * sizeof (int64_t);
 
     typedef uint8_t Uint24[3];
     typedef struct {
@@ -65,8 +68,6 @@ struct ObjFunction *loadPackageFromBuffer(uint8_t* buffer, size_t bufferSize) {
         } typedIndexs[];
     } PackedChunk;
     PackedChunk const *chunks[256];
-
-    uint8_t const *next = body + h->numDoubles_ * sizeof (double);
 
     DP(chunks__ = (uint32_t)(next - body));
     for (int i = 0; i < h->numChunks_; i++) {
@@ -153,7 +154,7 @@ struct ObjFunction *loadPackageFromBuffer(uint8_t* buffer, size_t bufferSize) {
             memcpy(&index, chunks[i]->typedIndexs[c].constOffset_, 3);
             uint8_t type = chunks[i]->typedIndexs[c].type_;
 #if defined (DEBUG_PACK)
-            static const char *typesName[] = {"string", "int", "float", "fun"};
+            static const char *typesName[] = {"string", "int", "float", "fun", "addr"};
             printf("%d %s@%u", (int)c, typesName[type], index);
 #endif
             switch (type) {
@@ -196,6 +197,13 @@ struct ObjFunction *loadPackageFromBuffer(uint8_t* buffer, size_t bufferSize) {
                 } else {
                     DP(printf(":<no name>"));
                 }
+                break;
+            }
+            case PACK_CONST_TYPE_A: {
+                int64_t thisAddress = addresses[index];
+                Value value = ADDRESS_VAL((uintptr_t)thisAddress);
+                appendToDynamicValueArray(&currentFunction->chunk.constants, value); // should be able to shallow copy
+                DP(printf(":%llx", thisAddress));
                 break;
             }
             }

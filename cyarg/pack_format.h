@@ -10,7 +10,7 @@
 #define PACKAGE_MAGIC_LEN 6
 
 static int8_t const magic[PACKAGE_MAGIC_LEN] = {0x79, 0x0a, 0x72, 0x67, 0xff, 0x42};
-static int16_t const version = 0x2601;
+static int16_t const version = 0x2602;
 
 //
 // xN is alignment from start of body, number is offset, int16(2)/24(3) types are lsb first
@@ -23,10 +23,11 @@ static int16_t const version = 0x2601;
 // 12 D doubles(2) -- max 64k floats
 // 14 Q ints(2) -- max 64k ints
 // 16 L lines(2) -- min zero, max 64k lines - debug/error reporting
-// 18   packing(2)
+// 18 A addresses(2) -- max 64k addresses
 // 20 B body length(4)
 // =-= Body =-=
 // x8   double D*8
+// x8   addresses A*8
 // per chunk -- m == M-1
 // x8 K0    num consts in chunk0 2
 // x1       code length for chunk0 2
@@ -69,7 +70,7 @@ typedef struct {
     uint16_t numDoubles_;
     uint16_t numInts_;
     uint16_t numLines_;
-    uint16_t packing_;                  // reserved for future use and to ensure body is 8-byte aligned in xip
+    uint16_t numAddresses_;
     uint32_t bodyLength_;
 } PackageFileHeader;
 
@@ -79,7 +80,7 @@ typedef struct {
     uint32_t *i_;
 } LinesFile;
 
-enum { PACK_CONST_TYPE_S, PACK_CONST_TYPE_I, PACK_CONST_TYPE_D, PACK_CONST_TYPE_F};
+enum { PACK_CONST_TYPE_S, PACK_CONST_TYPE_I, PACK_CONST_TYPE_D, PACK_CONST_TYPE_F, PACK_CONST_TYPE_A} type_;
 
 typedef struct {
     uint8_t type_;
@@ -131,17 +132,25 @@ typedef struct {
 } FunsFile;
 
 typedef struct {
+    uint32_t n_;
+    uint32_t extent_;
+    int64_t *i_;
+} AddressesFile;
+
+typedef struct {
     LinesFile linesFile_; // only included for debugging/error reporting may be excluded for compact binaries
     StringsFile stringsFile_;
     DoublesFile doublesFile_;
     IntsFile intsFile_;
     FunsFile funsFile_;
+    AddressesFile addressesFile_;
 } FlatFiles;
+
 
 static void fileSet(void *, int, size_t i);
 static void fileExtend(void *, int, size_t);
 static void flattenConstants(int funIndex, Chunk const *, FlatFiles *);
-static void removecapturedNames(FlatFiles *);
+static void removeCapturedNames(FlatFiles *);
 static void calcStringAndIntOffsets(FlatFiles *);
 static void flattenLines(FlatFiles *);
 static int pack(char const *, FlatFiles *, FILE *);

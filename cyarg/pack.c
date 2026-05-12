@@ -24,6 +24,7 @@ int packScript(char const *sourceFileName, struct ObjFunction const *scriptFn, b
     fileSet(&f.doublesFile_, 4, sizeof *f.doublesFile_.i_);
     fileSet(&f.intsFile_, 4, sizeof *f.intsFile_.i_);
     fileSet(&f.funsFile_, 4, sizeof *f.funsFile_.i_);
+    fileSet(&f.addressesFile_, 4, sizeof *f.addressesFile_.i_);
 
     f.funsFile_.n_ = 1;
     f.funsFile_.i_[0].f_ = scriptFn;
@@ -32,7 +33,7 @@ int packScript(char const *sourceFileName, struct ObjFunction const *scriptFn, b
 
 #if 0
     // todo remove non escapee i.e. non global, non returned method/property
-    removecapturedNames(&f);
+    removeCapturedNames(&f);
 #endif
 
     calcStringAndIntOffsets(&f);
@@ -50,6 +51,7 @@ exit:
     for (int i = 0; i < f.funsFile_.n_; i++) {
         free(f.funsFile_.i_[i].chunk_.constTypesAndOffsets_.i_);
     }
+    free(f.addressesFile_.i_);
     free(f.funsFile_.i_);
     free(f.intsFile_.i_);
     free(f.doublesFile_.i_);
@@ -99,7 +101,7 @@ void flattenConstants(int chunkIndex, Chunk const *chunk, FlatFiles *f) {
                 fc->constTypesAndOffsets_.i_[i] = (ConstItem){ .type_ = PACK_CONST_TYPE_I, .index_ = f->intsFile_.n_ };
                 fileExtend(&f->intsFile_, 16, sizeof *f->intsFile_.i_);
                 f->intsFile_.i_[f->intsFile_.n_++] = AS_INTOBJ(*v);
-               break;
+                break;
             }
             case OBJ_STRING: {
                 ObjString *from = AS_STRING(*v);
@@ -115,12 +117,18 @@ void flattenConstants(int chunkIndex, Chunk const *chunk, FlatFiles *f) {
                     fileExtend(&f->stringsFile_, 16, sizeof *f->stringsFile_.i_);
                     f->stringsFile_.i_[f->stringsFile_.n_++] = from;
                 }
-               break;
+                break;
             }
             default:
                 assert(!"Unexpected constant obj");
                 break;
             }
+
+        } else if (IS_ADDRESS(*v)) {
+            uintptr_t p = AS_ADDRESS(*v);
+            fc->constTypesAndOffsets_.i_[i] = (ConstItem){ .type_ = PACK_CONST_TYPE_A, .index_ = f->addressesFile_.n_ };
+            fileExtend(&f->addressesFile_, 4, sizeof *f->addressesFile_.i_);
+            f->addressesFile_.i_[f->addressesFile_.n_++] = (int64_t)p;
         } else {
             assert(!"Unexpected constant value");
         }
@@ -139,7 +147,7 @@ void flattenConstants(int chunkIndex, Chunk const *chunk, FlatFiles *f) {
 }
 
 #if 0
-void removecapturedNames(FlatFiles *f) {
+void removeCapturedNames(FlatFiles *f) {
     for (int funI = 0; funI < f->funsFile_.n_; funI++) {
         struct Fun *fun = &f->funsFile_.i_[funI];
         struct ConstTypesAndOffsets *ctao = &fun->chunk_.constTypesAndOffsets_;
@@ -236,10 +244,11 @@ int pack(char const *sourceFileName, FlatFiles *f, FILE *file) {
     h.numInts_ = f->intsFile_.n_;
     h.numDoubles_ = f->doublesFile_.n_;
     h.numLines_ = f->linesFile_.n_;
-    h.packing_ = 0xffff;
+    h.numAddresses_ = f->addressesFile_.n_;
     h.bodyLength_ = 0;
 
     h.bodyLength_ += h.numDoubles_ * sizeof (double);
+    h.bodyLength_ += h.numAddresses_ * sizeof (int64_t);
 
     h.bodyLength_ += 8 * f->funsFile_.n_;
     for (int i = 0; i < f->funsFile_.n_; i++) {
@@ -261,6 +270,12 @@ int pack(char const *sourceFileName, FlatFiles *f, FILE *file) {
     for (int i = 0; i < f->doublesFile_.n_; i++) {
         double *d = &f->doublesFile_.i_[i];
         written = fwrite__(d, sizeof (double), 1, file);
+        if (written != 1) return EX_SOFTWARE;
+    }
+
+    for (int i = 0; i < f->addressesFile_.n_; i++) {
+        int64_t *a = &f->addressesFile_.i_[i];
+        written = fwrite__(a, sizeof (int64_t), 1, file);
         if (written != 1) return EX_SOFTWARE;
     }
 
@@ -286,7 +301,7 @@ int pack(char const *sourceFileName, FlatFiles *f, FILE *file) {
         if (written != 1) return EX_SOFTWARE;
         for (int k = 0; k < fc->constTypesAndOffsets_.numConsts_; k++) {
             ConstItem *ci = &fc->constTypesAndOffsets_.i_[k];
-            assert(ci->type_ >= 0 && ci->type_ <= 3);
+            assert(ci->type_ >= PACK_CONST_TYPE_S && ci->type_ <= PACK_CONST_TYPE_A);
             written = fwrite__(&ci->type_, sizeof (char), 1, file);
             if (written != 1) return EX_SOFTWARE;
             uint32_t indexOrOffset = ci->type_ == PACK_CONST_TYPE_S || ci->type_ == PACK_CONST_TYPE_I ? ci->offset_ : ci->index_;
