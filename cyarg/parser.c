@@ -136,7 +136,6 @@ static void synchronize() {
             case TOKEN_VAR:
             case TOKEN_FOR:
             case TOKEN_IF:
-            case TOKEN_IMPORT:
             case TOKEN_WHILE:
             case TOKEN_PRINT:
             case TOKEN_RETURN:
@@ -365,7 +364,6 @@ static ObjExpr* literal(bool canAssign) {
 static ObjExpr* builtin(bool canAssign) {     
     switch (parser.previous.type) {
         case TOKEN_PEEK: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_PEEK, 1);
-        case TOKEN_IMPORT: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_IMPORT, 1);
         case TOKEN_READ_SOURCE: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_READ_SOURCE, 1);
         case TOKEN_COMPILE: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_COMPILE, 1);
         case TOKEN_MAKE_ROUTINE: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_MAKE_ROUTINE, 1);
@@ -792,7 +790,6 @@ static AstParseRule rules[] = {
     [TOKEN_FOR]                  = {NULL,      NULL,   PREC_NONE},
     [TOKEN_FUN]                  = {NULL,      NULL,   PREC_NONE},
     [TOKEN_IF]                   = {NULL,      NULL,   PREC_NONE},
-    [TOKEN_IMPORT]               = {builtin,   NULL,   PREC_NONE},
     [TOKEN_INT8]                 = {type,      NULL,   PREC_NONE},
     [TOKEN_INT16]                = {type,      NULL,   PREC_NONE},
     [TOKEN_INT32]                = {type,      NULL,   PREC_NONE},

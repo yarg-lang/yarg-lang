@@ -1,3 +1,5 @@
-import("yarg");
+var yarg_library_path = "";
+var yarg_source = read_source("yarg.ya");
+compile(yarg_source)();
 
 repl();

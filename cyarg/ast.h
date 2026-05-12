@@ -54,7 +54,6 @@ typedef enum {
 } ExprLiteral;
 
 typedef enum {
-    EXPR_BUILTIN_IMPORT,
     EXPR_BUILTIN_READ_SOURCE,
     EXPR_BUILTIN_COMPILE,
     EXPR_BUILTIN_MAKE_ROUTINE,

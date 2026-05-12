@@ -160,7 +160,6 @@ void initVMRuntime() {
     initFunction(&vm.bootFunction);
 
     initCellTable(&vm.globals);
-    initTable(&vm.imports);
     initTable(&vm.strings);
     
     vm.initString = copyString("init", 4);
@@ -189,7 +188,6 @@ void initVMRuntime() {
 void freeVM() {
     freeCellTable(&vm.globals);
     freeTable(&vm.strings);
-    freeTable(&vm.imports);
     vm.initString = NULL;
     vm.libraryPath = NULL;
     freeObjects();
@@ -211,7 +209,6 @@ void markVMRoots() {
         markValue(*slot);
     }
 
-    markTable(&vm.imports);
     markObject((Obj*)vm.libraryPath);
     markCellTable(&vm.globals);
     markObject((Obj*)vm.initString);
@@ -264,9 +261,7 @@ static InterpretResult callValue(ObjRoutine* routine, Value callee, int argCount
                 return callfn(routine, AS_CLOSURE(callee), argCount) ? INTERPRET_OK : INTERPRET_RUNTIME_ERROR;
             case OBJ_NATIVE: {
                 NativeFn native = AS_NATIVE(callee);
-                if (native == importBuiltinDummy) {
-                    return importBuiltin(routine, argCount);
-                } else if (native == loadBuiltinDummy) {
+                if (native == loadBuiltinDummy) {
                     return loadBuiltin(routine, argCount);
                 } else {
                     Value result = NIL_VAL; 

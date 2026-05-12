@@ -54,63 +54,6 @@ static char* libraryNameFor(const char* importname, const char* libraryPath) {
     return filename;
 }
 
-InterpretResult importBuiltin(ObjRoutine* routineContext, int argCount) {
-    if (argCount != 1) {
-        runtimeError(routineContext, "Expected 1 arguments but got %d.", argCount);
-        return INTERPRET_RUNTIME_ERROR;
-    }
-    if (!IS_STRING(peek(routineContext, 0))) {
-        runtimeError(routineContext, "Argument to import must be string.");
-        return INTERPRET_RUNTIME_ERROR;
-    }
-
-    Value val;
-    if (tableGet(&vm.imports, AS_STRING(peek(routineContext, 0)), &val)) {
-        pop(routineContext);
-        pop(routineContext);
-        push(routineContext, NIL_VAL);
-        return INTERPRET_OK;
-    }
-
-    char* source = NULL;
-    char* inmportLibrary = vm.libraryPath ? AS_CSTRING(OBJ_VAL(vm.libraryPath)) : NULL;
-    char* library = libraryNameFor(AS_CSTRING(peek(routineContext, 0)), inmportLibrary);
-    if (library) {
-        source = readFile(library);
-        free(library);
-    }
-
-    if (source) {
-        ObjFunction* function = compile(source);
-        free(source);
-        if (function == NULL) {
-            return INTERPRET_RUNTIME_ERROR;
-        }
-
-        tempRootPush(OBJ_VAL(function));
-
-        Value libstring = pop(routineContext);
-        tempRootPush(libstring);
-        pop(routineContext);
-
-        ObjClosure* closure = newClosure(function);
-        push(routineContext, OBJ_VAL(closure));
-
-        tableSet(&vm.imports, AS_STRING(libstring), BOOL_VAL(true));
-
-        tempRootPop();
-        tempRootPop();
-
-        callfn(routineContext, closure, 0);
-        return INTERPRET_OK;
-    }
-    else {
-        runtimeError(routineContext, "source not found");
-        return INTERPRET_RUNTIME_ERROR;
-    }
-
-}
-
 bool readSourceBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (argCount != 1) {
         runtimeError(routineContext, "Expected 1 argument but got %d.", argCount);
@@ -1094,7 +1037,6 @@ bool stringBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
 Value getBuiltin(uint8_t builtin) {
     switch (builtin) {
         case BUILTIN_PEEK: return OBJ_VAL(newNative(peekBuiltin));
-        case BUILTIN_IMPORT: return OBJ_VAL(newNative(importBuiltinDummy));
         case BUILTIN_READ_SOURCE: return OBJ_VAL(newNative(readSourceBuiltin));
         case BUILTIN_COMPILE: return OBJ_VAL(newNative(compileBuiltin));
         case BUILTIN_MAKE_ROUTINE: return OBJ_VAL(newNative(makeRoutineBuiltin));

@@ -1,8 +1,15 @@
-import("yarg");
-
+var yarg_library_path = "";
 var int EX_DATAERR = 65;
-
 var hostArgs;
+
+fun getRawHostArgument(name) {
+    for (var i = 0; i < int(host_argc()); i = i + 1) {
+        if (host_argn(i) == name and i + 1 < int(host_argc())) {
+            return host_argn(i + 1);
+        }
+    }
+    return nil;
+}
 
 fun getArgument(name) {
     for (var i = 0; i < len(hostArgs); i = i + 1) {
@@ -21,6 +28,11 @@ fun getBoolArgument(name) {
     }
     return false;
 }
+
+yarg_library_path = getRawHostArgument("--lib");
+
+var yarg_source = read_source(yarg_library_path + "/yarg.ya");
+compile(yarg_source)();
 
 if (int(host_argc()) == 4 or (int(host_argc()) > 4 and host_argn(4) == "--")) {
     var argsCount = 1;

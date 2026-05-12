@@ -331,7 +331,6 @@ void printExprSuper(ObjExprSuper* expr) {
 
 void printExprBuiltin(ObjExprBuiltin* fn) {
     switch (fn->builtin) {
-        case EXPR_BUILTIN_IMPORT: printf("import"); break;
         case EXPR_BUILTIN_READ_SOURCE: printf("read_source"); break;
         case EXPR_BUILTIN_COMPILE: printf("compile"); break;
         case EXPR_BUILTIN_MAKE_ROUTINE: printf("make_routine"); break;

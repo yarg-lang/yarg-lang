@@ -28,7 +28,6 @@ typedef struct {
     ValueTable strings;
     ObjString* initString;
     ObjString* libraryPath;
-    ValueTable imports;
 
     platform_mutex heap;
 

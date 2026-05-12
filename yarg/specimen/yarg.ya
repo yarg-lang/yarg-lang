@@ -18,7 +18,6 @@ fun yarg_load(path) {
 }
 
 var yarg_imports = new(any[string]);
-var yarg_library_path = "yarg/specimen/";
 
 fun yarg_library_filename(library, extension) {
     return yarg_library_path + library + extension;
@@ -38,7 +37,7 @@ fun yarg_library_exists(library) {
     return c_fileExists(binary_path) or c_fileExists(source_path);
 }
 
-fun yarg_import(library) {
+fun import(library) {
     if (yarg_imports[library] == nil and yarg_library_exists(library)) {
         if (c_fileExists(yarg_library_binary_filename(library))) {
             load(yarg_library_binary_filename(library));
@@ -54,4 +53,4 @@ fun yarg_import(library) {
     }
 }
 
-yarg_import("repl");
+import("repl");
