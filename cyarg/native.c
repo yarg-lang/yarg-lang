@@ -265,3 +265,20 @@ bool fileSizeNative(ObjRoutine* routine, int argCount, Value* result) {
     *result = SIZE_T_UI_VAL(size);
     return true;
 }
+
+bool fileExistsNative(ObjRoutine* routine, int argCount, Value* result) {
+    if (argCount != 1) {
+        runtimeError(routine, "Expected 1 argument but got %d.", argCount);
+        return false;
+    }
+
+    Value pathVal = nativeArgument(routine, argCount, 0);
+    if (!IS_STRING(pathVal)) {
+        runtimeError(routine, "Expected a string.");
+        return false;
+    }
+    const char* path = AS_CSTRING(pathVal);
+
+    *result = BOOL_VAL(fileExists(path));
+    return true;
+}

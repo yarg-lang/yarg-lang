@@ -77,3 +77,13 @@ void readFileIntoBuffer(const char* path, uint8_t* buffer, size_t bufferSize) {
 
     fclose(file);
 }
+
+bool fileExists(const char* path) {
+    FILE* file = fopen(path, "rb");
+    if (file == NULL) {
+        return false;
+    } else {
+        fclose(file);
+        return true;
+    }
+}

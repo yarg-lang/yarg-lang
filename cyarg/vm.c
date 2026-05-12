@@ -177,6 +177,7 @@ void initVMRuntime() {
 
     defineNative("c_readFileIntoBuffer", readFileIntoBufferNative);
     defineNative("c_fileSize", fileSizeNative);
+    defineNative("c_fileExists", fileExistsNative);
 
 #if defined(CYARG_FEATURE_HOSTED_REPL)
     defineNative("host_argc", host_argcNative);

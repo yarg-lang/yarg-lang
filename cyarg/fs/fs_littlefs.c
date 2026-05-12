@@ -180,3 +180,27 @@ void readFileIntoBuffer(const char* path, uint8_t* buffer, size_t bufferSize) {
     lfs_file_close(&lfs, &file);    
     lfs_unmount(&lfs);
 }
+
+bool fileExists(const char* path) {
+    lfs_t lfs;
+    memset(&lfs, 0, sizeof(lfs));
+    
+    // mount the filesystem
+    int err = lfs_mount(&lfs, &cfg);
+    if (err < 0) {
+        FPRINTMSG(stderr, "Could not mount filesystem (%d).\n", err);
+        return false;
+    }
+    struct lfs_info info;
+    memset(&info, 0, sizeof(info));
+
+    err = lfs_stat(&lfs, path, &info);
+
+    lfs_unmount(&lfs);
+
+    if (err < 0) {
+        return false;
+    }
+
+    return info.type == LFS_TYPE_REG;
+}
