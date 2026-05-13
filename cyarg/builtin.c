@@ -78,6 +78,42 @@ bool readSourceBuiltin(ObjRoutine* routineContext, int argCount, Value* result) 
     return true;
 }
 
+bool readBinaryBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
+    if (argCount != 1) {
+        runtimeError(routineContext, "Expected 1 argument but got %d.", argCount);
+        return false;
+    }
+    if (!IS_STRING(nativeArgument(routineContext, argCount, 0))) {
+        runtimeError(routineContext, "Argument must be a string.");
+        return false;
+    }
+
+    Value pathVal = nativeArgument(routineContext, argCount, 0);
+    const char* c_pathString = AS_CSTRING(pathVal);
+
+    size_t file_size = fileSize(c_pathString);
+
+    ObjConcreteYargType* byteType = newYargTypeFromType(TypeUint8);
+    tempRootPush(OBJ_VAL(byteType));
+
+    ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*)newYargArrayTypeFromType(OBJ_VAL(byteType));
+    tempRootPush(OBJ_VAL(arrayType));
+
+    arrayType->cardinality = file_size;
+    ObjPackedUniformArray* array = newPackedUniformArray(arrayType);
+    tempRootPush(OBJ_VAL(array));
+
+    readFileIntoBuffer(c_pathString, (uint8_t*)array->store.storedValue, file_size);
+
+    *result = OBJ_VAL(array);
+
+    tempRootPop();
+    tempRootPop();
+    tempRootPop();
+
+    return true;
+}
+
 bool compileBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (argCount != 1) {
         runtimeError(routineContext, "Expected 1 argument but got %d.", argCount);
@@ -1016,6 +1052,7 @@ bool stringBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
 Value getBuiltin(uint8_t builtin) {
     switch (builtin) {
         case BUILTIN_PEEK: return OBJ_VAL(newNative(peekBuiltin));
+        case BUILTIN_READ_BINARY: return OBJ_VAL(newNative(readBinaryBuiltin));
         case BUILTIN_READ_SOURCE: return OBJ_VAL(newNative(readSourceBuiltin));
         case BUILTIN_COMPILE: return OBJ_VAL(newNative(compileBuiltin));
         case BUILTIN_MAKE_ROUTINE: return OBJ_VAL(newNative(makeRoutineBuiltin));

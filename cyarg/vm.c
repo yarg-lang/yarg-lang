@@ -1506,12 +1506,14 @@ size_t compile_bootstrap_parameter_offset = 5;
 
 uint8_t load_bootstrap[] = {
     OP_GET_BUILTIN, BUILTIN_LOAD,
+    OP_GET_BUILTIN, BUILTIN_READ_BINARY,
     OP_CONSTANT, 0,
+    OP_CALL, 1,
     OP_CALL, 1,
     OP_RETURN
 };
 
-size_t load_bootstrap_parameter_offset = 3;
+size_t load_bootstrap_parameter_offset = 5;
 
 InterpretResult bootstrapVM(Value* bootstrapResult, ObjString* script) {
     ObjClosure* closure = newClosure(&vm.bootFunction);

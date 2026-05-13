@@ -364,6 +364,7 @@ static ObjExpr* literal(bool canAssign) {
 static ObjExpr* builtin(bool canAssign) {     
     switch (parser.previous.type) {
         case TOKEN_PEEK: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_PEEK, 1);
+        case TOKEN_READ_BINARY: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_READ_BINARY, 1);
         case TOKEN_READ_SOURCE: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_READ_SOURCE, 1);
         case TOKEN_COMPILE: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_COMPILE, 1);
         case TOKEN_MAKE_ROUTINE: return (ObjExpr*) newExprBuiltin(EXPR_BUILTIN_MAKE_ROUTINE, 1);
@@ -807,6 +808,7 @@ static AstParseRule rules[] = {
     [TOKEN_PLACE]                = {NULL,      NULL,   PREC_NONE},
     [TOKEN_POKE]                 = {NULL,      NULL,   PREC_NONE},
     [TOKEN_PRINT]                = {NULL,      NULL,   PREC_NONE},
+    [TOKEN_READ_BINARY]          = {builtin,   NULL,   PREC_NONE},
     [TOKEN_READ_SOURCE]          = {builtin,   NULL,   PREC_NONE},
     [TOKEN_RECEIVE]              = {builtin,   NULL,   PREC_NONE},
     [TOKEN_RESUME]               = {builtin,   NULL,   PREC_NONE},

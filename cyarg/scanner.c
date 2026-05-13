@@ -294,7 +294,15 @@ static TokenType identifierType() {
                     case 'e': 
                         if (scanner.current - scanner.start > 2) {
                             switch (scanner.start[2]) {
-                                case 'a': return checkKeyword(3, 8, "d_source", TOKEN_READ_SOURCE);
+                                case 'a': {
+                                   if (   scanner.current - scanner.start > 5
+                                       && memcmp(scanner.start + 3, "d_", 2) == 0) {
+                                        switch (scanner.start[5]) {
+                                            case 's': return checkKeyword(6, 5, "ource", TOKEN_READ_SOURCE);
+                                            case 'b': return checkKeyword(6, 5, "inary", TOKEN_READ_BINARY);
+                                        }
+                                    } 
+                                }
                                 case 'c': return checkKeyword(3, 4, "eive", TOKEN_RECEIVE);                                
                                 case 's': return checkKeyword(3, 3, "ume", TOKEN_RESUME);
                                 case 't': return checkKeyword(3, 3, "urn", TOKEN_RETURN);

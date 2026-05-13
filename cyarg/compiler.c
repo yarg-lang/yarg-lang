@@ -553,6 +553,7 @@ static void generateExprCollectionElement(ObjExprCollectionElement* collection) 
 
 static void generateExprBuiltin(ObjExprBuiltin* fn) {
     switch(fn->builtin) {
+        case EXPR_BUILTIN_READ_BINARY: emitBytes(OP_GET_BUILTIN, BUILTIN_READ_BINARY); break;
         case EXPR_BUILTIN_READ_SOURCE: emitBytes(OP_GET_BUILTIN, BUILTIN_READ_SOURCE); break;
         case EXPR_BUILTIN_COMPILE: emitBytes(OP_GET_BUILTIN, BUILTIN_COMPILE); break;
         case EXPR_BUILTIN_MAKE_ROUTINE: emitBytes(OP_GET_BUILTIN, BUILTIN_MAKE_ROUTINE); break;
