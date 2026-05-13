@@ -11,27 +11,6 @@
 
 enum { EX_OK = 0, EX_DATAERR = 65, EX_PROTOCOL = 71, EX_SOFTWARE = 70 };
 
-struct ObjFunction *loadPackage(char const *path) {
-    int r = EX_OK;
-    ObjFunction **functions = 0;
-
-    FILE *file = fopen(path, "rb");
-    if (file == 0) return 0;
-
-    size_t fileSize = 0;
-    fseek(file, 0L, SEEK_END);
-    fileSize = ftell(file);
-    rewind(file);
-
-    uint8_t* fileBuffer = realloc(0, fileSize);
-    size_t n = fread(fileBuffer, 1, fileSize, file);
-    assert(n == fileSize);
-
-    fclose(file);
-
-    return loadPackageFromBuffer(fileBuffer, fileSize);
-}
-
 struct ObjFunction *loadPackageFromBuffer(uint8_t* buffer, size_t bufferSize) {
     int r = EX_OK;
     ObjFunction **functions = 0;
