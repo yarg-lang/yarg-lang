@@ -106,28 +106,7 @@ InterpretResult loadBuiltin(ObjRoutine* routineContext, int argCount) {
         runtimeError(routineContext, "Expected 1 arguments but got %d.", argCount);
         return INTERPRET_RUNTIME_ERROR;
     }
-    if (IS_STRING(peek(routineContext, 0))) {
-        char *source = AS_CSTRING(peek(routineContext, 0));
-        ObjFunction *function = loadPackage(source);
-        if (function == NULL) {
-            return INTERPRET_FILE_ERROR;
-        }
-
-        tempRootPush(OBJ_VAL(function));
-
-        Value sourceVal = pop(routineContext);
-        tempRootPush(sourceVal);
-        pop(routineContext);
-
-        ObjClosure* closure = newClosure(function);
-        push(routineContext, OBJ_VAL(closure));
-
-        tempRootPop();
-        tempRootPop();
-
-        callfn(routineContext, closure, 0);
-        return INTERPRET_OK;
-    } else if (IS_UNIFORMARRAY(peek(routineContext, 0))) {
+    if (IS_UNIFORMARRAY(peek(routineContext, 0))) {
         ObjPackedUniformArray* array = AS_UNIFORMARRAY(peek(routineContext, 0));
         uintptr_t addr = pinUniformArray(array);
         ObjFunction* function = loadPackageFromBuffer((uint8_t*)addr, arrayCardinality(array->store));
@@ -150,7 +129,7 @@ InterpretResult loadBuiltin(ObjRoutine* routineContext, int argCount) {
         callfn(routineContext, closure, 0);
         return INTERPRET_OK;
     } else {
-        runtimeError(routineContext, "Argument to load must be a string or uniform array.");
+        runtimeError(routineContext, "Argument to load must be an array.");
         return INTERPRET_RUNTIME_ERROR;
     }
 }

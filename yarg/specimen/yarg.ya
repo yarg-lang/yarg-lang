@@ -40,15 +40,16 @@ fun yarg_library_exists(library) {
 fun import(library) {
     if (yarg_imports[library] == nil and yarg_library_exists(library)) {
         if (c_fileExists(yarg_library_binary_filename(library))) {
-            load(yarg_library_binary_filename(library));
+            yarg_load(yarg_library_binary_filename(library));
             yarg_imports[library] = true;
         } else if (c_fileExists(yarg_library_source_filename(library))) {
             var source = read_source(yarg_library_source_filename(library));
-            yarg_imports[library] = compile(source);
-            if (yarg_imports[library] == nil) {
+            var lib = compile(source);
+            if (lib == nil) {
                 print "Failed to compile library: " + library;
             }
-            yarg_imports[library]();
+            lib();
+            yarg_imports[library] = true;
         }
     }
 }
