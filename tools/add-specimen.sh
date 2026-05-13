@@ -11,6 +11,5 @@ pushd yarg/specimen > /dev/null
 ../../bin/yarg cp -fs "../../$FS_PATH" -src serial-input.ya -dest serial-input.ya
 ../../bin/yarg cp -fs "../../$FS_PATH" -src button_flash.ya -dest button_flash.ya
 ../../bin/yarg cp -fs "../../$FS_PATH" -src dma-test.ya -dest dma-test.ya
-../../bin/yarg cp -fs "../../$FS_PATH" -src main.ya -dest main.ya
 
 popd > /dev/null
