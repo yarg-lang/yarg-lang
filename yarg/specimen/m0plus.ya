@@ -1,0 +1,25 @@
+place struct {
+    uint32@0xe010 syst_csr;
+    uint32 syst_rvr;
+    uint32 syst_cvr;
+    uint32 syst_calib;
+    uint32@0xe100 nvic_iser;
+    uint32@0xe180 nvic_icer;
+    uint32@0xe200 nvic_ispr;
+    uint32@0xe280 nvic_icpr;
+    uint32[8]@0xe400 nvic_ipr;
+    uint32@0xed00 cpuid;
+    uint32 icsr;
+    uint32 vtor;
+    uint32 aircr;
+    uint32 scr;
+    uint32 ccr;
+    uint32@0xed1c shpr2;
+    uint32 shpr3;        
+    uint32 shcsr;
+    uint32@0xed90 mpu_type;
+    uint32 mpu_ctrl;
+    uint32 mpu_rnr;
+    uint32 mpu_rbar;
+    uint32 mpu_rasr;
+    } @xe0000000 m0plus;

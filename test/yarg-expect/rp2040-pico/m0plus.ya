@@ -1,0 +1,32 @@
+import("m0plus");
+
+print m0plus.syst_csr;    // expect: <*Type:uint32:0xe000e010>
+print m0plus.syst_rvr;    // expect: <*Type:uint32:0xe000e014>
+print m0plus.syst_cvr;    // expect: <*Type:uint32:0xe000e018>
+print m0plus.syst_calib;  // expect: <*Type:uint32:0xe000e01c>
+print m0plus.nvic_iser;   // expect: <*Type:uint32:0xe000e100>
+print m0plus.nvic_icer;   // expect: <*Type:uint32:0xe000e180>
+print m0plus.nvic_ispr;   // expect: <*Type:uint32:0xe000e200>
+print m0plus.nvic_icpr;   // expect: <*Type:uint32:0xe000e280>
+print m0plus.nvic_ipr[0]; // expect: <*Type:uint32:0xe000e400>
+print m0plus.nvic_ipr[1]; // expect: <*Type:uint32:0xe000e404>
+print m0plus.nvic_ipr[2]; // expect: <*Type:uint32:0xe000e408>
+print m0plus.nvic_ipr[3]; // expect: <*Type:uint32:0xe000e40c>
+print m0plus.nvic_ipr[4]; // expect: <*Type:uint32:0xe000e410>
+print m0plus.nvic_ipr[5]; // expect: <*Type:uint32:0xe000e414>
+print m0plus.nvic_ipr[6]; // expect: <*Type:uint32:0xe000e418>
+print m0plus.nvic_ipr[7]; // expect: <*Type:uint32:0xe000e41c>
+print m0plus.cpuid;       // expect: <*Type:uint32:0xe000ed00>
+print m0plus.icsr;        // expect: <*Type:uint32:0xe000ed04>
+print m0plus.vtor;        // expect: <*Type:uint32:0xe000ed08>
+print m0plus.aircr;       // expect: <*Type:uint32:0xe000ed0c>
+print m0plus.scr;         // expect: <*Type:uint32:0xe000ed10>
+print m0plus.ccr;         // expect: <*Type:uint32:0xe000ed14>
+print m0plus.shpr2;       // expect: <*Type:uint32:0xe000ed1c>
+print m0plus.shpr3;       // expect: <*Type:uint32:0xe000ed20>
+print m0plus.shcsr;       // expect: <*Type:uint32:0xe000ed24>
+print m0plus.mpu_type;    // expect: <*Type:uint32:0xe000ed90>
+print m0plus.mpu_ctrl;    // expect: <*Type:uint32:0xe000ed94>
+print m0plus.mpu_rnr;     // expect: <*Type:uint32:0xe000ed98>
+print m0plus.mpu_rbar;    // expect: <*Type:uint32:0xe000ed9c>
+print m0plus.mpu_rasr;    // expect: <*Type:uint32:0xe000eda0>
