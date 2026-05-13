@@ -14,9 +14,7 @@ mkdir -p "$BUILD_DIR"
 
 cp build/yarg-lang.uf2 $TARGETUF2
 
-$HOSTYARG cp -fs $TARGETUF2 -src "test/hardware/main.ya" -dest "main.ya"
-
-for test in cheese scone interrupt alarm blinky coroutine-flash multicore-flash timed-flash
+for test in main cheese scone interrupt alarm blinky coroutine-flash multicore-flash timed-flash
 do
     $HOSTYARG compile --interpreter bin/cyarg --source "test/hardware/$test.ya" --output "$BUILD_DIR/$test.yb"
     $HOSTYARG cp -fs $TARGETUF2 -src "$BUILD_DIR/$test.yb" -dest "$test.yb"
