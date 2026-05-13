@@ -55,6 +55,9 @@ fun import(library) {
         } else {
             lib();
         }
+    } else if (yarg_imports[library] == nil and library != "main") {
+        print "Library search: " + yarg_library_path;
+        print "Library not found: " + library;
     }
 }
 
