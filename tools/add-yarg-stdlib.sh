@@ -2,22 +2,19 @@
 
 FS_PATH="${1:-build/specimen-fs.uf2}"
 
-pushd yarg/specimen > /dev/null
-
-../../bin/yarg cp -fs "../../$FS_PATH" -src gpio.ya -dest gpio.ya
-../../bin/yarg cp -fs "../../$FS_PATH" -src irq.ya -dest irq.ya
-../../bin/yarg cp -fs "../../$FS_PATH" -src machine.ya -dest machine.ya
-../../bin/yarg cp -fs "../../$FS_PATH" -src timer.ya -dest timer.ya
-../../bin/yarg cp -fs "../../$FS_PATH" -src uart.ya -dest uart.ya
-../../bin/yarg cp -fs "../../$FS_PATH" -src reset.ya -dest reset.ya
-../../bin/yarg cp -fs "../../$FS_PATH" -src clock.ya -dest clock.ya
-../../bin/yarg cp -fs "../../$FS_PATH" -src pio.ya -dest pio.ya
-../../bin/yarg cp -fs "../../$FS_PATH" -src pio-instructions.ya -dest pio-instructions.ya
-../../bin/yarg cp -fs "../../$FS_PATH" -src dma.ya -dest dma.ya
-../../bin/yarg cp -fs "../../$FS_PATH" -src ws2812.ya -dest ws2812.ya
-../../bin/yarg cp -fs "../../$FS_PATH" -src apa102.ya -dest apa102.ya
-../../bin/yarg cp -fs "../../$FS_PATH" -src repl.ya -dest repl.ya
-../../bin/yarg cp -fs "../../$FS_PATH" -src yarg.ya -dest yarg.ya
-../../bin/yarg cp -fs "../../$FS_PATH" -src cyarg.ya -dest cyarg.ya
-
-popd > /dev/null
+bin/yarg cp -fs "$FS_PATH" -src yarg/specimen/gpio.ya -dest gpio.ya
+bin/yarg cp -fs "$FS_PATH" -src yarg/specimen/irq.ya -dest irq.ya
+bin/yarg cp -fs "$FS_PATH" -src yarg/specimen/machine.ya -dest machine.ya
+bin/yarg cp -fs "$FS_PATH" -src yarg/specimen/timer.ya -dest timer.ya
+bin/yarg cp -fs "$FS_PATH" -src yarg/specimen/uart.ya -dest uart.ya
+bin/yarg cp -fs "$FS_PATH" -src yarg/specimen/reset.ya -dest reset.ya
+bin/yarg cp -fs "$FS_PATH" -src yarg/specimen/clock.ya -dest clock.ya
+bin/yarg cp -fs "$FS_PATH" -src yarg/specimen/pio.ya -dest pio.ya
+bin/yarg cp -fs "$FS_PATH" -src yarg/specimen/pio-instructions.ya -dest pio-instructions.ya
+bin/yarg cp -fs "$FS_PATH" -src yarg/specimen/dma.ya -dest dma.ya
+bin/yarg cp -fs "$FS_PATH" -src yarg/specimen/ws2812.ya -dest ws2812.ya
+bin/yarg cp -fs "$FS_PATH" -src yarg/specimen/apa102.ya -dest apa102.ya
+bin/yarg cp -fs "$FS_PATH" -src yarg/specimen/m0plus.ya -dest m0plus.ya
+bin/yarg cp -fs "$FS_PATH" -src yarg/specimen/repl.ya -dest repl.ya
+bin/yarg cp -fs "$FS_PATH" -src yarg/specimen/yarg.ya -dest yarg.ya
+bin/yarg cp -fs "$FS_PATH" -src yarg/specimen/cyarg.ya -dest cyarg.ya
