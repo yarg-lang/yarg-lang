@@ -1,5 +1,5 @@
 fun exec(source) {
-    var target = compile(source);
+    var target = load(source);
     if (target != nil) {
         return target();
     } else {
@@ -8,7 +8,7 @@ fun exec(source) {
     }
 }
 
-fun yarg_load(path) {
+fun load_file(path) {
 
     var file_size = c_fileSize(path);
     var buffer = new(uint8[file_size]);
@@ -39,15 +39,17 @@ fun yarg_library_exists(library) {
 
 fun import(library) {
     if (yarg_imports[library] == nil and yarg_library_exists(library)) {
+        var lib;
         if (c_fileExists(yarg_library_binary_filename(library))) {
-            yarg_load(yarg_library_binary_filename(library));
-            yarg_imports[library] = true;
+            lib = load_file(yarg_library_binary_filename(library));
         } else if (c_fileExists(yarg_library_source_filename(library))) {
             var source = read_source(yarg_library_source_filename(library));
-            var lib = compile(source);
-            if (lib == nil) {
-                print "Failed to compile library: " + library;
-            }
+            lib = load(source);
+        }
+
+        if (lib == nil) {
+            print "Failed to import library: " + library;
+        } else {
             lib();
             yarg_imports[library] = true;
         }

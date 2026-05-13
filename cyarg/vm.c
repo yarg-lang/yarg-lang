@@ -261,17 +261,13 @@ static InterpretResult callValue(ObjRoutine* routine, Value callee, int argCount
                 return callfn(routine, AS_CLOSURE(callee), argCount) ? INTERPRET_OK : INTERPRET_RUNTIME_ERROR;
             case OBJ_NATIVE: {
                 NativeFn native = AS_NATIVE(callee);
-                if (native == loadBuiltinDummy) {
-                    return loadBuiltin(routine, argCount);
+                Value result = NIL_VAL; 
+                if (native(routine, argCount, &result)) {
+                    popN(routine, argCount + 1);
+                    push(routine, result);
+                    return INTERPRET_OK;
                 } else {
-                    Value result = NIL_VAL; 
-                    if (native(routine, argCount, &result)) {
-                        popN(routine, argCount + 1);
-                        push(routine, result);
-                        return INTERPRET_OK;
-                    } else {
-                        return INTERPRET_RUNTIME_ERROR;
-                    }
+                    return INTERPRET_RUNTIME_ERROR;
                 }
             }
             default:
@@ -1482,7 +1478,7 @@ static void bindBootstrapCode(const char* name, size_t nameLength,
 // note that it is assumed that the initial script is well-formed and won't
 // produce a compile error. (use --compile to check this when editing the script)
 uint8_t bootstrap[] = {
-    OP_GET_BUILTIN, BUILTIN_COMPILE,
+    OP_GET_BUILTIN, BUILTIN_LOAD,
     OP_GET_BUILTIN, BUILTIN_READ_SOURCE,
     OP_CONSTANT, 0,
     OP_CALL, 1,
@@ -1510,6 +1506,7 @@ uint8_t load_bootstrap[] = {
     OP_CONSTANT, 0,
     OP_CALL, 1,
     OP_CALL, 1,
+    OP_CALL, 0,
     OP_RETURN
 };
 

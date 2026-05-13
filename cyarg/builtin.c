@@ -22,38 +22,6 @@
 #include "test-system/testBuiltin.h"
 #endif
 
-bool importBuiltinDummy(ObjRoutine* routineContext, int argCount, Value* result) {
-    *result = NIL_VAL;
-    return true;
-}
-
-bool loadBuiltinDummy(ObjRoutine* routineContext, int argCount, Value* result) {
-    *result = NIL_VAL;
-    return true;
-}
-
-static char* libraryNameFor(const char* importname, const char* libraryPath) {
-    size_t namelen = strlen(importname);
-    size_t pathlen = 0;
-    if (libraryPath) {
-        pathlen = strlen(libraryPath);
-    }
-    char* filename = malloc(pathlen + 1 +namelen + 3 + 1);
-    if (filename) {
-        if (libraryPath) {
-            strcpy(filename, libraryPath);
-            if (libraryPath[pathlen - 1] != '/') {
-                strcat(filename, "/");
-            }
-        } else {
-            strcpy(filename, "");
-        }
-        strcat(filename, importname);
-        strcat(filename, ".ya");
-    }
-    return filename;
-}
-
 bool readSourceBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (argCount != 1) {
         runtimeError(routineContext, "Expected 1 argument but got %d.", argCount);
@@ -137,37 +105,36 @@ bool compileBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     return true;
 }
 
-InterpretResult loadBuiltin(ObjRoutine* routineContext, int argCount) {
+
+bool loadBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (argCount != 1) {
         runtimeError(routineContext, "Expected 1 arguments but got %d.", argCount);
-        return INTERPRET_RUNTIME_ERROR;
+        return false;
     }
-    if (IS_UNIFORMARRAY(peek(routineContext, 0))) {
-        ObjPackedUniformArray* array = AS_UNIFORMARRAY(peek(routineContext, 0));
+    Value arg = nativeArgument(routineContext, argCount, 0);
+    ObjFunction* function = NULL;
+    
+    if (IS_UNIFORMARRAY(arg)) {
+        ObjPackedUniformArray* array = AS_UNIFORMARRAY(arg);
         uintptr_t addr = pinUniformArray(array);
-        ObjFunction* function = loadPackageFromBuffer((uint8_t*)addr, arrayCardinality(array->store));
-        if (function == NULL) {
-            return INTERPRET_FILE_ERROR;
-        }
-
-        tempRootPush(OBJ_VAL(function));
-
-        Value arrayVal = pop(routineContext);
-        tempRootPush(arrayVal);
-        pop(routineContext);
-
-        ObjClosure* closure = newClosure(function);
-        push(routineContext, OBJ_VAL(closure));
-
-        tempRootPop();
-        tempRootPop();
-
-        callfn(routineContext, closure, 0);
-        return INTERPRET_OK;
+        function = loadPackageFromBuffer((uint8_t*)addr, arrayCardinality(array->store));
+    } else if (IS_STRING(arg)) {
+        const char* source = AS_CSTRING(arg);
+        function = compile(source);
     } else {
-        runtimeError(routineContext, "Argument to load must be an array.");
-        return INTERPRET_RUNTIME_ERROR;
+        runtimeError(routineContext, "Argument to load must be a byte array or a string.");
+        return false;
     }
+
+    if (function == NULL) {
+        *result = NIL_VAL;
+    } else {
+        push(routineContext, OBJ_VAL(function));
+        ObjClosure* closure = newClosure(function);
+        *result = OBJ_VAL(closure);
+        pop(routineContext);
+    }
+    return true;
 }
 
 bool makeChannelBuiltin(ObjRoutine* routine, int argCount, Value* result) {
@@ -182,6 +149,7 @@ bool makeChannelBuiltin(ObjRoutine* routine, int argCount, Value* result) {
         Value arg1 = nativeArgument(routine, argCount, 0);
         if (!is_positive_integer32(arg1)) {
             runtimeError(routine, "Expected a positive integer");
+            return false;
         }
         valCapacity = arg1;
     }
@@ -1078,7 +1046,7 @@ Value getBuiltin(uint8_t builtin) {
         case BUILTIN_INT: return OBJ_VAL(newNative(intBuiltin));
         case BUILTIN_MFLOAT64: return OBJ_VAL(newNative(floatBuiltin));
         case BUILTIN_STRING: return OBJ_VAL(newNative(stringBuiltin));
-        case BUILTIN_LOAD: return OBJ_VAL(newNative(loadBuiltinDummy));
+        case BUILTIN_LOAD: return OBJ_VAL(newNative(loadBuiltin));
 #ifndef CYARG_FEATURE_TEST_SYSTEM
         default: return NIL_VAL;
 #else
