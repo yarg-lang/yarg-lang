@@ -85,9 +85,7 @@ int loadPackageFile(const char *path) {
     InterpretResult result = bootBinary(pathString);
 
     tempRootPop();
-    if (result == INTERPRET_FILE_ERROR) {
-        return EX_DATAERR;
-    } else if (result == INTERPRET_RUNTIME_ERROR) {
+    if (result == INTERPRET_RUNTIME_ERROR) {
         return EX_SOFTWARE;
     } else {
         return EX_OK;
