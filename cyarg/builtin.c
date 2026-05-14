@@ -105,7 +105,6 @@ bool compileBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     return true;
 }
 
-
 bool loadBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (argCount != 1) {
         runtimeError(routineContext, "Expected 1 arguments but got %d.", argCount);
