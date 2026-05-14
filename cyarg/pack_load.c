@@ -150,8 +150,8 @@ struct ObjFunction *loadPackageFromBuffer(uint8_t* buffer, size_t bufferSize) {
             }
             case PACK_CONST_TYPE_I: {
                 Int const *thisInt = (Int const *)&intFile[index];
-                ObjInt *obj = (ObjInt *)allocateObject(sizeof (ObjInt) + thisInt->m_ * sizeof (uint16_t), OBJ_INT);
-                memcpy(&obj->bigInt, thisInt, sizeof (Int) + thisInt->m_ * sizeof (uint16_t)); // should be able to shallow copy
+                ObjInt *obj = allocateIntObject(thisInt->d_);
+                memcpy(&obj->bigInt, thisInt, sizeof (Int) + obj->bigInt.m_ * sizeof (uint16_t)); // should be able to shallow copy
                 Value value = OBJ_VAL(obj);
                 appendToDynamicValueArray(&currentFunction->chunk.constants, value);
                 DP(printf(":");

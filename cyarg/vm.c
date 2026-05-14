@@ -768,10 +768,8 @@ InterpretResult run(ObjRoutine* routine) {
                 {
                     num += 65536 * READ_BYTE();
                 }
-                ObjInt *i = (ObjInt *) allocateObject(sizeof (ObjInt) + 2 * sizeof (uint16_t), OBJ_INT);
+                ObjInt *i = newIntU(num);
                 i->isLiteral = true;
-                i->bigInt.m_ = 2;
-                int_set_u(num, &i->bigInt);
                 i->bigInt.neg_ = instruction == OP_IMMEDIATE_N8 || instruction == OP_IMMEDIATE_N16 || instruction == OP_IMMEDIATE_N24;
                 push(routine, OBJ_VAL(i));
                 break;
@@ -979,20 +977,39 @@ InterpretResult run(ObjRoutine* routine) {
                 }
                 break;
             }
-            case OP_EQUAL: {
+            case OP_EQUAL: case OP_GREATER: case OP_LESS: {
                 if (IS_INT(peek(routine, 0)) && IS_INT(peek(routine, 1))) {
-                    binaryIntBoolOp(routine, "==");
+                    switch (instruction) {
+                    case OP_EQUAL:
+                        binaryIntBoolOp(routine, "==");
+                        break;
+                    case OP_GREATER:
+                        binaryIntBoolOp(routine, ">");
+                        break;
+                    case OP_LESS:
+                        binaryIntBoolOp(routine, "<");
+                        break;
+                    }
                 } else {
                     promote(&peekCell(routine, 1)->value, &peekCell(routine, 0)->value);
 
-                    Value b = pop(routine);
-                    Value a = pop(routine);
-                    push(routine, BOOL_VAL(valuesEqual(a, b)));
+                    switch (instruction) {
+                    case OP_EQUAL: {
+                        Value b = pop(routine);
+                        Value a = pop(routine);
+                        push(routine, BOOL_VAL(valuesEqual(a, b)));
+                        break;
+                    }
+                    case OP_GREATER:
+                        BINARY_BOOLEAN_OP(routine, >);
+                        break;
+                    case OP_LESS:
+                        BINARY_BOOLEAN_OP(routine, <);
+                        break;
+                    }
                 }
                 break;
             }
-            case OP_GREATER:  BINARY_BOOLEAN_OP(routine, >); break;
-            case OP_LESS:     BINARY_BOOLEAN_OP(routine, <); break;
             case OP_LEFT_SHIFT:  BINARY_UINT_OP(routine, <<); break;
             case OP_RIGHT_SHIFT: BINARY_UINT_OP(routine, >>); break;
             case OP_BITOR:       BINARY_UINT_OP(routine, |); break;
@@ -1557,27 +1574,11 @@ InterpretResult compileScript(ObjString* script, Value* result) {
 }
 
 void unaryIntOp(ObjRoutine* routine, int op) {
+    assert(op == OP_NEGATE);
     Int* a = AS_INT(peek(routine, 0));
-    int s = 0;
-    switch (op) {
-        case OP_NEGATE:
-            s = a->m_;
-            break;
-        default:
-            assert(!"UnaryIntOp");
-    }
-    if (s > 254) s = 254;
-    s += s % 2;
-    ObjInt *r = (ObjInt *)allocateObject(sizeof (ObjInt) + s * sizeof (uint16_t), OBJ_INT);
-    r->bigInt.m_ = s;
+    ObjInt *r = allocateIntObject(a->d_);
     int_set_t(a, &r->bigInt);
-    switch (op) {
-        case OP_NEGATE:
-            int_neg(&r->bigInt);
-            break;
-        default:
-            assert(!"IntUnaryOp");  
-    }
+    int_neg(&r->bigInt);
     pop(routine);
     push(routine, OBJ_VAL(r));
 }
@@ -1606,9 +1607,7 @@ void binaryIntOp(ObjRoutine* routine, char const *c)
         assert(!"IntOp");
     }
     if (s > 254) s = 254;
-    s += s % 2;
-    ObjInt *r = (ObjInt *)allocateObject(sizeof (ObjInt) + s * sizeof (uint16_t), OBJ_INT);
-    r->bigInt.m_ = s;
+    ObjInt *r = allocateIntObject(s);
     int_init(&r->bigInt);
 
     switch (*c)
@@ -1647,7 +1646,7 @@ void binaryIntBoolOp(ObjRoutine* routine, char const *op)
         r = ic == INT_GT;
         break;
     case '=':
-        assert(op[1] == '=');
+        assert(op[1] == '=' && op[2] == 0);
         r = ic == INT_EQ;
         break;
     default:

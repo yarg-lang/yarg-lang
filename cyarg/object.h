@@ -212,6 +212,7 @@ typedef struct {
     (type*)allocateObject(sizeof(type), objectType)
 
 Obj* allocateObject(size_t size, ObjType type);
+ObjInt* allocateIntObject(size_t numDigits);
 
 void initDynamicObjArray(DynamicObjArray* array);
 void freeDynamicObjArray(DynamicObjArray* array);

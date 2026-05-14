@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 #include "memory.h"
 #include "object.h"
@@ -32,6 +33,14 @@ Obj* allocateObject(size_t size, ObjType type) {
 #endif
 
     return object;
+}
+
+ObjInt* allocateIntObject(size_t numDigits) {
+    numDigits += numDigits % 2; // numDigits is always even
+    assert(numDigits <= 254 && numDigits >= 2);
+    ObjInt *i = (ObjInt *) allocateObject(sizeof (ObjInt) + numDigits * sizeof (uint16_t), OBJ_INT);
+    i->bigInt.m_ = numDigits;
+    return i;
 }
 
 void initDynamicObjArray(DynamicObjArray* array) {
@@ -124,24 +133,19 @@ ObjNative* newNative(NativeFn function) {
 }
 
 ObjInt* newInt(int64_t value) {
-    ObjInt *i = (ObjInt *) allocateObject(sizeof (ObjInt) + 2 * sizeof (uint16_t), OBJ_INT);
-    i->isLiteral = false;
-    i->bigInt.m_ = sizeof (value) / sizeof (uint16_t);
+    ObjInt *i = allocateIntObject(sizeof value / sizeof (uint16_t));
     int_set_i(value, &i->bigInt);
     return i;
 }
 
 ObjInt* newIntU(uint64_t value) {
-    ObjInt *i = (ObjInt *) allocateObject(sizeof (ObjInt) + 2 * sizeof (uint16_t), OBJ_INT);
-    i->isLiteral = false;
-    i->bigInt.m_ = sizeof (value) / sizeof (uint16_t);
+    ObjInt *i = allocateIntObject(sizeof value / sizeof (uint16_t));
     int_set_u(value, &i->bigInt);
     return i;
 }
 
 Value defaultIntValue() {
-    ObjInt *intObj = (ObjInt *) allocateObject(sizeof (ObjInt) + 2 * sizeof (uint16_t), OBJ_INT);
-    intObj->bigInt.m_ = 2;
+    ObjInt *intObj = allocateIntObject(1);
     int_init(&intObj->bigInt);
     return OBJ_VAL(intObj);
 }

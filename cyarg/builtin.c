@@ -887,21 +887,17 @@ bool intBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     } else if (IS_STRING(arg)) {
         char *s = AS_CSTRING(arg);
         int il = INT_DIGITS_FOR_S(strlen(s));
-        il += il % 2;
-        ObjInt *newObj = (ObjInt *)allocateObject(sizeof (ObjInt) + il * sizeof (uint16_t), OBJ_INT);
+        ObjInt *newObj = allocateIntObject(il);
         result->as.obj = &newObj->obj;
         result->type = VAL_OBJ;
-        newObj->bigInt.m_ = il;
         int_set_s(s, &newObj->bigInt);
         return true;
     } else if (IS_INT(arg)) {
         Int *from = AS_INT(arg);
         int il = from->d_;
-        il += il % 2;
-        ObjInt *newObj = (ObjInt *)allocateObject(sizeof (ObjInt) + il * sizeof (uint16_t), OBJ_INT);
+        ObjInt *newObj = allocateIntObject(il);
         result->as.obj = &newObj->obj;
         result->type = VAL_OBJ;
-        newObj->bigInt.m_ = il;
         int_set_t(from, &newObj->bigInt);
         return true;
     } else {
