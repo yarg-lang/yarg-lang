@@ -261,7 +261,7 @@ static InterpretResult callValue(ObjRoutine* routine, Value callee, int argCount
                 return callfn(routine, AS_CLOSURE(callee), argCount) ? INTERPRET_OK : INTERPRET_RUNTIME_ERROR;
             case OBJ_NATIVE: {
                 NativeFn native = AS_NATIVE(callee);
-                Value result = NIL_VAL; 
+                Value result = NIL_VAL;
                 if (native(routine, argCount, &result)) {
                     popN(routine, argCount + 1);
                     push(routine, result);
