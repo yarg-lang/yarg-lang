@@ -1,4 +1,5 @@
 #include "pack.h"
+#include "pack_format.h"
 
 #include "object.h"
 #include "memory.h"
@@ -8,7 +9,13 @@
 #include <sysexits.h>
 #include <assert.h>
 
-#include "pack_format.h"
+static void fileSet(void *, int, size_t i);
+static void fileExtend(void *, int, size_t);
+static void flattenConstants(int funIndex, Chunk const *, FlatFiles *);
+//static void removeCapturedNames(FlatFiles *);
+static void calcStringAndIntOffsets(FlatFiles *);
+static void flattenLines(FlatFiles *);
+static int pack(char const *, FlatFiles *, FILE *);
 
 int packScript(char const *sourceFileName, struct ObjFunction const *scriptFn, bool includeLines, char const *path) {
     FILE *file = fopen(path, "wb");
@@ -237,8 +244,8 @@ int pack(char const *sourceFileName, FlatFiles *f, FILE *file) {
 
     PackageFileHeader h;
 
-    memcpy(&h.magic_, magic, PACKAGE_MAGIC_LEN);
-    h.version_ = version;
+    memcpy(&h.magic_, packageMagic, PACKAGE_MAGIC_LEN);
+    h.version_ = packageVersion;
     h.numChunks_ = f->funsFile_.n_;
     h.numStrings_ = f->stringsFile_.n_;
     h.numInts_ = f->intsFile_.n_;

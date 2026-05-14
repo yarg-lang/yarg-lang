@@ -1,4 +1,5 @@
 #include "pack.h"
+#include "pack_format.h"
 
 #include "object.h"
 #include "memory.h"
@@ -7,22 +8,24 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "pack_format.h"
+enum { PACKAGE_OK = 0, PACKAGE_DATAERR = 65, PACKAGE_PROTOCOL = 71, PACKAGE_SOFTWARE = 70 };
 
-enum { EX_OK = 0, EX_DATAERR = 65, EX_PROTOCOL = 71, EX_SOFTWARE = 70 };
+int8_t const packageMagic[PACKAGE_MAGIC_LEN] = {0x79, 0x0a, 0x72, 0x67, 0xff, 0x42};
+int16_t const packageVersion = 0x2602;
 
 struct ObjFunction *loadPackageFromBuffer(uint8_t* buffer, size_t bufferSize) {
-    int r = EX_OK;
+    int r = PACKAGE_OK;
+
     ObjFunction **functions = 0;
 
     PackageFileHeader* h = (PackageFileHeader*)buffer;
     assert(sizeof *h == 24);
 
-    if (memcmp(h->magic_, magic, PACKAGE_MAGIC_LEN) != 0) {
-        r = EX_PROTOCOL;
+    if (memcmp(h->magic_, packageMagic, PACKAGE_MAGIC_LEN) != 0) {
+        r = PACKAGE_PROTOCOL;
     }
-    if (h->version_ != version) {
-        r = EX_DATAERR;
+    if (h->version_ != packageVersion) {
+        r = PACKAGE_DATAERR;
         goto exit;
     }
 
@@ -198,12 +201,9 @@ exit:
         currentFunction = 0;
     }
 
-// todo leak for the moment until we can have the body owned by currentFunction or vm
-//    free(body);
-
     DP(printf("chunks__:%u\nints__:%u\nstrings__:%u\ncode__:%u\nlines__:%u\nnames__:%u\nend__:%u\n", chunks__, ints__, strings__, code__, lines__, names__, end__));
 
-    if (r == EX_OK)
+    if (r == PACKAGE_OK)
         return currentFunction;
     else
         return 0;

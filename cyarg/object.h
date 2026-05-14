@@ -147,7 +147,7 @@ struct ObjString {
     uint32_t hash;
 };
 
-typedef struct {
+typedef struct ObjInt {
     Obj obj;
     bool isLiteral;
     Int bigInt;

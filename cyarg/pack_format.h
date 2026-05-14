@@ -1,6 +1,10 @@
 #ifndef cyarg_pack_format_h
 #define cyarg_pack_format_h
 
+// internal header to packaging - pack.c and pack_load.c
+
+#include <stdint.h>
+
 #if defined(DEBUG_PACK)
 #define DP(DPA) do { DPA; } while (0)
 #else
@@ -9,8 +13,13 @@
 
 #define PACKAGE_MAGIC_LEN 6
 
-static int8_t const magic[PACKAGE_MAGIC_LEN] = {0x79, 0x0a, 0x72, 0x67, 0xff, 0x42};
-static int16_t const version = 0x2602;
+typedef struct ObjString ObjString;
+typedef struct ObjInt ObjInt;
+typedef struct ObjFunction ObjFunction;
+typedef struct Chunk Chunk;
+
+extern int8_t const packageMagic[PACKAGE_MAGIC_LEN];
+extern int16_t const packageVersion;
 
 //
 // xN is alignment from start of body, number is offset, int16(2)/24(3) types are lsb first
@@ -145,14 +154,5 @@ typedef struct {
     FunsFile funsFile_;
     AddressesFile addressesFile_;
 } FlatFiles;
-
-
-static void fileSet(void *, int, size_t i);
-static void fileExtend(void *, int, size_t);
-static void flattenConstants(int funIndex, Chunk const *, FlatFiles *);
-static void removeCapturedNames(FlatFiles *);
-static void calcStringAndIntOffsets(FlatFiles *);
-static void flattenLines(FlatFiles *);
-static int pack(char const *, FlatFiles *, FILE *);
 
 #endif
