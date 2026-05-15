@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BENCHMARKS="fib int-perform equality string_equality instantiation invocation \
+BENCHMARKS="fib stable-interrupt int-perform equality string_equality instantiation invocation \
                 method_call properties trees zoo zoo_batch binary_trees"
 
 ./tools/build-benchmark.sh
