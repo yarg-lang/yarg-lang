@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# omitted, only runs on pico: stable-interrupt
 BENCHMARKS="fib equality string_equality instantiation invocation \
                 method_call properties trees zoo zoo_batch binary_trees int-perform"
 
