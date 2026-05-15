@@ -1,0 +1,68 @@
+import("timer");
+
+var uint32 max_samples = 500;
+var uint64[500] samples;
+var uint32 samples_taken = 0;
+
+fun work(j) {
+    // do some work
+    var x = new(int[100]);
+    x[0] = j;
+    x[0] = x[0] * 2;
+    var y = new(int[100]);
+    y[0] = x[0] + 1;
+}
+
+fun repeating_tick(alarm, repeat_us) {
+
+    fun next_target() {
+        var uint64 t = get_time_latched() + uint64(repeat_us);
+        return uint32(t & uint64(0xFFFFFFFF));
+    }
+
+    fun alarm_irq_respsonse() {
+        poke timer.intr, REG_ALIAS_CLR_BITS, uint32(0x1) << alarm;
+
+        if (samples_taken < max_samples) {
+            samples[samples_taken] = get_time_latched();
+            samples_taken = samples_taken + uint32(1);
+        }
+
+        poke timer.alarm[alarm], next_target();
+    }
+
+    poke timer.inte, REG_ALIAS_SET_BITS, uint32(0x1) << alarm;
+
+    enable_alarm_handler(alarm, alarm_irq_respsonse);
+
+    poke timer.alarm[alarm], next_target();
+}
+
+var tick_ms = 500;
+var job_iterations = 2000;
+
+print "Starting benchmark with tick interval: " + string(tick_ms) + " ms and job iterations: " + string(job_iterations);
+
+repeating_tick(0, tick_ms);
+
+// do some stuff while the interrupts occur. This should not cause jitter in the interrupts.
+for (var j = 0; j < job_iterations; j = j + 1) {
+    work(j);
+}
+
+cancel_repeating_alarm(0);
+
+uint64 prev;
+uint64 max_diff = 0;
+for (var i = 0; i < (int(samples_taken) - 1); i = i + 1) {
+    if (i > 0) {
+        uint64 diff = samples[i] - prev;
+        if (diff > max_diff) {
+            max_diff = diff;
+        }
+        print("Interrupt at: " + string(samples[i]) + " us, difference: " + string(diff) + " us");
+    }
+    prev = samples[i];
+}
+print "Total samples taken: " + string(samples_taken);
+print "Maximum difference: " + string(max_diff) + " us";
