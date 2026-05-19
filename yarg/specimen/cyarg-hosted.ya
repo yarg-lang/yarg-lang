@@ -30,9 +30,19 @@ fun getBoolArgument(name) {
 }
 
 yarg_library_path = getRawHostArgument("--lib");
+yarg_library_path = yarg_library_path + "/";
 
-var yarg_source = read_source(yarg_library_path + "/yarg.ya");
-compile(yarg_source)();
+var yarg_source = read_source(yarg_library_path + "yarg.ya");
+if (yarg_source == nil or yarg_source == "") {
+    print "Failed to read yarg.ya";
+    host_exitCode(EX_DATAERR);
+}
+var yarg_target = compile(yarg_source);
+if (yarg_target == nil) {
+    print "Failed to compile yarg.ya";
+    host_exitCode(EX_DATAERR);
+}
+yarg_target();
 
 if (int(host_argc()) == 4 or (int(host_argc()) > 4 and host_argn(4) == "--")) {
     var argsCount = 1;
