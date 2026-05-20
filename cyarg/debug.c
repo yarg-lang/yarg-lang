@@ -109,7 +109,7 @@ static int builtinInstruction(const char* name, Chunk* chunk, int offset) {
     switch (slot) {
         case BUILTIN_PEEK: printf("peek"); break;
         case BUILTIN_READ_BINARY: printf("read_binary"); break;
-        case BUILTIN_READ_SOURCE: printf("read_source"); break;
+        case BUILTIN_READ_YARG_SOURCE: printf("read_yarg_source"); break;
         case BUILTIN_COMPILE: printf("compile"); break;
         case BUILTIN_MAKE_ROUTINE: printf("make_routine"); break;
         case BUILTIN_MAKE_CHANNEL: printf("make_channel"); break;

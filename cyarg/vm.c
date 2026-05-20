@@ -1496,7 +1496,7 @@ static void bindBootstrapCode(const char* name, size_t nameLength,
 // produce a compile error. (use --compile to check this when editing the script)
 uint8_t bootstrap[] = {
     OP_GET_BUILTIN, BUILTIN_LOAD,
-    OP_GET_BUILTIN, BUILTIN_READ_SOURCE,
+    OP_GET_BUILTIN, BUILTIN_READ_YARG_SOURCE,
     OP_CONSTANT, 0,
     OP_CALL, 1,
     OP_CALL, 1,
@@ -1508,7 +1508,7 @@ size_t bootstrap_parameter_offset = 5;
 
 uint8_t compile_bootstrap[] = {
     OP_GET_BUILTIN, BUILTIN_COMPILE,
-    OP_GET_BUILTIN, BUILTIN_READ_SOURCE,
+    OP_GET_BUILTIN, BUILTIN_READ_YARG_SOURCE,
     OP_CONSTANT, 0,
     OP_CALL, 1,
     OP_CALL, 1,

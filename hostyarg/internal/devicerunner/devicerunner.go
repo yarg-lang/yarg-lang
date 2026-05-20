@@ -77,7 +77,7 @@ func GetSerialOutput(portName string, sourcePath string) (err error, output []st
 	serial.ResetInputBuffer()
 	serial.ResetOutputBuffer()
 
-	fmt.Fprintf(serial, "exec(read_source(\"%s\"));\n", sourcePath)
+	fmt.Fprintf(serial, "exec(read_yarg_source(\"%s\"));\n", sourcePath)
 	output = make([]string, 0)
 
 	output_error := make(chan error)
@@ -124,7 +124,7 @@ func streamSerialOutput(portName string, sourcePath string, outputstream io.Writ
 	serial.ResetInputBuffer()
 	serial.ResetOutputBuffer()
 
-	fmt.Fprintf(serial, "exec(read_source(\"%s\"));\n", sourcePath)
+	fmt.Fprintf(serial, "exec(read_yarg_source(\"%s\"));\n", sourcePath)
 
 	output_error := make(chan error)
 
