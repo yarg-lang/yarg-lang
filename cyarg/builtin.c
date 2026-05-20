@@ -33,16 +33,41 @@ bool readSourceBuiltin(ObjRoutine* routineContext, int argCount, Value* result) 
     }
 
     const char* filename = AS_CSTRING(nativeArgument(routineContext, argCount, 0));
-    char* source = readFile(filename);
-    if (source == NULL) {
-        runtimeError(routineContext, "Could not read source file '%s'.", filename);
-        return false;
+    char const *dotOn = strrchr(filename, '.');
+    if (dotOn != 0 && strcmp(dotOn, ".yb") == 0) {
+        size_t file_size = fileSize(filename);
+
+        ObjConcreteYargType* byteType = newYargTypeFromType(TypeUint8);
+        tempRootPush(OBJ_VAL(byteType));
+
+        ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*)newYargArrayTypeFromType(OBJ_VAL(byteType));
+        tempRootPush(OBJ_VAL(arrayType));
+
+        arrayType->cardinality = file_size;
+        ObjPackedUniformArray* array = newPackedUniformArray(arrayType);
+        tempRootPush(OBJ_VAL(array));
+
+        readFileIntoBuffer(filename, (uint8_t*)array->store.storedValue, file_size);
+
+        *result = OBJ_VAL(array);
+
+        tempRootPop();
+        tempRootPop();
+        tempRootPop();
     }
+    else {
+        // assume a text file
+        char* source = readFile(filename);
+        if (source == NULL) {
+            runtimeError(routineContext, "Could not read source file '%s'.", filename);
+            return false;
+        }
 
-    ObjString* sourceString = copyString(source, (int)strlen(source));
-    free(source);
+        ObjString* sourceString = copyString(source, (int)strlen(source));
+        free(source);
 
-    *result = OBJ_VAL(sourceString);
+        *result = OBJ_VAL(sourceString);
+    }
     return true;
 }
 
