@@ -1519,7 +1519,7 @@ size_t compile_bootstrap_parameter_offset = 5;
 
 uint8_t load_bootstrap[] = {
     OP_GET_BUILTIN, BUILTIN_LOAD,
-    OP_GET_BUILTIN, BUILTIN_READ_BINARY,
+    OP_GET_BUILTIN, BUILTIN_READ_YARG_SOURCE,
     OP_CONSTANT, 0,
     OP_CALL, 1,
     OP_CALL, 1,
