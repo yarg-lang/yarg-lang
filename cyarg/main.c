@@ -57,7 +57,7 @@ int main() {
     const char script[] = "cyarg.ya";
     ObjString * scriptObj = copyString(script, sizeof(script) - 1);
     tempRootPush(OBJ_VAL(scriptObj));
-    bootScript(scriptObj);
+    bootYargSourceFile(scriptObj);
     tempRootPop();
 
     freeVM();

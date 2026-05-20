@@ -42,7 +42,7 @@ int runHostedFile(const char* libraryPath, const char* path) {
 
     vmHost.exitCode = EX_OK;
 
-    InterpretResult result = bootScript(replPathString);
+    InterpretResult result = bootYargSourceFile(replPathString);
 
     tempRootPop();
     if (result == INTERPRET_RUNTIME_ERROR) {
@@ -75,21 +75,6 @@ int compileFile(const char* path, const char* outputPath) {
     tempRootPop();
     tempRootPop();
     return exitCode;
-}
-
-int loadPackageFile(const char *path) {
-
-    ObjString* pathString = copyString(path, (int) strlen(path));
-    tempRootPush(OBJ_VAL(pathString));
-
-    InterpretResult result = bootBinary(pathString);
-
-    tempRootPop();
-    if (result == INTERPRET_RUNTIME_ERROR) {
-        return EX_SOFTWARE;
-    } else {
-        return EX_OK;
-    }
 }
 
 int disassembleFile(const char* path) {
