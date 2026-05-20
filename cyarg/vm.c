@@ -1517,18 +1517,6 @@ uint8_t compile_bootstrap[] = {
 
 size_t compile_bootstrap_parameter_offset = 5;
 
-uint8_t load_bootstrap[] = {
-    OP_GET_BUILTIN, BUILTIN_LOAD,
-    OP_GET_BUILTIN, BUILTIN_READ_YARG_SOURCE,
-    OP_CONSTANT, 0,
-    OP_CALL, 1,
-    OP_CALL, 1,
-    OP_CALL, 0,
-    OP_RETURN
-};
-
-size_t load_bootstrap_parameter_offset = 5;
-
 InterpretResult bootstrapVM(Value* bootstrapResult, ObjString* script) {
     ObjClosure* closure = newClosure(&vm.bootFunction);
 
@@ -1546,30 +1534,20 @@ InterpretResult bootstrapVM(Value* bootstrapResult, ObjString* script) {
     return result;
 }
 
-InterpretResult bootScript(ObjString* script) {
-    bindBootstrapCode("boot", 4, bootstrap, sizeof(bootstrap), script, bootstrap_parameter_offset);
+InterpretResult bootYargSourceFile(ObjString* filename) {
+    bindBootstrapCode("boot", 4, bootstrap, sizeof(bootstrap), filename, bootstrap_parameter_offset);
 
     // Yarg scripts do not return values, so the bootstrap result is discarded.
     Value discardedResult;
-    InterpretResult runResult = bootstrapVM(&discardedResult, script);
+    InterpretResult runResult = bootstrapVM(&discardedResult, filename);
     return runResult;
 }
 
-InterpretResult bootBinary(ObjString *script) {
-    bindBootstrapCode("boot", 4, load_bootstrap, sizeof(load_bootstrap), script, load_bootstrap_parameter_offset);
-
-    // Yarg scripts do not return values, so the bootstrap result is discarded.
-    Value discardedResult;
-    InterpretResult result = bootstrapVM(&discardedResult, script);
-    tempRootPop();
-    return result;
-}
-
-InterpretResult compileScript(ObjString* script, Value* result) {
-    bindBootstrapCode("compiler-host", 13, compile_bootstrap, sizeof(compile_bootstrap), script, compile_bootstrap_parameter_offset);
+InterpretResult compileScript(ObjString* filename, Value* result) {
+    bindBootstrapCode("compiler-host", 13, compile_bootstrap, sizeof(compile_bootstrap), filename, compile_bootstrap_parameter_offset);
 
     // Treat the compile bootstrap as a function, so we get a result.
-    InterpretResult runResult = bootstrapVM(result, script);
+    InterpretResult runResult = bootstrapVM(result, filename);
     return runResult;
 }
 

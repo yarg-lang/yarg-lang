@@ -50,9 +50,8 @@ void initVMRuntime();
 void freeVM();
 void markVMRoots();
 
-InterpretResult bootScript(ObjString* script);
-InterpretResult compileScript(ObjString* script, Value* compileResult);
-InterpretResult bootBinary(ObjString *script);
+InterpretResult bootYargSourceFile(ObjString* filename);
+InterpretResult compileScript(ObjString* filename, Value* compileResult);
 
 InterpretResult run(ObjRoutine* routine);
 bool callfn(ObjRoutine* routine, ObjClosure* closure, int argCount);
