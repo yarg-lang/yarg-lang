@@ -4,7 +4,7 @@ import("timer");
 gpio_init(pico_led);
 gpio_set_direction(pico_led, GPIO_OUT);
 
-var n = 6;
+var n = 4;
 
 while (n > 0) {
     gpio_put(pico_led, !gpio_get(pico_led));
