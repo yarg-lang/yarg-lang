@@ -22,7 +22,14 @@
 #include "test-system/testBuiltin.h"
 #endif
 
-bool readSourceBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
+// read from the filesystem, into memory.
+// Long term, to be replaced with native yarg, and less
+// assumptions about where filesystems live.
+// reads:
+//  - yarg binary files (returned as uint8[])
+//  - text files (returned as string)
+// Both are suitable input to load().
+bool readYargSourceBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (argCount != 1) {
         runtimeError(routineContext, "Expected 1 argument but got %d.", argCount);
         return false;
@@ -1004,7 +1011,7 @@ bool stringBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
 Value getBuiltin(uint8_t builtin) {
     switch (builtin) {
         case BUILTIN_PEEK: return OBJ_VAL(newNative(peekBuiltin));
-        case BUILTIN_READ_YARG_SOURCE: return OBJ_VAL(newNative(readSourceBuiltin));
+        case BUILTIN_READ_YARG_SOURCE: return OBJ_VAL(newNative(readYargSourceBuiltin));
         case BUILTIN_COMPILE: return OBJ_VAL(newNative(compileBuiltin));
         case BUILTIN_MAKE_ROUTINE: return OBJ_VAL(newNative(makeRoutineBuiltin));
         case BUILTIN_RESUME: return OBJ_VAL(newNative(resumeBuiltin));
