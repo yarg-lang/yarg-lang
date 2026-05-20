@@ -1,0 +1,2 @@
+var source = read_yarg_source("test/yarg-expect/read_yarg_source/sample.ya");
+print source; // expect: print "hello world"; // expect: hello world
