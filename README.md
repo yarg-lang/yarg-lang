@@ -52,7 +52,7 @@ This sample turns on the builtin LED for a Pico, manipulating the registers dire
 // the memory locations we need, see rp2040 datasheet: 
 // https://datasheets.raspberrypi.com/rp2040/rp2040-datasheet.pdf
 
-const NUM_BANK0_GPIOS = 30;
+var NUM_BANK0_GPIOS = 30;
 
 place struct {
     uint32@0x014 gpio_out_set;
@@ -67,11 +67,11 @@ place struct {
     } @x40014000 io_bank0;
 
 // the built in LED on a Pico.
-const pico_led = uint32(25);
-const gpio_field = uint32(0x1) << pico_led;
+var pico_led = uint32(25);
+var gpio_field = uint32(0x1) << pico_led;
 
 // minimally configure a GPIO, assuming core was reset first.
-const GPIO_FUNC_SIO = 5;
+var GPIO_FUNC_SIO = 5;
 
 poke io_bank0.gpio[pico_led].ctrl, GPIO_FUNC_SIO;
 poke sio_hw.gpio_oe_set, gpio_field;
@@ -94,21 +94,21 @@ Assumes a button is wired to GPIO 2, and a LED+Resistor are connected to GPIO 3.
 import("gpio");
 
 // GPIO pins to use
-const led_io = 12;
-const button_io = 11;
+var led_io = 12;
+var button_io = 11;
 
 fun button_routine(gpio, chan) {
 
-    const core = coreNum();
+    var core = coreNum();
 
     fun gpio_events() {
-        const events8 = peek(io_bank0.proc[core].ints[uint32(gpio) >> uint32(3)]);
-        const uint32 events = events8 >> (4 * (uint32(gpio) % uint32(8)));
+        var events8 = peek(io_bank0.proc[core].ints[uint32(gpio) >> uint32(3)]);
+        var uint32 events = events8 >> (4 * (uint32(gpio) % uint32(8)));
         return events;
     }
 
     fun gpio_response() {
-        const events = gpio_events();
+        var events = gpio_events();
         gpio_acknowledge_irq(gpio, events);
         share(chan, events);
     }
