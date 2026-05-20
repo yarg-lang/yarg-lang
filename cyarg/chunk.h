@@ -86,7 +86,6 @@ typedef struct Chunk {
 } Chunk;
 
 typedef enum {
-    BUILTIN_READ_BINARY,
     BUILTIN_READ_YARG_SOURCE,
     BUILTIN_COMPILE,
     BUILTIN_MAKE_ROUTINE,
