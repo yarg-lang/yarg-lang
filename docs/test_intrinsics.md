@@ -59,4 +59,4 @@ Simulate file system using xcode project
 
 //
 import("machine");
-var source = read_source("test/yarg-expect/test/read_source/sample.ya");
+var source = read_yarg_source("test/yarg-expect/test/read_yarg_source/sample.ya");

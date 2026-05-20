@@ -1,5 +1,5 @@
 var yarg_library_path = "";
-var yarg_source = read_source("yarg.ya");
+var yarg_source = read_yarg_source("yarg.ya");
 compile(yarg_source)();
 
 repl();
