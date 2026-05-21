@@ -81,10 +81,12 @@ static void channelMutexLeave(ObjChannelContainer* channel) {
 }
  
 void markChannel(ObjChannelContainer* channel) {
-    size_t cursor = readCursor(channel);
-    for (int i = 0; i < channel->occupied; i++) {
-        markValue(channel->buffer[cursor]);
-        cursor = (cursor + 1) % channel->bufferSize;
+    if (channel->buffer != 0) {
+        size_t cursor = readCursor(channel);
+        for (int i = 0; i < channel->occupied; i++) {
+            markValue(channel->buffer[cursor]);
+            cursor = (cursor + 1) % channel->bufferSize;
+        }
     }
 }
 
