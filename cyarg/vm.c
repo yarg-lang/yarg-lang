@@ -1579,7 +1579,7 @@ void binaryIntOp(ObjRoutine* routine, char const *c)
         s = a->m_ ;
         break;
     case '%':
-        s = a->m_ > b->m_ ? a->m_ : b->m_;
+        s = 1 + (a->m_ > b->m_ ? a->m_ : b->m_);
         break;
     default:
         assert(!"IntOp");

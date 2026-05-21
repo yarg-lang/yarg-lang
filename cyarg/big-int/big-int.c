@@ -481,14 +481,17 @@ void int_div(Int const *n, Int const *d, Int *q, Int *r)
     {
         if (r != 0)
         {
-            int_set_t(n, r);
-            int_init(q);
-            // adjust for yarg’s weird %
             if (n->neg_)
             {
-                int_add(r, d, r);
+                // adjust for yarg’s weird %
+                int_add(n, d, r);
+            }
+            else
+            {
+                int_set_t(n, r);
             }
         }
+        int_init(q);
         return;
     }
 
