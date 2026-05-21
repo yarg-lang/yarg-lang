@@ -13,4 +13,4 @@ peek(@x5);      // expect: peek(0x5) -> a5a5a5
 poke @x5, 5;    // expect: poke 0x00000005, 0x00000005
 peek(@x5);      // expect: peek(0x5) -> 5
 var res = test_sync(); // expect: Waiting for interrupts to be simulated - done
-print res;      // expect: Type:any[7]:[missing test_read(@x000001);, missing poke/test_set @x000005, missing test_write(@x000005, 5);, 3 unfulfilled expectations:, test_read(@x000005);, test_read(@x000005);, test_write(@x000004);]
+print res;      // expect: Type:any[7]:[missing test_read(0x000001);, missing poke/test_set 0x000005, missing test_write(0x000005, 5);, 3 unfulfilled expectations:, test_write(0x000004);, test_read(0x000005);, test_read(0x000005);]
