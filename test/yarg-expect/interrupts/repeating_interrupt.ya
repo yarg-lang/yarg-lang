@@ -22,4 +22,4 @@ print test_sync();  // expect: Waiting for interrupts to be simulated - handler
 // expect: done
 // expect: Type:any[]:[]
 
-irq_remove_handler(1, handler_address1);
+irq_remove_handler(1, handler_address);

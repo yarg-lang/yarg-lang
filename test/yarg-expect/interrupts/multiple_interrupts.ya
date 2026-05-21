@@ -1,0 +1,143 @@
+
+fun setup_interrupt(number) {
+    var name = "handler" + string(number);
+    var chan = make_channel();
+    var p = uint32(1) << uint32(number - 1);
+
+    fun handler() {
+//        print name;
+        send(chan, p);
+    }
+
+    var handler_routine = make_routine(handler, true);
+    var handler_address = pin(handler_routine);
+    irq_add_shared_handler(number, handler_address, 1);
+
+    return [handler_address, chan];
+}
+
+var interrupts = new(any[8]);
+
+for (var i = 0; i < len(interrupts); i = i + 1)
+{
+    interrupts[i] = setup_interrupt(1 + i);
+}
+
+//test_interrupt("TIMER_IRQ_1");
+//test_interrupt(2);
+//test_interrupt(3);
+//test_interrupt(4);
+//test_interrupt(5);
+//test_interrupt(6);
+//test_interrupt(7);
+//test_interrupt(5);
+//test_interrupt("PIO0_IRQ_1");
+
+test_interrupt("USBCTRL_IRQ");
+test_interrupt("TIMER_IRQ_2");
+test_interrupt("TIMER_IRQ_3");
+test_interrupt("USBCTRL_IRQ");
+
+var result = 30 - 1;
+//var results = new(any[result + 1]);
+while (result >= 0)
+{
+    test_sync();
+//    results[result] = test_sync();
+    result = result - 1;
+
+
+    var uint32 t = 0;
+    for (var i = 0; i < len(interrupts); i = 1 + i)
+    {
+        while (cpeek(interrupts[i][1]) != nil)
+        {
+            var m = receive(interrupts[i][1]);
+            t = t + m;
+        }
+    }
+    print "t:" + string(t);
+
+    t = t - 1;
+    for (var b = 0; b < len(interrupts); b = 1 + b)
+    {
+        if (t & 1 == 1)
+        {
+            test_interrupt(b + 1);
+        }
+        t = t >> 1;
+    }
+}
+
+for (var i = 0; i < len(interrupts); i = i + 1)
+{
+    irq_remove_handler(1, interrupts[i][0]);
+}
+
+//print results;
+
+//for (var i = len(results) - 1; i >= 0; i = i - 1)
+//{
+//    print results[i];
+//}
+
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:38
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:37
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:36
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:35
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:34
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:33
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:32
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:31
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:30
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:29
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:28
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:27
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:26
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:25
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:24
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:23
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:22
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:21
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:20
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:19
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:18
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:17
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:16
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:15
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:14
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:13
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:12
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:11
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:10
+// expect: Waiting for interrupts to be simulated - done
+// expect: t:9
