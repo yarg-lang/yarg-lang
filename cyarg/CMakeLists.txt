@@ -148,10 +148,10 @@ if (CYARG_FEATURE_TEST_SYSTEM STREQUAL "TRUE")
 target_sources(cyarg
     PRIVATE
       test-system/testBuiltin.h
-      test-system/testBuiltin.cpp
+      test-system/testBuiltin.c
       test-system/testSystem.h
-      test-system/testSystem.cpp
-      test-system/testIntrinsics.hpp
+      test-system/testSystem.c
+      test-system/testIntrinsics.h
       )
 
 add_compile_definitions(CYARG_FEATURE_TEST_SYSTEM)
