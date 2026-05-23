@@ -66,15 +66,6 @@ fun int_rand()
 
 var zint = int(0);
 
-fun bool_to_int8(x) {
-    if (x) {
-        return int8(1);
-    }
-    else {
-        return int8(0);
-    }
-}
-
 for (var x = 0; x < reps; x = x + 1)
 {
     var aa = int_rand();
@@ -85,7 +76,7 @@ for (var x = 0; x < reps; x = x + 1)
     print "a = " + string(aa);
     print "b = " + string(bb);
     print "r = " + string(rr);
-    print "o = " + string(bool_to_int8(rr.overflow));
+    print "o = " + string(int8(rr.overflow));
     print "e = a + b";
     print "l = l2(abs(e))";
     print "if ( l < 4064 && r != e ) print " + string(x) + ", \":\", a, \" + \", b, \" expect \", e, \" got \", r, \"\\n\"";
@@ -94,7 +85,7 @@ for (var x = 0; x < reps; x = x + 1)
     rr = aa - bb;
 
     print "r = " + string(rr);
-    print "o = " + string(bool_to_int8(rr.overflow));
+    print "o = " + string(int8(rr.overflow));
     print "e = a - b";
     print "l = l2(abs(e))";
     print "if ( l < 4064 && r != e ) print " + string(x) + ", \":\", a, \" - \", b, \" expect \", e, \" got \", r, \"\\n\"";
@@ -103,7 +94,7 @@ for (var x = 0; x < reps; x = x + 1)
     rr = aa * bb;
 
     print "r = " + string(rr);
-    print "o = " + string(bool_to_int8(rr.overflow));
+    print "o = " + string(int8(rr.overflow));
     print "e = a * b";
     print "if ( l2(abs(e)) < 4064 && r != e ) print " + string(x) + ", \":\", a, \" * \", b, \" expect \", e, \" got \", r, \"\\n\"";
     print "if ( l >= 4064 && o != 1 ) print " + string(x) + ", \":\", a, \" * \", b, \" expect overflow \", e, \" got \", r, \"\\n\"";
