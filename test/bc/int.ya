@@ -115,7 +115,7 @@ for (var x = 0; x < reps; x = x + 1)
     print "if ( r != e ) print " + string(x) + ", \":\", a, \" / \", b, \" expect \", e, \" got \", r, \"\\n\"";
 
     rr = aa % bb;
-    if (aa < zint) // put r back to normal c/bc modulus
+    if (rr < zint and aa > zint or rr > zint and aa < zint) // put r back to normal c/bc modulus
     {
         rr = rr - bb;
     }
