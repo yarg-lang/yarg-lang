@@ -1084,7 +1084,7 @@ InterpretResult run(ObjRoutine* routine) {
                     int32_t b = AS_I32(pop(routine));
                     int32_t a = AS_I32(pop(routine));
                     int32_t r = a % b;
-                    if (r < 0) {
+                    if (a < 0 && b > 0 || a > 0  && b < 0) {
                         r += b;
                     }
                     push(routine, I32_VAL(r));
@@ -1092,7 +1092,7 @@ InterpretResult run(ObjRoutine* routine) {
                     int8_t b = AS_I8(pop(routine));
                     int8_t a = AS_I8(pop(routine));
                     int8_t r = a % b;
-                    if (r < 0) {
+                    if (a < 0 && b > 0 || a > 0  && b < 0) {
                         r += b;
                     }
                     push(routine, I8_VAL(r));
@@ -1100,7 +1100,7 @@ InterpretResult run(ObjRoutine* routine) {
                     int16_t b = AS_I16(pop(routine));
                     int16_t a = AS_I16(pop(routine));
                     int16_t r = a % b;
-                    if (r < 0) {
+                    if (a < 0 && b > 0 || a > 0  && b < 0) {
                         r += b;
                     }
                     push(routine, I16_VAL(r));
@@ -1108,7 +1108,7 @@ InterpretResult run(ObjRoutine* routine) {
                     int64_t b = AS_I64(pop(routine));
                     int64_t a = AS_I64(pop(routine));
                     int64_t r = a % b;
-                    if (r < 0) {
+                    if (a < 0 && b > 0 || a > 0  && b < 0) {
                         r += b;
                     }
                     push(routine, I64_VAL(r));
@@ -1579,7 +1579,7 @@ void binaryIntOp(ObjRoutine* routine, char const *c)
         s = a->m_ ;
         break;
     case '%':
-        s = 1 + (a->m_ > b->m_ ? a->m_ : b->m_);
+        s = a->m_ > b->m_ ? a->m_ : b->m_;
         break;
     default:
         assert(!"IntOp");
