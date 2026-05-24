@@ -484,7 +484,7 @@ void int_div(Int const *n, Int const *d, Int *q, Int *r)
     {
         if (r != 0)
         {
-            if (!int_is_zero(n) && (nSign && !dSign || !nSign && dSign))
+            if (!int_is_zero(n) && ((nSign && !dSign) || (!nSign && dSign)))
             {
                 // adjust for yarg’s weird %
                 int_add(n, d, r);
@@ -606,7 +606,7 @@ void int_div(Int const *n, Int const *d, Int *q, Int *r)
         int_set_t((Int *) &reducingNumerator, r);
         r->neg_ = nSign;
         // adjust for yarg’s weird %
-        if (!int_is_zero(n) && (nSign && !dSign || !nSign && dSign))
+        if (!int_is_zero(n) && ((nSign && !dSign) || (!nSign && dSign)))
         {
             int_add(r, d, r);
         }
