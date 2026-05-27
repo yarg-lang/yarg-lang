@@ -45,10 +45,12 @@ void markSyncGroup(ObjSyncGroup* group) {
 ObjString* syncGroupToString(ObjSyncGroup* group) {
     char buffer[256];
     snprintf(buffer, sizeof(buffer), "sync_group{");
+    size_t cursor = strlen(buffer);
     Value results = unpackValue(group->result_array->store);
     ObjString* resultsStr = valueToString(results);
-    snprintf(buffer, sizeof(buffer), "%s%s", buffer, resultsStr->chars);
-    snprintf(buffer, sizeof(buffer), "%s}", buffer);
+    snprintf(buffer + cursor, sizeof(buffer) - cursor, "%s", resultsStr->chars);
+    cursor = strlen(buffer);
+    snprintf(buffer + cursor, sizeof(buffer) - cursor, "}");
     return copyString(buffer, (int)strlen(buffer));
 }
 

@@ -93,16 +93,19 @@ void markChannel(ObjChannelContainer* channel) {
 ObjString* channelToString(ObjChannelContainer* channel) {
     char buffer[256];
     snprintf(buffer, sizeof(buffer), "channel{");
+    size_t string_cursor = strlen(buffer);
     size_t cursor = readCursor(channel);
     for (int i = 0; i < channel->occupied; i++) {
         ObjString* valueStr = valueToString(channel->buffer[cursor]);
-        snprintf(buffer, sizeof(buffer), "%s%s", buffer, valueStr->chars);
+        snprintf(buffer + string_cursor, sizeof(buffer) - string_cursor, "%s", valueStr->chars);
+        string_cursor = strlen(buffer);
         if (i < channel->occupied - 1) {
-            snprintf(buffer, sizeof(buffer), "%s, ", buffer);
+            snprintf(buffer + string_cursor, sizeof(buffer) - string_cursor, ", ");
+            string_cursor = strlen(buffer);
         }
         cursor = (cursor + 1) % channel->bufferSize;
     }
-    snprintf(buffer, sizeof(buffer), "%s}", buffer);
+    snprintf(buffer + string_cursor, sizeof(buffer) - string_cursor, "}");
     return copyString(buffer, (int)strlen(buffer));
 }
 

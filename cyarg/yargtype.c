@@ -588,13 +588,15 @@ static ObjString* typeLiteralToString(ObjConcreteYargType* type) {
             ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*) type;
             char buffer[1024];
             snprintf(buffer, sizeof(buffer), "struct{|%zu:%zu| ", st->field_count, st->storage_size);
+            size_t cursor = strlen(buffer);
             for (size_t i = 0; i < st->field_count; i++) {
                 ObjString* fieldTypeStr = typeLiteralToString(st->field_types[i]);
                 tempRootPush(OBJ_VAL(fieldTypeStr));
-                snprintf(buffer, sizeof(buffer), "%s%s; ", buffer, fieldTypeStr->chars);
+                snprintf(buffer + cursor, sizeof(buffer) - cursor, "%s; ", fieldTypeStr->chars);
+                cursor = strlen(buffer);
                 tempRootPop();
             }
-            snprintf(buffer, sizeof(buffer), "%s}", buffer);
+            snprintf(buffer + cursor, sizeof(buffer) - cursor, "}");
             return copyString(buffer, (int)strlen(buffer));
         }
         case TypePointer: {
