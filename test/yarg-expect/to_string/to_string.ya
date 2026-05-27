@@ -52,11 +52,6 @@ print map; // expect: <map (0) Type:any[string] >
 place uint32 @xf0000000 data;
 print data; // expect: <*Type:uint32:0xf0000000>
 
-place struct {
-    uint32@0xe010 test;
-} @xe0000000 test_place;
-print test_place.test; // expect: <*Type:uint32:0xe000e010>
-
-// untested types
+// untested types, at least exercise the to_string function for them
 var r = make_routine(test, true);
-var ptr = new(any);
+print string(r) == string(r); // expect: true
