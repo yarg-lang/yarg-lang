@@ -312,7 +312,7 @@ void printCallArgs(DynamicObjArray* args) {
 
 void printExprDot(ObjExprDot* dot) {
     printf(".");
-    printObject(OBJ_VAL(dot->name));
+    printValue(OBJ_VAL(dot->name));
     if (dot->assignment) {
         printf(" = ");
         printExpr(dot->assignment);
@@ -323,7 +323,7 @@ void printExprDot(ObjExprDot* dot) {
 
 void printExprSuper(ObjExprSuper* expr) {
     printf("super.");
-    printObject(OBJ_VAL(expr->name));
+    printValue(OBJ_VAL(expr->name));
     if (expr->call) {
         printExpr((ObjExpr*)expr->call);
     }
@@ -441,7 +441,7 @@ void printExpr(ObjExpr* expr) {
             }
             case OBJ_EXPR_NAMEDVARIABLE: {
                 ObjExprNamedVariable* var = (ObjExprNamedVariable*)cursor;
-                printObject(OBJ_VAL(var->name));
+                printValue(OBJ_VAL(var->name));
                 if (var->assignment) {
                     printf(" = ");
                     printExpr(var->assignment);
@@ -460,7 +460,7 @@ void printExpr(ObjExpr* expr) {
             case OBJ_EXPR_STRING: {
                 ObjExprString* str = (ObjExprString*)cursor;
                 printf("\"");
-                printObject(OBJ_VAL(str->string));
+                printValue(OBJ_VAL(str->string));
                 printf("\"");
                 break;
             }
@@ -524,7 +524,7 @@ void printStmtIf(ObjStmtIf* ctrl) {
 
 void printFunDeclaration(ObjStmtFunDeclaration* decl) {
     printf("fun ");
-    printObject(OBJ_VAL(decl->name));
+    printValue(OBJ_VAL(decl->name));
     printCallArgs(&decl->parameters);
     printf("\n");
     printIndentation();
@@ -555,7 +555,7 @@ void printStmtFor(ObjStmtFor* loop) {
 
 void printStmtClassDeclaration(ObjStmtClassDeclaration* class_) {
     printf("class ");
-    printObject(OBJ_VAL(class_->name));
+    printValue(OBJ_VAL(class_->name));
     if (class_->superclass) {
         printf(" < ");
         printExpr(class_->superclass);
@@ -602,7 +602,7 @@ void printStmtVarDeclaration(ObjStmtVarDeclaration* decl) {
         printExpr(decl->type);
     }
     printf(" ");
-    printObject(OBJ_VAL(decl->name));
+    printValue(OBJ_VAL(decl->name));
     if (decl->initialiser) {
         printf(" = ");
         printExpr(decl->initialiser);
@@ -613,7 +613,7 @@ void printStmtVarDeclaration(ObjStmtVarDeclaration* decl) {
 static void printAliasDeclaration(ObjPlaceAlias* alias) {
     printExpr(alias->location);
     printf(" ");
-    printObject(OBJ_VAL(alias->name));
+    printValue(OBJ_VAL(alias->name));
     printf(";");
 }
 
@@ -660,7 +660,7 @@ static void printStmtFieldDeclaration(ObjStmtFieldDeclaration* decl) {
         printf(" ");
     }
 
-    printObject(OBJ_VAL(decl->name));
+    printValue(OBJ_VAL(decl->name));
     printf(";");
 }
 

@@ -586,12 +586,3 @@ ObjString* objectToString(Value value) {
             }
     }
 }
-
-void fprintObject(FILE* op, Value value) {
-    ObjString* str = objectToString(value);
-    FPRINTMSG(op, "%s", str->chars);
-}
-
-void printObject(Value value) {
-    fprintObject(stdout, value);
-}

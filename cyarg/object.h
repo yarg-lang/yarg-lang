@@ -257,8 +257,6 @@ Value defaultStructValue(ObjConcreteYargType* type);
 
 Value placeObjectAt(Value type, Value location);
 
-void printObject(Value value);
-void fprintObject(FILE* op, Value value);
 ObjString* objectToString(Value value);
 
 static inline bool isObjType(Value value, ObjType type) {
