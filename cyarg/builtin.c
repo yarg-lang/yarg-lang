@@ -952,59 +952,8 @@ bool floatBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
 
 bool stringBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     Value arg = nativeArgument(routineContext, argCount, 0);
-    int64_t i;
-    if (IS_I8(arg)) {
-        i = AS_I8(arg);
-    } else if (IS_I16(arg)) {
-        i = AS_I16(arg);
-    } else if (IS_I32(arg)) {
-        i = AS_I32(arg);
-    } else if (IS_I64(arg)) {
-        i = AS_I64(arg);
-    } else if (IS_UI8(arg)) {
-        i = AS_UI8(arg);
-    } else if (IS_UI16(arg)) {
-        i = AS_UI16(arg);
-    } else if (IS_UI32(arg)) {
-        i = AS_UI32(arg);
-    } else if (IS_UI64(arg)) {
-        uint64_t i = AS_UI64(arg);
-        char sb[22];
-        int l = snprintf(sb, 22, "%" PRIu64, i);
-        ObjString* string = copyString(sb, l);
-        result->as.obj = &string->obj;
-        result->type = VAL_OBJ;
-        return true;
-    } else if (IS_STRING(arg)) {
-        ObjString *string = AS_STRING(arg);
-        result->as.obj = &string->obj;
-        result->type = VAL_OBJ;
-        return true;
-    } else if (IS_INT(arg)) {
-        char sb[INT_STRLEN_FOR_INT254];
-        Int *i = AS_INT(arg);
-        char const *s = int_to_s(i, sb, INT_STRLEN_FOR_INT254);
-        int len = (int)strlen(s);
-        ObjString* string = copyString(s, len);
-        result->as.obj = &string->obj;
-        result->type = VAL_OBJ;
-        return true;
-    } else if (IS_DOUBLE(arg)) {
-        char sb[22];
-        double f = AS_DOUBLE(arg);
-        int l = snprintf(sb, 22, "%#g", f);
-        ObjString* string = copyString(sb, l);
-        result->as.obj = &string->obj;
-        result->type = VAL_OBJ;
-        return true;
-    } else {
-        return false;
-    }
-    char sb[22];
-    int l = snprintf(sb, 22, "%" PRId64, i);
-    ObjString* string = copyString(sb, l);
-    result->as.obj = &string->obj;
-    result->type = VAL_OBJ;
+    ObjString* representation = valueToString(arg);
+    *result = OBJ_VAL(representation);
     return true;
 }
 
