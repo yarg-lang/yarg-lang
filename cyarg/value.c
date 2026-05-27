@@ -390,55 +390,55 @@ ObjString* doubleToString(double value) {
 }
 
 ObjString* i8ToString(int8_t value) {
-    char buffer[32];
+    char buffer[5];
     snprintf(buffer, sizeof(buffer), "%d", value);
     return copyString(buffer, (int)strlen(buffer));
 }
 
 ObjString* ui8ToString(uint8_t value) {
-    char buffer[32];
+    char buffer[4];
     snprintf(buffer, sizeof(buffer), "%u", value);
     return copyString(buffer, (int)strlen(buffer));
 }
 
 ObjString* i16ToString(int16_t value) {
-    char buffer[32];
+    char buffer[7];
     snprintf(buffer, sizeof(buffer), "%d", value);
     return copyString(buffer, (int)strlen(buffer));
 }
 
 ObjString* ui16ToString(uint16_t value) {
-    char buffer[32];
+    char buffer[6];
     snprintf(buffer, sizeof(buffer), "%u", value);
     return copyString(buffer, (int)strlen(buffer));
 }
 
 ObjString* i32ToString(int32_t value) {
-    char buffer[32];
+    char buffer[12];
     snprintf(buffer, sizeof(buffer), "%d", value);
     return copyString(buffer, (int)strlen(buffer));
 }
 
 ObjString* ui32ToString(uint32_t value) {
-    char buffer[32];
+    char buffer[11];
     snprintf(buffer, sizeof(buffer), "%u", value);
     return copyString(buffer, (int)strlen(buffer));
 }
 
 ObjString* i64ToString(int64_t value) {
-    char buffer[32];
+    char buffer[21];
     snprintf(buffer, sizeof(buffer), "%" PRId64, value);
     return copyString(buffer, (int)strlen(buffer));
 }
 
 ObjString* ui64ToString(uint64_t value) {
-    char buffer[32];
+    char buffer[21];
     snprintf(buffer, sizeof(buffer), "%" PRIu64, value);
     return copyString(buffer, (int)strlen(buffer));
 }
 
 ObjString* addressToString(uintptr_t value) {
-    char buffer[32];
+    char buffer[19];
     snprintf(buffer, sizeof(buffer), "%p", (void*)value);
     return copyString(buffer, (int)strlen(buffer));
 }
