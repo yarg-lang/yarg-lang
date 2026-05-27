@@ -89,6 +89,6 @@ bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue, Value *pr
 
 bool isSupportedMapKeyType(Value type);
 
-void printType(FILE* op, ObjConcreteYargType* type);
+ObjString* typeToString(ObjConcreteYargType* type);
 
 #endif

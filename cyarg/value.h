@@ -112,6 +112,7 @@ bool valuesEqual(Value a, Value b);
 
 void printValue(Value value);
 void fprintValue(FILE* op, Value value);
+ObjString* valueToString(Value value);
 
 typedef union PackedValueStore PackedValueStore;
 

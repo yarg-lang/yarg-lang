@@ -315,7 +315,7 @@ void printCellTable(ValueCellTable* table) {
             FPRINTMSG(stderr, ":::");
             printValue(entry->cell.value);
             FPRINTMSG(stderr, ":::");
-            printType(stderr, entry->cell.cellType);
+            printObject(OBJ_VAL((Obj*)entry->cell.cellType));
             FPRINTMSG(stderr, "\n");
         }
     }

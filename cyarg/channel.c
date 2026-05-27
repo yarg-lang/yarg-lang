@@ -90,17 +90,20 @@ void markChannel(ObjChannelContainer* channel) {
     }
 }
 
-void printChannel(FILE* op, ObjChannelContainer* channel) {
-    FPRINTMSG(op, "channel{");
+ObjString* channelToString(ObjChannelContainer* channel) {
+    char buffer[256];
+    snprintf(buffer, sizeof(buffer), "channel{");
     size_t cursor = readCursor(channel);
     for (int i = 0; i < channel->occupied; i++) {
-        fprintValue(op, channel->buffer[cursor]);
+        ObjString* valueStr = valueToString(channel->buffer[cursor]);
+        snprintf(buffer, sizeof(buffer), "%s%s", buffer, valueStr->chars);
         if (i < channel->occupied - 1) {
-            FPRINTMSG(op, ", ");
+            snprintf(buffer, sizeof(buffer), "%s, ", buffer);
         }
         cursor = (cursor + 1) % channel->bufferSize;
     }
-    FPRINTMSG(op, "}");
+    snprintf(buffer, sizeof(buffer), "%s}", buffer);
+    return copyString(buffer, (int)strlen(buffer));
 }
 
 void sendChannel(ObjChannelContainer* channel, Value data) {
