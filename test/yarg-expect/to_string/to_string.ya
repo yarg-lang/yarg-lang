@@ -1,0 +1,62 @@
+print int(-129);        // expect: -129
+print int(1);         // expect: 1
+print int8(-128);       // expect: -128
+print int8(127);        // expect: 127
+print int16(-32768);    // expect: -32768
+print int16(32767);     // expect: 32767
+print int32(-2147483648); // expect: -2147483648
+print int32(2147483647);  // expect: 2147483647
+print int64(-9223372036854775808); // expect: -9223372036854775808
+print int64(9223372036854775807);  // expect: 9223372036854775807
+print uint8(255);      // expect: 255
+print uint16(65535);   // expect: 65535
+print uint32(4294967295); // expect: 4294967295
+print uint64(18446744073709551615); // expect: 18446744073709551615
+print mfloat64(1.5);  // expect: 1.50000
+print string("hello"); // expect: hello
+print 1 != 1;          // expect: false
+var int[3] a;
+print a;               // expect: Type:int[3]:[0, 0, 0]
+
+var any[2] channels;
+for (var i = 0; i < len(channels); i = i + 1) {
+    channels[i] = make_channel();
+    print channels[i];
+}
+// expect: channel{}
+// expect: channel{}
+var group = make_sync_group(channels);
+print group;            // expect: sync_group{Type:any[2]:[nil, nil]}
+
+fun test() {
+}
+print test;             // expect: <fn test>
+print c_clock_get_hz;   // expect: <native fn>
+
+class Foo {}
+
+print Foo; // expect: Foo
+var foo = Foo();
+print foo; // expect: Foo instance
+
+
+var struct {
+    int x;
+    int y;
+} point;
+print point; // expect: struct{|2:16|0; 0; }
+
+var map = new(any[string]);
+print map; // expect: <map (0) Type:any[string] >
+
+place uint32 @xf0000000 data;
+print data; // expect: <*Type:uint32:0xf0000000>
+
+place struct {
+    uint32@0xe010 test;
+} @xe0000000 test_place;
+print test_place.test; // expect: <*Type:uint32:0xe000e010>
+
+// untested types
+var r = make_routine(test, true);
+var ptr = new(any);
