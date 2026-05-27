@@ -311,11 +311,11 @@ void printCellTable(ValueCellTable* table) {
     for (int i = 0; i < table->capacity; i++) {
         EntryCell* entry = &table->entries[i];
         if (entry->key != NULL) {
-            printObject(OBJ_VAL((Obj*)entry->key));
+            printValue(OBJ_VAL((Obj*)entry->key));
             FPRINTMSG(stderr, ":::");
             printValue(entry->cell.value);
             FPRINTMSG(stderr, ":::");
-            printObject(OBJ_VAL((Obj*)entry->cell.cellType));
+            printValue(OBJ_VAL((Obj*)entry->cell.cellType));
             FPRINTMSG(stderr, "\n");
         }
     }

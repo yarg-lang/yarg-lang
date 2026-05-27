@@ -466,28 +466,14 @@ ObjString* valueToString(Value value) {
 }
 
 void printValue(Value value) {
-    ObjString* string = valueToString(value);
-    printf("%s", string->chars);
+    fprintValue(stdout, value);
 }
 
 void fprintValue(FILE* op, Value value) {
-    switch (value.type) {
-        case VAL_BOOL:
-            FPRINTMSG(op, AS_BOOL(value) ? "true" : "false");
-            break;
-        case VAL_NIL: FPRINTMSG(op, "nil"); break;
-        case VAL_DOUBLE: FPRINTMSG(op, "%#g", AS_DOUBLE(value)); break;
-        case VAL_I8: FPRINTMSG(op, "%d", AS_I8(value)); break;
-        case VAL_UI8: FPRINTMSG(op, "%u", AS_UI8(value)); break;
-        case VAL_I16: FPRINTMSG(op, "%d", AS_I16(value)); break;
-        case VAL_UI16: FPRINTMSG(op, "%u", AS_UI16(value)); break;
-        case VAL_I32: FPRINTMSG(op, "%d", AS_I32(value)); break;
-        case VAL_UI32: FPRINTMSG(op, "%u", AS_UI32(value)); break;
-        case VAL_I64: FPRINTMSG(op, "%" PRId64, AS_I64(value)); break;
-        case VAL_UI64: FPRINTMSG(op, "%" PRIu64, AS_UI64(value)); break;
-        case VAL_ADDRESS: FPRINTMSG(op, "%p", (void*) AS_ADDRESS(value)); break;
-        case VAL_OBJ: fprintObject(op, value); break;
-    }
+    ObjString* string = valueToString(value);
+    tempRootPush(OBJ_VAL(string));
+    FPRINTMSG(op, "%s", string->chars);
+    tempRootPop();
 }
 
 bool valuesEqual(Value a, Value b) {
