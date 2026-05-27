@@ -445,122 +445,138 @@ ObjUpvalue* newUpvalue(ValueCell* slot, size_t stackOffset) {
     return upvalue;
 }
 
-static void printFunction(FILE* op, ObjFunction* function) {
+static ObjString* functionToString(ObjFunction* function) {
     if (function->fName == NULL) {
-        FPRINTMSG(op, "<script>");
-        return;
+        return copyString("<script>", 8);
     }
-    FPRINTMSG(op, "<fn %s>", function->fName->chars);
+    char buffer[64];
+    snprintf(buffer, sizeof(buffer), "<fn %s>", function->fName->chars);
+    return copyString(buffer, (int)strlen(buffer));
 }
 
-static void printRoutine(FILE* op, ObjRoutine* routine) {
-    FPRINTMSG(op, "<R%p>", routine);
+static ObjString* routineToString(ObjRoutine* routine) {
+    char buffer[64];
+    snprintf(buffer, sizeof(buffer), "<R%p>", routine);
+    return copyString(buffer, (int)strlen(buffer));
 }
 
-static void printArray(FILE* op, ObjPackedUniformArray* array) {
+static ObjString* arrayToString(ObjPackedUniformArray* array) {
     ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*)array->store.storedType;
-    printType(op, array->store.storedType);
-    FPRINTMSG(op, ":[");
+    char buffer[1024];
+    ObjString* typeStr = valueToString(OBJ_VAL(arrayType));
+    snprintf(buffer, sizeof(buffer), "%s:[", typeStr->chars);
     for (int i = 0; i < arrayType->cardinality; i++) {
         PackedValue element = arrayElement(array->store, i);
         Value unpackedValue = unpackValue(element);
-        fprintValue(op, unpackedValue);
+        ObjString* candidate = valueToString(unpackedValue);
+        snprintf(buffer, sizeof(buffer), "%s%s", buffer, candidate->chars);
         if (i < arrayType->cardinality - 1) {
-            FPRINTMSG(op, ", ");
+            snprintf(buffer, sizeof(buffer), "%s, ", buffer);
         }
     }
-    FPRINTMSG(op, "]");
+    snprintf(buffer, sizeof(buffer), "%s]", buffer);
+    return copyString(buffer, (int)strlen(buffer));
 }
 
-static void printPointer(FILE* op, ObjPackedPointer* ptr) {
-    FPRINTMSG(op, "<*");
+static ObjString* pointerToString(ObjPackedPointer* ptr) {
     Value targetType = ptr->type->target_type == NULL ? NIL_VAL : OBJ_VAL(ptr->type->target_type);
-    fprintValue(op, targetType);
-    FPRINTMSG(op, ":%p>", (void*) ptr->destination);
+    ObjString* targetTypeStr = valueToString(targetType);
+
+    char buffer[64];
+    snprintf(buffer, sizeof(buffer), "<*%s:%p>", targetTypeStr->chars, (void*) ptr->destination);
+    return copyString(buffer, (int)strlen(buffer));
 }
 
-static void printStruct(FILE* op, ObjPackedStruct* st) {
+static ObjString* structToString(ObjPackedStruct* st) {
     ObjConcreteYargTypeStruct* structType = (ObjConcreteYargTypeStruct*)st->store.storedType;
-    FPRINTMSG(op, "struct{|%zu:%zu|", structType->field_count, structType->storage_size);
+    char buffer[1024];
+    snprintf(buffer, sizeof(buffer), "struct{|%zu:%zu|", structType->field_count, structType->storage_size);
     for (size_t i = 0; i < structType->field_count; i++) {
         PackedValue f = structField(st->store, i);
         Value logValue = unpackValue(f);
-        fprintValue(op, logValue);
-        FPRINTMSG(op, "; ");
+        ObjString* fieldStr = valueToString(logValue);
+        snprintf(buffer, sizeof(buffer), "%s%s; ", buffer, fieldStr->chars);
     }
-    FPRINTMSG(op, "}");
+    snprintf(buffer, sizeof(buffer), "%s}", buffer);
+    return copyString(buffer, (int)strlen(buffer));
 }
 
-void fprintObject(FILE* op, Value value) {
+ObjString* mapToString(ObjMap* map) {
+    ObjString* typeStr = valueToString(OBJ_VAL(map->type));
+    char buffer[64];
+    snprintf(buffer, sizeof(buffer), "<map (%d) %s >", map->entries.count, typeStr->chars);
+    return copyString(buffer, (int)strlen(buffer));
+}
+
+ObjString* objectToString(Value value) {
     switch (OBJ_TYPE(value)) {
         case OBJ_BOUND_METHOD:
-            printFunction(op, AS_BOUND_METHOD(value)->method->function);
-            break;
+            return functionToString(AS_BOUND_METHOD(value)->method->function);
         case OBJ_CLASS:
-            FPRINTMSG(op, "%s", AS_CLASS(value)->name->chars);
-            break;
+            return copyString(AS_CLASS(value)->name->chars, AS_CLASS(value)->name->length);
         case OBJ_CLOSURE:
-            printFunction(op, AS_CLOSURE(value)->function);
-            break;
+            return functionToString(AS_CLOSURE(value)->function);
         case OBJ_FUNCTION:
-            printFunction(op, AS_FUNCTION(value));
-            break;
-        case OBJ_INSTANCE:
-            FPRINTMSG(op, "%s instance", AS_INSTANCE(value)->klass->name->chars);
-            break;
+            return functionToString(AS_FUNCTION(value));
+        case OBJ_INSTANCE: {
+            char buffer[64];
+            snprintf(buffer, sizeof(buffer), "%s instance", AS_INSTANCE(value)->klass->name->chars);
+            return copyString(buffer, (int)strlen(buffer));
+            }
         case OBJ_NATIVE:
-            FPRINTMSG(op, "<native fn>");
-            break;
+            return copyString("<native fn>", 11);
         case OBJ_ROUTINE:
-            printRoutine(op, AS_ROUTINE(value));
+            return routineToString(AS_ROUTINE(value));
             break;
         case OBJ_CHANNELCONTAINER:
-            printChannel(op, AS_CHANNEL(value));
+            return channelToString(AS_CHANNEL(value));
             break;
         case OBJ_SYNCGROUP:
-            printSyncGroup(op, AS_SYNCGROUP(value));
+            return syncGroupToString(AS_SYNCGROUP(value));
             break;
         case OBJ_STRING:
-            FPRINTMSG(op, "%s", AS_CSTRING(value));
+            return copyString(AS_CSTRING(value), AS_STRING(value)->length);
             break;
         case OBJ_UPVALUE:
-            FPRINTMSG(op, "upvalue");
+            return copyString("upvalue", 7);
             break;
         case OBJ_UNOWNED_UNIFORMARRAY:
         case OBJ_PACKEDUNIFORMARRAY:
-            printArray(op, AS_UNIFORMARRAY(value));
+            return arrayToString(AS_UNIFORMARRAY(value));
             break;
         case OBJ_YARGTYPE:
         case OBJ_YARGTYPE_ARRAY:
         case OBJ_YARGTYPE_STRUCT:
         case OBJ_YARGTYPE_MAP:
-            printType(op, AS_YARGTYPE(value));
+            return typeToString(AS_YARGTYPE(value));
             break;
         case OBJ_UNOWNED_PACKEDPOINTER:
         case OBJ_PACKEDPOINTER:
-            printPointer(op, AS_POINTER(value));
+            return pointerToString(AS_POINTER(value));
             break;
         case OBJ_UNOWNED_PACKEDSTRUCT:
         case OBJ_PACKEDSTRUCT:
-            printStruct(op, AS_STRUCT(value));
+            return structToString(AS_STRUCT(value));
             break;
         case OBJ_INT: {
             Int *i = AS_INT(value);
             char sb[INT_STRLEN_FOR_INT254];
             char const* s = int_to_s(i, sb, INT_STRLEN_FOR_INT254);
-            FPRINTMSG(op, "%s", s);
-            break;
+            return copyString(s, (int)strlen(s));
         }
         case OBJ_MAP:
-            FPRINTMSG(op, "<map ");
-            FPRINTMSG(op, "(%d) ", AS_MAP(value)->entries.count);
-            printType(op, (ObjConcreteYargType*)(AS_MAP(value)->type));
-            FPRINTMSG(op, " >");
-            break;
-        default:
-            FPRINTMSG(op, "<implementation object %d>", OBJ_TYPE(value));
-            break;
+            return mapToString(AS_MAP(value));
+        default: {
+                char buffer[64];
+                snprintf(buffer, sizeof(buffer), "<implementation object %d>", OBJ_TYPE(value));
+                return copyString(buffer, (int)strlen(buffer));
+            }
     }
+}
+
+void fprintObject(FILE* op, Value value) {
+    ObjString* str = objectToString(value);
+    FPRINTMSG(op, "%s", str->chars);
 }
 
 void printObject(Value value) {

@@ -371,8 +371,91 @@ void freeDynamicValueArray(DynamicValueArray* array) {
     initDynamicValueArray(array);
 }
 
+ObjString* doubleToString(double value) {
+    char buffer[32];
+    snprintf(buffer, sizeof(buffer), "%#g", value);
+    return copyString(buffer, (int)strlen(buffer));
+}
+
+ObjString* i8ToString(int8_t value) {
+    char buffer[32];
+    snprintf(buffer, sizeof(buffer), "%d", value);
+    return copyString(buffer, (int)strlen(buffer));
+}
+
+ObjString* ui8ToString(uint8_t value) {
+    char buffer[32];
+    snprintf(buffer, sizeof(buffer), "%u", value);
+    return copyString(buffer, (int)strlen(buffer));
+}
+
+ObjString* i16ToString(int16_t value) {
+    char buffer[32];
+    snprintf(buffer, sizeof(buffer), "%d", value);
+    return copyString(buffer, (int)strlen(buffer));
+}
+
+ObjString* ui16ToString(uint16_t value) {
+    char buffer[32];
+    snprintf(buffer, sizeof(buffer), "%u", value);
+    return copyString(buffer, (int)strlen(buffer));
+}
+
+ObjString* i32ToString(int32_t value) {
+    char buffer[32];
+    snprintf(buffer, sizeof(buffer), "%d", value);
+    return copyString(buffer, (int)strlen(buffer));
+}
+
+ObjString* ui32ToString(uint32_t value) {
+    char buffer[32];
+    snprintf(buffer, sizeof(buffer), "%u", value);
+    return copyString(buffer, (int)strlen(buffer));
+}
+
+ObjString* i64ToString(int64_t value) {
+    char buffer[32];
+    snprintf(buffer, sizeof(buffer), "%" PRId64, value);
+    return copyString(buffer, (int)strlen(buffer));
+}
+
+ObjString* ui64ToString(uint64_t value) {
+    char buffer[32];
+    snprintf(buffer, sizeof(buffer), "%" PRIu64, value);
+    return copyString(buffer, (int)strlen(buffer));
+}
+
+ObjString* addressToString(uintptr_t value) {
+    char buffer[32];
+    snprintf(buffer, sizeof(buffer), "%p", (void*)value);
+    return copyString(buffer, (int)strlen(buffer));
+}
+
+ObjString* valueToString(Value value) {
+    ObjString* string = NULL;
+    switch (value.type) {
+        case VAL_BOOL:
+            string = AS_BOOL(value) ? copyString("true", 4) : copyString("false", 5);
+            break;
+        case VAL_NIL: string = copyString("nil", 3); break;
+        case VAL_DOUBLE: string = doubleToString(AS_DOUBLE(value)); break;
+        case VAL_I8: string = i8ToString(AS_I8(value)); break;
+        case VAL_UI8: string = ui8ToString(AS_UI8(value)); break;
+        case VAL_I16: string = i16ToString(AS_I16(value)); break;
+        case VAL_UI16: string = ui16ToString(AS_UI16(value)); break;
+        case VAL_I32: string = i32ToString(AS_I32(value)); break;
+        case VAL_UI32: string = ui32ToString(AS_UI32(value)); break;
+        case VAL_I64: string = i64ToString(AS_I64(value)); break;
+        case VAL_UI64: string = ui64ToString(AS_UI64(value)); break;
+        case VAL_ADDRESS: string = addressToString(AS_ADDRESS(value)); break;
+        case VAL_OBJ: string = objectToString(value); break;
+    }
+    return string;
+}
+
 void printValue(Value value) {
-    fprintValue(stdout, value);
+    ObjString* string = valueToString(value);
+    printf("%s", string->chars);
 }
 
 void fprintValue(FILE* op, Value value) {

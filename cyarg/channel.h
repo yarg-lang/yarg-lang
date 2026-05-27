@@ -13,7 +13,7 @@ ObjChannelContainer* newChannel(ObjRoutine* routine, size_t capacity);
 void freeChannelObject(Obj* channel);
 void markChannel(ObjChannelContainer* channel);
 
-void printChannel(FILE* op, ObjChannelContainer* channel);
+ObjString* channelToString(ObjChannelContainer* channel);
 
 void sendChannel(ObjChannelContainer* channel, Value data);
 Value receiveChannel(ObjChannelContainer* channel);

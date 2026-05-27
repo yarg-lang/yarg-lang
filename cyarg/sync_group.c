@@ -42,11 +42,14 @@ void markSyncGroup(ObjSyncGroup* group) {
     markObject((Obj*)group->result_array);
 }
 
-void printSyncGroup(FILE* op, ObjSyncGroup* group) {
-    FPRINTMSG(op, "sync_group{");
+ObjString* syncGroupToString(ObjSyncGroup* group) {
+    char buffer[256];
+    snprintf(buffer, sizeof(buffer), "sync_group{");
     Value results = unpackValue(group->result_array->store);
-    fprintValue(op, results);
-    FPRINTMSG(op, "}");
+    ObjString* resultsStr = valueToString(results);
+    snprintf(buffer, sizeof(buffer), "%s%s", buffer, resultsStr->chars);
+    snprintf(buffer, sizeof(buffer), "%s}", buffer);
+    return copyString(buffer, (int)strlen(buffer));
 }
 
 Value receiveSyncGroup(ObjSyncGroup* group) {

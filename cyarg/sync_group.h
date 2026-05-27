@@ -13,7 +13,7 @@ ObjSyncGroup* newSyncGroup(ObjRoutine* routine, ObjPackedUniformArray* items);
 void freeSyncGroup(Obj* group);
 void markSyncGroup(ObjSyncGroup* group);
 
-void printSyncGroup(FILE* op, ObjSyncGroup* group);
+ObjString* syncGroupToString(ObjSyncGroup* group);
 
 Value receiveSyncGroup(ObjSyncGroup* group);
 

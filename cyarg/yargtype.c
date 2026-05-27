@@ -545,80 +545,91 @@ bool isSupportedMapKeyType(Value type) {
     }
 }
 
-static void printTypeLiteral(FILE* op, ObjConcreteYargType* type) {
+static ObjString* typeLiteralToString(ObjConcreteYargType* type) {
     if (type == NULL) {
-        FPRINTMSG(op, "any");
-        return;
+        return copyString("any", 3);
     }
 
     switch (type->yt) {
-        case TypeAny: FPRINTMSG(op, "any"); break;
-        case TypeBool: FPRINTMSG(op, "bool"); break;
-        case TypeDouble: FPRINTMSG(op, "mfloat64"); break;
-        case TypeInt: FPRINTMSG(op, "int"); break;
-        case TypeInt8: FPRINTMSG(op, "int8"); break;
-        case TypeUint8: FPRINTMSG(op, "uint8"); break;
-        case TypeInt16: FPRINTMSG(op, "int16"); break;
-        case TypeUint16: FPRINTMSG(op, "uint16"); break;
-        case TypeInt32: FPRINTMSG(op, "int32"); break;
-        case TypeUint32: FPRINTMSG(op, "uint32"); break;
-        case TypeInt64: FPRINTMSG(op, "int64"); break;
-        case TypeUint64: FPRINTMSG(op, "uint64"); break;
-        case TypeString: FPRINTMSG(op, "string"); break;
-        case TypeClass: FPRINTMSG(op, "Class"); break;
-        case TypeInstance: FPRINTMSG(op, "Instance"); break;
-        case TypeFunction: FPRINTMSG(op, "Function"); break;
-        case TypeRoutine: FPRINTMSG(op, "Routine"); break;
-        case TypeChannel: FPRINTMSG(op, "Channel"); break;  
-        case TypeYargType: FPRINTMSG(op, "Type"); break;
+        case TypeAny: return copyString("any", 3);
+        case TypeBool: return copyString("bool", 4);
+        case TypeDouble: return copyString("mfloat64", 8);
+        case TypeInt: return copyString("int", 3);
+        case TypeInt8: return copyString("int8", 4);
+        case TypeUint8: return copyString("uint8", 5);
+        case TypeInt16: return copyString("int16", 5);
+        case TypeUint16: return copyString("uint16", 6);
+        case TypeInt32: return copyString("int32", 5);
+        case TypeUint32: return copyString("uint32", 6);
+        case TypeInt64: return copyString("int64", 5);
+        case TypeUint64: return copyString("uint64", 6);
+        case TypeString: return copyString("string", 6);
+        case TypeClass: return copyString("Class", 5);
+        case TypeInstance: return copyString("Instance", 8);
+        case TypeFunction: return copyString("Function", 8);
+        case TypeRoutine: return copyString("Routine", 7);
+        case TypeChannel: return copyString("Channel", 7);
+        case TypeYargType: return copyString("Type", 4);
         case TypeArray: {
             ObjConcreteYargTypeArray* array = (ObjConcreteYargTypeArray*) type;
-            Value type = arrayElementType(array);
-            if (IS_NIL(type)) {
-                FPRINTMSG(op, "any");
-            } else {
-                printTypeLiteral(op, array->element_type);
-            }
-            FPRINTMSG(op, "[");
+            ObjString* typeStr = typeLiteralToString(array->element_type);
+            tempRootPush(OBJ_VAL(typeStr));
+            char buffer[128];
             if (array->cardinality > 0) {
-                FPRINTMSG(op, "%zu", array->cardinality);
+                snprintf(buffer, sizeof(buffer), "%s[%zu]", typeStr->chars, array->cardinality);
+            } else {
+                snprintf(buffer, sizeof(buffer), "%s[]", typeStr->chars);
             }
-            FPRINTMSG(op, "]");
-            break;
+            ObjString* result = copyString(buffer, (int)strlen(buffer));
+            tempRootPop();
+            return result;
         }
         case TypeStruct: {
             ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*) type;
-            FPRINTMSG(op, "struct{|%zu:%zu| ", st->field_count, st->storage_size);
+            char buffer[1024];
+            snprintf(buffer, sizeof(buffer), "struct{|%zu:%zu| ", st->field_count, st->storage_size);
             for (size_t i = 0; i < st->field_count; i++) {
-                printTypeLiteral(op, st->field_types[i]);
-                FPRINTMSG(op, "; ");
+                ObjString* fieldTypeStr = typeLiteralToString(st->field_types[i]);
+                tempRootPush(OBJ_VAL(fieldTypeStr));
+                snprintf(buffer, sizeof(buffer), "%s%s; ", buffer, fieldTypeStr->chars);
+                tempRootPop();
             }
-            FPRINTMSG(op, "}");
-            break;
+            snprintf(buffer, sizeof(buffer), "%s}", buffer);
+            return copyString(buffer, (int)strlen(buffer));
         }
         case TypePointer: {
             ObjConcreteYargTypePointer* st = (ObjConcreteYargTypePointer*) type;
-            FPRINTMSG(op, "*");
-            if (st->target_type) {
-                printTypeLiteral(op, st->target_type);
-            } else {
-                FPRINTMSG(op, "any");
-            }
-            break;
+            ObjString* typeStr = typeLiteralToString(st->target_type);
+            tempRootPush(OBJ_VAL(typeStr));
+            char buffer[128];
+            snprintf(buffer, sizeof(buffer), "*%s", typeStr->chars);
+            ObjString* result = copyString(buffer, (int)strlen(buffer));
+            tempRootPop();
+            return result;
         }
         case TypeMap: {
             ObjConcreteYargTypeMap* mt = (ObjConcreteYargTypeMap*) type;
-            printTypeLiteral(op, mt->value_type);
-            FPRINTMSG(op, "[");
-            printTypeLiteral(op, mt->key_type);
-            FPRINTMSG(op, "]");
-            break;
+            ObjString* typeStr = typeLiteralToString(mt->value_type);
+            tempRootPush(OBJ_VAL(typeStr));
+            ObjString* keyTypeStr = typeLiteralToString(mt->key_type);
+            tempRootPush(OBJ_VAL(keyTypeStr));
+            char buffer[128];
+            snprintf(buffer, sizeof(buffer), "%s[%s]", typeStr->chars, keyTypeStr->chars);
+            ObjString* result = copyString(buffer, (int)strlen(buffer));
+            tempRootPop();
+            tempRootPop();
+            return result;
         }
-        default: FPRINTMSG(op, "Unknown"); break;
+        default: {
+            return copyString("Unknown", 7);
+        }
     }
 }
 
-void printType(FILE* op, ObjConcreteYargType* type) {
-    FPRINTMSG(op, "Type:");
-    printTypeLiteral(op, type);
+ObjString* typeToString(ObjConcreteYargType* type) {
+    ObjString* literalStr = typeLiteralToString(type);
+
+    char buffer[64];
+    snprintf(buffer, sizeof(buffer), "Type:%s", literalStr->chars);
+    return copyString(buffer, (int)strlen(buffer));
 }
