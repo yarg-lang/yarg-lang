@@ -1156,8 +1156,11 @@ InterpretResult run(ObjRoutine* routine) {
                 break;
             }
             case OP_PRINT: {
-                printValue(pop(routine));
-                printf("\n");
+                ObjString* string = valueToString(peek(routine, 0));
+                tempRootPush(OBJ_VAL(string));
+                printf("%s\n", string->chars);
+                tempRootPop();
+                pop(routine);
                 break;
             }
             case OP_POKE: {
