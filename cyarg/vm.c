@@ -506,13 +506,7 @@ static void concatenate(ObjRoutine* routine) {
     ObjString* b = AS_STRING(peek(routine, 0));
     ObjString* a = AS_STRING(peek(routine, 1));
 
-    int length = a->length + b->length;
-    char* chars = ALLOCATE(char, length + 1);
-    memcpy(chars, a->chars, a->length);
-    memcpy(chars + a->length, b->chars, b->length);
-    chars[length] = '\0';
-
-    ObjString* result = takeString(chars, length);
+    ObjString* result = concatenateStrings(a, b);
     pop(routine);
     pop(routine);
     push(routine, OBJ_VAL(result));

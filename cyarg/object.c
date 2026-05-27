@@ -481,10 +481,23 @@ static ObjString* arrayToString(ObjPackedUniformArray* array) {
 static ObjString* pointerToString(ObjPackedPointer* ptr) {
     Value targetType = ptr->type->target_type == NULL ? NIL_VAL : OBJ_VAL(ptr->type->target_type);
     ObjString* targetTypeStr = valueToString(targetType);
+    tempRootPush(OBJ_VAL(targetTypeStr));
 
-    char buffer[64];
-    snprintf(buffer, sizeof(buffer), "<*%s:%p>", targetTypeStr->chars, (void*) ptr->destination);
-    return copyString(buffer, (int)strlen(buffer));
+    ObjString* prefix = copyString("<*", 2);
+    tempRootPush(OBJ_VAL(prefix));
+    ObjString* working = concatenateStrings(prefix, targetTypeStr);
+    tempRootPush(OBJ_VAL(working));
+    
+    int length = working->length + 12;
+    char* chars = ALLOCATE(char, length + 1);
+    memcpy(chars, working->chars, working->length);
+    snprintf(chars + working->length, 12 + 1, ":%p>", (void*) ptr->destination);
+
+    ObjString* result = takeString(chars, length);
+    tempRootPop();
+    tempRootPop();
+    tempRootPop();
+    return result;
 }
 
 static ObjString* structToString(ObjPackedStruct* st) {
