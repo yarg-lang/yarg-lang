@@ -110,6 +110,8 @@ uint32_t as_positive_integer32(Value a);
 
 bool valuesEqual(Value a, Value b);
 
+ObjString* concatenateStrings(ObjString* a, ObjString* b);
+
 void printValue(Value value);
 void fprintValue(FILE* op, Value value);
 ObjString* valueToString(Value value);
