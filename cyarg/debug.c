@@ -336,7 +336,8 @@ void printValueStack(ObjRoutine* routine, const char* message) {
         printf("[ ");
         printValue(slot->value);
         printf(" | ");
-        printValue(OBJ_VAL((Obj*)slot->cellType));
+        Obj* cellTypeObj = (Obj*)slot->cellType;
+        printValue(cellTypeObj == NULL ? NIL_VAL : OBJ_VAL(cellTypeObj));
         printf(" ]");
     }
     printf("\n");
@@ -351,7 +352,8 @@ void traceValueStack(ObjRoutine* routine, const char* message) {
         printf("[ ");
         printValue(slot->value);
         printf(" | ");
-        printValue(OBJ_VAL((Obj*)slot->cellType));
+        Obj* cellTypeObj = (Obj*)slot->cellType;
+        printValue(cellTypeObj == NULL ? NIL_VAL : OBJ_VAL(cellTypeObj));
         printf(" ]");
     }
     printf("\n");
