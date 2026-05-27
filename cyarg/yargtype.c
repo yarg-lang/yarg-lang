@@ -628,8 +628,11 @@ static ObjString* typeLiteralToString(ObjConcreteYargType* type) {
 
 ObjString* typeToString(ObjConcreteYargType* type) {
     ObjString* literalStr = typeLiteralToString(type);
-
-    char buffer[64];
-    snprintf(buffer, sizeof(buffer), "Type:%s", literalStr->chars);
-    return copyString(buffer, (int)strlen(buffer));
+    tempRootPush(OBJ_VAL(literalStr));
+    ObjString* prefix = copyString("Type:", 5);
+    tempRootPush(OBJ_VAL(prefix));
+    ObjString* result = concatenateStrings(prefix, literalStr);
+    tempRootPop();
+    tempRootPop();
+    return result;
 }
