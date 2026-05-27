@@ -465,16 +465,19 @@ static ObjString* arrayToString(ObjPackedUniformArray* array) {
     char buffer[1024];
     ObjString* typeStr = valueToString(OBJ_VAL(arrayType));
     snprintf(buffer, sizeof(buffer), "%s:[", typeStr->chars);
+    size_t cursor = strlen(buffer);
     for (int i = 0; i < arrayType->cardinality; i++) {
         PackedValue element = arrayElement(array->store, i);
         Value unpackedValue = unpackValue(element);
         ObjString* candidate = valueToString(unpackedValue);
-        snprintf(buffer, sizeof(buffer), "%s%s", buffer, candidate->chars);
+        snprintf(buffer + cursor, sizeof(buffer) - cursor, "%s", candidate->chars);
+        cursor = strlen(buffer);
         if (i < arrayType->cardinality - 1) {
-            snprintf(buffer, sizeof(buffer), "%s, ", buffer);
+            snprintf(buffer + cursor, sizeof(buffer) - cursor, ", ");
+            cursor = strlen(buffer);
         }
     }
-    snprintf(buffer, sizeof(buffer), "%s]", buffer);
+    snprintf(buffer + cursor, sizeof(buffer) - cursor, "]");
     return copyString(buffer, (int)strlen(buffer));
 }
 
@@ -504,13 +507,15 @@ static ObjString* structToString(ObjPackedStruct* st) {
     ObjConcreteYargTypeStruct* structType = (ObjConcreteYargTypeStruct*)st->store.storedType;
     char buffer[1024];
     snprintf(buffer, sizeof(buffer), "struct{|%zu:%zu|", structType->field_count, structType->storage_size);
+    size_t cursor = strlen(buffer);
     for (size_t i = 0; i < structType->field_count; i++) {
         PackedValue f = structField(st->store, i);
         Value logValue = unpackValue(f);
         ObjString* fieldStr = valueToString(logValue);
-        snprintf(buffer, sizeof(buffer), "%s%s; ", buffer, fieldStr->chars);
+        snprintf(buffer + cursor, sizeof(buffer) - cursor, "%s; ", fieldStr->chars);
+        cursor = strlen(buffer);
     }
-    snprintf(buffer, sizeof(buffer), "%s}", buffer);
+    snprintf(buffer + cursor, sizeof(buffer) - cursor, "}");
     return copyString(buffer, (int)strlen(buffer));
 }
 
