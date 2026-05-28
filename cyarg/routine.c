@@ -335,28 +335,65 @@ ValueCellTarget peekCellTarget(ObjRoutine* routine, int distance) {
     return result;
 }
 
-static void traceValueStack(ObjRoutine* routine, const char* message) {
+static void traceValueStack(ObjRoutine* routine) {
+    const unsigned int max_stack_trace_lines = 3;
+    const unsigned int max_stack_line_width = 5;
+    assert(max_stack_trace_lines > 1);
+
     size_t stackSize = routine->stackTopIndex;
-    printf("%6s", message);
-    printf("%3zu:", stackSize);
-    for (int i = (int)(stackSize - 1); i >= 0; i--) {
-        ValueCell* slot = peekCell(routine, i);
-        printf("[ ");
-        printf(" ");//printValue(slot->value);
-        printf(" | ");
-        Obj* cellTypeObj = (Obj*)slot->cellType;
-        printValue(cellTypeObj == NULL ? NIL_VAL : OBJ_VAL(cellTypeObj));
-        printf(" ]");
+    size_t stack_lines = (stackSize / max_stack_line_width);
+    if (stackSize % max_stack_line_width != 0) {
+        stack_lines++;
     }
-    printf("\n");
+
+    for (int line = stack_lines, line_cursor = 0; line >= 0 && line_cursor < stack_lines; line--, line_cursor++) {
+        char prefix[21] = "                    ";
+        if (line_cursor == 0) { // first line identifes the routine and the total stack size
+            ObjString* routineStr = valueToString(OBJ_VAL(routine));
+            snprintf(prefix, sizeof(prefix), "%s[%3zu]:", routineStr->chars, stackSize);
+        }
+        // if this the last line to trace, and there are more stack elements skipped, then indicate that with an ellipsis
+        if (line_cursor == max_stack_trace_lines - 1 && line_cursor > 0 && line_cursor != stack_lines - 1) {
+            snprintf(&prefix[17], 4, "...");
+        }
+        printf("%s", prefix);
+        for (size_t cursor = 0; cursor < max_stack_line_width; cursor++) {
+            size_t slot = (line - 1) * max_stack_line_width + cursor;
+            if (slot >= stackSize) break;
+            ValueCell* cell = peekCell(routine, (int)(stackSize - 1 - slot));
+            ObjString* valueStr = valueToString(cell->value);
+            tempRootPush(OBJ_VAL(valueStr));
+            char value_description[12];
+            if (valueStr->length > 11) {
+                snprintf(value_description, sizeof(value_description), "%8.8s...", valueStr->chars);
+            } else {
+                snprintf(value_description, sizeof(value_description), "%11.11s", valueStr->chars);
+            }
+            tempRootPop();
+            ObjString* typeStr = valueToString(cell->cellType ? OBJ_VAL(cell->cellType) : NIL_VAL);
+            tempRootPush(OBJ_VAL(typeStr));
+            char type_description[11] = "       any";
+            if (typeStr->length > 10 && cell->cellType) {
+                snprintf(type_description, sizeof(type_description), "%7.7s...", typeStr->chars);
+            } else if (cell->cellType) {
+                snprintf(type_description, sizeof(type_description), "%7.7s", typeStr->chars);
+            }
+            tempRootPop();
+            printf("[%s|%s]", value_description, type_description);
+        }
+        printf("\n");
+        if (line_cursor == max_stack_trace_lines - 1 && line > 0) {
+            break;
+        }
+    }
 }
 
 void traceExecution(ObjRoutine* routine) {
     CallFrame* frame = &routine->frames[routine->frameCount - 1];
 
-    PRINTERR("[%p]", routine);
-    traceValueStack(routine, "          ");
-    PRINTERR("[%p]", routine);
+    traceValueStack(routine);
+    ObjString* routineStr = valueToString(OBJ_VAL(routine));
+    printf("%s %s:", routineStr->chars, frame->closure->function->fName ? frame->closure->function->fName->chars : "script");
     disassembleInstruction(&frame->closure->function->chunk, 
         (int)(frame->ip - frame->closure->function->chunk.code));
 }
