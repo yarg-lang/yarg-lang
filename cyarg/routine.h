@@ -91,4 +91,6 @@ ValueCellTarget peekCellTarget(ObjRoutine* routine, int distance);
 
 void runtimeError(ObjRoutine* routine, const char* format, ...);
 
+void traceExecution(ObjRoutine* routine);
+
 #endif

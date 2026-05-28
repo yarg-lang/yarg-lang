@@ -10,6 +10,7 @@
 
 #include "memory.h"
 #include "vm.h"
+#include "debug.h"
 
 bool addSlice(ObjRoutine* routine);
 
@@ -332,4 +333,30 @@ ValueCellTarget peekCellTarget(ObjRoutine* routine, int distance) {
     ValueCell* target = peekCell(routine, distance);
     ValueCellTarget result = { .value = &target->value, .cellType = target->cellType};
     return result;
+}
+
+static void traceValueStack(ObjRoutine* routine, const char* message) {
+    size_t stackSize = routine->stackTopIndex;
+    printf("%6s", message);
+    printf("%3zu:", stackSize);
+    for (int i = (int)(stackSize - 1); i >= 0; i--) {
+        ValueCell* slot = peekCell(routine, i);
+        printf("[ ");
+        printf(" ");//printValue(slot->value);
+        printf(" | ");
+        Obj* cellTypeObj = (Obj*)slot->cellType;
+        printValue(cellTypeObj == NULL ? NIL_VAL : OBJ_VAL(cellTypeObj));
+        printf(" ]");
+    }
+    printf("\n");
+}
+
+void traceExecution(ObjRoutine* routine) {
+    CallFrame* frame = &routine->frames[routine->frameCount - 1];
+
+    PRINTERR("[%p]", routine);
+    traceValueStack(routine, "          ");
+    PRINTERR("[%p]", routine);
+    disassembleInstruction(&frame->closure->function->chunk, 
+        (int)(frame->ip - frame->closure->function->chunk.code));
 }
