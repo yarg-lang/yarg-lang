@@ -739,7 +739,7 @@ InterpretResult run(ObjRoutine* routine) {
         }
         if (routine->traceExecution) {
             PRINTERR("[%p]", routine);
-            printValueStack(routine, "          ");
+            traceValueStack(routine, "          ");
             PRINTERR("[%p]", routine);
             disassembleInstruction(&frame->closure->function->chunk, 
                                 (int)(frame->ip - frame->closure->function->chunk.code));
