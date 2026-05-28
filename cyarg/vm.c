@@ -738,11 +738,7 @@ InterpretResult run(ObjRoutine* routine) {
             return INTERPRET_RUNTIME_ERROR;
         }
         if (routine->traceExecution) {
-            PRINTERR("[%p]", routine);
-            traceValueStack(routine, "          ");
-            PRINTERR("[%p]", routine);
-            disassembleInstruction(&frame->closure->function->chunk, 
-                                (int)(frame->ip - frame->closure->function->chunk.code));
+            traceExecution(routine);
         }
 
         uint8_t instruction;
