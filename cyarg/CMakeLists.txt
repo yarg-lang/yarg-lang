@@ -115,6 +115,8 @@ add_executable(cyarg
     pack_load.c
     pack_format.h
     pack.h
+    ../external/o1heap/o1heap/o1heap.c
+    ../external/o1heap/o1heap/o1heap.h
     )
 
 if (CYARG_HOSTING STREQUAL "HOSTED")

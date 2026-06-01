@@ -4,6 +4,10 @@
 #include "common.h"
 #include "object.h"
 
+typedef struct O1HeapInstance O1HeapInstance;
+
+void init_heap_instance(O1HeapInstance** instance);
+
 #define TEMP_ROOTS_MAX 8
 #define FIRST_GC_AT 50 * 1024
 #define ALWAYS_GC_ABOVE 100 * 1024
