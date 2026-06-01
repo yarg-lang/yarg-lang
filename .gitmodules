@@ -1,3 +1,6 @@
 [submodule "hostyarg/littlefs"]
 	path = external/littlefs
 	url = https://github.com/littlefs-project/littlefs
+[submodule "external/o1heap"]
+	path = external/o1heap
+	url = https://github.com/pavel-kirienko/o1heap
