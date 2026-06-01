@@ -24,7 +24,7 @@ place struct {
     uint32 flags2;
     } @xc0000000 registers2;
 peek(registers2.ctrl);     // expect: peek(0xc0000010) -> a5a5a5
-peek(registers2.flags);    // expect: peek(0xc0000020) -> a5a5a5
+peek(registers2.flags[0]); // expect: peek(0xc0000020) -> a5a5a5
 peek(registers2.begin);    // expect: peek(0xc0000000) -> a5a5a5
 peek(registers2.ctrl2);    // expect: peek(0xc0000014) -> a5a5a5
 peek(registers2.flags2);   // expect: peek(0xc0000028) -> a5a5a5

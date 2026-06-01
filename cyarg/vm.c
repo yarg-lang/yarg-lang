@@ -1164,7 +1164,7 @@ InterpretResult run(ObjRoutine* routine) {
                 Value assignment = peek(routine, 1);
                 Value assignment_type = concrete_typeof(assignment);
                 tempRootPush(assignment_type);
-                if (!isAddressValue(location) && !isUint32Pointer(location)) {
+                if (!(isAddressValue(location) || isUint32Pointer(location))) {
                     tempRootPop();
                     runtimeError(routine, "Location must be a pointer to an uint32 or address.");
                     return INTERPRET_RUNTIME_ERROR;
