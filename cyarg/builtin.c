@@ -351,7 +351,7 @@ bool peekBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
 
     Value address = nativeArgument(routineContext, argCount, 0);
 
-    if (!isAddressValue(address)) {
+    if (!(isAddressValue(address) || isUint32Pointer(address))) {
         runtimeError(routineContext, "Expected an address or pointer.");
         return false;
     }

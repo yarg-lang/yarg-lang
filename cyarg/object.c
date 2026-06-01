@@ -239,8 +239,6 @@ bool isAddressValue(Value val) {
         return i->isLiteral;
     } else if (IS_ADDRESS(val)) {
         return true;
-    } else if (IS_POINTER(val)) {
-        return true;
     } else {
         return false;
     }
