@@ -138,6 +138,8 @@ void initVMMemory() {
 
     platform_critical_section_init(&vm.heap);
     platform_critical_section_init(&vm.env);
+
+    init_heap_instance(&vm.heap_instance);
 }
 
 void initVMRuntime() {

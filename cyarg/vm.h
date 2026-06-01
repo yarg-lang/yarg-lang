@@ -30,6 +30,7 @@ typedef struct {
     ObjString* libraryPath;
 
     platform_critical_section heap;
+    O1HeapInstance* heap_instance;
 
     Value tempRoots[TEMP_ROOTS_MAX];
     Value* tempRootsTop;
