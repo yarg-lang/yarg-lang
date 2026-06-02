@@ -82,7 +82,7 @@ void platform_critical_section_enter_blocking(platform_critical_section* cs) {
 #if defined(CYARG_PICO_SDK_SYNC)
     critical_section_enter_blocking(cs);
 #elif defined(CYARG_PTHREADS_SYNC)
-    // currently using nop pthread mutex for critical section
+    pthread_mutex_lock(cs);
 #else
     #error "No platform critical section implementation defined."
 #endif
@@ -93,7 +93,7 @@ void platform_critical_section_exit(platform_critical_section* cs) {
 #if defined(CYARG_PICO_SDK_SYNC)
     critical_section_exit(cs);
 #elif defined(CYARG_PTHREADS_SYNC)
-    // currently using nop pthread mutex for critical section
+    pthread_mutex_unlock(cs);
 #else
     #error "No platform critical section implementation defined."
 #endif
