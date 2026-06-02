@@ -527,14 +527,15 @@ static void generateExprCollectionInit(ObjExprCollectionInitializer* collection)
             ObjExprPair* pair = (ObjExprPair*)item_or_pair;
             generateExpr(pair->a);
             generateExpr(pair->b);
+            emitByte(OP_SET_ELEMENT);
         } else {
             ObjExpr* element = (ObjExpr*)newExprNumberFromCint(i);
-        tempRootPush(OBJ_VAL(element));
+            tempRootPush(OBJ_VAL(element));
             generateExpr(element);
-        generateExpr((ObjExpr*)item_or_pair);
+            generateExpr((ObjExpr*)item_or_pair);
+            emitByte(OP_SET_ELEMENT);
+            tempRootPop();
         }
-        emitByte(OP_SET_ELEMENT);
-        tempRootPop();
     }
 }
 
