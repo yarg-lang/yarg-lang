@@ -3,7 +3,7 @@ fun input(n) {
     yield n - 1;
 }
 
-var coro = make_routine(input, false);
+var coro = make_routine(input);
 
 print resume(coro, 10);
 print receive(coro);

@@ -6,7 +6,7 @@ fun handler() {
     print count;
 }
 
-var handler_routine = make_routine(handler, true);
+var handler_routine = make_routine(handler);
 var handler_address = pin(handler_routine);
 irq_add_shared_handler(1, handler_address, 1);
 

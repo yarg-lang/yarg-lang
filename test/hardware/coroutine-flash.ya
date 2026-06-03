@@ -14,7 +14,7 @@ fun flash(count) {
             yield 1;
         }
     }
-    var sleeper = make_routine(sleep, false);
+    var sleeper = make_routine(sleep);
 
     fun toggle() {
         while (flashes < count * 2) {
@@ -27,7 +27,7 @@ fun flash(count) {
         return flashes;
     }
 
-    var flasher = make_routine(toggle, false);
+    var flasher = make_routine(toggle);
 
     var x = 0;
     while (x < count * 2) {

@@ -11,7 +11,7 @@ fun input_routine() {
         overflow = share(input_channel, input);
     }
 
-    return make_routine(irq_response, true);
+    return make_routine(irq_response);
 }
 
 var input_handler_routine = input_routine();

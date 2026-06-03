@@ -13,7 +13,7 @@ fun setup_interrupt(number) {
         display_count(count);
     }
 
-    var handler_routine = make_routine(handler, true);
+    var handler_routine = make_routine(handler);
     var handler_address = pin(handler_routine);
     irq_add_shared_handler(number, handler_address, 1);
 

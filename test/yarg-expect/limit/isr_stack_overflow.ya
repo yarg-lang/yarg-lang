@@ -26,7 +26,7 @@ fun foo() {
   foo();
 }
 
-var foo_routine = make_routine(foo, true);
+var foo_routine = make_routine(foo);
 var isr_routine = pin(foo_routine);
 
 resume(foo_routine);

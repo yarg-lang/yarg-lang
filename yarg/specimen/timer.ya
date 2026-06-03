@@ -61,7 +61,7 @@ fun enable_alarm_handler(al, irq_response) {
         alarm_handlers[al].irq_routine = nil;
         alarm_handlers[al].pinned_routine = nil;
     }
-    alarm_handlers[al].irq_routine = make_routine(irq_response, true);
+    alarm_handlers[al].irq_routine = make_routine(irq_response);
     alarm_handlers[al].pinned_routine = pin(alarm_handlers[al].irq_routine);
 
     irq_add_shared_handler(timer_irq[al], alarm_handlers[al].pinned_routine, ALARM_CALLBACK_ORDER_PRIORITY);

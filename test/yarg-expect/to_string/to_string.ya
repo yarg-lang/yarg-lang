@@ -53,5 +53,5 @@ place uint32 @xf0000000 data;
 print data; // expect: <*Type:uint32:0xf0000000>
 
 // untested types, at least exercise the to_string function for them
-var r = make_routine(test, true);
+var r = make_routine(test);
 print string(r) == string(r); // expect: true

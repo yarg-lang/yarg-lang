@@ -20,7 +20,7 @@ fun button_routine(gpio, chan) {
         share(chan, events);
     }
 
-    return make_routine(gpio_response, true);
+    return make_routine(gpio_response);
 }
 
 // intialise a GPIO for an LED.
