@@ -249,18 +249,16 @@ bool makeSyncGroupBuiltin(ObjRoutine* routineContext, int argCount, Value* resul
 }
 
 bool makeRoutineBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
-    if (argCount != 2) {
-        runtimeError(routineContext, "Expected 2 arguments but got %d.", argCount);
+    if (argCount != 1) {
+        runtimeError(routineContext, "Expected 1 argument but got %d.", argCount);
         return false;
     }
-    if (!IS_CLOSURE(nativeArgument(routineContext, argCount, 0)) || !IS_BOOL(nativeArgument(routineContext, argCount, 1))) {
-        runtimeError(routineContext, "Argument to make_routine must be a function and a boolean.");
+    if (!IS_CLOSURE(nativeArgument(routineContext, argCount, 0))) {
+        runtimeError(routineContext, "Argument to make_routine must be a function.");
         return false;
     }
 
     ObjClosure* closure = AS_CLOSURE(nativeArgument(routineContext, argCount, 0));
-    [[maybe_unused]] bool isISR = AS_BOOL(nativeArgument(routineContext, argCount, 1));
-
     ObjRoutine* routine = newRoutine();
 
     if (bindEntryFn(routine, closure)) {

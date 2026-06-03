@@ -24,7 +24,7 @@ fun flash(n) {
         return tick;
     }
 
-    var core = make_routine(core1, false);
+    var core = make_routine(core1);
     start(core, pico_led);
     print "core:";
     print coreNum();

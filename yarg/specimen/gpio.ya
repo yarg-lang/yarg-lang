@@ -121,7 +121,7 @@ fun gpio_set_irq_routine(response) {
 
     fun setup_routine() {
         if (response) {
-            gpio_handlers[core].irq_routine = make_routine(irq_response, true);
+            gpio_handlers[core].irq_routine = make_routine(irq_response);
             gpio_handlers[core].pinned_routine = pin(gpio_handlers[core].irq_routine);
             irq_add_shared_handler(io_irq_bank0, gpio_handlers[core].pinned_routine, GPIO_IRQ_CALLBACK_ORDER_PRIORITY);
         }
