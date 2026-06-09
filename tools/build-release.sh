@@ -1,7 +1,7 @@
 #!/bin/bash
 
 RELEASE_VERSION=$(git describe --tags --dirty=M --always)
-VSCODEEXTENSION_VERSION=0.3.0
+VSCODEEXTENSION_VERSION=0.4.0
 TARGETUF2=build/yarg-lang-pico-$RELEASE_VERSION.uf2
 
 if [ -e release/yarg-lang-pico-$RELEASE_VERSION.tgz ]
