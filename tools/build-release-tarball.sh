@@ -1,7 +1,7 @@
 #!/bin/bash
 
 RELEASE_VERSION=$(git describe --tags --dirty=M --always)
-VSCODEEXTENSION_VERSION=0.3.0
+VSCODEEXTENSION_VERSION=0.4.0
 TARGETUF2=yarg-lang-pico-$RELEASE_VERSION.uf2
 RELEASE_TARBALL=yarg-lang-pico-$RELEASE_VERSION.tgz
 
