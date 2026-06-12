@@ -6,7 +6,7 @@
 #endif
 
 #include "common.h"
-#include "platform_hal.h"
+#include "vm_mutex.h"
 
 #include "channel.h"
 #include "memory.h"

@@ -105,8 +105,8 @@ add_executable(cyarg
     channel.c
     yargtype.h
     yargtype.c
-    platform_hal.h
-    platform_hal.c
+    vm_mutex.h
+    vm_mutex.c
     sync_group.h
     sync_group.c
     fs/fs.h

@@ -8,7 +8,7 @@
 
 #include "memory.h"
 #include "routine.h"
-#include "platform_hal.h"
+#include "vm_mutex.h"
 
 #define MAX_PINNED_ROUTINES 10
 

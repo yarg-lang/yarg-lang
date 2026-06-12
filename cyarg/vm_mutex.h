@@ -1,5 +1,5 @@
-#ifndef cyarg_platform_hal_h
-#define cyarg_platform_hal_h
+#ifndef cyarg_vm_mutex_h
+#define cyarg_vm_mutex_h
 
 #if defined(CYARG_PICO_SDK_SYNC)
 #include <pico/sync.h>

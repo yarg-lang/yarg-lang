@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "value.h"
 #include "object.h"
-#include "platform_hal.h"
+#include "vm_mutex.h"
 
 typedef struct ObjSyncGroup ObjSyncGroup;
 

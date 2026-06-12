@@ -10,7 +10,7 @@
 #include "ast.h"
 #include "channel.h"
 #include "sync_group.h"
-#include "platform_hal.h"
+#include "vm_mutex.h"
 
 #include "../external/o1heap/o1heap/o1heap.h"
 

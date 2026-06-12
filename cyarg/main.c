@@ -10,7 +10,7 @@
 #endif
 
 #include "common.h"
-#include "platform_hal.h"
+#include "vm_mutex.h"
 #include "vm.h"
 #ifdef CYARG_FEATURE_HOSTED_REPL
 #include "hosted.h"
