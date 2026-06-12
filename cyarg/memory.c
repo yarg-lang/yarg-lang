@@ -48,7 +48,7 @@ void* gc_free(void* pointer, size_t oldSize, size_t newSize) {
 }
 
 void* reallocate(void* pointer, size_t oldSize, size_t newSize) {
-    platform_critical_section_enter_blocking(&vm.heap);
+    vm_mutex_enter_blocking(&vm.heap);
 
     vm.bytesAllocated += newSize - oldSize;
     if (newSize > oldSize) {
@@ -63,7 +63,7 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize) {
 
     if (newSize == 0) {
         o1heapFree(vm.heap_instance, pointer);
-        platform_critical_section_exit(&vm.heap);
+        vm_mutex_exit(&vm.heap);
         return NULL;
     }
 
@@ -72,13 +72,13 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize) {
         PRINTERR("help! no memory.");
         exit(1);
     }
-    platform_critical_section_exit(&vm.heap);
+    vm_mutex_exit(&vm.heap);
     return result;
 }
 
 void tempRootPush(Value value) {
 
-    platform_critical_section_enter_blocking(&vm.heap);
+    vm_mutex_enter_blocking(&vm.heap);
 
     *vm.tempRootsTop = value;
     vm.tempRootsTop++;
@@ -87,14 +87,14 @@ void tempRootPush(Value value) {
         fatalVMError("Allocation Stash Max Exeeded.");
     }
 
-    platform_critical_section_exit(&vm.heap);
+    vm_mutex_exit(&vm.heap);
 }
 
 Value tempRootPop() {
-    platform_critical_section_enter_blocking(&vm.heap);
+    vm_mutex_enter_blocking(&vm.heap);
     vm.tempRootsTop--;
     Value result = *vm.tempRootsTop;
-    platform_critical_section_exit(&vm.heap);
+    vm_mutex_exit(&vm.heap);
     return result;
 }
 

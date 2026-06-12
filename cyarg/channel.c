@@ -19,8 +19,8 @@ typedef struct ObjChannelContainer {
     Obj obj;
     bool overflow;
     size_t writeCursor;
-    platform_critical_section lock;
-    platform_critical_section* lock_access;
+    vm_mutex lock;
+    vm_mutex* lock_access;
 #ifdef CYARG_PTHREADS_SYNC
     sem_t* access;
 #endif
@@ -41,7 +41,7 @@ ObjChannelContainer* newChannel(ObjRoutine* routine, size_t capacity) {
     for (int i = 0; i < capacity; i++) {
         channel->buffer[i] = NIL_VAL;
     }
-    platform_critical_section_init(&channel->lock);
+    vm_mutex_init(&channel->lock);
     channel->lock_access = &channel->lock;
 #ifdef CYARG_PTHREADS_SYNC
     channel->access = sem_open("/semaphore", O_CREAT, S_IRUSR | S_IWUSR, 0);
@@ -56,7 +56,7 @@ ObjChannelContainer* newChannel(ObjRoutine* routine, size_t capacity) {
 
 void freeChannelObject(Obj* object) {
     ObjChannelContainer* channel = (ObjChannelContainer*)object;
-    platform_critical_section_deinit(&channel->lock);
+    vm_mutex_deinit(&channel->lock);
 #ifdef CYARG_PTHREADS_SYNC    
     sem_close(channel->access);
 #endif
@@ -73,11 +73,11 @@ size_t readCursor(ObjChannelContainer* channel) {
 }
 
 static void channelMutexEnter(ObjChannelContainer* channel) {
-    platform_critical_section_enter_blocking(channel->lock_access);
+    vm_mutex_enter_blocking(channel->lock_access);
 }
 
 static void channelMutexLeave(ObjChannelContainer* channel) {
-    platform_critical_section_exit(channel->lock_access);
+    vm_mutex_exit(channel->lock_access);
 }
  
 void markChannel(ObjChannelContainer* channel) {
@@ -191,11 +191,11 @@ Value peekChannel(ObjChannelContainer* channel) {
 }
 
 void joinSyncGroup(ObjChannelContainer* channel, ObjSyncGroup* group) {
-    platform_critical_section_deinit(&channel->lock);
+    vm_mutex_deinit(&channel->lock);
     channel->lock_access = getSyncGroupLock(group);
 }
 
 void leaveSyncGroup(ObjChannelContainer* channel, ObjSyncGroup* group) {
-    platform_critical_section_init(&channel->lock);
+    vm_mutex_init(&channel->lock);
     channel->lock_access = &channel->lock;
 }

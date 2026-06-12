@@ -17,6 +17,6 @@ ObjString* syncGroupToString(ObjSyncGroup* group);
 
 Value receiveSyncGroup(ObjSyncGroup* group);
 
-platform_critical_section* getSyncGroupLock(ObjSyncGroup* group);
+vm_mutex* getSyncGroupLock(ObjSyncGroup* group);
 
 #endif
