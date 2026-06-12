@@ -24,11 +24,11 @@ static bool syncBuiltin(ObjRoutine *, int, Value *);
 Value getTestSystemBuiltin(uint8_t builtin)
 {
     switch (builtin) {
-        case BUILTIN_TS_SET: return OBJ_VAL(newNative(setBuiltin));
-        case BUILTIN_TS_READ: return OBJ_VAL(newNative(readBuiltin));
-        case BUILTIN_TS_WRITE: return OBJ_VAL(newNative(writeBuiltin));
-        case BUILTIN_TS_INTERRUPT: return OBJ_VAL(newNative(interruptBuiltin));
-        case BUILTIN_TS_SYNC: return OBJ_VAL(newNative(syncBuiltin));
+        case BUILTIN_TS_SET: return OBJ_VAL(newBuiltin(setBuiltin));
+        case BUILTIN_TS_READ: return OBJ_VAL(newBuiltin(readBuiltin));
+        case BUILTIN_TS_WRITE: return OBJ_VAL(newBuiltin(writeBuiltin));
+        case BUILTIN_TS_INTERRUPT: return OBJ_VAL(newBuiltin(interruptBuiltin));
+        case BUILTIN_TS_SYNC: return OBJ_VAL(newBuiltin(syncBuiltin));
         default: return NIL_VAL;
     }
 }
