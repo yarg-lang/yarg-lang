@@ -45,22 +45,20 @@ bool readYargSourceBuiltin(ObjRoutine* routineContext, int argCount, Value* resu
         size_t file_size = fileSize(filename);
 
         ObjConcreteYargType* byteType = newYargTypeFromType(TypeUint8);
-        tempRootPush(OBJ_VAL(byteType));
+        push(routineContext, OBJ_VAL(byteType));
 
         ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*)newYargArrayTypeFromType(OBJ_VAL(byteType));
-        tempRootPush(OBJ_VAL(arrayType));
+        push(routineContext, OBJ_VAL(arrayType));
 
         arrayType->cardinality = file_size;
         ObjPackedUniformArray* array = newPackedUniformArray(arrayType);
-        tempRootPush(OBJ_VAL(array));
+        push(routineContext, OBJ_VAL(array));
 
         readFileIntoBuffer(filename, (uint8_t*)array->store.storedValue, file_size);
 
         *result = OBJ_VAL(array);
 
-        tempRootPop();
-        tempRootPop();
-        tempRootPop();
+        popN(routineContext, 3);
     }
     else {
         // assume a text file
