@@ -209,10 +209,6 @@ ValueCell* frameSlot(ObjRoutine* routine, CallFrame* frame, size_t index) {
     return peekCell(routine, (int) (routine->stackTopIndex - (stackElementIndex + 1)));
 }
 
-Value nativeArgument(ObjRoutine* routine, size_t argCount, size_t argument) {
-    return peek(routine, (int)argCount - 1 - (int)argument);
-}
-
 size_t stackOffsetOf(CallFrame* frame, size_t frameIndex) {
     return frame->stackEntryIndex + frameIndex;
 }

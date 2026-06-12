@@ -278,4 +278,6 @@ bool isAddressValue(Value value);
 bool isArrayPointer(Value value);
 bool isStructPointer(Value value);
 
+Value nativeArgument(ObjRoutine* routine, size_t argCount, size_t argument);
+
 #endif

@@ -66,7 +66,6 @@ void bindEntryArgs(ObjRoutine* routine, Value entryArg);
 void pushEntryElements(ObjRoutine* routine);
 void enterEntryFunction(ObjRoutine* routine);
 ValueCell* frameSlot(ObjRoutine* routine, CallFrame* frame, size_t index);
-Value nativeArgument(ObjRoutine* routine, size_t argCount, size_t argument);
 size_t stackOffsetOf(CallFrame* frame, size_t frameIndex);
 
 bool pinRoutine(ObjRoutine* routine, uintptr_t* address);
