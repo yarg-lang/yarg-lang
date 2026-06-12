@@ -3,14 +3,14 @@
 
 #if defined(CYARG_PICO_SDK_SYNC)
 #include <pico/sync.h>
-typedef critical_section_t platform_critical_section;
+typedef critical_section_t vm_mutex;
 #elif defined(CYARG_PTHREADS_SYNC)
 #include <pthread.h>
-typedef pthread_mutex_t platform_critical_section;
+typedef pthread_mutex_t vm_mutex;
 #endif
 
-void platform_critical_section_init(platform_critical_section* cs);
-void platform_critical_section_deinit(platform_critical_section* cs);
-void platform_critical_section_enter_blocking(platform_critical_section* cs);
-void platform_critical_section_exit(platform_critical_section* cs);
+void vm_mutex_init(vm_mutex* cs);
+void vm_mutex_deinit(vm_mutex* cs);
+void vm_mutex_enter_blocking(vm_mutex* cs);
+void vm_mutex_exit(vm_mutex* cs);
 #endif

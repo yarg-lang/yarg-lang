@@ -12,7 +12,7 @@
 
 typedef struct ObjSyncGroup {
     Obj obj;
-    platform_critical_section group_lock;
+    vm_mutex group_lock;
     ObjPackedUniformArray* channel_array;
     ObjPackedUniformArray* result_array;
 } ObjSyncGroup;
@@ -20,7 +20,7 @@ typedef struct ObjSyncGroup {
 ObjSyncGroup* newSyncGroup(ObjRoutine* routine, ObjPackedUniformArray* items) {
     ObjSyncGroup* group = ALLOCATE_OBJ(ObjSyncGroup, OBJ_SYNCGROUP);
     push(routine, OBJ_VAL(group));
-    platform_critical_section_init(&group->group_lock);
+    vm_mutex_init(&group->group_lock);
     group->channel_array = items;
     ObjConcreteYargTypeArray* t = (ObjConcreteYargTypeArray*)newYargArrayTypeFromType(NIL_VAL);
     push(routine, OBJ_VAL(t));
@@ -33,7 +33,7 @@ ObjSyncGroup* newSyncGroup(ObjRoutine* routine, ObjPackedUniformArray* items) {
 
 void freeSyncGroup(Obj* obj) {
     ObjSyncGroup* group = (ObjSyncGroup*)obj;
-    platform_critical_section_deinit(&group->group_lock);
+    vm_mutex_deinit(&group->group_lock);
     FREE(ObjSyncGroup, obj);
 }
 
@@ -60,7 +60,7 @@ Value receiveSyncGroup(ObjSyncGroup* group) {
     bool wait_complete = false;
     while (!wait_complete && num_channels > 0) {
         wait_complete = false;
-        platform_critical_section_enter_blocking(&group->group_lock);
+        vm_mutex_enter_blocking(&group->group_lock);
         for (size_t i = 0; i < num_channels; i++) {
             PackedValue channel_cursor = arrayElement(group->channel_array->store, i);
             Value channelVal = unpackValue(channel_cursor);
@@ -75,11 +75,11 @@ Value receiveSyncGroup(ObjSyncGroup* group) {
             PackedValue trg = arrayElement(group->result_array->store, i);
             assignToPackedValue(trg, data);
         }
-        platform_critical_section_exit(&group->group_lock);
+        vm_mutex_exit(&group->group_lock);
     }
     return OBJ_VAL(group->result_array);
 }
 
-platform_critical_section* getSyncGroupLock(ObjSyncGroup* group) {
+vm_mutex* getSyncGroupLock(ObjSyncGroup* group) {
     return &group->group_lock;
 }

@@ -136,8 +136,8 @@ void initVMMemory() {
 
     vm.nextGC = FIRST_GC_AT;
 
-    platform_critical_section_init(&vm.heap);
-    platform_critical_section_init(&vm.env);
+    vm_mutex_init(&vm.heap);
+    vm_mutex_init(&vm.env);
 
     init_heap_instance(&vm.heap_instance);
 }
@@ -794,28 +794,28 @@ InterpretResult run(ObjRoutine* routine) {
                 break;
             }
             case OP_GET_GLOBAL: {
-                platform_critical_section_enter_blocking(&vm.env);
+                vm_mutex_enter_blocking(&vm.env);
                 ObjString* name = READ_STRING();
                 ValueCell cell;
                 if (!tableCellGet(&vm.globals, name, &cell)) {
                     runtimeError(routine, "Undefined variable (OP_GET_GLOBAL) '%s'.", name->chars);
-                    platform_critical_section_exit(&vm.env);
+                    vm_mutex_exit(&vm.env);
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 push(routine, cell.value);
-                platform_critical_section_exit(&vm.env);
+                vm_mutex_exit(&vm.env);
                 break;
             }
             case OP_DEFINE_GLOBAL: {
-                platform_critical_section_enter_blocking(&vm.env);
+                vm_mutex_enter_blocking(&vm.env);
                 ObjString* name = READ_STRING();
                 tableCellSet(&vm.globals, name, *peekCell(routine, 0));
                 pop(routine);
-                platform_critical_section_exit(&vm.env);
+                vm_mutex_exit(&vm.env);
                 break;
             }
             case OP_SET_GLOBAL: {
-                platform_critical_section_enter_blocking(&vm.env);
+                vm_mutex_enter_blocking(&vm.env);
                 ObjString* name = READ_STRING();
                 ValueCell* lhs = NULL;
                 if (tableCellGetPlace(&vm.globals, name, &lhs)) {
@@ -824,15 +824,15 @@ InterpretResult run(ObjRoutine* routine) {
 
                     if (!assignToValueCellTarget(lhsTrg, rhs->value)) {
                         runtimeError(routine, "Cannot set global variable to incompatible type.");
-                        platform_critical_section_exit(&vm.env);
+                        vm_mutex_exit(&vm.env);
                         return INTERPRET_RUNTIME_ERROR;
                     }
                 } else {
                     runtimeError(routine, "Undefined variable (OP_SET_GLOBAL) '%s'.", name->chars);
-                    platform_critical_section_exit(&vm.env);
+                    vm_mutex_exit(&vm.env);
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                platform_critical_section_exit(&vm.env);
+                vm_mutex_exit(&vm.env);
                 break;
             }
             case OP_INITIALISE: {

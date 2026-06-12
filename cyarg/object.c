@@ -21,12 +21,12 @@ Obj* allocateObject(size_t size, ObjType type) {
     object->type = type;
     object->isMarked = false;
 
-    platform_critical_section_enter_blocking(&vm.heap);
+    vm_mutex_enter_blocking(&vm.heap);
 
     object->next = vm.objects;
     vm.objects = object;
     
-    platform_critical_section_exit(&vm.heap);
+    vm_mutex_exit(&vm.heap);
 
 #ifdef DEBUG_LOG_GC
     PRINTERR("%p allocate %zu for %d\n", (void*)object, size, type);

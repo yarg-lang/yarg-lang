@@ -10,7 +10,7 @@
 
 #include "platform_hal.h"
 
-void platform_critical_section_init(platform_critical_section* cs) {
+void vm_mutex_init(vm_mutex* cs) {
 #if defined(CYARG_PICO_SDK_SYNC)
     critical_section_init(cs);
 #elif defined(CYARG_PTHREADS_SYNC)
@@ -24,7 +24,7 @@ void platform_critical_section_init(platform_critical_section* cs) {
 #endif
 }
 
-void platform_critical_section_deinit(platform_critical_section* cs) {
+void vm_mutex_deinit(vm_mutex* cs) {
 #if defined(CYARG_PICO_SDK_SYNC)
     critical_section_deinit(cs);
 #elif defined(CYARG_PTHREADS_SYNC)
@@ -34,7 +34,7 @@ void platform_critical_section_deinit(platform_critical_section* cs) {
 #endif
 }
 
-void platform_critical_section_enter_blocking(platform_critical_section* cs) {
+void vm_mutex_enter_blocking(vm_mutex* cs) {
 #if defined(CYARG_PICO_SDK_SYNC)
     critical_section_enter_blocking(cs);
 #elif defined(CYARG_PTHREADS_SYNC)
@@ -45,7 +45,7 @@ void platform_critical_section_enter_blocking(platform_critical_section* cs) {
 
 }
 
-void platform_critical_section_exit(platform_critical_section* cs) {
+void vm_mutex_exit(vm_mutex* cs) {
 #if defined(CYARG_PICO_SDK_SYNC)
     critical_section_exit(cs);
 #elif defined(CYARG_PTHREADS_SYNC)
