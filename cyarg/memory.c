@@ -232,6 +232,7 @@ static void blackenObject(Obj* object) {
             break;
         }
         case OBJ_NATIVE: break;
+        case OBJ_BUILTIN: break;
         case OBJ_CHANNELCONTAINER: {
             ObjChannelContainer* channel = (ObjChannelContainer*)object;
             markChannel(channel);
@@ -508,6 +509,7 @@ static void freeObject(Obj* object) {
             break;
         }
         case OBJ_NATIVE: FREE(ObjNative, object); break;
+        case OBJ_BUILTIN: FREE(ObjBuiltin, object); break;
         case OBJ_ROUTINE:
             FREE(ObjRoutine, object);
             break;

@@ -132,6 +132,12 @@ ObjNative* newNative(NativeFn function) {
     return native;
 }
 
+ObjBuiltin* newBuiltin(NativeFn function) {
+    ObjBuiltin* builtin = ALLOCATE_OBJ(ObjBuiltin, OBJ_BUILTIN);
+    builtin->function = function;
+    return builtin;
+}
+
 ObjInt* newInt(int64_t value) {
     ObjInt *i = allocateIntObject(sizeof value / sizeof (uint16_t));
     int_set_i(value, &i->bigInt);
@@ -541,6 +547,8 @@ ObjString* objectToString(Value value) {
             }
         case OBJ_NATIVE:
             return copyString("<native fn>", 11);
+        case OBJ_BUILTIN:
+            return copyString("<builtin fn>", 12);
         case OBJ_ROUTINE:
             return routineToString(AS_ROUTINE(value));
             break;

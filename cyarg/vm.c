@@ -272,6 +272,17 @@ static InterpretResult callValue(ObjRoutine* routine, Value callee, int argCount
                     return INTERPRET_RUNTIME_ERROR;
                 }
             }
+            case OBJ_BUILTIN: {
+                NativeFn builtin = AS_BUILTIN(callee);
+                Value result = NIL_VAL;
+                if (builtin(routine, argCount, &result)) {
+                    popN(routine, argCount + 1);
+                    push(routine, result);
+                    return INTERPRET_OK;
+                } else {
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+            }
             default:
                 break; // Non-callable object type.
         }

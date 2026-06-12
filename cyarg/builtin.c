@@ -437,7 +437,7 @@ bool pinBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     }
 }
 
-bool newBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
+bool new_Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
 
     Value typeToCreate = NIL_VAL;
     if (argCount == 1
@@ -957,33 +957,33 @@ bool stringBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
 
 Value getBuiltin(uint8_t builtin) {
     switch (builtin) {
-        case BUILTIN_PEEK: return OBJ_VAL(newNative(peekBuiltin));
-        case BUILTIN_READ_YARG_SOURCE: return OBJ_VAL(newNative(readYargSourceBuiltin));
-        case BUILTIN_COMPILE: return OBJ_VAL(newNative(compileBuiltin));
-        case BUILTIN_MAKE_ROUTINE: return OBJ_VAL(newNative(makeRoutineBuiltin));
-        case BUILTIN_RESUME: return OBJ_VAL(newNative(resumeBuiltin));
-        case BUILTIN_START: return OBJ_VAL(newNative(startBuiltin));
-        case BUILTIN_MAKE_CHANNEL: return OBJ_VAL(newNative(makeChannelBuiltin));
-        case BUILTIN_SEND: return OBJ_VAL(newNative(sendChannelBuiltin));
-        case BUILTIN_RECEIVE: return OBJ_VAL(newNative(receiveBuiltin));
-        case BUILTIN_SHARE: return OBJ_VAL(newNative(shareChannelBuiltin));
-        case BUILTIN_CPEEK: return OBJ_VAL(newNative(cpeekBuiltin));
-        case BUILTIN_MAKE_SYNCGROUP: return OBJ_VAL(newNative(makeSyncGroupBuiltin));
-        case BUILTIN_LEN: return OBJ_VAL(newNative(lenBuiltin));
-        case BUILTIN_PIN: return OBJ_VAL(newNative(pinBuiltin));
-        case BUILTIN_NEW: return OBJ_VAL(newNative(newBuiltin));
-        case BUILTIN_INT8: return OBJ_VAL(newNative(int8Builtin));
-        case BUILTIN_INT16: return OBJ_VAL(newNative(int16Builtin));
-        case BUILTIN_UINT16: return OBJ_VAL(newNative(uint16Builtin));
-        case BUILTIN_UINT8: return OBJ_VAL(newNative(uint8Builtin));
-        case BUILTIN_INT32: return OBJ_VAL(newNative(int32Builtin));
-        case BUILTIN_UINT32: return OBJ_VAL(newNative(uint32Builtin));
-        case BUILTIN_INT64: return OBJ_VAL(newNative(int64Builtin));
-        case BUILTIN_UINT64: return OBJ_VAL(newNative(uint64Builtin));
-        case BUILTIN_INT: return OBJ_VAL(newNative(intBuiltin));
-        case BUILTIN_MFLOAT64: return OBJ_VAL(newNative(floatBuiltin));
-        case BUILTIN_STRING: return OBJ_VAL(newNative(stringBuiltin));
-        case BUILTIN_LOAD: return OBJ_VAL(newNative(loadBuiltin));
+        case BUILTIN_PEEK: return OBJ_VAL(newBuiltin(peekBuiltin));
+        case BUILTIN_READ_YARG_SOURCE: return OBJ_VAL(newBuiltin(readYargSourceBuiltin));
+        case BUILTIN_COMPILE: return OBJ_VAL(newBuiltin(compileBuiltin));
+        case BUILTIN_MAKE_ROUTINE: return OBJ_VAL(newBuiltin(makeRoutineBuiltin));
+        case BUILTIN_RESUME: return OBJ_VAL(newBuiltin(resumeBuiltin));
+        case BUILTIN_START: return OBJ_VAL(newBuiltin(startBuiltin));
+        case BUILTIN_MAKE_CHANNEL: return OBJ_VAL(newBuiltin(makeChannelBuiltin));
+        case BUILTIN_SEND: return OBJ_VAL(newBuiltin(sendChannelBuiltin));
+        case BUILTIN_RECEIVE: return OBJ_VAL(newBuiltin(receiveBuiltin));
+        case BUILTIN_SHARE: return OBJ_VAL(newBuiltin(shareChannelBuiltin));
+        case BUILTIN_CPEEK: return OBJ_VAL(newBuiltin(cpeekBuiltin));
+        case BUILTIN_MAKE_SYNCGROUP: return OBJ_VAL(newBuiltin(makeSyncGroupBuiltin));
+        case BUILTIN_LEN: return OBJ_VAL(newBuiltin(lenBuiltin));
+        case BUILTIN_PIN: return OBJ_VAL(newBuiltin(pinBuiltin));
+        case BUILTIN_NEW: return OBJ_VAL(newBuiltin(new_Builtin));
+        case BUILTIN_INT8: return OBJ_VAL(newBuiltin(int8Builtin));
+        case BUILTIN_INT16: return OBJ_VAL(newBuiltin(int16Builtin));
+        case BUILTIN_UINT16: return OBJ_VAL(newBuiltin(uint16Builtin));
+        case BUILTIN_UINT8: return OBJ_VAL(newBuiltin(uint8Builtin));
+        case BUILTIN_INT32: return OBJ_VAL(newBuiltin(int32Builtin));
+        case BUILTIN_UINT32: return OBJ_VAL(newBuiltin(uint32Builtin));
+        case BUILTIN_INT64: return OBJ_VAL(newBuiltin(int64Builtin));
+        case BUILTIN_UINT64: return OBJ_VAL(newBuiltin(uint64Builtin));
+        case BUILTIN_INT: return OBJ_VAL(newBuiltin(intBuiltin));
+        case BUILTIN_MFLOAT64: return OBJ_VAL(newBuiltin(floatBuiltin));
+        case BUILTIN_STRING: return OBJ_VAL(newBuiltin(stringBuiltin));
+        case BUILTIN_LOAD: return OBJ_VAL(newBuiltin(loadBuiltin));
 #ifndef CYARG_FEATURE_TEST_SYSTEM
         default: return NIL_VAL;
 #else
