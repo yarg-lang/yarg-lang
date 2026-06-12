@@ -1,8 +1,6 @@
 #ifndef cyarg_platform_hal_h
 #define cyarg_platform_hal_h
 
-void platform_hal_init();
-
 #if defined(CYARG_PICO_SDK_SYNC)
 #include <pico/sync.h>
 typedef critical_section_t platform_critical_section;
