@@ -19,41 +19,6 @@ void platform_hal_init() {
 #endif
 }
 
-void platform_mutex_init(platform_mutex* mutex) {
-#if defined(CYARG_PICO_SDK_SYNC)
-    recursive_mutex_init(mutex);
-#elif defined(CYARG_PTHREADS_SYNC)
-    static pthread_mutexattr_t attr;
-    pthread_mutexattr_init(&attr);
-    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-    int i = pthread_mutex_init(mutex, &attr); // not recursive
-    if (i != 0)
-	printf("pthread_mutex_init %d\n", i);
-#else
-    #error "No platform mutex implementation defined."
-#endif
-}
-
-void platform_mutex_enter(platform_mutex* mutex) {
-#if defined(CYARG_PICO_SDK_SYNC)
-    recursive_mutex_enter_blocking (mutex);
-#elif defined(CYARG_PTHREADS_SYNC)
-    pthread_mutex_lock(mutex);
-#else
-    #error "No platform mutex implementation defined."
-#endif
-}
-
-void platform_mutex_leave(platform_mutex* mutex) {
-#if defined(CYARG_PICO_SDK_SYNC)
-    recursive_mutex_exit(mutex);
-#elif defined(CYARG_PTHREADS_SYNC)
-    pthread_mutex_unlock(mutex);
-#else
-    #error "No platform mutex implementation defined."
-#endif
-}
-
 void platform_critical_section_init(platform_critical_section* cs) {
 #if defined(CYARG_PICO_SDK_SYNC)
     critical_section_init(cs);
