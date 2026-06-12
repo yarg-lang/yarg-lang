@@ -16,7 +16,7 @@ void vm_mutex_init(vm_mutex* cs) {
 #elif defined(CYARG_PTHREADS_SYNC)
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
-    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_NORMAL);
     pthread_mutex_init(cs, &attr);
     pthread_mutexattr_destroy(&attr);
 #else
