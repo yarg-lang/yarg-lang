@@ -1,4 +1,8 @@
 #include <stdlib.h>
+#ifdef CYARG_PICO_STDLIB
+#include <pico/stdlib.h>
+#endif
+
 #ifdef CYARG_FEATURE_HOSTED_REPL
 #include <string.h>
 #include <stdio.h>
@@ -49,7 +53,9 @@ const char* getArgument(int argc, const char* argv[], const char* name) {
 
 #if defined(CYARG_FEATURE_SELF_HOSTED_REPL)
 int main() {
-    platform_hal_init();
+#ifdef CYARG_PICO_STDLIB
+    stdio_init_all();
+#endif
 
     initVMMemory();
     initVMRuntime();
@@ -65,7 +71,9 @@ int main() {
 }
 #elif defined(CYARG_FEATURE_HOSTED_REPL)
 int main(int argc, const char* argv[]) {
-    platform_hal_init();
+#ifdef CYARG_PICO_STDLIB
+    stdio_init_all();
+#endif
 
     if (argv[1] && strcmp(argv[1], "--help") == 0) {
         usageMessage(stdout);

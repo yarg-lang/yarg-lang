@@ -1,7 +1,4 @@
 #include <stdio.h>
-#ifdef CYARG_PICO_STDLIB
-#include <pico/stdlib.h>
-#endif
 
 #if defined(CYARG_PICO_SDK_SYNC)
 #include <pico/sync.h>
@@ -12,12 +9,6 @@
 #endif
 
 #include "platform_hal.h"
-
-void platform_hal_init() {
-#ifdef CYARG_PICO_STDLIB
-    stdio_init_all();
-#endif
-}
 
 void platform_critical_section_init(platform_critical_section* cs) {
 #if defined(CYARG_PICO_SDK_SYNC)
