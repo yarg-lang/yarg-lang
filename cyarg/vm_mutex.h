@@ -1,6 +1,19 @@
 #ifndef cyarg_vm_mutex_h
 #define cyarg_vm_mutex_h
 
+/* vm_mutex
+ * 
+ * In order to support Yarg's concurrency model, we need a mutex.
+ * On host, it should be functional between threads in the VM process.
+ * On target, it should be functional between normal and interrupt contexts.
+ * 
+ * Currently, the mutex is not recursively enterable, in order to use the 
+ * Pico SDK's critical_section to implement it on target.
+ * 
+ * Host Implementation: pthread_mutex
+ * Pico Implementation: Pico SDK critical_section
+ */
+
 #if defined(CYARG_PICO_SDK_SYNC)
 #include <pico/sync.h>
 typedef critical_section_t vm_mutex;
