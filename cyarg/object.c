@@ -132,10 +132,6 @@ ObjNative* newNative(NativeFn function) {
     return native;
 }
 
-Value nativeArgument(ObjRoutine* routine, size_t argCount, size_t argument) {
-    return peek(routine, (int)argCount - 1 - (int)argument);
-}
-
 ObjBuiltin* newBuiltin(NativeFn function) {
     ObjBuiltin* builtin = ALLOCATE_OBJ(ObjBuiltin, OBJ_BUILTIN);
     builtin->function = function;

@@ -21,6 +21,10 @@
 #include "test-system/testSystem.h"
 #endif
 
+static Value nativeArgument(ObjRoutine* routine, size_t argCount, size_t argument) {
+    return peek(routine, (int)argCount - 1 - (int)argument);
+}
+
 bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* result) {
 
     Value numVal = nativeArgument(routine, argCount, 0);
