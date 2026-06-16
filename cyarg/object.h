@@ -144,9 +144,11 @@ typedef struct {
     NativeFn function;
 } ObjNative;
 
+typedef bool (*BuiltinFun)(ObjRoutine* routine, int argCount, Value* result);
+
 typedef struct {
     Obj obj;
-    NativeFn function;
+    BuiltinFun function;
 } ObjBuiltin;
 
 struct ObjString {
@@ -236,7 +238,7 @@ ObjFunction* newFunction();
 void initFunction(ObjFunction* function);
 ObjInstance* newInstance(ObjClass* klass);
 ObjNative* newNative(NativeFn function);
-ObjBuiltin* newBuiltin(NativeFn function);
+ObjBuiltin* newBuiltin(BuiltinFun function);
 ObjPackedUniformArray* newPackedUniformArray(ObjConcreteYargTypeArray* type);
 ObjMap* newMap(ObjConcreteYargTypeMap* type);
 ObjString* takeString(char* chars, int length);

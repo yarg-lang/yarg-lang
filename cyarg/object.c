@@ -132,7 +132,7 @@ ObjNative* newNative(NativeFn function) {
     return native;
 }
 
-ObjBuiltin* newBuiltin(NativeFn function) {
+ObjBuiltin* newBuiltin(BuiltinFun function) {
     ObjBuiltin* builtin = ALLOCATE_OBJ(ObjBuiltin, OBJ_BUILTIN);
     builtin->function = function;
     return builtin;
