@@ -38,8 +38,8 @@ bool setBuiltin(ObjRoutine *routineContext, int argCount, Value* result)
     bool ok = false;
     if (argCount == 2)
     {
-        Value arg0 = nativeArgument(routineContext, argCount, 0);
-        Value arg1 = nativeArgument(routineContext, argCount, 1);
+        Value arg0 = peek(routineContext, 1);
+        Value arg1 = peek(routineContext, 0);
         if (!IS_OBJ(arg0) && !IS_OBJ(arg1))
         {
             uint32_t address = AS_UI32(arg0);
@@ -58,26 +58,23 @@ bool setBuiltin(ObjRoutine *routineContext, int argCount, Value* result)
 
 bool readBuiltin(ObjRoutine *routineContext, int argCount, Value *result) {
     bool ok = false;
-    if (argCount >= 1)
+    if (argCount == 1 && !IS_OBJ(peek(routineContext, 0)))
     {
-        Value arg0 = nativeArgument(routineContext, argCount, 0);
+        Value arg0 = peek(routineContext, 0);
         uint32_t address = AS_UI32(arg0);
-        if (argCount == 1 && !IS_OBJ(arg0))
-        {
-            testIntrinsicsExpectReadAnyValue(address);
-            ok = true;
-        }
-        else if (argCount == 2)
-        {
-            Value arg1 = nativeArgument(routineContext, argCount, 1);
-            if (!IS_OBJ(arg0) && ! IS_OBJ(arg1))
-            {
-                uint32_t value = AS_UI32(arg1);
-                testIntrinsicsExpectRead(address, value);
-                ok = true;
-            }
-        }
+        testIntrinsicsExpectReadAnyValue(address);
+        ok = true;
     }
+    else if (argCount == 2 && !IS_OBJ(peek(routineContext, 0)) && !IS_OBJ(peek(routineContext, 1)))
+    {
+        Value arg0 = peek(routineContext, 1);
+        Value arg1 = peek(routineContext, 0);
+        uint32_t address = AS_UI32(arg0);
+        uint32_t value = AS_UI32(arg1);
+        testIntrinsicsExpectRead(address, value);
+        ok = true;
+    }
+
     if (!ok)
     {
         runtimeError(routineContext, "Expected an address to peek or and address and a value.");
@@ -87,26 +84,23 @@ bool readBuiltin(ObjRoutine *routineContext, int argCount, Value *result) {
 
 bool writeBuiltin(ObjRoutine *routineContext, int argCount, Value *result) {
     bool ok = false;
-    if (argCount >= 1)
+    if (argCount == 1 && !IS_OBJ(peek(routineContext, 0)))
     {
-        Value arg0 = nativeArgument(routineContext, argCount, 0);
+        Value arg0 = peek(routineContext, 0);
         uint32_t address = AS_UI32(arg0);
-        if (argCount == 1 && !IS_OBJ(arg0))
-        {
-            testIntrinsicsExpectWriteAnyValue(address);
-            ok = true;
-        }
-        else if (argCount == 2)
-        {
-            Value arg1 = nativeArgument(routineContext, argCount, 1);
-            if (!IS_OBJ(arg0) && ! IS_OBJ(arg1))
-            {
-                uint32_t value = AS_UI32(arg1);
-                testIntrinsicsExpectWrite(address, value);
-                ok = true;
-            }
-        }
+        testIntrinsicsExpectWriteAnyValue(address);
+        ok = true;
     }
+    else if (argCount == 2 && !IS_OBJ(peek(routineContext, 0)) && !IS_OBJ(peek(routineContext, 1)))
+    {
+        Value arg0 = peek(routineContext, 1);
+        Value arg1 = peek(routineContext, 0);
+        uint32_t address = AS_UI32(arg0);
+        uint32_t value = AS_UI32(arg1);
+        testIntrinsicsExpectWrite(address, value);
+        ok = true;
+    }
+
     if (!ok)
     {
         runtimeError(routineContext, "Expected an address to poke or and address and a value.");
@@ -118,7 +112,7 @@ bool interruptBuiltin(ObjRoutine *routineContext, int argCount, Value *result) {
     bool ok = false;
     if (argCount == 1)
     {
-        Value arg0 = nativeArgument(routineContext, argCount, 0);
+        Value arg0 = peek(routineContext, 0);
         if (is_positive_integer32(arg0))
         {
             uint32_t interruptNumber = as_positive_integer32(arg0);
