@@ -23,6 +23,10 @@ Connect your Pico to your favourite serial terminal. Minicom and Putty are popul
 
 Building yarg from source is required for some ports of Yarg, and to contribute to the language itself. See [BUILD.md](BUILD.md) for details.
 
+## Contributions
+
+Contribution guidelines are in the docs directory: [CONTRIBUTING.md](contrib)
+
 ## Repository Structure
 
 | dir | Description |
@@ -153,3 +157,4 @@ while (true) {
 [conway]: https://github.com/jhmcaleely/conway-life-display
 [lfs]: https://github.com/littlefs-project/littlefs
 [rel]: https://github.com/yarg-lang/yarg-lang/releases
+[contrib]: docs/CONTRIBUTING.md
