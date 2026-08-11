@@ -158,7 +158,7 @@ jobs:
           go test ./...
           cd ..
 
-      - name: Run Hostyarg Yarg test suite
+      - name: Run yarg-expect Test suite
         run: ./bin/yarg runtests -tests "test/yarg-expect" -interpreter "bin/cyarg" -lib "yarg/specimen"
       
       - name: Run benchmark tests

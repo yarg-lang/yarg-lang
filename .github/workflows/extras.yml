@@ -70,7 +70,7 @@ jobs:
           cmake --preset xcode-host
           cmake --build build/xcode-host
 
-      - name: Run Hostyarg Yarg test suite
+      - name: Run yarg-expect Test suite
         run: ./bin/yarg runtests -tests "test/yarg-expect" -interpreter "cyarg/build/xcode-host/Debug/cyarg" -lib "yarg/specimen"
       
       - name: Run BC test suite
