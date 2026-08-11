@@ -9,21 +9,29 @@ import (
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/deviceimage"
 )
 
-func copyFile(src, dst string) {
-	input, err := os.ReadFile(src)
+func copyFile(src, dst string) (int64, error) {
+	sourceFile, err := os.Open(src)
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
-	err = os.WriteFile(dst, input, 0644)
+	defer sourceFile.Close()
+
+	destinationFile, err := os.Create(dst)
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
+	defer destinationFile.Close()
+
+	return io.Copy(destinationFile, sourceFile)
 }
 
 func TestMain(m *testing.M) {
 	log.SetOutput(io.Discard)
 
-	copyFile("testdata/yarg-lang-pico-0.3.0.uf2", "testdata/yarg-lang-pico.uf2")
+	_, err := copyFile("testdata/yarg-lang-pico-0.3.0.uf2", "testdata/yarg-lang-pico.uf2")
+	if err != nil {
+		log.Fatalf("copyFile failed: %v", err)
+	}
 	code := m.Run()
 	os.Remove("testdata/yarg-lang-pico.uf2")
 	os.Exit(code)
