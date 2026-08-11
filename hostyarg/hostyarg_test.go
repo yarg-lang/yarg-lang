@@ -40,19 +40,19 @@ func TestCopyFile(t *testing.T) {
 	os.Chdir("testdata")
 	err := deviceimage.CmdCp("yarg-lang-pico.uf2", "fresh_cheese.ya", "copy_of_fresh_cheese.ya")
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf("deviceimage.CmdCp unexpected error: %v", err)
 	}
 	err = deviceimage.CmdLs("yarg-lang-pico.uf2", ".", false)
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf("deviceimage.CmdLs unexpected error: %v", err)
 	}
 	err = deviceimage.CmdCp("yarg-lang-pico.uf2", "stale_cheese.ya", "copy_of_fresh_cheese.ya")
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf("deviceimage.CmdCp unexpected error: %v", err)
 	}
 	err = deviceimage.CmdLs("yarg-lang-pico.uf2", ".", true)
 	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+		t.Fatalf("deviceimage.CmdLs unexpected error: %v", err)
 	}
 	os.Chdir("../")
 }
