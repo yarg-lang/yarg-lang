@@ -38,13 +38,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/pico-sdk
-          key: pico-sdk-2.2.0
+          key: pico-sdk-2.3.0
 
       - name: Cache picotool
         uses: actions/cache@v4
         with:
           path: ~/picotool
-          key: picotool-2.2.0-a4
+          key: picotool-2.3.0
 
       - name: Fetch Raspberry Pi Pico SDK dependencies
         run: |
@@ -70,7 +70,7 @@ jobs:
           if [ ! -d "$HOME/pico-sdk" ]; then
             cd $HOME
             git clone --recurse-submodules https://github.com/raspberrypi/pico-sdk.git \
-              --branch 2.2.0 --single-branch --depth 1
+              --branch 2.3.0 --single-branch --depth 1
           fi
           echo "PICO_SDK_PATH=$HOME/pico-sdk" >> $GITHUB_ENV
 
@@ -79,7 +79,7 @@ jobs:
           if [ ! -d "$HOME/picotool" ]; then
             cd $HOME
             git clone https://github.com/raspberrypi/picotool.git \
-              --branch 2.2.0-a4 --single-branch --depth 1
+              --branch 2.3.0 --single-branch --depth 1
             cd picotool
             mkdir build
             cd build

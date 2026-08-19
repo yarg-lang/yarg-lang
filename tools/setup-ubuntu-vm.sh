@@ -26,14 +26,14 @@ if [ "$1" = "pico" ]; then
     echo "export PATH=\"$TOOLCHAIN_DIR/bin:\$PATH\"" >> ~/.bashrc
 
     git clone --recurse-submodules https://github.com/raspberrypi/pico-sdk.git \
-        --branch 2.2.0 --single-branch --depth 1
+        --branch 2.3.0 --single-branch --depth 1
 
     PICO_SDK_DIR="$(pwd)/pico-sdk"
     export PICO_SDK_PATH="$PICO_SDK_DIR"
     echo "export PICO_SDK_PATH=\"$PICO_SDK_DIR\"" >> ~/.bashrc
 
     git clone https://github.com/raspberrypi/picotool.git \
-              --branch 2.2.0-a4 --single-branch --depth 1
+              --branch 2.3.0 --single-branch --depth 1
     cd picotool
     mkdir build
     cd build
