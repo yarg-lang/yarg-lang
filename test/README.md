@@ -88,7 +88,7 @@ A collection of benchmarks originally seeded from the lox benchmark collection.
 Results are meaningful only on target, so to gather pico results use:
 
 ```
-./tools/pico-benchmark.sh
+./tools/benchmark-pico.sh
 ```
 
 benchmarks can be tested for execution on host, (notably including our CI) with:
