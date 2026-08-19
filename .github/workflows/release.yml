@@ -31,8 +31,8 @@ jobs:
       - name: Cache ARM GNU Toolchain
         uses: actions/cache@v4
         with:
-          path: ~/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi
-          key: arm-toolchain-14.2.rel1-x86_64-arm-none-eabi
+          path: ~/arm-gnu-toolchain-15.2.rel1-x86_64-arm-none-eabi
+          key: arm-toolchain-15.2.rel1-x86_64-arm-none-eabi
 
       - name: Cache Pico SDK
         uses: actions/cache@v4
@@ -48,19 +48,19 @@ jobs:
 
       - name: Fetch Raspberry Pi Pico SDK dependencies
         run: |
-          if [ ! -d "$HOME/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi" ]; then
-            if [ ! -f "arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz" ]; then
-              wget https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz
+          if [ ! -d "$HOME/arm-gnu-toolchain-15.2.rel1-x86_64-arm-none-eabi" ]; then
+            if [ ! -f "arm-gnu-toolchain-15.2.rel1-x86_64-arm-none-eabi.tar.xz" ]; then
+              wget https://developer.arm.com/-/media/Files/downloads/gnu/15.2.rel1/binrel/arm-gnu-toolchain-15.2.rel1-x86_64-arm-none-eabi.tar.xz
             fi
           fi
 
       - name: Install x86_64 Raspberry Pi Pico SDK dependencies
         run: |
           uname -m
-          if [ ! -d "$HOME/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi" ]; then
-            tar -xJf arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz -C $HOME
+          if [ ! -d "$HOME/arm-gnu-toolchain-15.2.rel1-x86_64-arm-none-eabi" ]; then
+            tar -xJf arm-gnu-toolchain-15.2.rel1-x86_64-arm-none-eabi.tar.xz -C $HOME
           fi
-          echo "$HOME/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin" >> $GITHUB_PATH
+          echo "$HOME/arm-gnu-toolchain-15.2.rel1-x86_64-arm-none-eabi/bin" >> $GITHUB_PATH
 
       - name: Test Raspberry Pi Pico SDK dependencies
         run: arm-none-eabi-gcc -v

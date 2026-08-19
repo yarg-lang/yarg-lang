@@ -14,7 +14,7 @@ if [ "$1" = "pico" ]; then
     mkdir -p pico-tooling
     pushd pico-tooling
 
-    ARM_CROSS_COMPILER_VERSION="14.2.rel1"
+    ARM_CROSS_COMPILER_VERSION="15.2.rel1"
     ARM_CROSS_COMPILER_HOST="$(arch)"
     ARM_TOOLCHAIN_FILENAME="arm-gnu-toolchain-${ARM_CROSS_COMPILER_VERSION}-${ARM_CROSS_COMPILER_HOST}-arm-none-eabi.tar.xz"
     

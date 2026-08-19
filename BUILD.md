@@ -32,20 +32,20 @@ The build needs to locate the Pico SDK and associated tools when it builds targe
     "configurePresets": [
         {
             "name": "pico",
-            "displayName": "Local Pico (SDK 2.3.0, 14_2_Rel1 for Pico/RP2040)",
+            "displayName": "Local Pico (SDK 2.3.0, 15_2_Rel1 for Pico/RP2040)",
             "inherits": "target-pico",
             "cacheVariables": {
                 "PICO_SDK_PATH": "$env{HOME}/.pico-sdk/sdk/2.3.0",
-                "PICO_TOOLCHAIN_PATH": "$env{HOME}/.pico-sdk/toolchain/14_2_Rel1"
+                "PICO_TOOLCHAIN_PATH": "$env{HOME}/.pico-sdk/toolchain/15_2_Rel1"
             } 
         },
         {
             "name": "pico-debug",
-            "displayName": "Pico Debug (SDK 2.3.0, 14_2_Rel1 for Pico/RP2040)",
+            "displayName": "Pico Debug (SDK 2.3.0, 15_2_Rel1 for Pico/RP2040)",
             "inherits": "target-pico-debug",
             "cacheVariables": {
                 "PICO_SDK_PATH": "$env{HOME}/.pico-sdk/sdk/2.3.0",
-                "PICO_TOOLCHAIN_PATH": "$env{HOME}/.pico-sdk/toolchain/14_2_Rel1"
+                "PICO_TOOLCHAIN_PATH": "$env{HOME}/.pico-sdk/toolchain/15_2_Rel1"
             } 
         }
     ]
