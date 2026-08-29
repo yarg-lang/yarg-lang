@@ -109,6 +109,8 @@ add_executable(cyarg
     vm_mutex.c
     sync_group.h
     sync_group.c
+    precalc.c
+    precalc.h
     fs/fs.h
     big-int/big-int.h
     big-int/big-int.c
