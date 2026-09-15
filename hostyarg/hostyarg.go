@@ -3,8 +3,11 @@ package hostyarg
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/deviceimage"
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/deviceutil"
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/xiplibrary"
 	"go.bug.st/serial/enumerator"
 )
 
@@ -62,4 +65,28 @@ func CmdListDevices(interpreter, lib string) bool {
 		}
 	}
 	return true
+}
+
+func CmdLs(fsFilename string, dirEntry string, long bool) (e error) {
+	ext := filepath.Ext(fsFilename)
+	switch ext {
+	case ".ylib":
+		return xiplibrary.CmdLs(fsFilename, dirEntry, long)
+	case ".uf2":
+		return deviceimage.CmdLs(fsFilename, dirEntry, long)
+	default:
+		return fmt.Errorf("unsupported file extension %s", ext)
+	}
+}
+
+func CmdFsInfo(fsFilename string) (e error) {
+	ext := filepath.Ext(fsFilename)
+	switch ext {
+	case ".ylib":
+		return xiplibrary.CmdFsInfo(fsFilename)
+	case ".uf2":
+		return deviceimage.CmdFsInfo(fsFilename)
+	default:
+		return fmt.Errorf("unsupported file extension %s", ext)
+	}
 }

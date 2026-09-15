@@ -13,6 +13,7 @@ import (
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/devicerunner"
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/deviceutil"
 	"github.com/yarg-lang/yarg-lang/hostyarg/internal/hostrunner"
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/xiplibrary"
 	"mellium.im/sysexit"
 )
 
@@ -105,7 +106,7 @@ func dispatchSubCommand(args []string) {
 		if *lsDirFS == "" {
 			exitWithUsageError("expect image containing filesystem to list directory from")
 		}
-		err := deviceimage.CmdLs(*lsDirFS, *lsDirEntry, *lsLong)
+		err := hostyarg.CmdLs(*lsDirFS, *lsDirEntry, *lsLong)
 		if err != nil {
 			exitWithError(err.Error())
 		}
@@ -115,7 +116,7 @@ func dispatchSubCommand(args []string) {
 		if *lsDirFS == "" {
 			exitWithUsageError("expect image containing filesystem to list directory from")
 		}
-		err := deviceimage.CmdFsInfo(*lsDirFS)
+		err := hostyarg.CmdFsInfo(*lsDirFS)
 		if err != nil {
 			exitWithError(err.Error())
 		}
@@ -256,6 +257,23 @@ func dispatchSubCommand(args []string) {
 		deviceLib := flags.String("lib", "", "library to include in test runs")
 		flags.Parse(args[1:])
 		hostyarg.CmdListDevices(*deviceInterpreter, *deviceLib)
+	case "buildlib":
+		libDir := flags.String("libdir", "", "directory containing library source files")
+		outputFile := flags.String("output", "", "output file for compiled library")
+		startupFile := flags.String("startup", "", "optional startup file to include in node 1")
+		flags.Parse(args[1:])
+
+		if *libDir == "" {
+			exitWithUsageError("expect directory containing library source files")
+		}
+		if *outputFile == "" {
+			exitWithUsageError("expect output file for compiled library")
+		}
+
+		err := xiplibrary.CmdBuildLib(*libDir, *outputFile, *startupFile)
+		if err != nil {
+			exitWithError(err.Error())
+		}
 	default:
 		exitWithUsageError("unknown command")
 	}
