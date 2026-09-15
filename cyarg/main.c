@@ -60,11 +60,7 @@ int main() {
     initVMMemory();
     initVMRuntime();
 
-    const char script[] = "cyarg.ya";
-    ObjString * scriptObj = copyString(script, sizeof(script) - 1);
-    tempRootPush(OBJ_VAL(scriptObj));
-    bootYargSourceFile(scriptObj);
-    tempRootPop();
+    bootXIP();
 
     freeVM();
     return 0;
@@ -99,13 +95,13 @@ int main(int argc, const char* argv[]) {
     } else if ((argv[1] && strcmp(argv[1], "--compile") == 0) && argc == 4) {
         returnCode = compileFile(argv[2], argv[3]);
     } else if ((argv[1] && strcmp(argv[1], "--bootstrap") == 0) && argc == 3) {
-        returnCode = runHostedFile(NULL, argv[2]);
+        returnCode = bootstrapHostedFile(argv[2]);
     } else if (argc == 3 && strcmp(argv[1], "--disassemble") == 0) {
         returnCode = disassembleFile(argv[2]);
     } else if ((argc == 3 || argc == 4) && strcmp(argv[1], "--lib") == 0) {
-        returnCode = runHostedFile(libPath, "cyarg-hosted.ya");
+        returnCode = bootHosted();
     } else if (argc > 4 && strcmp(argv[1], "--lib") == 0 && strcmp(argv[4], "--") == 0) {
-        returnCode = runHostedFile(libPath, "cyarg-hosted.ya");
+        returnCode = bootHosted();
     } else {
         usageMessage(stderr);
         returnCode = EX_USAGE;

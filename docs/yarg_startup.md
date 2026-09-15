@@ -28,4 +28,6 @@ Currently, Yarg is implemented by cyarg. By default, as used on microcontrollers
 
 cyarg can be additionally configured (CYARG_HOSTING=HOSTED) to support hosting by an OS, intended for development of the language and testing on a host PC. In this case, cyarg can be supplied a script name and any arguments to be passed to the script. See cyarg --help for usage notes on a host OS.
 
-cyarg implements the Yarg startup in cyarg.ya by default, and cyarg-hosted.ya when running on a host OS.
+cyarg implements the Yarg startup in startup.ya by default, and startup-hosted.ya when running on a host OS.
+
+both are compiled, and then combined into cyarg as a constant array of 'bytecode' before use.

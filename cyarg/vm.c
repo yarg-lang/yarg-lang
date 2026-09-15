@@ -1487,13 +1487,18 @@ InterpretResult run(ObjRoutine* routine) {
 typedef void (*bindBootstrapFunction)(ObjString* script);
 
 static void bindBootstrapCode(const char* name, size_t nameLength, 
-                              const uint8_t code[], size_t codeLength, 
-                              ObjString* script, size_t constantIndex) {
+                              const uint8_t code[], size_t codeLength) {
     vm.bootFunction.fName = copyString(name, (int)nameLength);
 
     for (size_t i = 0; i < codeLength; i++) {
         writeChunk(&vm.bootFunction.chunk, code[i], 0);
     }
+}
+
+static void bindBootstrapScript(const char* name, size_t nameLength, 
+                                const uint8_t code[], size_t codeLength, 
+                                ObjString* script, size_t constantIndex) {
+    bindBootstrapCode(name, nameLength, code, codeLength);
     uint8_t constant = addConstant(&vm.bootFunction.chunk, OBJ_VAL(script));
     assert(constant == vm.bootFunction.chunk.code[constantIndex]);
 }
@@ -1523,6 +1528,17 @@ uint8_t compile_bootstrap[] = {
 
 size_t compile_bootstrap_parameter_offset = 5;
 
+uint8_t xip_bootstrap[] = {
+    OP_GET_BUILTIN, BUILTIN_LOAD,
+    OP_GET_BUILTIN, BUILTIN_READ_XIP_FILE,
+    OP_IMMEDIATE_P8, 1,
+    OP_IMMEDIATE_P8, 1,
+    OP_CALL, 2,
+    OP_CALL, 1,
+    OP_CALL, 0,
+    OP_RETURN
+};
+
 InterpretResult bootstrapVM(Value* bootstrapResult, ObjString* script) {
     ObjClosure* closure = newClosure(&vm.bootFunction);
 
@@ -1540,8 +1556,8 @@ InterpretResult bootstrapVM(Value* bootstrapResult, ObjString* script) {
     return result;
 }
 
-InterpretResult bootYargSourceFile(ObjString* filename) {
-    bindBootstrapCode("boot", 4, bootstrap, sizeof(bootstrap), filename, bootstrap_parameter_offset);
+InterpretResult bootScript(ObjString* filename) {
+    bindBootstrapScript("script-boot", 11, bootstrap, sizeof(bootstrap), filename, bootstrap_parameter_offset);
 
     // Yarg scripts do not return values, so the bootstrap result is discarded.
     Value discardedResult;
@@ -1550,10 +1566,17 @@ InterpretResult bootYargSourceFile(ObjString* filename) {
 }
 
 InterpretResult compileScript(ObjString* filename, Value* result) {
-    bindBootstrapCode("compiler-host", 13, compile_bootstrap, sizeof(compile_bootstrap), filename, compile_bootstrap_parameter_offset);
+    bindBootstrapScript("compiler-host", 13, compile_bootstrap, sizeof(compile_bootstrap), filename, compile_bootstrap_parameter_offset);
 
     // Treat the compile bootstrap as a function, so we get a result.
     InterpretResult runResult = bootstrapVM(result, filename);
+    return runResult;
+}
+
+InterpretResult bootXIP() {
+    bindBootstrapCode("boot", 4, xip_bootstrap, sizeof(xip_bootstrap));
+    Value discardedResult;
+    InterpretResult runResult = bootstrapVM(&discardedResult, NULL);
     return runResult;
 }
 

@@ -11,6 +11,7 @@
 #include "vm.h"
 #include "debug.h"
 #include "fs/fs.h"
+#include "xip_library.h"
 #include "compiler.h"
 #include "channel.h"
 #include "yargtype.h"
@@ -72,6 +73,76 @@ bool readYargSourceBuiltin(ObjRoutine* routineContext, int argCount, Value* resu
         free(source);
 
         *result = OBJ_VAL(sourceString);
+    }
+    return true;
+}
+
+
+// read from the ROM image, into memory.
+// Long term, to be replaced with native yarg, and less
+// assumptions about where filesystems live.
+// reads:
+//  - yarg binary files (returned as uint8[])
+//  - text files (returned as string)
+// Both are suitable input to load().
+bool readYargROMSourceBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
+    if (argCount != 2) {
+        runtimeError(routineContext, "Expected 2 arguments but got %d.", argCount);
+        return false;
+    }
+    if (!is_positive_integer32(peek(routineContext, 0))) {
+        runtimeError(routineContext, "First argument to read_yarg_source must be positive integer.");
+        return false;
+    }
+    if (!is_positive_integer32(peek(routineContext, 1))) {
+        runtimeError(routineContext, "Second argument to read_yarg_source must be positive integer.");
+        return false;
+    }
+
+    uint32_t romFileIndex = as_positive_integer32(peek(routineContext, 1));
+    uint32_t format_requested = as_positive_integer32(peek(routineContext, 0));
+
+    if (romFileIndex > UINT16_MAX) {
+        runtimeError(routineContext, "ROM file index %d out of range.", romFileIndex);
+        return false;
+    }
+
+    size_t length;
+    const uint8_t* data;
+    if (!xipLibraryReadNode(romFileIndex, &data, &length)) {
+        runtimeError(routineContext, "Failed to read ROM node %d.", romFileIndex);
+        return false;
+    }
+
+    if (format_requested == 1) {
+        ObjConcreteYargType* byteType = newYargTypeFromType(TypeUint8);
+        push(routineContext, OBJ_VAL(byteType));
+
+        ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*)newYargArrayTypeFromType(OBJ_VAL(byteType));
+        arrayType->cardinality = length;
+        push(routineContext, OBJ_VAL(arrayType));
+
+        ObjPackedUniformArray* array = ALLOCATE_OBJ(ObjPackedUniformArray, OBJ_UNOWNED_UNIFORMARRAY);
+        push(routineContext, OBJ_VAL(array));
+
+        PackedValue arrayStore;
+        arrayStore.storedType = (ObjConcreteYargType*) arrayType;
+        arrayStore.storedValue = (PackedValueStore*) data;
+        array->store = arrayStore;
+
+        *result = OBJ_VAL(array);
+
+        popN(routineContext, 3);
+    }
+    else if (format_requested == 2) {
+
+        ObjString* sourceString = copyString(data, (int)length);
+
+        *result = OBJ_VAL(sourceString);
+    }
+    else {
+        runtimeError(routineContext, "Unsupported format requested: %d.", format_requested);
+        return false;
     }
     return true;
 }
@@ -964,6 +1035,7 @@ Value getBuiltin(uint8_t builtin) {
     switch (builtin) {
         case BUILTIN_PEEK: return OBJ_VAL(newBuiltin(peekBuiltin));
         case BUILTIN_READ_YARG_SOURCE: return OBJ_VAL(newBuiltin(readYargSourceBuiltin));
+        case BUILTIN_READ_XIP_FILE: return OBJ_VAL(newBuiltin(readYargROMSourceBuiltin));
         case BUILTIN_COMPILE: return OBJ_VAL(newBuiltin(compileBuiltin));
         case BUILTIN_MAKE_ROUTINE: return OBJ_VAL(newBuiltin(makeRoutineBuiltin));
         case BUILTIN_RESUME: return OBJ_VAL(newBuiltin(resumeBuiltin));

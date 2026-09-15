@@ -109,6 +109,8 @@ add_executable(cyarg
     vm_mutex.c
     sync_group.h
     sync_group.c
+    xip_library.c
+    xip_library.h
     fs/fs.h
     big-int/big-int.h
     big-int/big-int.c
@@ -202,4 +204,60 @@ endif()
 if (YARG_DEVICE STREQUAL "GENERIC_HOST")
 # Add the math library for the definition of pow()
 target_link_libraries(cyarg m)
+endif()
+
+# Embed cyarg.ylib as static bytes compiled into cyarg.
+# two variants of cyarg.lib - hosted and self-hosted.
+set(YARG_BIN ${CMAKE_SOURCE_DIR}/../bin/yarg)
+
+# self hosted variant of cyarg.ylib
+set(CYARG_YLIB_PATH ${CMAKE_CURRENT_BINARY_DIR}/cyarg.ylib)
+set(CYARG_YLIB_DATA_PATH ${CMAKE_CURRENT_BINARY_DIR}/contents-cyarg.ylib)
+set(CYARG_YLIB_C ${CMAKE_CURRENT_BINARY_DIR}/cyarg_ylib.c)
+
+add_custom_command(
+  OUTPUT ${CYARG_YLIB_PATH}
+  COMMAND mkdir -p ${CYARG_YLIB_DATA_PATH}
+  COMMAND cp ${CMAKE_SOURCE_DIR}/startup.yb ${CYARG_YLIB_DATA_PATH}
+  COMMAND ${YARG_BIN} buildlib --libdir ${CYARG_YLIB_DATA_PATH} --startup ${CYARG_YLIB_DATA_PATH}/startup.yb --output ${CYARG_YLIB_PATH}
+  DEPENDS ${CMAKE_SOURCE_DIR}/startup.yb
+  VERBATIM
+)
+
+add_custom_command(
+  OUTPUT ${CYARG_YLIB_C}
+  COMMAND sh -c "xxd -i -n cyarg_ylib '${CYARG_YLIB_PATH}' | sed 's/^unsigned char cyarg_ylib\\[\\] =/alignas(8) const unsigned char cyarg_ylib[]=/' | awk 'BEGIN { print \"#include <stdalign.h>\" } { print }' > '${CYARG_YLIB_C}'"
+  DEPENDS ${CYARG_YLIB_PATH}
+  VERBATIM
+)
+
+# hosted variant of cyarg.ylib
+set(CYARG_HOSTED_YLIB_PATH ${CMAKE_CURRENT_BINARY_DIR}/cyarg-hosted.ylib)
+set(CYARG_HOSTED_YLIB_DATA_PATH ${CMAKE_CURRENT_BINARY_DIR}/contents-cyarg-hosted.ylib)
+set(CYARG_HOSTED_YLIB_C ${CMAKE_CURRENT_BINARY_DIR}/cyarg_hosted_ylib.c)
+
+add_custom_command(
+  OUTPUT ${CYARG_HOSTED_YLIB_PATH}
+  COMMAND mkdir -p ${CYARG_HOSTED_YLIB_DATA_PATH}
+  COMMAND cp ${CMAKE_SOURCE_DIR}/startup-hosted.yb ${CYARG_HOSTED_YLIB_DATA_PATH}
+  COMMAND ${YARG_BIN} buildlib --libdir ${CYARG_HOSTED_YLIB_DATA_PATH} --startup ${CYARG_HOSTED_YLIB_DATA_PATH}/startup-hosted.yb --output ${CYARG_HOSTED_YLIB_PATH}
+  DEPENDS ${CMAKE_SOURCE_DIR}/startup-hosted.yb
+  VERBATIM
+)
+
+add_custom_command(
+  OUTPUT ${CYARG_HOSTED_YLIB_C}
+  COMMAND sh -c "xxd -i -n cyarg_ylib '${CYARG_HOSTED_YLIB_PATH}' | sed 's/^unsigned char cyarg_ylib\\[\\] =/alignas(8) const unsigned char cyarg_ylib[]=/' | awk 'BEGIN { print \"#include <stdalign.h>\" } { print }' > '${CYARG_HOSTED_YLIB_C}'"
+  DEPENDS ${CYARG_HOSTED_YLIB_PATH}
+  VERBATIM
+)
+
+if (CYARG_HOSTING STREQUAL "HOSTED")
+target_sources(cyarg
+    PRIVATE
+      ${CYARG_HOSTED_YLIB_C})
+elseif(CYARG_HOSTING STREQUAL "SELF_HOSTED")
+target_sources(cyarg
+    PRIVATE
+      ${CYARG_YLIB_C})
 endif()
