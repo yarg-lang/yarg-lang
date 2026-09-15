@@ -32,14 +32,14 @@ fun getBoolArgument(name) {
 yarg_library_path = getRawHostArgument("--lib");
 yarg_library_path = yarg_library_path + "/";
 
-var yarg_source = read_yarg_source(yarg_library_path + "yarg.ya");
+var yarg_source = vm_read_xip_file(2, 1);
 if (yarg_source == nil or yarg_source == "") {
-    print "Failed to read yarg.ya";
+    print "Failed to read yarg.yb";
     host_exitCode(EX_DATAERR);
 }
-var yarg_target = compile(yarg_source);
+var yarg_target = load(yarg_source);
 if (yarg_target == nil) {
-    print "Failed to compile yarg.ya";
+    print "Failed to load yarg.yb";
     host_exitCode(EX_DATAERR);
 }
 yarg_target();

@@ -1,0 +1,2 @@
+bootfile startup-hosted.yb
+indexfile ../yarg/lang/yarg.yb 2

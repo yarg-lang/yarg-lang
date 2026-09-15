@@ -11,15 +11,18 @@ extern unsigned int cyarg_ylib_len;
 // the first node (0) contains an index offset and length of all nodes, including itself.
 
 struct XIPLibHeader {
-    alignas(1) uint8_t magic[6];
+    alignas(1) uint8_t  magic[4];
+    alignas(2) uint16_t byteOrder;
     alignas(2) uint16_t version;
     alignas(4) uint32_t length;
-    alignas(1) uint8_t nodeZeroOffset;
+    alignas(2) uint16_t directoryNode;
+    alignas(1) uint8_t  nodeZeroOffset;
 };
 
-const int magicLen = 6;
-const uint8_t expectedMagic[6] = { 'y', 0x0a, 'r', 'g', 0xff, 0x43 };
-const uint16_t expectedVersion = 0x2600;
+const int magicLen = 4;
+const uint8_t expectedMagic[4] = { 'y', 0x0a, 'r', 'g' };
+const uint16_t expectedByteOrder = 0xff43;
+const uint16_t expectedVersion = 0x2601;
 
 const struct XIPLibHeader *const xipLibHeader = (const struct XIPLibHeader*)&cyarg_ylib[0];
 const uint8_t* const xipLibraryBytes = &cyarg_ylib[0];
@@ -52,7 +55,7 @@ const uint8_t* nodeData(uint16_t node) {
 }
 
 const uint16_t bootstrap_node = 1;
-const uint16_t root_directory_node = 2;
+const uint16_t root_directory_node = 3;
 
 struct directoryEntry {
     uint16_t fileNode;
@@ -86,32 +89,11 @@ const struct directoryEntry* directoryEntryForFile(const char* filename) {
 void xipLibraryInvariant() {
     assert(xipLibHeader->version == expectedVersion);
     assert(xipLibHeader->length == cyarg_ylib_len);
+    assert(xipLibHeader->byteOrder == expectedByteOrder);
 
     for (int i = 0; i < magicLen; i++) {
         assert(xipLibHeader->magic[i] == expectedMagic[i]);
     }
-
-#if 0
-    size_t length = 0;
-    uint16_t count = nodeCount();
-    printf("Node Count: %u\n", count);
-    for (uint16_t i = 0; i < nodeCount(); i++) {
-        const struct nodeIndex* index = nodeIndex(i);
-        length += index->length;
-        printf("Node %u: offset %d, length %d\n", i, index->offset, index->length);
-    }
-    assert(length <= xipLibHeader->length);
-
-    const struct directoryEntry* dirEntries = directoryEntryRoot();
-    size_t dirEntryCount = directoryEntryCount();
-    printf("Directory Entry Count: %zu\n", dirEntryCount);
-    for (uint16_t i = 0; i < dirEntryCount; i++) {
-        const struct directoryEntry* entry = &dirEntries[i];
-        const uint8_t* nameNode = nodeData(entry->nameNode);
-        const char* name = (const char*)nameNode;
-        printf("Directory Entry %s, data %d\n", name, entry->fileNode);
-    }
-#endif
 }
 
 bool xipLibraryReadFilename(const char* filename, const uint8_t** data, size_t* size) {
