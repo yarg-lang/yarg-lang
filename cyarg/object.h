@@ -1,6 +1,31 @@
 #ifndef cyarg_object_h
 #define cyarg_object_h
 
+/* Obj memory management
+ *
+ * memory in cyarg is managed through reallocate() and assorted free functions in memory.h
+ *
+ * These functions will call the underlying malloc & free functions from the C standard library
+ * or other allocator.
+ *
+ * For all memory allocated to an Obj instance, free will be called automatically when the object
+ * is no longer referenced.
+ *
+ * Obj instances are tracked in two places. All instances can be traversed, by the linked
+ * list formed from the next member of Obj.
+ *
+ * If the Obj instance should not be deleted, it should be present in a global visible to markRoots()
+ *
+ * The globals are notably the language stack, some VM state, and the 'temporary root'
+ * stack accessible throughout the VM.
+ *
+ * Since any call to reallocate() can trigger the GC, objects constructed via multiple calls to reallocate()
+ * often need care in storage during this phase. Commonly either push()'d onto the
+ * language stack, or tempRootPush()'d onto the temporary root stack. Note that a partially constructed object
+ * must be safe to free, and object allocation zero's the whole memory cell as a convenience for this
+ *
+ */
+
 #include "common.h"
 #include "chunk.h"
 #include "table.h"

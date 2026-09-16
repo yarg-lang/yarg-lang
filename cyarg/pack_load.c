@@ -3,6 +3,7 @@
 
 #include "object.h"
 #include "memory.h"
+#include "routine.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -13,7 +14,7 @@ enum { PACKAGE_OK = 0, PACKAGE_DATAERR = 65, PACKAGE_PROTOCOL = 71, PACKAGE_SOFT
 int8_t const packageMagic[PACKAGE_MAGIC_LEN] = {0x79, 0x0a, 0x72, 0x67, 0xff, 0x42};
 int16_t const packageVersion = 0x2602;
 
-struct ObjFunction *loadPackageFromBuffer(uint8_t* buffer, size_t bufferSize) {
+ObjFunction *loadPackageFromBuffer(ObjRoutine* context, uint8_t* buffer, size_t bufferSize) {
     int r = PACKAGE_OK;
 
     ObjFunction **functions = 0;
@@ -77,7 +78,7 @@ struct ObjFunction *loadPackageFromBuffer(uint8_t* buffer, size_t bufferSize) {
 
     for (int i = 0; i < h->numChunks_; i++) {
         functions[i] = newFunction();
-        tempRootPush(OBJ_VAL(functions[i]));
+        push(context, OBJ_VAL(functions[i]));
     }
 
     uint8_t const *startOfCode = next;
@@ -145,20 +146,20 @@ struct ObjFunction *loadPackageFromBuffer(uint8_t* buffer, size_t bufferSize) {
                 char *thisString = (char *)&stringFile[index];
                 ObjString *obj = copyString(thisString, (int)strlen(thisString)); // mark as xip
                 Value value = OBJ_VAL(obj);
-                tempRootPush(value);
+                push(context, value);
                 appendToDynamicValueArray(&currentFunction->chunk.constants, value);
-                tempRootPop();
+                pop(context);
                 DP(printf(":\"%s\"", thisString));
                 break;
             }
             case PACK_CONST_TYPE_I: {
                 Int const *thisInt = (Int const *)&intFile[index];
                 ObjInt *obj = allocateIntObject(thisInt->d_);
-                tempRootPush(OBJ_VAL(obj));
+                push(context, OBJ_VAL(obj));
                 memcpy(&obj->bigInt, thisInt, sizeof (Int) + obj->bigInt.m_ * sizeof (uint16_t)); // should be able to shallow copy
                 Value value = OBJ_VAL(obj);
                 appendToDynamicValueArray(&currentFunction->chunk.constants, value);
-                tempRootPop();
+                pop(context);
                 DP(printf(":");
                 int_print(thisInt));
                 break;
@@ -202,7 +203,7 @@ exit:
     if (functions != 0) {
         currentFunction = functions[0];
         for (int i = 0; i < h->numChunks_; i++) {
-            tempRootPop();
+            pop(context);
         }
         free(functions);
     } else {

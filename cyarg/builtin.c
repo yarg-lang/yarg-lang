@@ -181,7 +181,7 @@ bool loadBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (IS_UNIFORMARRAY(arg)) {
         ObjPackedUniformArray* array = AS_UNIFORMARRAY(arg);
         uintptr_t addr = pinUniformArray(array);
-        function = loadPackageFromBuffer((uint8_t*)addr, arrayCardinality(array->store));
+        function = loadPackageFromBuffer(routineContext, (uint8_t*)addr, arrayCardinality(array->store));
     } else if (IS_STRING(arg)) {
         const char* source = AS_CSTRING(arg);
         function = compile(source);

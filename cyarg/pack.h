@@ -5,9 +5,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
-struct ObjFunction;
+typedef struct ObjFunction ObjFunction;
+typedef struct ObjRoutine ObjRoutine;
 
-int packScript(char const *sourceFileName, struct ObjFunction const *scriptFn, bool includeLines, char const *path);
-struct ObjFunction *loadPackageFromBuffer(uint8_t* buffer, size_t bufferSize);
+int packScript(char const *sourceFileName, ObjFunction const *scriptFn, bool includeLines, char const *path);
+ObjFunction *loadPackageFromBuffer(ObjRoutine* context, uint8_t* buffer, size_t bufferSize);
 
 #endif

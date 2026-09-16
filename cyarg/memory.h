@@ -1,6 +1,8 @@
 #ifndef cyarg_memory_h
 #define cyarg_memory_h
 
+/* see object.h for memory management details */
+
 #include "common.h"
 #include "object.h"
 
