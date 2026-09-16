@@ -1,0 +1,8 @@
+# comments
+file stale_cheese.yb
+txtfile ../../yarg/specimen/hello_led.ya
+file "fresh_cheese.yb" cheese.yb # a rename
+# bootfile is synonym for indexfile <path> 1
+bootfile ../../cyarg/startup.yb
+indexfile "../../yarg/lang/yarg.yb" 2 # Yarg-In-Yarg
+file tests/empty_file.ya empty.ya

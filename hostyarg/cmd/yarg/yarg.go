@@ -258,19 +258,17 @@ func dispatchSubCommand(args []string) {
 		flags.Parse(args[1:])
 		hostyarg.CmdListDevices(*deviceInterpreter, *deviceLib)
 	case "buildlib":
-		libDir := flags.String("libdir", "", "directory containing library source files")
 		outputFile := flags.String("output", "", "output file for compiled library")
-		startupFile := flags.String("startup", "", "optional startup file to include in node 1")
+		libContents := flags.String("contents", "", "contents of the library to include")
 		flags.Parse(args[1:])
 
-		if *libDir == "" {
-			exitWithUsageError("expect directory containing library source files")
+		if *libContents == "" {
+			exitWithUsageError("expect command file for library contents")
 		}
 		if *outputFile == "" {
 			exitWithUsageError("expect output file for compiled library")
 		}
-
-		err := xiplibrary.CmdBuildLib(*libDir, *outputFile, *startupFile)
+		err := xiplibrary.CmdBuildWithContents(*libContents, *outputFile)
 		if err != nil {
 			exitWithError(err.Error())
 		}

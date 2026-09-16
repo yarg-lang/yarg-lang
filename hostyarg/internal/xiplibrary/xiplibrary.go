@@ -5,17 +5,23 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"io/fs"
 	"log"
 	"math"
 	"os"
-	"path/filepath"
+	"sort"
+
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/tokeniser"
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/xip/command"
+	"github.com/yarg-lang/yarg-lang/hostyarg/internal/xip/library"
 )
 
+// note ordering and size are designed with alignment on ARM in mind.
 type LibraryImageHeader struct {
-	Magic          [6]byte
+	Magic          [4]byte
+	Endianness     uint16
 	Version        uint16
 	Length         uint32
+	DirectoryNode  uint16
 	NodeZeroOffset uint8
 }
 
@@ -34,9 +40,11 @@ type LibraryDirEntry struct {
 	NameNode uint16
 }
 
-var packageMagic = [6]byte{0x79, 0x0a, 0x72, 0x67, 0xff, 0x43}
+var packageMagic = [4]byte{'y', 0x0a, 'r', 'g'}
 
-const packageVersion uint16 = 0x2600
+const endiannessMarker uint16 = 0xff43
+
+const packageVersion uint16 = 0x2601
 
 var endianness = binary.LittleEndian
 
@@ -51,6 +59,9 @@ func readLibraryImageHeader(data []byte) (header LibraryImageHeader, err error) 
 	}
 	if header.Magic != packageMagic {
 		return header, fmt.Errorf("invalid magic: %v", header.Magic)
+	}
+	if header.Endianness != endiannessMarker {
+		return header, fmt.Errorf("invalid endianness marker: %v", header.Endianness)
 	}
 	if header.Version != packageVersion {
 		return header, fmt.Errorf("invalid version: %v", header.Version)
@@ -72,7 +83,7 @@ func binaryWriteAt(w io.WriterAt, order binary.ByteOrder, data any, offset uint3
 	return err
 }
 
-func writeLibraryImageHeader(w io.WriterAt, length uint32) (err error) {
+func writeLibraryImageHeader(w io.WriterAt, length uint32, directoryNode uint16) (err error) {
 
 	headerSize := uint32(binary.Size(LibraryImageHeader{}))
 	nodeZeroOffset := nodePadding(headerSize, nodeZeroAlignment) + headerSize
@@ -82,9 +93,11 @@ func writeLibraryImageHeader(w io.WriterAt, length uint32) (err error) {
 
 	header := LibraryImageHeader{
 		Magic:          packageMagic,
+		Endianness:     endiannessMarker,
 		Version:        packageVersion,
 		Length:         length,
 		NodeZeroOffset: uint8(nodeZeroOffset),
+		DirectoryNode:  directoryNode,
 	}
 
 	err = binaryWriteAt(w, endianness, header, 0)
@@ -127,29 +140,40 @@ func writeLibraryNode(w LibraryWriter, node []byte, alignment uint) (err error) 
 	if err != nil {
 		return err
 	}
-	paddedStartLen64, err := w.Seek(0, io.SeekEnd)
+	offset64, err := w.Seek(0, io.SeekEnd)
 	if err != nil {
 		return err
 	}
-	paddedStartLen := uint32(paddedStartLen64)
-	dataLength := uint32(len(node))
+	//	paddedStartLen64, err := w.Seek(0, io.SeekEnd)
+	//	if err != nil {
+	//		return err
+	//	}
+	//	paddedStartLen := uint32(paddedStartLen64)
+	//	dataLength := uint32(len(node))
 	_, err = w.Write(node)
-	err = writeLibraryImageHeader(w, paddedStartLen+dataLength)
+	endPosition, err := w.Seek(0, io.SeekEnd)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Node at offset %v, length: %v, stored size %v\n", offset64, len(node), endPosition-startLen64)
+
+	//	err = writeLibraryImageHeader(w, paddedStartLen+dataLength, 3)
 	return err
 }
 
 func writeLibraryIndex(w LibraryWriter, lengths []LibraryNodeEntry) (err error) {
 
 	indexNode := new(bytes.Buffer)
-	indexOffset := uint32(16)
-	indexLength := len(lengths)*8 + 8
+	var indexOffset uint32 = 16
+	indexLength := uint32(len(lengths)) * 4 * 2
 	indexOffset += nodePadding(indexOffset, nodeZeroAlignment)
 
 	binary.Write(indexNode, endianness, indexOffset)
 	binary.Write(indexNode, endianness, uint32(indexLength))
 
 	var offset uint32 = indexOffset + uint32(indexLength)
-	for _, length := range lengths {
+	for _, length := range lengths[1:] {
 		offset += nodePadding(offset, uint(length.Alignment))
 		err = binary.Write(indexNode, endianness, offset)
 		if err != nil {
@@ -178,124 +202,6 @@ func writeDirectory(w LibraryWriter, directoryEntries []LibraryDirEntry) (err er
 		}
 	}
 	return writeLibraryNode(w, dirNode.Bytes(), 2)
-}
-
-func writeStartupFile(w LibraryWriter, startupFile string, alignment uint) (err error) {
-	if startupFile == "" {
-		return nil
-	}
-	data, err := os.ReadFile(startupFile)
-	if err != nil {
-		return err
-	}
-	return writeLibraryNode(w, data, alignment)
-}
-
-func CmdBuildLib(libDir, outputFile, startupFile string) error {
-	libDir = filepath.Clean(libDir)
-	outputFile = filepath.Clean(outputFile)
-
-	libraryimage, err := os.Create(outputFile)
-	if err != nil {
-		return err
-	}
-	defer libraryimage.Close()
-
-	filesystem := os.DirFS(libDir)
-
-	entries, err := fs.ReadDir(filesystem, ".")
-	if err != nil {
-		return err
-	}
-
-	lengths := make([]LibraryNodeEntry, 0)
-
-	if startupFile != "" {
-		info, err := os.Stat(startupFile)
-		if err != nil {
-			return err
-		}
-		if info.Size() > math.MaxUint32 {
-			return fmt.Errorf("startup file %s is too large", startupFile)
-		}
-		lengths = append(lengths, LibraryNodeEntry{Length: uint32(info.Size()), Alignment: 8})
-	} else {
-		lengths = append(lengths, LibraryNodeEntry{Length: 0, Alignment: 1})
-	}
-
-	directoryEntries := make([]LibraryDirEntry, 0)
-	nodeCursor := uint16(3)
-	for _, entry := range entries {
-		info, err := entry.Info()
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			continue
-		}
-		if info.Size() > math.MaxUint32 {
-			return fmt.Errorf("file %s is too large", entry.Name())
-		}
-		lengths = append(lengths, LibraryNodeEntry{Length: uint32(info.Size()), Alignment: 8})
-		lengths = append(lengths, LibraryNodeEntry{Length: uint32(len(entry.Name()) + 1), Alignment: 1})
-		directoryEntries = append(directoryEntries, LibraryDirEntry{FileNode: nodeCursor, NameNode: nodeCursor + 1})
-		nodeCursor += 2
-	}
-
-	err = writeLibraryImageHeader(libraryimage, uint32(binary.Size(LibraryImageHeader{})))
-	if err != nil {
-		return err
-	}
-
-	nodeLength := make([]LibraryNodeEntry, 0)
-	nodeLength = append(nodeLength, lengths[0])
-	nodeLength = append(nodeLength, LibraryNodeEntry{Length: uint32(len(directoryEntries)) * uint32(binary.Size(LibraryDirEntry{})), Alignment: 2})
-	nodeLength = append(nodeLength, lengths[1:]...)
-
-	err = writeLibraryIndex(libraryimage, nodeLength)
-	if err != nil {
-		return err
-	}
-
-	err = writeStartupFile(libraryimage, startupFile, uint(lengths[0].Alignment))
-	if err != nil {
-		return err
-	}
-
-	err = writeDirectory(libraryimage, directoryEntries)
-	if err != nil {
-		return err
-	}
-
-	lengthIndex := 1
-	for _, entry := range entries {
-		info, err := entry.Info()
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			continue
-		}
-		if info.Size() > math.MaxUint32 {
-			return fmt.Errorf("file %s is too large", entry.Name())
-		}
-
-		data, err := fs.ReadFile(filesystem, entry.Name())
-		if err != nil {
-			return err
-		}
-		err = writeLibraryNode(libraryimage, data, uint(lengths[lengthIndex].Alignment))
-		if err != nil {
-			return err
-		}
-		lengthIndex++
-		err = writeStringNode(libraryimage, entry.Name(), uint(lengths[lengthIndex].Alignment))
-		if err != nil {
-			return err
-		}
-		lengthIndex++
-	}
-	return nil
 }
 
 func nodeDataBuffer(data []byte, nodeOffset uint32, nodeLength uint32) ([]byte, error) {
@@ -349,12 +255,39 @@ func nodeCount(data []byte) (int, error) {
 	return len(index) / 8, nil
 }
 
+func directoryNode(data []byte) (uint16, error) {
+	header, err := readLibraryImageHeader(data)
+	if err != nil {
+		return 0, err
+	}
+	if header.DirectoryNode == 0 {
+		log.Print("no directory node present")
+	}
+	nodes, err := nodeCount(data)
+	if err != nil {
+		return 0, err
+	}
+	if int(header.DirectoryNode) >= nodes {
+		return 0, fmt.Errorf("directory node %d out of range", header.DirectoryNode)
+	}
+	return header.DirectoryNode, nil
+}
+
 func directories(data []byte) (dirs []LibraryDirEntry, err error) {
 	numNodes, err := nodeCount(data)
 	if err != nil {
 		return nil, err
 	}
-	dirData, err := nodeData(data, 2)
+
+	dirNode, err := directoryNode(data)
+	if err != nil {
+		return nil, err
+	}
+	if dirNode == 0 {
+		return nil, nil
+	}
+
+	dirData, err := nodeData(data, dirNode)
 	if err != nil {
 		return nil, err
 	}
@@ -427,6 +360,7 @@ type FsInfo struct {
 	NodeCount        uint16
 	UsefulLength     uint32
 	DirectoryEntries uint16
+	IndexedEntries   uint16
 }
 
 func readFsInfo(data []byte) (FsInfo, error) {
@@ -463,11 +397,21 @@ func readFsInfo(data []byte) (FsInfo, error) {
 
 	info.UsefulLength = uint32(usefulLength)
 
-	nodeTwo, e := nodeData(data, 2)
-	if e != nil {
-		return FsInfo{}, e
+	if header.DirectoryNode != 0 {
+		nodeDir, e := nodeData(data, header.DirectoryNode)
+		if e != nil {
+			return FsInfo{}, e
+		}
+		info.DirectoryEntries = uint16(len(nodeDir) / 4)
 	}
-	info.DirectoryEntries = uint16(len(nodeTwo) / 4)
+
+	var directoryNodes uint16
+	if header.DirectoryNode != 0 {
+		directoryNodes = 1
+		directoryNodes += info.DirectoryEntries * 2
+	}
+
+	info.IndexedEntries = info.NodeCount - 1 - directoryNodes
 
 	return info, nil
 }
@@ -489,16 +433,202 @@ func CmdFsInfo(fsFilename string) (e error) {
 	fmt.Printf("Node Data: %d bytes\n", info.UsefulLength)
 	fmt.Printf("Library Overhead: %d bytes\n", int(info.Size)-int(info.UsefulLength))
 	fmt.Printf("Directory Entries: %d\n", info.DirectoryEntries)
+	fmt.Printf("Indexed Entries: %d\n", info.IndexedEntries)
 
-	nodeOne, e := nodeData(data, 1)
+	for i := uint16(0); i < info.IndexedEntries; i++ {
+		node := i + 1
+		data, e := nodeData(data, node)
+		if e != nil {
+			return e
+		}
+		fmt.Printf("Indexed Node %d Size: %d bytes\n", node, len(data))
+	}
+
+	return nil
+}
+
+func appendLibraryNode(lengths []LibraryNodeEntry, length uint32, alignment uint32) []LibraryNodeEntry {
+	cursor := LibraryNodeEntry{}
+	cursor.Length = length
+	cursor.Alignment = alignment
+	lengths = append(lengths, cursor)
+	return lengths
+}
+
+type LibrarySkeleton struct {
+	Lengths          []LibraryNodeEntry
+	DirectoryEntries []LibraryDirEntry
+	LibraryLength    int
+	DirectoryNode    uint16
+}
+
+func (s *LibrarySkeleton) addNode(length uint32, alignment uint32) {
+	s.Lengths = appendLibraryNode(s.Lengths, length, alignment)
+}
+
+func buildNodes(lib *library.XIPLibrary) (output LibrarySkeleton) {
+
+	nodeCursor := uint16(0)
+	nodeCount := lib.NodeCount()
+	fmt.Printf("Node count: %d\n", nodeCount)
+
+	output.addNode(4*2*uint32(nodeCount), 4)
+	nodeCursor++
+
+	for _, indexedFile := range lib.IndexedFiles {
+		c := indexedFile.(*command.IndexFileCommand)
+		output.addNode(uint32(c.Length), uint32(c.Alignment))
+		nodeCursor++
+	}
+	if lib.NamedFileCount() > 0 {
+		output.addNode(uint32(len(lib.NamedFiles))*uint32(binary.Size(LibraryDirEntry{})), 2)
+		nodeCursor++
+		for _, namedFile := range lib.NamedFiles {
+			c := namedFile.(*command.FileCommand)
+			output.addNode(uint32(c.Length), uint32(c.Alignment))
+			output.addNode(uint32(len(c.TargetPath)+1), 1)
+			output.DirectoryEntries = append(output.DirectoryEntries, LibraryDirEntry{
+				FileNode: nodeCursor,
+				NameNode: nodeCursor + 1,
+			})
+			nodeCursor += 2
+		}
+	}
+
+	output.LibraryLength = 16
+	for _, length := range output.Lengths {
+		output.LibraryLength += int(nodePadding(uint32(output.LibraryLength), uint(length.Alignment)))
+		output.LibraryLength += int(length.Length)
+	}
+
+	output.DirectoryNode = 0
+	if lib.NamedFileCount() > 0 {
+		output.DirectoryNode = uint16(len(lib.IndexedFiles)) + 1
+	}
+
+	return output
+}
+
+func writeLibrary(lib *library.XIPLibrary, TargetPath string) error {
+	fmt.Printf("Writing library to %s\n", TargetPath)
+	libraryimage, err := os.Create(TargetPath)
+	if err != nil {
+		return err
+	}
+	defer libraryimage.Close()
+
+	skeleton := buildNodes(lib)
+
+	err = writeLibraryImageHeader(libraryimage, uint32(skeleton.LibraryLength), skeleton.DirectoryNode)
+	if err != nil {
+		return err
+	}
+	err = writeLibraryPadding(libraryimage, uint32(binary.Size(LibraryImageHeader{})), 4)
+	if err != nil {
+		return err
+	}
+	err = writeLibraryIndex(libraryimage, skeleton.Lengths)
+	if err != nil {
+		return err
+	}
+	for _, indexedFile := range lib.IndexedFiles {
+		c := indexedFile.(*command.IndexFileCommand)
+		data, err := os.ReadFile(c.SourcePath)
+		if err != nil {
+			return err
+		}
+		err = writeLibraryNode(libraryimage, data, uint(c.Alignment))
+		if err != nil {
+			return err
+		}
+	}
+	if lib.NamedFileCount() > 0 {
+
+		err = writeDirectory(libraryimage, skeleton.DirectoryEntries)
+		if err != nil {
+			return err
+		}
+		for _, file := range lib.NamedFiles {
+			c := file.(*command.FileCommand)
+			data, err := os.ReadFile(c.SourcePath)
+			if err != nil {
+				return err
+			}
+
+			err = writeLibraryNode(libraryimage, data, uint(c.Alignment))
+			if err != nil {
+				return err
+			}
+			err = writeStringNode(libraryimage, c.TargetPath, 1)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func buildXIPLibrary(script string, commands []library.Command) (*library.XIPLibrary, error) {
+	lib := &library.XIPLibrary{CommandPath: script}
+
+	for _, command := range commands {
+		command.Execute(lib)
+		fmt.Printf("%s\n", command)
+	}
+
+	sort.Slice(lib.IndexedFiles, func(i, j int) bool {
+		iCommand := lib.IndexedFiles[i].(*command.IndexFileCommand)
+		jCommand := lib.IndexedFiles[j].(*command.IndexFileCommand)
+		return iCommand.Index < jCommand.Index
+	})
+
+	sort.Slice(lib.NamedFiles, func(i, j int) bool {
+		iCommand := lib.NamedFiles[i].(*command.FileCommand)
+		jCommand := lib.NamedFiles[j].(*command.FileCommand)
+		return iCommand.TargetPath < jCommand.TargetPath
+	})
+	return lib, nil
+}
+
+func parseLibraryCommands(libContents string) ([]library.Command, error) {
+	lines, e := tokeniser.TokeniseFile(libContents)
+	if e != nil {
+		return nil, e
+	}
+
+	for _, token := range lines {
+		fmt.Println(token)
+	}
+
+	commands, e := command.Parse(lines)
+	if e != nil {
+		return nil, e
+	}
+	return commands, nil
+}
+
+func CmdBuildWithContents(libContents string, outputFile string) (e error) {
+	stat, e := os.Stat(libContents)
 	if e != nil {
 		return e
 	}
-	if len(nodeOne) > 0 {
-		fmt.Printf("Node 1 (Startup File) Size: %d bytes\n", len(nodeOne))
-	} else {
-		fmt.Printf("Node 1 (Startup File) not present\n")
+	if stat.IsDir() {
+		return fmt.Errorf("libContents should be a file, not a directory")
 	}
 
+	commands, e := parseLibraryCommands(libContents)
+	if e != nil {
+		return e
+	}
+
+	lib, err := buildXIPLibrary(libContents, commands)
+	if err != nil {
+		return err
+	}
+	e = writeLibrary(lib, outputFile)
+	if e != nil {
+		return e
+	}
 	return nil
 }
