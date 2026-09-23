@@ -19,10 +19,11 @@ struct XIPLibHeader {
     alignas(1) uint8_t  nodeZeroOffset;
 };
 
-const int magicLen = 4;
+// with these serialised in a little endian byte order, the first 5 bytes will spell 'yargX' (with 0xa for a)
 const uint8_t expectedMagic[4] = { 'y', 0x0a, 'r', 'g' };
-const uint16_t expectedByteOrder = 0xff43;
-const uint16_t expectedVersion = 0x2601;
+const uint16_t expectedByteOrder = 0xff58;
+
+const uint16_t expectedVersion = 0x2602;
 
 const struct XIPLibHeader *const xipLibHeader = (const struct XIPLibHeader*)&cyarg_ylib[0];
 const uint8_t* const xipLibraryBytes = &cyarg_ylib[0];
@@ -91,7 +92,7 @@ void xipLibraryInvariant() {
     assert(xipLibHeader->length == cyarg_ylib_len);
     assert(xipLibHeader->byteOrder == expectedByteOrder);
 
-    for (int i = 0; i < magicLen; i++) {
+    for (int i = 0; i < sizeof(xipLibHeader->magic) / sizeof(xipLibHeader->magic[0]); i++) {
         assert(xipLibHeader->magic[i] == expectedMagic[i]);
     }
 }

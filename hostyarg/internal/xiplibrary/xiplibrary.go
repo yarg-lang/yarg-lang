@@ -40,13 +40,16 @@ type LibraryDirEntry struct {
 	NameNode uint16
 }
 
+var endianness = binary.LittleEndian
+
+// when serialised in little endian, this will have the first 5 bytes spelling 'yargX' (with 0xa for a)
+// 4 bytes from packageMagic, and the following byte from the low byte of endiannessMarker.
+
 var packageMagic = [4]byte{'y', 0x0a, 'r', 'g'}
 
-const endiannessMarker uint16 = 0xff43
+const endiannessMarker uint16 = 0xff58
 
-const packageVersion uint16 = 0x2601
-
-var endianness = binary.LittleEndian
+const packageVersion uint16 = 0x2602
 
 const nodeZeroAlignment = 4
 
