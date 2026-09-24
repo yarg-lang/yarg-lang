@@ -22,6 +22,7 @@
 #include "routine.h"
 #include "channel.h"
 #include "yargtype.h"
+#include "xip_library.h"
 
 VM vm;
 
@@ -196,6 +197,9 @@ void initVMRuntime() {
     defineNative("host_argn", host_argnNative);
     defineNative("host_exitCode", host_exitCodeNative);
 #endif
+
+    uintptr_t vm_xip_start = (uintptr_t)&cyarg_ylib[0];
+    defineGlobal("vm_xip_start", ADDRESS_VAL(vm_xip_start));
 }
 
 void freeVM() {

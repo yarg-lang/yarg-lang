@@ -5,6 +5,10 @@
 #include <stddef.h>
 #include "value.h"
 
+// interim hosting of the XIP library in .rodata.
+extern unsigned const char cyarg_ylib[];
+extern unsigned int cyarg_ylib_len;
+
 /*
  * xipLibrary
  *

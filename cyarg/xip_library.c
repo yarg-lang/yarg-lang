@@ -2,10 +2,6 @@
 #include <assert.h>
 #include <stdalign.h>
 
-// interim hosting of the XIP library in .rodata.
-extern unsigned const char cyarg_ylib[];
-extern unsigned int cyarg_ylib_len;
-
 // the library is linearised a set of 'nodes', all concatenated in memory.
 // the tool creating the library will pad nodes as needed for alignment.
 // the first node (0) contains an index offset and length of all nodes, including itself.
