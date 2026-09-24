@@ -128,6 +128,17 @@ static void defineNative(const char* name, NativeFn function) {
     tempRootPop();
 }
 
+static void defineGlobal(const char* name, Value value) {
+    ObjString* nameString = copyString(name, (int)strlen(name));
+    tempRootPush(OBJ_VAL(nameString));
+
+    ValueCell cell;
+    cell.value = value;
+    cell.cellType = NULL;
+    tableCellSet(&vm.globals, nameString, cell);
+    tempRootPop();
+}
+
 void initVMMemory() {
 
     memset(&vm, 0, sizeof(VM));
