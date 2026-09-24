@@ -1,0 +1,76 @@
+place struct {
+    uint8[4] magic;
+    uint16 endianness;
+	uint16 version;
+	uint32 length;
+	uint16 directoryNode;
+	uint8 nodeZeroOffset;
+} vm_xip_start vm_xip_rom;
+
+place struct {
+    uint32 offset;
+    uint32 length;
+} vm_xip_start + int32(*vm_xip_rom.nodeZeroOffset) vm_xip_node0_index;
+
+var uint32 vm_xip_nodes = *vm_xip_node0_index.length / 8;
+
+place struct {
+    struct {
+        uint32 offset;
+        uint32 length;
+    }[vm_xip_nodes] entries;
+} vm_xip_start + int32(*vm_xip_rom.nodeZeroOffset) vm_xip_node0_data;
+
+fun vm_xip_node_data(node) {
+    place uint8[*vm_xip_node0_data.entries[node].length]
+     vm_xip_start + int32(*vm_xip_node0_data.entries[node].offset) node_data;
+
+    return *node_data;
+}
+
+fun vm_xip_exec(node) {
+    var data = vm_xip_node_data(node);
+    return load(data)();
+}
+
+fun vm_xip_directory() {
+    if (*vm_xip_rom.directoryNode == 0) {
+        return nil;
+    }
+
+    place struct {
+        uint16 File;
+        uint16 Name;
+    }[*vm_xip_node0_data.entries[*vm_xip_rom.directoryNode].length / 4] 
+     vm_xip_start + int32(*vm_xip_node0_data.entries[*vm_xip_rom.directoryNode].offset) directory;
+    
+    return *directory;
+}
+
+var vm_xip_files = new(any[string]);
+var vm_xip_directory_node = vm_xip_directory();
+
+for (var i = 0; i < len(vm_xip_directory_node); i = i + 1) {
+    var NameNode = vm_xip_directory_node[i].Name;
+    var fileName = vm_xip_string_node(vm_xip_directory_node[i].Name);
+
+    vm_xip_files[fileName] = vm_xip_node_data(int(vm_xip_directory_node[i].File));
+}
+
+fun vm_xip_exec_name(fileName) {
+    if (vm_xip_files[fileName] == nil) {
+        return nil;
+    }
+
+    return exec(vm_xip_files[fileName]);
+}
+
+fun xip_binary_filename(library) {
+    return library + ".yb";
+}
+
+fun xip_library_exists(library) {
+    var binary_path = xip_binary_filename(library);
+
+    return vm_xip_files[binary_path] != nil;
+}

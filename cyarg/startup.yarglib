@@ -1,2 +1,4 @@
 bootfile startup.yb
 indexfile ../yarg/lang/yarg.yb 2
+indexfile ../yarg/stdlib/xip_library.yb 3
+file ../yarg/stdlib/repl.yb

@@ -68,9 +68,9 @@ var filetests = []TestFile{
 		FileName: "test.yarglib",
 		ExpectedInfo: FsInfo{
 			Version:          packageVersion,
-			Size:             2437,
+			Size:             2645,
 			NodeCount:        12,
-			UsefulLength:     2410,
+			UsefulLength:     2623,
 			DirectoryEntries: 4,
 			IndexedEntries:   2,
 		},
@@ -140,6 +140,7 @@ func testAFile(t *testing.T, output *os.File, input string, expected FsInfo) {
 	}
 
 	if expected != xipinfo {
+		t.Logf("expected: %+v, got: %+v", expected, xipinfo)
 		t.Fail()
 	}
 

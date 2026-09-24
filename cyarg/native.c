@@ -21,6 +21,8 @@
 #include "test-system/testSystem.h"
 #endif
 
+#include "xip_library.h"
+
 static Value nativeArgument(ObjRoutine* routine, size_t argCount, size_t argument) {
     return peek(routine, (int)argCount - 1 - (int)argument);
 }
@@ -284,5 +286,35 @@ bool fileExistsNative(ObjRoutine* routine, int argCount, Value* result) {
     const char* path = AS_CSTRING(pathVal);
 
     *result = BOOL_VAL(fileExists(path));
+    return true;
+}
+
+bool vm_xip_string_nodeNative(ObjRoutine* routine, int argCount, Value* result) {
+    if (argCount != 1) {
+        runtimeError(routine, "Expected 1 argument but got %d.", argCount);
+        return false;
+    }
+
+    Value nodeVal = nativeArgument(routine, argCount, 0);
+    if (!is_positive_integer32(nodeVal)) {
+        runtimeError(routine, "Expected a positive integer for the node.");
+        return false;
+    }
+
+    uint32_t node = as_positive_integer32(nodeVal);
+    if (node > UINT16_MAX) {
+        runtimeError(routine, "Node value out of range.");
+        return false;
+    }
+    uint16_t node16 = (uint16_t) node;
+
+    const char* string = xipLibraryStringNode(node16);
+    if (string == NULL) {
+        runtimeError(routine, "String node not found.");
+        return false;
+    }
+
+    Value stringVal = OBJ_VAL(copyString(string, strlen(string)));
+    *result = stringVal;
     return true;
 }

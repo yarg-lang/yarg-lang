@@ -115,3 +115,11 @@ bool xipLibraryReadNode(uint16_t node, const uint8_t** data, size_t* size) {
         return true;
     }
 }
+
+const char* xipLibraryStringNode(uint16_t node) {
+    const uint8_t* data = nodeData(node);
+    if (!data) {
+        return NULL;
+    }
+    return (const char*)data;
+}

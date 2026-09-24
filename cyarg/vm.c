@@ -200,6 +200,8 @@ void initVMRuntime() {
 
     uintptr_t vm_xip_start = (uintptr_t)&cyarg_ylib[0];
     defineGlobal("vm_xip_start", ADDRESS_VAL(vm_xip_start));
+
+    defineNative("vm_xip_string_node", vm_xip_string_nodeNative);
 }
 
 void freeVM() {

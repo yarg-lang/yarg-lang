@@ -18,6 +18,7 @@ extern unsigned int cyarg_ylib_len;
 
 bool xipLibraryReadFilename(const char* filename, const uint8_t** data, size_t* size);
 bool xipLibraryReadNode(uint16_t node, const uint8_t** data, size_t* size);
+const char* xipLibraryStringNode(uint16_t node);
 
 #endif
 

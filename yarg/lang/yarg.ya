@@ -37,6 +37,12 @@ fun yarg_library_exists(library) {
     return c_fileExists(binary_path) or c_fileExists(source_path);
 }
 
+fun exec_xip_index(index) {
+    load(vm_read_xip_file(index, 1))();
+}
+
+exec_xip_index(3); // xip_library.yb
+
 fun import(library) {
     if (yarg_imports[library] == nil and yarg_library_exists(library)) {
         var source;
@@ -55,6 +61,9 @@ fun import(library) {
         } else {
             lib();
         }
+    } else if (yarg_imports[library] == nil and xip_library_exists(library)) {
+        vm_xip_exec_name(xip_binary_filename(library));
+        yarg_imports[library] = true;
     } else if (yarg_imports[library] == nil and library != "main") {
         print "Library search: " + yarg_library_path;
         print "Library not found: " + library;
