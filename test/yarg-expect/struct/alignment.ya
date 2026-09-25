@@ -1,0 +1,68 @@
+var struct {
+        uint8 byte;
+        uint16 short;
+        uint32 word;
+        uint64 long;
+        mfloat64 float;
+        any lots;
+    } test;
+
+print test.byte;  // expect: 0
+print test;       // expect: struct{|6:48|0; 0; 0; 0; 0.00000; nil; }
+print test.short; // expect: 0
+print test.word;  // expect: 0
+print test.long;  // expect: 0
+print test.float; // expect: 0.00000
+print test.lots;  // expect: nil
+
+var struct {
+    uint8[3] one;
+    uint16[3] two;
+    uint32[3] three;
+    uint64[3] four;
+} arrayTest;
+
+print arrayTest; // expect:struct{|4:48|Type:uint8[3]:[0, 0, 0]; Type:uint16[3]:[0, 0, 0]; Type:uint32[3]:[0, 0, 0]; Type:uint64[3]:[0, 0, 0]; }
+
+var struct {
+    uint8 byte;
+    uint8[3] array;
+    uint8[2] anotherArray;
+    uint8 next;
+} byteArrayTest;
+
+print byteArrayTest; // expect: struct{|4:7|0; Type:uint8[3]:[0, 0, 0]; Type:uint8[2]:[0, 0]; 0; }
+
+var struct {
+    uint8 a;
+    struct {
+        uint8 b;
+        uint8 c;
+    } nested;
+} nestedStructTest;
+
+print nestedStructTest; // expect: struct{|2:3|0; struct{|2:2|0; 0; }; }
+
+var struct {
+    uint8 a;
+    struct {
+        uint16 b;
+    } nested;
+    uint8 c;
+    struct {
+        uint32 b;
+    } nested2;
+} mixedStructTest;
+
+print mixedStructTest; // expect: struct{|4:12|0; struct{|1:2|0; }; 0; struct{|1:4|0; }; }
+
+var struct {
+    uint32 a;
+    uint32 b;
+    uint32[2] c;
+    struct {
+        uint32 d;
+    } nested3;
+} mixedStructTest2;
+
+print mixedStructTest2; // expect: struct{|4:20|0; 0; Type:uint32[2]:[0, 0]; struct{|1:4|0; }; }

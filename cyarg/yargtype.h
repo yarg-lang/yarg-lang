@@ -49,6 +49,7 @@ typedef struct ObjConcreteYargTypeStruct {
     ObjConcreteYargType** field_types;
     size_t field_count;
     size_t storage_size;
+    size_t alignment;
 } ObjConcreteYargTypeStruct;
 
 typedef struct ObjConcreteYargTypePointer {
@@ -83,6 +84,7 @@ bool is_nil_assignable_type(Value type);
 bool is_placeable_type(Value type);
 bool is_stored_type(Value type);
 size_t yt_sizeof_type_storage(Value type);
+size_t yt_alignmentfor_type_storage(Value type);
 
 Value defaultValue(Value type);
 

@@ -38,6 +38,7 @@ ObjConcreteYargType* newYargTypeFromType(ConcreteYargType yt) {
         }
         case TypeStruct: {
             ObjConcreteYargTypeStruct* s = ALLOCATE_OBJ(ObjConcreteYargTypeStruct, OBJ_YARGTYPE_STRUCT);
+            s->alignment = 1;
             s->core.yt = yt;
             initTable(&s->field_names);
             return (ObjConcreteYargType*)s;
@@ -109,13 +110,19 @@ ObjConcreteYargType* newYargPointerType(Value targetType) {
 size_t addFieldType(ObjConcreteYargTypeStruct* st, size_t index, size_t fieldOffset, Value type, Value offset, Value name) {
     st->field_types[index] = IS_NIL(type) ? NULL : AS_YARGTYPE(type);
     tableSet(&st->field_names, AS_STRING(name), SIZE_T_UI_VAL(index));
+    uint32_t alignmentPadding = 0;
     if (IS_NIL(offset)) {
-        st->field_indexes[index] = fieldOffset;
+        size_t alignment = yt_alignmentfor_type_storage(type);
+        alignmentPadding = (alignment - (fieldOffset % alignment)) % alignment;
+        st->field_indexes[index] = fieldOffset + alignmentPadding;
+        if (alignment > st->alignment) {
+            st->alignment = alignment;
+        }
     } else if (is_positive_integer32(offset)) {
         fieldOffset = as_positive_integer32(offset);
         st->field_indexes[index] = fieldOffset;
     }
-    st->storage_size = fieldOffset + yt_sizeof_type_storage(type);
+    st->storage_size = fieldOffset + alignmentPadding + yt_sizeof_type_storage(type);
     return st->storage_size;
 }
 
@@ -370,6 +377,58 @@ size_t yt_sizeof_type_storage(Value type) {
         case TypeArray: {
             ObjConcreteYargTypeArray* array = (ObjConcreteYargTypeArray*)t;
             return arrayElementSize(array) * array->cardinality;
+        }
+        case TypeInt:
+        case TypeString:
+        case TypeClass:
+        case TypeInstance:
+        case TypeFunction:
+        case TypeRoutine:
+        case TypeChannel:
+        case TypePointer:
+        case TypeMap:
+        case TypeYargType:
+            return sizeof(Obj*);
+        }
+    }
+}
+
+size_t yt_alignmentfor_type_storage(Value type) {
+    if (IS_NIL(type)) {
+        return 8;
+    } else {
+        ObjConcreteYargType* t = AS_YARGTYPE(type);
+        switch (t->yt) {
+        case TypeAny:
+        case TypeBool:
+        case TypeDouble:
+            return sizeof(Value);
+        case TypeInt8:
+            return sizeof(int8_t);
+        case TypeUint8:
+            return sizeof(uint8_t);
+        case TypeInt16:
+            return sizeof(int16_t);
+        case TypeUint16:
+            return sizeof(uint16_t);
+        case TypeInt32:
+            return sizeof(int32_t);
+        case TypeUint32:
+            return sizeof(uint32_t);
+        case TypeInt64:
+            return sizeof(int64_t);
+        case TypeUint64:
+            return sizeof(uint64_t);
+        case TypeAddress:
+            return sizeof(uintptr_t);
+        case TypeStruct: {
+            ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*)t;
+            return st->alignment;
+        }
+        case TypeArray: {
+            ObjConcreteYargTypeArray* array = (ObjConcreteYargTypeArray*)t;
+            Value elementType = array->element_type ? OBJ_VAL(array->element_type) : NIL_VAL;
+            return yt_alignmentfor_type_storage(elementType);
         }
         case TypeInt:
         case TypeString:
