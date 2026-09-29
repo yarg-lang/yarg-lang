@@ -25,6 +25,6 @@ maths(10, "pre-interrupt");
 
 var alarm = start_interrupt1();
 
-maths(1000, "interruptible");
+maths(500, "interruptible");
 
 cancel_repeating_alarm(alarm);
