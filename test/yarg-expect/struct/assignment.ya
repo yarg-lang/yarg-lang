@@ -9,7 +9,8 @@ print pair.y;        // expect: struct{|2:32|nil; false; }
 var test = pair.y;
 test.a = 42;
 test.b = true;
+print test.a;        // expect: 42
 print test.b;        // expect: true
-print pair.y.b;      // expect: true
-print pair.y.a;      // expect: 42
+print pair.y.b;      // expect: false
+print pair.y.a;      // expect: nil
 pair = nil;          // expect runtime error: Cannot set global variable to incompatible type.

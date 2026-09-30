@@ -483,6 +483,7 @@ static void generateExprNamedVariable(ObjExprNamedVariable* var) {
     
     if (var->assignment) {
         generateExpr(var->assignment);
+        emitByte(OP_DUPLICATE);
         emitBytes(setOp, (uint8_t)arg);
     } else {
         emitBytes(getOp, (uint8_t)arg);
@@ -807,6 +808,7 @@ static void generateVarDeclaration(ObjStmtVarDeclaration* decl) {
 
     if (decl->initialiser) {
         generateExpr(decl->initialiser);
+        emitByte(OP_DUPLICATE);
         emitByte(OP_INITIALISE);
     }
 
