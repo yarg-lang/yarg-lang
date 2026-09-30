@@ -873,6 +873,13 @@ InterpretResult run(ObjRoutine* routine) {
                 pop(routine);
                 break;
             }
+            case OP_DUPLICATE: {
+                Value rhs = peek(routine, 0);
+                Value lhs = duplicateValue(rhs);
+                pop(routine);
+                push(routine, lhs);
+                break;
+            }
             case OP_GET_UPVALUE: {
                 uint8_t slot = READ_BYTE();
                 push(routine, frame->closure->upvalues[slot]->contents->value);
