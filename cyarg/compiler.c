@@ -497,14 +497,15 @@ static void generateExprLiteral(ObjExprLiteral* lit) {
     }
 }
 
-static void generateExprSet(DynamicObjArray* args) {
+static void generateCallExprs(DynamicObjArray* args) {
     for (int i = 0; i < args->objectCount; i++) {
         generateExpr((ObjExpr*)args->objects[i]);
+        emitByte(OP_DUPLICATE);
     } 
 }
 
 static void generateExprCall(ObjExprCall* call) {
-    generateExprSet(&call->arguments);
+    generateCallExprs(&call->arguments);
 
     emitBytes(OP_CALL, call->arguments.objectCount);
 }
@@ -599,7 +600,7 @@ static void generateExprDot(ObjExprDot* dot) {
         generateExpr(dot->assignment);
         emitBytes(OP_SET_PROPERTY, name);
     } else if (dot->call) {
-        generateExprSet(&dot->call->arguments);
+        generateCallExprs(&dot->call->arguments);
         emitBytes(OP_INVOKE, name);
         emitByte(dot->call->arguments.objectCount);
     } else {
@@ -622,7 +623,7 @@ static void generateExprSuper(ObjExprSuper* super) {
 
     generateGetNamedVariable(this_);
     if (super->call) {
-        generateExprSet(&super->call->arguments);
+        generateCallExprs(&super->call->arguments);
         generateGetNamedVariable(super_);
         emitBytes(OP_SUPER_INVOKE, name);
         emitByte(super->call->arguments.objectCount);
