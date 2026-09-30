@@ -309,6 +309,37 @@ bool initialiseValueCellTarget(ValueCellTarget lhs, Value rhsValue) {
     }
 }
 
+void duplicatePackedValue(PackedValue* dest, PackedValue src) {
+    *dest = allocPackedValue(OBJ_VAL(src.storedType));
+    uint8_t* dest_bytes = (uint8_t*) dest->storedValue;
+    uint8_t* src_bytes = (uint8_t*) src.storedValue;
+
+    memcpy(dest_bytes, src_bytes, yt_sizeof_type_storage(OBJ_VAL(src.storedType)));
+}
+
+Value duplicateValue(Value src) {
+    if (IS_INT(src)) {
+        ObjInt* rhs = AS_INTOBJ(src);
+        ObjInt* lhs = allocateIntObject(rhs->bigInt.m_);
+        uint16_t* lhs_w = (uint16_t*) &lhs->bigInt.w_[0];
+        uint16_t* rhs_w = (uint16_t*) &rhs->bigInt.w_[0];
+        memcpy(lhs_w, rhs_w, rhs->bigInt.m_ * sizeof(uint16_t));
+        lhs->bigInt.neg_ = rhs->bigInt.neg_;
+        lhs->bigInt.d_ = rhs->bigInt.d_;
+        lhs->isLiteral = rhs->isLiteral;
+        return OBJ_VAL(lhs);
+    } else if (IS_STRUCT(src)) {
+        ObjPackedStruct* lhs = ALLOCATE_OBJ(ObjPackedStruct, OBJ_PACKEDSTRUCT);
+        tempRootPush(OBJ_VAL(lhs));
+        ObjPackedStruct* rhs = AS_STRUCT(src);
+        duplicatePackedValue(&lhs->store, rhs->store);
+        tempRootPop();
+        return OBJ_VAL(lhs);
+    } else {
+        return src;
+    }
+}
+
 bool is_uniformarray(PackedValue val) {
     if (val.storedType == NULL) {
         return IS_UNIFORMARRAY(val.storedValue->asValue);

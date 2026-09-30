@@ -164,4 +164,6 @@ uintptr_t pinUniformArray(ObjPackedUniformArray* array);
 
 PackedValue packUintptr(uintptr_t value);
 
+Value duplicateValue(Value src);
+
 #endif
