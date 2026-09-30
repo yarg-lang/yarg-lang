@@ -68,9 +68,9 @@ var filetests = []TestFile{
 		FileName: "test.yarglib",
 		ExpectedInfo: FsInfo{
 			Version:          packageVersion,
-			Size:             2645,
+			Size:             2701,
 			NodeCount:        12,
-			UsefulLength:     2623,
+			UsefulLength:     2672,
 			DirectoryEntries: 4,
 			IndexedEntries:   2,
 		},
