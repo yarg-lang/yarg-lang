@@ -39,7 +39,7 @@ fun repeating_tick(alarm, repeat_us) {
 }
 
 var tick_ms = 500;
-var job_iterations = 2000;
+var job_iterations = 4000;
 
 print "Starting benchmark with tick interval: " + string(tick_ms) + " ms and job iterations: " + string(job_iterations);
 
