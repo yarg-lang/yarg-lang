@@ -1,0 +1,26 @@
+fun increment_value(x) {
+    x.value = x.value + 1;
+    return x;
+}
+
+struct { uint8 value; } a;
+a.value = 3;
+var b = a;
+print a.value; // expect: 3
+b.value = 5;
+increment_value(a);
+print a.value; // expect: 3
+a = increment_value(a);
+print a.value; // expect: 4
+print b.value; // expect: 5
+
+struct { value; } c;
+c.value = 7;
+var d = c;
+print c.value; // expect: 7
+d.value = 9;
+increment_value(c);
+print c.value; // expect: 7
+c = increment_value(c);
+print c.value; // expect: 8
+print d.value; // expect: 9
