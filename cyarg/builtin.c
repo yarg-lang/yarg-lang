@@ -135,9 +135,8 @@ bool readYargROMSourceBuiltin(ObjRoutine* routineContext, int argCount, Value* r
         popN(routineContext, 3);
     }
     else if (format_requested == 2) {
-
-        ObjString* sourceString = copyString(data, (int)length);
-
+        const char* string = (const char*) data;
+        ObjString* sourceString = copyString(string, (int)length);
         *result = OBJ_VAL(sourceString);
     }
     else {
