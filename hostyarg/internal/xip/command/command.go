@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -114,7 +115,7 @@ func parseACommand(commandTokens []tokeniser.TokenInfo) library.Command {
 			if len(commandTokens) == 3 {
 				targetPath = commandTokens[2].Value
 			}
-			fmt.Printf("file command: source=%s, target=%s\n", fileSource, targetPath)
+			log.Printf("file command: source=%s, target=%s\n", fileSource, targetPath)
 			if commandTokens[0].Value == "txtfile" {
 				return &TextFileCommand{FileCommand: FileCommand{SourcePath: fileSource, TargetPath: targetPath}}
 			}
@@ -125,7 +126,7 @@ func parseACommand(commandTokens []tokeniser.TokenInfo) library.Command {
 				return &ErrorCommand{Message: "not enough arguments for bootfile command"}
 			}
 			bootSource := commandTokens[1].Value
-			fmt.Printf("bootfile command: source=%s\n", bootSource)
+			log.Printf("bootfile command: source=%s\n", bootSource)
 			return &IndexFileCommand{SourcePath: bootSource, Index: 1}
 		case "indexfile":
 			if len(commandTokens) < 3 {
@@ -140,7 +141,7 @@ func parseACommand(commandTokens []tokeniser.TokenInfo) library.Command {
 			if indexValue < 0 || indexValue > 65535 {
 				return &ErrorCommand{Message: "index value out of range for indexfile command"}
 			}
-			fmt.Printf("indexfile command: source=%s, index=%d\n", indexSource, indexValue)
+			log.Printf("indexfile command: source=%s, index=%d\n", indexSource, indexValue)
 			return &IndexFileCommand{SourcePath: indexSource, Index: uint16(indexValue)}
 		default:
 			return &ErrorCommand{Message: fmt.Sprintf("unknown command: %s", commandTokens[0].Value)}

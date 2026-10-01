@@ -159,7 +159,7 @@ func writeLibraryNode(w LibraryWriter, node []byte, alignment uint) (err error) 
 		return err
 	}
 
-	fmt.Printf("Node at offset %v, length: %v, stored size %v\n", offset64, len(node), endPosition-startLen64)
+	log.Printf("Node at offset %v, length: %v, stored size %v\n", offset64, len(node), endPosition-startLen64)
 
 	//	err = writeLibraryImageHeader(w, paddedStartLen+dataLength, 3)
 	return err
@@ -473,7 +473,7 @@ func buildNodes(lib *library.XIPLibrary) (output LibrarySkeleton) {
 
 	nodeCursor := uint16(0)
 	nodeCount := lib.NodeCount()
-	fmt.Printf("Node count: %d\n", nodeCount)
+	log.Printf("Node count: %d\n", nodeCount)
 
 	output.addNode(4*2*uint32(nodeCount), 4)
 	nodeCursor++
@@ -513,7 +513,7 @@ func buildNodes(lib *library.XIPLibrary) (output LibrarySkeleton) {
 }
 
 func writeLibrary(lib *library.XIPLibrary, TargetPath string) error {
-	fmt.Printf("Writing library to %s\n", TargetPath)
+	log.Printf("Writing library to %s\n", TargetPath)
 	libraryimage, err := os.Create(TargetPath)
 	if err != nil {
 		return err
@@ -577,7 +577,7 @@ func buildXIPLibrary(script string, commands []library.Command) (*library.XIPLib
 
 	for _, command := range commands {
 		command.Execute(lib)
-		fmt.Printf("%s\n", command)
+		log.Printf("%s\n", command)
 	}
 
 	sort.Slice(lib.IndexedFiles, func(i, j int) bool {
@@ -601,7 +601,7 @@ func parseLibraryCommands(libContents string) ([]library.Command, error) {
 	}
 
 	for _, token := range lines {
-		fmt.Println(token)
+		log.Println(token)
 	}
 
 	commands, e := command.Parse(lines)
