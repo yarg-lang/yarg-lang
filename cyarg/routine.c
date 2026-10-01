@@ -342,7 +342,7 @@ static void traceValueStack(ObjRoutine* routine) {
         stack_lines++;
     }
 
-    for (int line = stack_lines, line_cursor = 0; line >= 0 && line_cursor < stack_lines; line--, line_cursor++) {
+    for (size_t line = stack_lines, line_cursor = 0; line >= 0 && line_cursor < stack_lines; line--, line_cursor++) {
         char prefix[21] = "                    ";
         if (line_cursor == 0) { // first line identifes the routine and the total stack size
             ObjString* routineStr = valueToString(OBJ_VAL(routine));
