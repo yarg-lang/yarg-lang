@@ -9,4 +9,6 @@
 
 #include "print.h"
 
+void fatalVMError(const char* format, ...);
+
 #endif
