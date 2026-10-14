@@ -1,5 +1,5 @@
 
-var ts = [int(100), int8(101), uint8(102), int16(103), uint16(104), int32(105), uint32(106), int64(107), uint64(108), "109"];
+var ts = [int(100), int8(101), uint8(102), int16(103), uint16(104), int32(105), uint32(106), int64(107), uint64(108), "109", 110.5];
 print ts[0]; // expect: 100
 print ts[1]; // expect: 101
 print ts[2]; // expect: 102
@@ -10,8 +10,9 @@ print ts[6]; // expect: 106
 print ts[7]; // expect: 107
 print ts[8]; // expect: 108
 print ts[9]; // expect: 109
+print ts[10]; // expect: 110.500
 
-for (var x = 0; x < 10; x = x + 1)
+for (var x = 0; x < 11; x = x + 1)
 {
     print int(ts[x]);
     print int8(ts[x]);
@@ -23,6 +24,7 @@ for (var x = 0; x < 10; x = x + 1)
     print int64(ts[x]);
     print uint64(ts[x]);
     print string(ts[x]);
+    print mfloat64(ts[x]);
 }
 // expect: 100
 // expect: 100
@@ -34,6 +36,7 @@ for (var x = 0; x < 10; x = x + 1)
 // expect: 100
 // expect: 100
 // expect: 100
+// expect: 100.000
 
 // expect: 101
 // expect: 101
@@ -45,6 +48,7 @@ for (var x = 0; x < 10; x = x + 1)
 // expect: 101
 // expect: 101
 // expect: 101
+// expect: 101.000
 
 // expect: 102
 // expect: 102
@@ -56,6 +60,7 @@ for (var x = 0; x < 10; x = x + 1)
 // expect: 102
 // expect: 102
 // expect: 102
+// expect: 102.000
 
 // expect: 103
 // expect: 103
@@ -67,6 +72,7 @@ for (var x = 0; x < 10; x = x + 1)
 // expect: 103
 // expect: 103
 // expect: 103
+// expect: 103.000
 
 // expect: 104
 // expect: 104
@@ -78,6 +84,7 @@ for (var x = 0; x < 10; x = x + 1)
 // expect: 104
 // expect: 104
 // expect: 104
+// expect: 104.000
 
 // expect: 105
 // expect: 105
@@ -89,6 +96,7 @@ for (var x = 0; x < 10; x = x + 1)
 // expect: 105
 // expect: 105
 // expect: 105
+// expect: 105.000
 
 // expect: 106
 // expect: 106
@@ -100,6 +108,7 @@ for (var x = 0; x < 10; x = x + 1)
 // expect: 106
 // expect: 106
 // expect: 106
+// expect: 106.000
 
 // expect: 107
 // expect: 107
@@ -111,6 +120,7 @@ for (var x = 0; x < 10; x = x + 1)
 // expect: 107
 // expect: 107
 // expect: 107
+// expect: 107.000
 
 // expect: 108
 // expect: 108
@@ -122,6 +132,7 @@ for (var x = 0; x < 10; x = x + 1)
 // expect: 108
 // expect: 108
 // expect: 108
+// expect: 108.000
 
 // expect: 109
 // expect: 109
@@ -133,5 +144,18 @@ for (var x = 0; x < 10; x = x + 1)
 // expect: 109
 // expect: 109
 // expect: 109
+// expect: 109.000
+
+// expect: 110
+// expect: 110
+// expect: 110
+// expect: 110
+// expect: 110
+// expect: 110
+// expect: 110
+// expect: 110
+// expect: 110
+// expect: 110.500
+// expect: 110.500
 
 print "Done"; // expect: Done

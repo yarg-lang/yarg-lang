@@ -613,6 +613,13 @@ bool uint64Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
             *result = UI64_VAL(i);
             return true;
         }
+    } else if (IS_DOUBLE(arg)) {
+        double f = AS_DOUBLE(arg);
+        if (f >= 0.0 && f <= UINT64_MAX)
+        {
+            *result = UI64_VAL((uint64_t) f);
+            return true;
+        }
     }
     return false;
 }
@@ -656,6 +663,13 @@ bool int64Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
         if (*end == 0)
         {
             *result = I64_VAL(i);
+            return true;
+        }
+    } else if (IS_DOUBLE(arg)) {
+        double f = AS_DOUBLE(arg);
+        if (f >= INT16_MIN && f <= INT16_MAX)
+        {
+            *result = I64_VAL((int64_t) f);
             return true;
         }
     }
@@ -703,6 +717,13 @@ bool uint32Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
             *result = UI32_VAL((uint32_t) i);
             return true;
         }
+    } else if (IS_DOUBLE(arg)) {
+        double f = AS_DOUBLE(arg);
+        if (f >= 0.0 && f <= UINT32_MAX)
+        {
+            *result = UI32_VAL((uint32_t) f);
+            return true;
+        }
     }
     return false;
 }
@@ -746,6 +767,20 @@ bool int32Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
         if (*end == 0 && i >= INT32_MIN && i <= INT32_MAX)
         {
             *result = I32_VAL((int32_t) i);
+            return true;
+        }
+    } else if (IS_DOUBLE(arg)) {
+        double f = AS_DOUBLE(arg);
+        if (f >= INT32_MIN && f <= INT32_MAX)
+        {
+            *result = I32_VAL((int32_t) f);
+            return true;
+        }
+    } else if (IS_DOUBLE(arg)) {
+        double f = AS_DOUBLE(arg);
+        if (f >= INT32_MIN && f <= INT32_MAX)
+        {
+            *result = I32_VAL((int32_t) f);
             return true;
         }
     }
@@ -793,6 +828,13 @@ bool uint16Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
             *result = UI16_VAL((uint16_t) i);
             return true;
         }
+    } else if (IS_DOUBLE(arg)) {
+        double f = AS_DOUBLE(arg);
+        if (f >= 0.0 && f <= UINT16_MAX)
+        {
+            *result = UI16_VAL((uint16_t) f);
+            return true;
+        }
     }
     return false;
 }
@@ -836,6 +878,13 @@ bool int16Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
         if (*end == 0 && i >= INT16_MIN && i <= INT16_MAX)
         {
             *result = I16_VAL((int16_t) i);
+            return true;
+        }
+    } else if (IS_DOUBLE(arg)) {
+        double f = AS_DOUBLE(arg);
+        if (f >= INT16_MIN && f <= INT16_MAX)
+        {
+            *result = I16_VAL((int16_t) f);
             return true;
         }
     }
@@ -883,6 +932,13 @@ bool uint8Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
             *result = UI8_VAL((uint8_t) i);
             return true;
         }
+    } else if (IS_DOUBLE(arg)) {
+        double f = AS_DOUBLE(arg);
+        if (f >= 0.0 && f <= UINT8_MAX)
+        {
+            *result = UI8_VAL((uint8_t) f);
+            return true;
+        }
     }
     return false;
 }
@@ -928,6 +984,13 @@ bool int8Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
             *result = I8_VAL((int8_t) i);
             return true;
         }
+    } else if (IS_DOUBLE(arg)) {
+        double f = AS_DOUBLE(arg);
+        if (f >= INT8_MIN && f <= INT8_MAX)
+        {
+            *result = I8_VAL((int8_t) f);
+            return true;
+        }
     }
     return false;
 }
@@ -968,6 +1031,15 @@ bool intBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         result->as.obj = &newObj->obj;
         result->type = VAL_OBJ;
         int_set_t(from, &newObj->bigInt);
+        return true;
+    } else if (IS_DOUBLE(arg)) { // todo  handle floats larger than int64
+        double f = AS_DOUBLE(arg);
+        char sb[310];
+        sprintf(sb, "%.0f", f);
+        ObjInt *newObj = ALLOCATE_OBJ(ObjInt, OBJ_INT);
+        result->as.obj = &newObj->obj;
+        result->type = VAL_OBJ;
+        int_set_s(sb, &newObj->bigInt);
         return true;
     } else {
         return false;
