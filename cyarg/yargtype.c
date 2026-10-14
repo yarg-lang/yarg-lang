@@ -1,85 +1,118 @@
-#include "common.h"
-
 #include "yargtype.h"
 
+#include <string.h>
+#include <assert.h>
+
+#include "common.h"
 #include "memory.h"
 #include "vm.h"
+#include "yargobject.h"
+#include "vmobject.h"
+#include "yargstructtype.h"
+#include "chunk.h"
 
-ObjConcreteYargType* newYargTypeFromType(ConcreteYargType yt) {
-    switch (yt) {
-        case TypeAny:
-        case TypeBool:
-        case TypeDouble:
-        case TypeInt8:
-        case TypeUint8:
-        case TypeInt16:
-        case TypeUint16:
-        case TypeInt32:
-        case TypeUint32:
-        case TypeInt64:
-        case TypeUint64:
-        case TypeAddress:
-        case TypeString:
-        case TypeClass:
-        case TypeInstance:
-        case TypeFunction:
-        case TypeRoutine:
-        case TypeChannel:
-        case TypeYargType:
-        case TypeInt : {
-            ObjConcreteYargType* t = ALLOCATE_OBJ(ObjConcreteYargType, OBJ_YARGTYPE);
-            t->yt = yt;
-            return t;
-        }
-        case TypeArray: {
-            ObjConcreteYargTypeArray* t = ALLOCATE_OBJ(ObjConcreteYargTypeArray, OBJ_YARGTYPE_ARRAY);
-            t->core.yt = yt;
-            return (ObjConcreteYargType*)t;
-        }
-        case TypeStruct: {
-            ObjConcreteYargTypeStruct* s = ALLOCATE_OBJ(ObjConcreteYargTypeStruct, OBJ_YARGTYPE_STRUCT);
-            s->alignment = 1;
-            s->core.yt = yt;
-            initTable(&s->field_names);
-            return (ObjConcreteYargType*)s;
-        }
-        case TypePointer: {
-            ObjConcreteYargTypePointer* p = ALLOCATE_OBJ(ObjConcreteYargTypePointer, OBJ_YARGTYPE_POINTER);
-            p->core.yt = yt;
-            return (ObjConcreteYargType*)p;
-        }
-        case TypeMap: {
-            ObjConcreteYargTypeMap* m = ALLOCATE_OBJ(ObjConcreteYargTypeMap, OBJ_YARGTYPE_MAP);
-            m->core.yt = yt;
-            return (ObjConcreteYargType*)m;
-        }
-    }
+
+const SimpleYargTypes yargTypes = {
+    .boolean = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = TypeBool },
+    .address = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = TypeAddress },
+    .dbl = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = TypeDouble },
+    .int8 = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = TypeInt8 },
+    .uint8 = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = TypeUint8 },
+    .int16 = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = TypeInt16 },
+    .uint16 = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = TypeUint16 },
+    .int32 = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = TypeInt32 },
+    .uint32 = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = TypeUint32 },
+    .int64 = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = TypeInt64 },
+    .uint64 = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = TypeUint64 },
+    .type = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = TypeYargType },
+    .class_ = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = TypeClass },
+    .string = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = TypeString },
+    .integer = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = TypeInt },
+    .function = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = TypeFunction },
+    .routine = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = TypeRoutine },
+    .channel = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = TypeChannel },
+    .syncGroup = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = TypeSyncGroup },
+    .implementation_obj = { .obj.isMarked = true, .obj.next = NULL, .obj.type = OBJ_YARGTYPE, .yt = 0 },
+};
+
+
+bool is_obj_yargtype(const ObjConcreteYargType* type) {
+    if (type == NULL) return false;
+    else if (type == &yargTypes.implementation_obj) return true;
+    else if (type == &yargTypes.class_) return true;
+    else if (type == &yargTypes.string) return true;
+    else if (type == &yargTypes.type) return true;
+    else if (type == &yargTypes.integer) return true;
+    else if (type == &yargTypes.function) return true;
+    else if (type->yt == TypeStruct) return true;
+    else if (type->yt == TypeArray) return true;
+    else if (type->yt == TypePointer) return true;
+    else if (type->yt == TypeChannel) return true;
+    else if (type->yt == TypeSyncGroup) return true;
+    else if (type->yt == TypeRoutine) return true;
+    else if (type->yt == TypeMap) return true;
+    return false;
 }
 
-ObjConcreteYargType* newYargArrayTypeFromType(Value elementType) {
-    ObjConcreteYargTypeArray* t = (ObjConcreteYargTypeArray*) newYargTypeFromType(TypeArray);
-    if (IS_YARGTYPE(elementType)) {
-        t->element_type = AS_YARGTYPE(elementType);
+bool is_packable_container_type(const ObjConcreteYargType* type) {
+    if (type == NULL) return false;
+    if (type->yt == TypeArray) return true;
+    if (type->yt == TypeStruct) return true;
+    if (type->yt == TypePointer) return true;
+    return false;
+}
+
+const ObjConcreteYargType* newYargTypeFromTypeCode(uint8_t typeCode) {
+    BuiltinType type = typeCode;
+    const ObjConcreteYargType* typeObj = NULL;
+    switch (type)
+    {
+        case TYPE_LITERAL_BOOL: typeObj = &yargTypes.boolean; break;
+        case TYPE_LITERAL_INT8: typeObj = &yargTypes.int8; break;
+        case TYPE_LITERAL_UINT8: typeObj = &yargTypes.uint8; break;
+        case TYPE_LITERAL_INT16: typeObj = &yargTypes.int16; break;
+        case TYPE_LITERAL_UINT16: typeObj = &yargTypes.uint16; break;
+        case TYPE_LITERAL_INT32: typeObj = &yargTypes.int32; break;
+        case TYPE_LITERAL_UINT32: typeObj = &yargTypes.uint32; break;
+        case TYPE_LITERAL_INT64: typeObj = &yargTypes.int64; break;
+        case TYPE_LITERAL_UINT64: typeObj = &yargTypes.uint64; break;
+        case TYPE_LITERAL_MACHINE_FLOAT64: typeObj = &yargTypes.dbl; break;
+        case TYPE_LITERAL_STRING: typeObj = &yargTypes.string; break;
+        case TYPE_LITERAL_INT: typeObj = &yargTypes.integer; break;
+
+        default: typeObj = NULL; break;
     }
+    return typeObj;
+}
+
+ObjConcreteYargType* newYargArrayTypeFromType(const ObjConcreteYargType* elementType, size_t cardinality) {
+    ObjConcreteYargTypeArray* t = ALLOCATE_OBJ(ObjConcreteYargTypeArray, OBJ_YARGTYPE_ARRAY);
     t->core.yt = TypeArray;
+
+    t->element_type = elementType;
+    t->cardinality = cardinality;
     return (ObjConcreteYargType*)t;
 }
 
-Value arrayElementType(ObjConcreteYargTypeArray* arrayType) {
-    return arrayType->element_type ? OBJ_VAL(arrayType->element_type) : NIL_VAL;
+const ObjConcreteYargType* arrayElementType(const ObjConcreteYargType* arrayType) {
+    return ((const ObjConcreteYargTypeArray*)arrayType)->element_type;
 }
 
-size_t arrayElementOffset(ObjConcreteYargTypeArray* arrayType, size_t index) {
-    return index * arrayElementSize(arrayType);
+size_t arrayElementOffset(const ObjConcreteYargTypeArray* arrayType, size_t index) {
+    return index * yt_sizeof_type_storage(arrayElementType((const ObjConcreteYargType*)arrayType));
 }
 
-size_t arrayElementSize(ObjConcreteYargTypeArray* arrayType) {
-    return yt_sizeof_type_storage(arrayElementType(arrayType));
+size_t arrayCardinality(const ObjConcreteYargType* arrayType) {
+    const ObjConcreteYargTypeArray* t = (const ObjConcreteYargTypeArray*) arrayType;
+    return t->cardinality;
 }
 
 ObjConcreteYargType* newYargStructType(size_t fieldCount) {
-    ObjConcreteYargTypeStruct* t = (ObjConcreteYargTypeStruct*) newYargTypeFromType(TypeStruct);
-    tempRootPush(OBJ_VAL(t));
+    ObjConcreteYargTypeStruct* t = ALLOCATE_OBJ(ObjConcreteYargTypeStruct, OBJ_YARGTYPE_STRUCT);
+    t->core.yt = TypeStruct;
+    t->alignment = 1;
+    initTable(&t->field_names);
+    tempObjRootPush((Obj*)t);
 
     ObjConcreteYargType** fieldTypes = ALLOCATE(ObjConcreteYargType*, fieldCount);
     for (size_t i = 0; i < fieldCount; i++) {
@@ -99,172 +132,47 @@ ObjConcreteYargType* newYargStructType(size_t fieldCount) {
     return (ObjConcreteYargType*)t;
 }
 
-ObjConcreteYargType* newYargPointerType(Value targetType) {
-    ObjConcreteYargTypePointer* p = (ObjConcreteYargTypePointer*) newYargTypeFromType(TypePointer);
-    if (IS_YARGTYPE(targetType)) {
-        p->target_type = AS_YARGTYPE(targetType);
-    }
+ObjConcreteYargType* newYargPointerType(const ObjConcreteYargType* targetType) {
+    ObjConcreteYargTypePointer* p = ALLOCATE_OBJ(ObjConcreteYargTypePointer, OBJ_YARGTYPE_POINTER);
+    p->core.yt = TypePointer;
+
+    p->target_type = targetType;
     return (ObjConcreteYargType*)p;
 }
 
-size_t addFieldType(ObjConcreteYargTypeStruct* st, size_t index, size_t fieldOffset, Value type, Value offset, Value name) {
-    st->field_types[index] = IS_NIL(type) ? NULL : AS_YARGTYPE(type);
-    tableSet(&st->field_names, AS_STRING(name), SIZE_T_UI_VAL(index));
+size_t addFieldType(ObjConcreteYargTypeStruct* st, size_t index, size_t fieldOffset, ObjConcreteYargType* type, ObjString* name) {
+    st->field_types[index] = type;
+    tableSet(&st->field_names, name, SIZE_T_UI_VAL(index));
     uint32_t alignmentPadding = 0;
-    if (IS_NIL(offset)) {
-        size_t alignment = yt_alignmentfor_type_storage(type);
-        alignmentPadding = (alignment - (fieldOffset % alignment)) % alignment;
-        st->field_indexes[index] = fieldOffset + alignmentPadding;
-        if (alignment > st->alignment) {
-            st->alignment = alignment;
-        }
-    } else if (is_positive_integer32(offset)) {
-        fieldOffset = as_positive_integer32(offset);
-        st->field_indexes[index] = fieldOffset;
+    size_t alignment = yt_alignmentfor_type_storage(type);
+    alignmentPadding = (alignment - (fieldOffset % alignment)) % alignment;
+    st->field_indexes[index] = fieldOffset + alignmentPadding;
+    if (alignment > st->alignment) {
+        st->alignment = alignment;
     }
     st->storage_size = fieldOffset + alignmentPadding + yt_sizeof_type_storage(type);
     return st->storage_size;
 }
 
-bool isUint32Pointer(Value val) {
-    if (IS_POINTER(val)) {
-        ObjConcreteYargTypePointer* pointer = AS_POINTER(val)->type;
-        ObjConcreteYargType* dest = pointer->target_type;
-        if (dest) {
-            return dest->yt == TypeUint32;
-        }
-    }
-    return false;
+size_t addFieldTypeAtOffset(ObjConcreteYargTypeStruct* st, size_t index, ObjConcreteYargType* type, size_t offset, ObjString* name) {
+    st->field_types[index] = type;
+    tableSet(&st->field_names, name, SIZE_T_UI_VAL(index));
+    uint32_t alignmentPadding = 0;
+    st->field_indexes[index] = offset;
+    st->storage_size = offset + alignmentPadding + yt_sizeof_type_storage(type);
+    return st->storage_size;
 }
 
-Value concrete_typeof(Value a) {
-    if (IS_NIL(a)) {
-        return NIL_VAL;
-    } else if (IS_BOOL(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeBool));
-    } else if (IS_DOUBLE(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeDouble));
-    } else if (IS_I8(a)) {
-        return (OBJ_VAL(newYargTypeFromType(TypeInt8)));
-    } else if (IS_UI8(a)) {
-        return (OBJ_VAL(newYargTypeFromType(TypeUint8)));
-    } else if (IS_I16(a)) {
-        return (OBJ_VAL(newYargTypeFromType(TypeInt16)));
-    } else if (IS_UI16(a)) {
-        return (OBJ_VAL(newYargTypeFromType(TypeUint16)));
-    } else if (IS_I32(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeInt32));
-    } else if (IS_UI32(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeUint32));
-    } else if (IS_I64(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeInt64));
-    } else if (IS_UI64(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeUint64));
-    } else if (IS_FUNCTION(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeFunction));
-    } else if (IS_CLOSURE(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeFunction));
-    } else if (IS_NATIVE(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeFunction));
-    } else if (IS_BOUND_METHOD(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeFunction));
-    } else if (IS_CLASS(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeClass));
-    } else if (IS_INSTANCE(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeInstance));
-    } else if (IS_ROUTINE(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeRoutine));
-    } else if (IS_CHANNEL(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeChannel));
-    } else if (IS_STRING(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeString));
-    } else if (IS_ADDRESS(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeAddress));
-    } else if (IS_UNIFORMARRAY(a)) {
-        return OBJ_VAL(AS_UNIFORMARRAY(a)->store.storedType);
-    } else if (IS_STRUCT(a)) {
-        return OBJ_VAL(AS_STRUCT(a)->store.storedType);
-    } else if (IS_YARGTYPE(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeYargType));
-    } else if (IS_POINTER(a)) {
-        return OBJ_VAL(AS_POINTER(a)->type);
-    } else if (IS_MAP(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeMap));
-    } else if (IS_INT(a)) {
-        return OBJ_VAL(newYargTypeFromType(TypeInt));
-    }
-    fatalVMError("Unexpected object type");
-    return NIL_VAL;
+size_t structFieldOffset(const ObjConcreteYargTypeStruct* type, size_t fieldIndex) {
+    return type->field_indexes[fieldIndex];
 }
 
-bool type_packs_as_obj(ObjConcreteYargType* type) {
-    switch (type->yt) {
-        case TypeAny:
-        case TypeBool:
-        case TypeDouble:
-        case TypeInt8:
-        case TypeUint8:
-        case TypeInt16:
-        case TypeUint16:
-        case TypeInt32:
-        case TypeUint32:
-        case TypeInt64:
-        case TypeUint64:
-        case TypeAddress:
-        case TypeArray:
-        case TypeStruct:
-            return false;
-        case TypeInt:
-        case TypeString:
-        case TypeClass:
-        case TypeInstance:
-        case TypeFunction:
-        case TypeRoutine:
-        case TypeChannel:
-        case TypePointer:
-        case TypeMap:
-        case TypeYargType:
-            return true;
-    }
-}
 
-bool type_packs_as_container(ObjConcreteYargType* type) {
-    switch (type->yt) {
-        case TypeAny:
-        case TypeBool:
-        case TypeInt:
-        case TypeDouble:
-        case TypeInt8:
-        case TypeUint8:
-        case TypeInt16:
-        case TypeUint16:
-        case TypeInt32:
-        case TypeUint32:
-        case TypeInt64:
-        case TypeUint64:
-        case TypeAddress:
-        case TypeString:
-        case TypeClass:
-        case TypeInstance:
-        case TypeFunction:
-        case TypeRoutine:
-        case TypeChannel:
-        case TypeMap:
-        case TypeYargType:
-            return false;
-        case TypePointer:
-        case TypeArray:
-        case TypeStruct:
-            return true;
-    }
-}
-
-bool is_nil_assignable_type(Value type) {
-    if (IS_NIL(type)) {
+bool is_nil_assignable_type(const ObjConcreteYargType* type) {
+    if (type == NULL) {
         return true;
-    } else if (IS_YARGTYPE(type)) {
-        ObjConcreteYargType* ct = AS_YARGTYPE(type);
-        switch (ct->yt) {
+    } else {
+        switch (type->yt) {
             case TypeBool:
             case TypeInt:
             case TypeDouble:
@@ -279,27 +187,29 @@ bool is_nil_assignable_type(Value type) {
             case TypeStruct:
             case TypeAddress:
                 return false;
-            case TypeAny:
             case TypeString:
             case TypeClass:
             case TypeInstance:
             case TypeFunction:
             case TypeRoutine:
             case TypeChannel:
-            case TypeArray:
+            case TypeSyncGroup:
             case TypePointer:
             case TypeMap:
             case TypeYargType:
+
+            // TODO: reconsider if Array should be nil-assignable
+            case TypeArray:
+
                 return true;
         } 
-    } else {
-        return false;
     }
+    return false;
 }
 
-bool is_placeable_type(Value typeVal) {
-    if (IS_YARGTYPE(typeVal)) {
-        switch(AS_YARGTYPE(typeVal)->yt) {
+bool is_placeable_type(const ObjConcreteYargType* type) {
+    if (type != NULL) {
+        switch(type->yt) {
             case TypeInt8: return true;
             case TypeUint8: return true;
             case TypeInt16: return true;
@@ -308,16 +218,16 @@ bool is_placeable_type(Value typeVal) {
             case TypeUint32: return true;
             case TypeInt64: return true;
             case TypeUint64: return true;
+            case TypeDouble: return true;
             case TypeArray: {
-                ObjConcreteYargTypeArray* ct = (ObjConcreteYargTypeArray*)AS_YARGTYPE(typeVal);
-                Value elementType = arrayElementType(ct);
+                const ObjConcreteYargType* elementType = arrayElementType(type);
                 return is_placeable_type(elementType);
             }
             case TypeStruct: {
-                ObjConcreteYargTypeStruct* ct = (ObjConcreteYargTypeStruct*)AS_YARGTYPE(typeVal);
+                const ObjConcreteYargTypeStruct* ct = (const ObjConcreteYargTypeStruct*)type;
                 bool is_placeable = true;
                 for (size_t i = 0; i < ct->field_count; i++) {
-                    Value fieldType = ct->field_types[i] == NULL ? NIL_VAL : OBJ_VAL(ct->field_types[i]);
+                    ObjConcreteYargType* fieldType = ct->field_types[i];
                     is_placeable &= is_placeable_type(fieldType);
                 }
                 return is_placeable;
@@ -328,30 +238,15 @@ bool is_placeable_type(Value typeVal) {
     return false;
 }
 
-bool is_stored_type(Value type) {
-    if (IS_YARGTYPE(type)) {
-        switch(AS_YARGTYPE(type)->yt) {
-            case TypeArray:
-            case TypeStruct:
-            case TypePointer:
-                return true;
-            default:
-                return false;
-        }
-    }
-    return false;
-}
-
-size_t yt_sizeof_type_storage(Value type) {
-    if (IS_NIL(type)) {
+size_t yt_sizeof_type_storage(const ObjConcreteYargType* type) {
+    if (type == NULL) {
         return sizeof(Value);
     } else {
-        ObjConcreteYargType* t = AS_YARGTYPE(type);
-        switch (t->yt) {
-        case TypeAny:
+        switch (type->yt) {
         case TypeBool:
-        case TypeDouble:
             return sizeof(Value);
+        case TypeDouble:
+            return sizeof(double);
         case TypeInt8:
             return sizeof(int8_t);
         case TypeUint8:
@@ -371,13 +266,14 @@ size_t yt_sizeof_type_storage(Value type) {
         case TypeAddress:
             return sizeof(uintptr_t);
         case TypeStruct: {
-            ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*)t;
+            const ObjConcreteYargTypeStruct* st = (const ObjConcreteYargTypeStruct*)type;
             return st->storage_size;
         }
         case TypeArray: {
-            ObjConcreteYargTypeArray* array = (ObjConcreteYargTypeArray*)t;
-            return arrayElementSize(array) * array->cardinality;
+            const ObjConcreteYargTypeArray* array = (const ObjConcreteYargTypeArray*)type;
+            return yt_sizeof_type_storage(arrayElementType(type)) * array->cardinality;
         }
+        case TypePointer:
         case TypeInt:
         case TypeString:
         case TypeClass:
@@ -385,24 +281,23 @@ size_t yt_sizeof_type_storage(Value type) {
         case TypeFunction:
         case TypeRoutine:
         case TypeChannel:
-        case TypePointer:
+        case TypeSyncGroup:
         case TypeMap:
         case TypeYargType:
-            return sizeof(Obj*);
+            return sizeof(Value);
         }
     }
 }
 
-size_t yt_alignmentfor_type_storage(Value type) {
-    if (IS_NIL(type)) {
-        return 8;
+size_t yt_alignmentfor_type_storage(const ObjConcreteYargType* type) {
+    if (type == NULL) {
+        return sizeof(Value);
     } else {
-        ObjConcreteYargType* t = AS_YARGTYPE(type);
-        switch (t->yt) {
-        case TypeAny:
+        switch (type->yt) {
         case TypeBool:
-        case TypeDouble:
             return sizeof(Value);
+        case TypeDouble:
+            return sizeof(double);
         case TypeInt8:
             return sizeof(int8_t);
         case TypeUint8:
@@ -422,12 +317,11 @@ size_t yt_alignmentfor_type_storage(Value type) {
         case TypeAddress:
             return sizeof(uintptr_t);
         case TypeStruct: {
-            ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*)t;
+            const ObjConcreteYargTypeStruct* st = (const ObjConcreteYargTypeStruct*)type;
             return st->alignment;
         }
         case TypeArray: {
-            ObjConcreteYargTypeArray* array = (ObjConcreteYargTypeArray*)t;
-            Value elementType = array->element_type ? OBJ_VAL(array->element_type) : NIL_VAL;
+            const ObjConcreteYargType* elementType = arrayElementType(type);
             return yt_alignmentfor_type_storage(elementType);
         }
         case TypeInt:
@@ -437,84 +331,42 @@ size_t yt_alignmentfor_type_storage(Value type) {
         case TypeFunction:
         case TypeRoutine:
         case TypeChannel:
+        case TypeSyncGroup:
         case TypePointer:
         case TypeMap:
         case TypeYargType:
-            return sizeof(Obj*);
+            return sizeof(Value);
         }
-    }
-}
-
-Value defaultValue(Value type) {
-    if (IS_NIL(type)) {
-        return NIL_VAL;
-    } else {
-        ObjConcreteYargType* ct = AS_YARGTYPE(type);
-        switch (ct->yt) {
-            case TypeBool: return BOOL_VAL(false);
-            case TypeInt: return defaultIntValue();
-            case TypeDouble: return DOUBLE_VAL(0);
-            case TypeInt8: return I8_VAL(0);
-            case TypeUint8: return UI8_VAL(0);
-            case TypeInt16: return I16_VAL(0);
-            case TypeUint16: return UI16_VAL(0);
-            case TypeInt32: return I32_VAL(0);
-            case TypeUint32: return UI32_VAL(0);
-            case TypeInt64: return I64_VAL(0);
-            case TypeUint64: return UI64_VAL(0);
-            case TypeAddress: return ADDRESS_VAL(0);
-            case TypeStruct: return defaultStructValue(ct);
-            case TypeArray: return defaultArrayValue(ct);
-            case TypePointer:
-            case TypeAny:
-            case TypeString:
-            case TypeClass:
-            case TypeInstance:
-            case TypeFunction:
-            case TypeRoutine:
-            case TypeChannel:
-            case TypeMap:
-            case TypeYargType:
-                return NIL_VAL;
-        }
-    }
-}
-
-static bool isAssignableCardinality(size_t lhsCardinality, size_t rhsCardinality) {
-    if (lhsCardinality == 0) {
-        return true;
-    } else {
-        return lhsCardinality == rhsCardinality;
     }
 }
 
 static bool isInitializableArray(ObjConcreteYargTypeArray* lhsConcreteType, ObjConcreteYargTypeArray* rhsConcreteType) {
 
-    if (isAssignableCardinality(lhsConcreteType->cardinality, rhsConcreteType->cardinality)) {
+    if (lhsConcreteType->cardinality == rhsConcreteType->cardinality) {
         if (lhsConcreteType->element_type == NULL) {
             return true;
-        } else if (lhsConcreteType->element_type->yt == TypeAny && rhsConcreteType->element_type == NULL) {
+        } else if (lhsConcreteType->element_type == NULL && rhsConcreteType->element_type == NULL) {
             return true;
         } else if (rhsConcreteType->element_type == NULL) {
             return false;
         } else {
-            return lhsConcreteType->element_type->yt == rhsConcreteType->element_type->yt;
+            return typesEqual(lhsConcreteType->element_type, rhsConcreteType->element_type);
         }
     } else {
         return false;
     }
 }
 
-bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue, Value *promotedRhs) {
+bool isInitialisableType(const ObjConcreteYargType* lhsType, Value rhsValue, Value *promotedRhs) {
 
-    promotedRhs->type = VAL_NIL;
+    promotedRhs->type = NULL;
 
-    if (lhsType->yt == TypeAny) {
+    if (lhsType == NULL) {
         return true;
     }
     
     if (IS_NIL(rhsValue)) {
-        return is_nil_assignable_type(OBJ_VAL(lhsType));
+        return is_nil_assignable_type(lhsType);
     }
 
     Value rhsType = concrete_typeof(rhsValue);
@@ -591,17 +443,17 @@ bool isInitialisableType(ObjConcreteYargType* lhsType, Value rhsValue, Value *pr
                 }
             }
         }
-        return lhsType->yt == rhsConcreteType->yt;
+        return typesEqual(lhsType, rhsConcreteType);
     }
 }
 
 // this is a temporary measure, until we have a more complete hashing setup.
-bool isSupportedMapKeyType(Value type) {
-    if (IS_YARGTYPE(type)) {
-        switch (AS_YARGTYPE(type)->yt) {
+bool isSupportedMapKeyType(const ObjConcreteYargType* type) {
+    if (type != NULL) {
+        switch (type->yt) {
             case TypeMap: {
-                ObjConcreteYargTypeMap* mt = (ObjConcreteYargTypeMap*)AS_YARGTYPE(type);
-                return isSupportedMapKeyType(mt->key_type ? OBJ_VAL(mt->key_type) : NIL_VAL);
+                const ObjConcreteYargTypeMap* mt = (const ObjConcreteYargTypeMap*)type;
+                return isSupportedMapKeyType(mt->key_type);
             }
             case TypeString:
                 return true;
@@ -613,13 +465,12 @@ bool isSupportedMapKeyType(Value type) {
     }
 }
 
-static ObjString* typeLiteralToString(ObjConcreteYargType* type) {
+static ObjString* typeLiteralToString(const ObjConcreteYargType* type) {
     if (type == NULL) {
         return copyString("any", 3);
     }
 
     switch (type->yt) {
-        case TypeAny: return copyString("any", 3);
         case TypeBool: return copyString("bool", 4);
         case TypeDouble: return copyString("mfloat64", 8);
         case TypeInt: return copyString("int", 3);
@@ -638,11 +489,12 @@ static ObjString* typeLiteralToString(ObjConcreteYargType* type) {
         case TypeFunction: return copyString("Function", 8);
         case TypeRoutine: return copyString("Routine", 7);
         case TypeChannel: return copyString("Channel", 7);
+        case TypeSyncGroup: return copyString("SyncGroup", 9);
         case TypeYargType: return copyString("Type", 4);
         case TypeArray: {
-            ObjConcreteYargTypeArray* array = (ObjConcreteYargTypeArray*) type;
+            const ObjConcreteYargTypeArray* array = (const ObjConcreteYargTypeArray*) type;
             ObjString* typeStr = typeLiteralToString(array->element_type);
-            tempRootPush(OBJ_VAL(typeStr));
+            tempRootPush(STRING_VAL(typeStr));
             char buffer[128];
             if (array->cardinality > 0) {
                 snprintf(buffer, sizeof(buffer), "%s[%zu]", typeStr->chars, array->cardinality);
@@ -654,13 +506,13 @@ static ObjString* typeLiteralToString(ObjConcreteYargType* type) {
             return result;
         }
         case TypeStruct: {
-            ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*) type;
+            const ObjConcreteYargTypeStruct* st = (const ObjConcreteYargTypeStruct*) type;
             char buffer[1024];
             snprintf(buffer, sizeof(buffer), "struct{|%zu:%zu| ", st->field_count, st->storage_size);
             size_t cursor = strlen(buffer);
             for (size_t i = 0; i < st->field_count; i++) {
                 ObjString* fieldTypeStr = typeLiteralToString(st->field_types[i]);
-                tempRootPush(OBJ_VAL(fieldTypeStr));
+                tempRootPush(STRING_VAL(fieldTypeStr));
                 snprintf(buffer + cursor, sizeof(buffer) - cursor, "%s; ", fieldTypeStr->chars);
                 cursor = strlen(buffer);
                 tempRootPop();
@@ -669,9 +521,9 @@ static ObjString* typeLiteralToString(ObjConcreteYargType* type) {
             return copyString(buffer, (int)strlen(buffer));
         }
         case TypePointer: {
-            ObjConcreteYargTypePointer* st = (ObjConcreteYargTypePointer*) type;
+            const ObjConcreteYargTypePointer* st = (const ObjConcreteYargTypePointer*) type;
             ObjString* typeStr = typeLiteralToString(st->target_type);
-            tempRootPush(OBJ_VAL(typeStr));
+            tempRootPush(STRING_VAL(typeStr));
             char buffer[128];
             snprintf(buffer, sizeof(buffer), "*%s", typeStr->chars);
             ObjString* result = copyString(buffer, (int)strlen(buffer));
@@ -679,11 +531,11 @@ static ObjString* typeLiteralToString(ObjConcreteYargType* type) {
             return result;
         }
         case TypeMap: {
-            ObjConcreteYargTypeMap* mt = (ObjConcreteYargTypeMap*) type;
+            const ObjConcreteYargTypeMap* mt = (const ObjConcreteYargTypeMap*) type;
             ObjString* typeStr = typeLiteralToString(mt->value_type);
-            tempRootPush(OBJ_VAL(typeStr));
+            tempRootPush(STRING_VAL(typeStr));
             ObjString* keyTypeStr = typeLiteralToString(mt->key_type);
-            tempRootPush(OBJ_VAL(keyTypeStr));
+            tempRootPush(STRING_VAL(keyTypeStr));
             char buffer[128];
             snprintf(buffer, sizeof(buffer), "%s[%s]", typeStr->chars, keyTypeStr->chars);
             ObjString* result = copyString(buffer, (int)strlen(buffer));
@@ -697,13 +549,57 @@ static ObjString* typeLiteralToString(ObjConcreteYargType* type) {
     }
 }
 
-ObjString* typeToString(ObjConcreteYargType* type) {
+ObjString* typeToString(const ObjConcreteYargType* type) {
     ObjString* literalStr = typeLiteralToString(type);
-    tempRootPush(OBJ_VAL(literalStr));
+    tempRootPush(STRING_VAL(literalStr));
     ObjString* prefix = copyString("Type:", 5);
-    tempRootPush(OBJ_VAL(prefix));
+    tempRootPush(STRING_VAL(prefix));
     ObjString* result = concatenateStrings(prefix, literalStr);
     tempRootPop();
     tempRootPop();
     return result;
+}
+
+
+bool structFieldIndex(const ObjConcreteYargTypeStruct* type, ObjString* name, size_t* index) {
+    Value indexVal;
+    if (tableGet(&type->field_names, name, &indexVal)) {
+        *index = AS_SIZE_T(indexVal);
+        return true;
+    }
+    return false;
+}
+
+bool typesEqual(const ObjConcreteYargType* a, const ObjConcreteYargType* b) {
+    if (a == b) return true;
+    if (a != NULL) {
+        if (b == NULL) return false;
+        if (a->yt != b->yt) return false;
+        if (a->yt == TypePointer) {
+            assert(b->yt == TypePointer);
+            const ObjConcreteYargTypePointer* pointer_a = (const ObjConcreteYargTypePointer*)a;
+            const ObjConcreteYargTypePointer* pointer_b = (const ObjConcreteYargTypePointer*)b;
+            return typesEqual(pointer_a->target_type, pointer_b->target_type);
+        }
+        if (a->yt == TypeArray) {
+            assert(b->yt == TypeArray);
+            const ObjConcreteYargTypeArray* array_a = (const ObjConcreteYargTypeArray*)a;
+            const ObjConcreteYargTypeArray* array_b = (const ObjConcreteYargTypeArray*)b;
+            if (!typesEqual(array_a->element_type, array_b->element_type)) return false;
+            return array_a->cardinality == array_b->cardinality;
+        }
+        if (a->yt == TypeStruct) {
+            assert(b->yt == TypeStruct);
+            const ObjConcreteYargTypeStruct* struct_a = (const ObjConcreteYargTypeStruct*)a;
+            const ObjConcreteYargTypeStruct* struct_b = (const ObjConcreteYargTypeStruct*)b;
+            if (struct_a->field_count != struct_b->field_count) return false;
+            for (size_t i = 0; i < struct_a->field_count; i++) {
+                if (!typesEqual(struct_a->field_types[i], struct_b->field_types[i])) return false;
+            }
+            return true;
+        }
+        // TODO: maps, other complex types
+        return a->yt == b->yt;
+    }
+    return false;
 }
