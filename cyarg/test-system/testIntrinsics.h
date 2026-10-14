@@ -14,10 +14,10 @@ typedef struct TsLog {
 } TsLog;
 
 TsLog *testIntrinsicsSync(void);
-void testIntrinsicsExpectRead(uint32_t address, uint32_t value);
-void testIntrinsicsExpectReadAnyValue(uint32_t address);
-void testIntrinsicsExpectWrite(uint32_t address, uint32_t value);
-void testIntrinsicsExpectWriteAnyValue(uint32_t address);
-void testIntrinsicsSetMemory(uint32_t address, uint32_t value);
+void testIntrinsicsExpectRead(size_t address, uint32_t value);
+void testIntrinsicsExpectReadAnyValue(size_t address);
+void testIntrinsicsExpectWrite(size_t address, uint32_t value);
+void testIntrinsicsExpectWriteAnyValue(size_t address);
+void testIntrinsicsSetMemory(size_t address, uint32_t value);
 bool testIntrinsicsTriggerInterrupt(uint32_t intId);
 bool testIntrinsicsTriggerInterruptNamed(char const *);
