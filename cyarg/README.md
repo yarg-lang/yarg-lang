@@ -6,7 +6,7 @@ Targets microcontroller devices, currently starting with the Raspberry Pi Pico (
 
 ## Host Build
 
-At this time, the host build is 'single-threaded'. TODO: support emulations of multicore and ISR support on host.
+The host build contains a test system for ISRs as host ('pthreads') threads. TODO: add multicore support similarly.
 
 ## Pico Build
 
