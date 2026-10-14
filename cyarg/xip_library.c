@@ -1,6 +1,8 @@
 #include "xip_library.h"
+
 #include <assert.h>
 #include <stdalign.h>
+#include <string.h>
 
 // the library is linearised a set of 'nodes', all concatenated in memory.
 // the tool creating the library will pad nodes as needed for alignment.
