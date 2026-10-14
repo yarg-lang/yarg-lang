@@ -20,6 +20,10 @@ typedef critical_section_t vm_mutex;
 #elif defined(CYARG_PTHREADS_SYNC)
 #include <pthread.h>
 typedef pthread_mutex_t vm_mutex;
+#else
+// keeps code parsers happy
+typedef void* vm_mutex;
+#warning "No synchronization mechanism defined for vm_mutex"
 #endif
 
 void vm_mutex_init(vm_mutex* cs);
