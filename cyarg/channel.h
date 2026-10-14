@@ -1,19 +1,19 @@
 #ifndef cyarg_channel_h
 #define cyarg_channel_h
 
-#include <stdio.h>
 #include "value.h"
-#include "object.h"
 
 typedef struct ObjChannelContainer ObjChannelContainer;
 typedef struct ObjSyncGroup ObjSyncGroup;
+typedef struct ObjString ObjString;
+typedef struct ObjRoutine ObjRoutine;
 
 ObjChannelContainer* newChannel(ObjRoutine* routine, size_t capacity);
 
-void freeChannelObject(Obj* channel);
+void freeChannelObject(ObjChannelContainer* channel);
 void markChannel(ObjChannelContainer* channel);
 
-ObjString* channelToString(ObjChannelContainer* channel);
+ObjString* channelToString(const ObjChannelContainer* channel);
 
 void sendChannel(ObjChannelContainer* channel, Value data);
 Value receiveChannel(ObjChannelContainer* channel);

@@ -1,32 +1,36 @@
-#include <stdio.h>
-
 #include "sync_group.h"
+
+#include <stdio.h>
+#include <string.h>
 
 #include "common.h"
 #include "value.h"
 #include "object.h"
 #include "channel.h"
 #include "yargtype.h"
+#include "yargobject.h"
 #include "routine.h"
 #include "memory.h"
+#include "packed_containers.h"
 
 typedef struct ObjSyncGroup {
     Obj obj;
     vm_mutex group_lock;
-    ObjPackedUniformArray* channel_array;
-    ObjPackedUniformArray* result_array;
+    Value channel_array_val;
+    Value result_array_val;
+    size_t num_channels;
 } ObjSyncGroup;
 
-ObjSyncGroup* newSyncGroup(ObjRoutine* routine, ObjPackedUniformArray* items) {
+ObjSyncGroup* newSyncGroup(ObjRoutine* routine, Value itemArray) {
     ObjSyncGroup* group = ALLOCATE_OBJ(ObjSyncGroup, OBJ_SYNCGROUP);
-    push(routine, OBJ_VAL(group));
+    push(routine, SYNCGROUP_VAL(group));
     vm_mutex_init(&group->group_lock);
-    group->channel_array = items;
-    ObjConcreteYargTypeArray* t = (ObjConcreteYargTypeArray*)newYargArrayTypeFromType(NIL_VAL);
-    push(routine, OBJ_VAL(t));
-    t->cardinality = arrayCardinality(items->store);
-    group->result_array = newPackedUniformArray(t);
-    pop(routine);
+
+    ObjConcreteYargTypeArray* channelArrayType = (ObjConcreteYargTypeArray*)itemArray.type;
+    group->num_channels = channelArrayType->cardinality;
+
+    group->channel_array_val = itemArray;
+    group->result_array_val = allocValueArray(group->num_channels);;
     pop(routine);
     return group;
 }
@@ -38,16 +42,15 @@ void freeSyncGroup(Obj* obj) {
 }
 
 void markSyncGroup(ObjSyncGroup* group) {
-    markObject((Obj*)group->channel_array);
-    markObject((Obj*)group->result_array);
+    markValue(group->channel_array_val);
+    markValue(group->result_array_val);
 }
 
-ObjString* syncGroupToString(ObjSyncGroup* group) {
+ObjString* syncGroupToString(const ObjSyncGroup* group) {
     char buffer[256];
     snprintf(buffer, sizeof(buffer), "sync_group{");
     size_t cursor = strlen(buffer);
-    Value results = unpackValue(group->result_array->store);
-    ObjString* resultsStr = valueToString(results);
+    ObjString* resultsStr = valueToString(group->result_array_val);
     snprintf(buffer + cursor, sizeof(buffer) - cursor, "%s", resultsStr->chars);
     cursor = strlen(buffer);
     snprintf(buffer + cursor, sizeof(buffer) - cursor, "}");
@@ -55,15 +58,15 @@ ObjString* syncGroupToString(ObjSyncGroup* group) {
 }
 
 Value receiveSyncGroup(ObjSyncGroup* group) {
-    size_t num_channels = arrayCardinality(group->channel_array->store);
+    size_t num_channels = group->num_channels;
 
     bool wait_complete = false;
     while (!wait_complete && num_channels > 0) {
         wait_complete = false;
         vm_mutex_enter_blocking(&group->group_lock);
         for (size_t i = 0; i < num_channels; i++) {
-            PackedValue channel_cursor = arrayElement(group->channel_array->store, i);
-            Value channelVal = unpackValue(channel_cursor);
+            Value channelVal = arrayElement(group->channel_array_val, i);
+
             Value data = NIL_VAL;
             if (!IS_NIL(channelVal)) {
                 data = peekChannel(AS_CHANNEL(channelVal));
@@ -72,12 +75,11 @@ Value receiveSyncGroup(ObjSyncGroup* group) {
                 }
             }
             wait_complete |= !IS_NIL(data);
-            PackedValue trg = arrayElement(group->result_array->store, i);
-            assignToPackedValue(trg, data);
+            setArrayElement(group->result_array_val, i, data);
         }
         vm_mutex_exit(&group->group_lock);
     }
-    return OBJ_VAL(group->result_array);
+    return group->result_array_val;
 }
 
 vm_mutex* getSyncGroupLock(ObjSyncGroup* group) {

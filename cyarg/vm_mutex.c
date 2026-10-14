@@ -1,3 +1,5 @@
+#include "vm_mutex.h"
+
 #include <stdio.h>
 
 #if defined(CYARG_PICO_SDK_SYNC)
@@ -7,8 +9,6 @@
 #else
 #error "No platform mutex implementation defined."
 #endif
-
-#include "vm_mutex.h"
 
 void vm_mutex_init(vm_mutex* cs) {
 #if defined(CYARG_PICO_SDK_SYNC)

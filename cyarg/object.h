@@ -7,9 +7,13 @@
  *
  * These functions will call the underlying malloc & free functions from the C standard library
  * or other allocator.
+ * 
+ * reallocate() will examine the current memory usage and determine if garbage collection is 
+ * necessary before allocating new memory. It currently uses a mark-and-sweep garbage collection 
+ * strategy.
  *
- * For all memory allocated to an Obj instance, free will be called automatically when the object
- * is no longer referenced.
+ * Therefore for all memory allocated to an Obj instance, free will be called automatically 
+ * when the object is no longer referenced.
  *
  * Obj instances are tracked in two places. All instances can be traversed, by the linked
  * list formed from the next member of Obj.
@@ -26,58 +30,11 @@
  *
  */
 
-#include "common.h"
-#include "chunk.h"
-#include "table.h"
-#include "value.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
-typedef struct ObjConcreteYargType ObjConcreteYargType;
-typedef struct ObjConcreteYargTypeArray ObjConcreteYargTypeArray;
-typedef struct ObjConcreteYargTypeStruct ObjConcreteYargTypeStruct;
-typedef struct ObjConcreteYargTypePointer ObjConcreteYargTypePointer;
-typedef struct ObjConcreteYargTypeMap ObjConcreteYargTypeMap;
-
-#define OBJ_TYPE(value)     (AS_OBJ(value)->type)
-
-#define IS_BOUND_METHOD(value) isObjType(value, OBJ_BOUND_METHOD)
-#define IS_CLASS(value)        isObjType(value, OBJ_CLASS)
-#define IS_CLOSURE(value)      isObjType(value, OBJ_CLOSURE)
-#define IS_FUNCTION(value)     isObjType(value, OBJ_FUNCTION)
-#define IS_INSTANCE(value)     isObjType(value, OBJ_INSTANCE)
-#define IS_NATIVE(value)       isObjType(value, OBJ_NATIVE)
-#define IS_BUILTIN(value)      isObjType(value, OBJ_BUILTIN)
-#define IS_BLOB(value)         isObjType(value, OBJ_BLOB)
-#define IS_ROUTINE(value)      isObjType(value, OBJ_ROUTINE)
-#define IS_CHANNEL(value)      isObjType(value, OBJ_CHANNELCONTAINER)
-#define IS_STRING(value)       isObjType(value, OBJ_STRING)
-#define IS_UNIFORMARRAY(value) (isObjType(value, OBJ_PACKEDUNIFORMARRAY)|| isObjType(value, OBJ_UNOWNED_UNIFORMARRAY))
-#define IS_YARGTYPE(value)     (isObjType(value, OBJ_YARGTYPE) || isObjType(value, OBJ_YARGTYPE_ARRAY) || isObjType(value, OBJ_YARGTYPE_STRUCT) || isObjType(value, OBJ_YARGTYPE_POINTER) || isObjType(value, OBJ_YARGTYPE_MAP))
-#define IS_POINTER(value)      (isObjType(value, OBJ_PACKEDPOINTER) || isObjType(value, OBJ_UNOWNED_PACKEDPOINTER))
-#define IS_STRUCT(value)       (isObjType(value, OBJ_PACKEDSTRUCT) || isObjType(value, OBJ_UNOWNED_PACKEDSTRUCT))
-#define IS_SYNCGROUP(value)    isObjType(value, OBJ_SYNCGROUP)
-#define IS_MAP(value)          isObjType(value, OBJ_MAP)
-
-#define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
-#define AS_CLASS(value)        ((ObjClass*)AS_OBJ(value))
-#define AS_CLOSURE(value)      ((ObjClosure*)AS_OBJ(value))
-#define AS_FUNCTION(value)     ((ObjFunction*)AS_OBJ(value))
-#define AS_INSTANCE(value)     ((ObjInstance*)AS_OBJ(value))
-#define AS_NATIVE(value) \
-    (((ObjNative*)AS_OBJ(value))->function)
-#define AS_BUILTIN(value) \
-    (((ObjBuiltin*)AS_OBJ(value))->function)
-#define AS_ROUTINE(value)      ((ObjRoutine*)AS_OBJ(value))
-#define AS_CHANNEL(value)      ((ObjChannelContainer*)AS_OBJ(value))
-#define AS_STRING(value)       ((ObjString*)AS_OBJ(value))
-#define AS_CSTRING(value)      (((ObjString*)AS_OBJ(value))->chars)
-#define AS_UNIFORMARRAY(value) ((ObjPackedUniformArray*)AS_OBJ(value))
-#define AS_YARGTYPE(value)     ((ObjConcreteYargType*)AS_OBJ(value))
-#define AS_POINTER(value)      ((ObjPackedPointer*)AS_OBJ(value))
-#define AS_STRUCT(value)       ((ObjPackedStruct*)AS_OBJ(value))
-#define AS_SYNCGROUP(value)    ((ObjSyncGroup*)AS_OBJ(value))
-#define AS_INTOBJ(value)       ((ObjInt*)AS_OBJ(value))
-#define AS_INT(value)          (&(AS_INTOBJ(value)->bigInt))
-#define AS_MAP(value)          ((ObjMap*)AS_OBJ(value))
+typedef struct ObjString ObjString;
 
 typedef enum {
     OBJ_BOUND_METHOD,
@@ -91,17 +48,14 @@ typedef enum {
     OBJ_CHANNELCONTAINER,
     OBJ_STRING,
     OBJ_UPVALUE,
-    OBJ_UNOWNED_UNIFORMARRAY,
-    OBJ_PACKEDUNIFORMARRAY,
+    OBJ_UNOWNED_PACKEDCONTAINER,
+    OBJ_PACKEDCONTAINER,
+    OBJ_PACKEDSTORAGE,
     OBJ_YARGTYPE,
     OBJ_YARGTYPE_ARRAY,
     OBJ_YARGTYPE_STRUCT,
     OBJ_YARGTYPE_POINTER,
     OBJ_YARGTYPE_MAP,
-    OBJ_PACKEDPOINTER,
-    OBJ_UNOWNED_PACKEDPOINTER,
-    OBJ_UNOWNED_PACKEDSTRUCT,
-    OBJ_PACKEDSTRUCT,
     OBJ_SYNCGROUP,
     OBJ_MAP,
     OBJ_STACKSLICE,
@@ -141,11 +95,13 @@ typedef enum {
     OBJ_INT
 } ObjType;
 
-struct Obj {
+typedef struct Obj Obj;
+
+typedef struct Obj {
     ObjType type;
     bool isMarked;
-    struct Obj* next;
-};
+    Obj* next;
+} Obj;
 
 typedef struct {
     Obj* stash;
@@ -154,155 +110,17 @@ typedef struct {
     int objectCount;
 } DynamicObjArray;
 
-typedef struct ObjFunction {
-    Obj obj;
-    int arity;
-    int upvalueCount;
-    Chunk chunk;
-    ObjString* fName;
-} ObjFunction;
-
-typedef bool (*NativeFn)(ObjRoutine* routine, int argCount, Value* result);
-
-typedef struct {
-    Obj obj;
-    NativeFn function;
-} ObjNative;
-
-typedef bool (*BuiltinFun)(ObjRoutine* routine, int argCount, Value* result);
-
-typedef struct {
-    Obj obj;
-    BuiltinFun function;
-} ObjBuiltin;
-
-struct ObjString {
-    Obj obj;
-    int length;
-    char* chars;
-    uint32_t hash;
-};
-
-typedef struct ObjInt {
-    Obj obj;
-    bool isLiteral;
-    Int bigInt;
-} ObjInt;
-
-typedef struct ObjUpvalue {
-    Obj obj;
-    ValueCell* contents;
-    size_t stackOffset;
-    ValueCell closed;
-    struct ObjUpvalue* next;
-} ObjUpvalue;
-
-typedef struct ObjClosure {
-    Obj obj;
-    ObjFunction* function;
-    ObjUpvalue** upvalues;
-    int cUpvalueCount;
-} ObjClosure;
-
-typedef struct {
-    Obj obj;
-    ObjString* name;
-    ValueTable methods;
-} ObjClass;
-
-typedef struct {
-    Obj obj;
-    ObjClass* klass;
-    ValueTable fields;
-} ObjInstance;
-
-typedef struct {
-    Obj obj;
-    Value reciever;
-    ObjClosure* method;
-} ObjBoundMethod;
-
-typedef struct ObjPackedUniformArray {
-    Obj obj;
-    PackedValue store;
-} ObjPackedUniformArray;
-
-typedef struct {
-    Obj obj;
-    ObjConcreteYargTypePointer* type;
-    PackedValueStore* destination;
-} ObjPackedPointer;
-
-typedef struct {
-    Obj obj;
-    PackedValue store;
-} ObjPackedStruct;
-
-typedef struct {
-    Obj obj;
-    ObjConcreteYargTypeMap* type;
-    ValueTable entries;
-} ObjMap;
 
 #define ALLOCATE_OBJ(type, objectType) \
     (type*)allocateObject(sizeof(type), objectType)
 
 Obj* allocateObject(size_t size, ObjType type);
-ObjInt* allocateIntObject(size_t numDigits);
+
+ObjString* objectToString(const Obj* value);
 
 void initDynamicObjArray(DynamicObjArray* array);
 void freeDynamicObjArray(DynamicObjArray* array);
 void appendToDynamicObjArray(DynamicObjArray* array, Obj* obj);
 Obj* removeLastFromDynamicObjArray(DynamicObjArray* array);
-
-ObjBoundMethod* newBoundMethod(Value receiver, 
-                               ObjClosure* method);
-ObjClass* newClass(ObjString* name);
-ObjClosure* newClosure(ObjFunction* function);
-ObjFunction* newFunction();
-void initFunction(ObjFunction* function);
-ObjInstance* newInstance(ObjClass* klass);
-ObjNative* newNative(NativeFn function);
-ObjBuiltin* newBuiltin(BuiltinFun function);
-ObjPackedUniformArray* newPackedUniformArray(ObjConcreteYargTypeArray* type);
-ObjMap* newMap(ObjConcreteYargTypeMap* type);
-ObjString* takeString(char* chars, int length);
-ObjString* copyString(const char* chars, int length);
-ObjString* copyStringWithEscapes(const char* chars, int length);
-ObjUpvalue* newUpvalue(ValueCell* slot, size_t stackOffset);
-ObjInt* newInt(int64_t value);
-ObjInt* newIntU(uint64_t value);
-
-PackedValue arrayElement(PackedValue array, size_t index);
-size_t arrayCardinality(PackedValue array);
-
-PackedValue structField(PackedValue struct_, size_t index);
-bool structFieldIndex(ObjConcreteYargType* type, ObjString* name, size_t* index);
-ObjPackedStruct* newPackedStructAt(PackedValue location);
-
-ObjPackedPointer* newPointerForHeapCell(PackedValue location);
-ObjPackedPointer* newPointerAtHeapCell(PackedValue location);
-
-Obj* destinationObject(Value pointer);
-void offsetPointerDestination(ObjPackedPointer* pointer, size_t offset);
-
-ObjPackedUniformArray* newPackedUniformArrayAt(PackedValue location);
-
-Value defaultIntValue();
-Value defaultArrayValue(ObjConcreteYargType* type);
-Value defaultStructValue(ObjConcreteYargType* type);
-
-Value placeObjectAt(Value type, Value location);
-
-ObjString* objectToString(Value value);
-
-static inline bool isObjType(Value value, ObjType type) {
-    return IS_OBJ(value) && AS_OBJ(value)->type == type;
-}
-
-bool isAddressValue(Value value);
-
-bool isArrayPointer(Value value);
-bool isStructPointer(Value value);
 
 #endif

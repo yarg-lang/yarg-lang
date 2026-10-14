@@ -1,8 +1,8 @@
-#include <stdio.h>
+#include "scanner.h"
+
 #include <string.h>
 
 #include "common.h"
-#include "scanner.h"
 
 typedef struct {
     const char* start;

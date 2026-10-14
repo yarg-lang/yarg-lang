@@ -1,16 +1,25 @@
+#include "memory.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdalign.h>
 #include <assert.h>
 
 #include "compiler.h"
-#include "memory.h"
 #include "vm.h"
 #include "yargtype.h"
 #include "ast.h"
 #include "channel.h"
 #include "sync_group.h"
 #include "vm_mutex.h"
+#include "debug.h"
+
+#include "yargobject.h"
+#include "vmobject.h"
+#include "yargstructtype.h"
+#include "builtin.h"
+#include "value_cell.h"
+#include "packed_containers.h"
 
 #include "../external/o1heap/o1heap/o1heap.h"
 
@@ -90,6 +99,11 @@ void tempRootPush(Value value) {
     vm_mutex_exit(&vm.heap);
 }
 
+void tempObjRootPush(Obj* object) {
+
+    tempRootPush(IMPL_OBJ_VAL(object));
+}
+
 Value tempRootPop() {
     vm_mutex_enter_blocking(&vm.heap);
     vm.tempRootsTop--;
@@ -104,7 +118,7 @@ void markObject(Obj* object) {
 
 #ifdef DEBUG_LOG_GC
     PRINTERR("%p mark ", (void*)object);
-    printValue(OBJ_VAL(object));
+    printObj(object);
     PRINTERR("\n");
 #endif
 
@@ -121,7 +135,10 @@ void markObject(Obj* object) {
 }
 
 void markValue(Value value) {
-    if (IS_OBJ(value)) markObject(AS_OBJ(value));
+    if (isObjValue(value)) {
+        markObject(value.as.obj);
+    }
+    markObject((Obj*)value.type);
 }
 
 void markValueCell(ValueCell* cell) {
@@ -159,7 +176,7 @@ void markFunction(ObjFunction* function) {
 static void blackenObject(Obj* object) {
 #ifdef DEBUG_LOG_GC
     PRINTERR("%p blacken ", (void*)object);
-    printValue(OBJ_VAL(object));
+    printObj(object);
     PRINTERR("\n");
 #endif
 
@@ -204,33 +221,18 @@ static void blackenObject(Obj* object) {
             markRoutine(stack);
             break;
         }
-        case OBJ_UNOWNED_PACKEDPOINTER:
-            // fall through
-        case OBJ_PACKEDPOINTER: {
-            ObjPackedPointer* ptr = (ObjPackedPointer*)object;
-            markObject((Obj*)ptr->type);
-            if (ptr->type && ptr->destination) {
-                PackedValue dest;
-                dest.storedType = ptr->type->target_type;
-                dest.storedValue = ptr->destination;
-                markPackedValue(dest);
-            }
+        case OBJ_PACKEDSTORAGE: {
+            ObjPackedStorage* storage = (ObjPackedStorage*)object;
+            markPackedStorage(storage);
             break;
         }
-        case OBJ_UNOWNED_UNIFORMARRAY:
-            /* fall through */
-        case OBJ_PACKEDUNIFORMARRAY: {
-            ObjPackedUniformArray* array = (ObjPackedUniformArray*)object;
-            markPackedValue(array->store);
+        case OBJ_PACKEDCONTAINER: {
+            ObjOwningPackedContainer* container = (ObjOwningPackedContainer*)object;
+            markObject((Obj*)container->storage);
             break;
         }
-        case OBJ_UNOWNED_PACKEDSTRUCT:
-            // fall through
-        case OBJ_PACKEDSTRUCT: {
-            ObjPackedStruct* struct_ = (ObjPackedStruct*)object;
-            markPackedValue(struct_->store);
-            break;
-        }
+        case OBJ_UNOWNED_PACKEDCONTAINER: break;
+
         case OBJ_NATIVE: break;
         case OBJ_BUILTIN: break;
         case OBJ_CHANNELCONTAINER: {
@@ -520,31 +522,10 @@ static void freeObject(Obj* object) {
             break;
         }
         case OBJ_UPVALUE: FREE(ObjUpvalue, object); break;
-        case OBJ_CHANNELCONTAINER: freeChannelObject(object); break;
-        case OBJ_UNOWNED_PACKEDPOINTER: FREE(ObjPackedPointer, object); break;
-        case OBJ_PACKEDPOINTER: {
-            ObjPackedPointer* ptr = (ObjPackedPointer*) object;
-            Value targetType = ptr->type->target_type == NULL ? NIL_VAL : OBJ_VAL(ptr->type->target_type);
-            ptr->destination = gc_free(ptr->destination, yt_sizeof_type_storage(targetType), 0);
-            FREE(ObjPackedPointer, object); 
-            break;
-        }
-        case OBJ_UNOWNED_UNIFORMARRAY: FREE(ObjPackedUniformArray, object); break;
-        case OBJ_PACKEDUNIFORMARRAY: {
-            ObjPackedUniformArray* array = (ObjPackedUniformArray*)object;
-            ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*)array->store.storedType;
-            size_t element_size = arrayElementSize(arrayType);
-            array->store.storedValue = gc_free(array->store.storedValue, arrayType->cardinality * element_size, 0);
-            FREE(ObjPackedUniformArray, object);
-            break;
-        }
-        case OBJ_UNOWNED_PACKEDSTRUCT: FREE(ObjPackedStruct, object); break;
-        case OBJ_PACKEDSTRUCT: {
-            ObjPackedStruct* struct_ = (ObjPackedStruct*) object;
-            struct_->store.storedValue = gc_free(struct_->store.storedValue, ((ObjConcreteYargTypeStruct*)(struct_->store.storedType))->storage_size, 0);
-            FREE(ObjPackedStruct, object);
-            break;            
-        }
+        case OBJ_CHANNELCONTAINER: freeChannelObject((ObjChannelContainer*)object); break;
+        case OBJ_PACKEDSTORAGE: freePackedStorage((ObjPackedStorage*)object); break;
+        case OBJ_UNOWNED_PACKEDCONTAINER: FREE(ObjPackedContainer, object); break;
+        case OBJ_PACKEDCONTAINER: FREE(ObjOwningPackedContainer, object); break;
         case OBJ_MAP: {
             ObjMap* map = (ObjMap*)object;
             freeTable(&map->entries);
@@ -709,7 +690,7 @@ void printObjects() {
     size_t count = 0;
     while (object != NULL) {
         PRINTERR("%p ", (void*)object);
-        fprintValue(stderr, OBJ_VAL(object));
+        fprintObj(stderr, object);
         PRINTERR("\n");
         object = object->next;
         count++;

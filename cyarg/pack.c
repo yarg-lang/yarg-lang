@@ -1,13 +1,16 @@
 #include "pack.h"
-#include "pack_format.h"
-
-#include "object.h"
-#include "memory.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <sysexits.h>
 #include <assert.h>
+#include <string.h>
+
+#include "pack_format.h"
+
+#include "object.h"
+#include "memory.h"
+#include "yargobject.h"
 
 static void fileSet(void *, int, size_t i);
 static void fileExtend(void *, int, size_t);
@@ -95,42 +98,29 @@ void flattenConstants(int chunkIndex, Chunk const *chunk, FlatFiles *f) {
             fc->constTypesAndOffsets_.i_[i] = (ConstItem){ .type_ = PACK_CONST_TYPE_D, .index_ = f->doublesFile_.n_ };
             fileExtend(&f->doublesFile_, 4, sizeof *f->doublesFile_.i_);
             f->doublesFile_.i_[f->doublesFile_.n_++] = AS_DOUBLE(*v);
-        } else if (IS_OBJ(*v)) {
-            switch (AS_OBJ(*v)->type) {
-            case OBJ_FUNCTION: {
-                fc->constTypesAndOffsets_.i_[i] = (ConstItem){ .type_ = PACK_CONST_TYPE_F, .index_ = f->funsFile_.n_ };
-                fileExtend(&f->funsFile_, 4, sizeof *f->funsFile_.i_);
-                fc = &f->funsFile_.i_[chunkIndex].chunk_; // fc invalidated by fileExtend() above
-                f->funsFile_.i_[f->funsFile_.n_++].f_ = AS_FUNCTION(*v);
-                break;
-            }
-            case OBJ_INT: {
-                fc->constTypesAndOffsets_.i_[i] = (ConstItem){ .type_ = PACK_CONST_TYPE_I, .index_ = f->intsFile_.n_ };
-                fileExtend(&f->intsFile_, 16, sizeof *f->intsFile_.i_);
-                f->intsFile_.i_[f->intsFile_.n_++] = AS_INTOBJ(*v);
-                break;
-            }
-            case OBJ_STRING: {
-                ObjString *from = AS_STRING(*v);
-                int sI = 0;
-                for (; sI < f->stringsFile_.n_;sI++) {
-                    if (f->stringsFile_.i_[sI] == from) {
-                        fc->constTypesAndOffsets_.i_[i] = (ConstItem){ .type_ = PACK_CONST_TYPE_S, .index_ = sI };
-                        break;
-                    }
+        } else if (IS_FUNCTION(*v)) {
+            fc->constTypesAndOffsets_.i_[i] = (ConstItem){ .type_ = PACK_CONST_TYPE_F, .index_ = f->funsFile_.n_ };
+            fileExtend(&f->funsFile_, 4, sizeof *f->funsFile_.i_);
+            fc = &f->funsFile_.i_[chunkIndex].chunk_; // fc invalidated by fileExtend() above
+            f->funsFile_.i_[f->funsFile_.n_++].f_ = AS_FUNCTION(*v);
+        } else if (IS_INT(*v)) {
+            fc->constTypesAndOffsets_.i_[i] = (ConstItem){ .type_ = PACK_CONST_TYPE_I, .index_ = f->intsFile_.n_ };
+            fileExtend(&f->intsFile_, 16, sizeof *f->intsFile_.i_);
+            f->intsFile_.i_[f->intsFile_.n_++] = AS_INTOBJ(*v);
+        } else if (IS_STRING(*v)) {
+            ObjString *from = AS_STRING(*v);
+            int sI = 0;
+            for (; sI < f->stringsFile_.n_;sI++) {
+                if (f->stringsFile_.i_[sI] == from) {
+                    fc->constTypesAndOffsets_.i_[i] = (ConstItem){ .type_ = PACK_CONST_TYPE_S, .index_ = sI };
+                    break;
                 }
-                if (sI == f->stringsFile_.n_) {
-                    fc->constTypesAndOffsets_.i_[i] = (ConstItem){ .type_ = PACK_CONST_TYPE_S, .index_ = f->stringsFile_.n_ };
-                    fileExtend(&f->stringsFile_, 16, sizeof *f->stringsFile_.i_);
-                    f->stringsFile_.i_[f->stringsFile_.n_++] = from;
-                }
-                break;
             }
-            default:
-                assert(!"Unexpected constant obj");
-                break;
+            if (sI == f->stringsFile_.n_) {
+                fc->constTypesAndOffsets_.i_[i] = (ConstItem){ .type_ = PACK_CONST_TYPE_S, .index_ = f->stringsFile_.n_ };
+                fileExtend(&f->stringsFile_, 16, sizeof *f->stringsFile_.i_);
+                f->stringsFile_.i_[f->stringsFile_.n_++] = from;
             }
-
         } else if (IS_ADDRESS(*v)) {
             uintptr_t p = AS_ADDRESS(*v);
             fc->constTypesAndOffsets_.i_[i] = (ConstItem){ .type_ = PACK_CONST_TYPE_A, .index_ = f->addressesFile_.n_ };

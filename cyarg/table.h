@@ -3,6 +3,9 @@
 
 #include "common.h"
 #include "value.h"
+#include "value_cell.h"
+
+typedef struct ObjString ObjString;
 
 typedef struct {
     ObjString* key;
@@ -17,7 +20,7 @@ typedef struct {
 
 void initTable(ValueTable* table);
 void freeTable(ValueTable* table);
-bool tableGet(ValueTable* table, ObjString* key, Value* value);
+bool tableGet(const ValueTable* table, ObjString* key, Value* value);
 bool tableSet(ValueTable* table, ObjString* key, Value value);
 bool tableDelete(ValueTable* table, ObjString* key);
 void tableAddAll(ValueTable* from, ValueTable* to);

@@ -2,6 +2,7 @@
 #define cyarg_vm_h
 
 #include "object.h"
+#include "yargobject.h"
 #include "table.h"
 #include "value.h"
 #include "vm-result.h"
@@ -57,7 +58,6 @@ InterpretResult bootXIP();
 
 InterpretResult run(ObjRoutine* routine);
 bool callfn(ObjRoutine* routine, ObjClosure* closure, int argCount);
-void fatalVMError(const char* format, ...);
 
 bool installPinnedRoutine(ObjRoutine* pinnedRoutine, uintptr_t* address);
 bool removePinnedRoutine(uintptr_t address);

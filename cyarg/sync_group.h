@@ -8,12 +8,12 @@
 
 typedef struct ObjSyncGroup ObjSyncGroup;
 
-ObjSyncGroup* newSyncGroup(ObjRoutine* routine, ObjPackedUniformArray* items);
+ObjSyncGroup* newSyncGroup(ObjRoutine* routine, Value itemArray);
 
 void freeSyncGroup(Obj* group);
 void markSyncGroup(ObjSyncGroup* group);
 
-ObjString* syncGroupToString(ObjSyncGroup* group);
+ObjString* syncGroupToString(const ObjSyncGroup* group);
 
 Value receiveSyncGroup(ObjSyncGroup* group);
 

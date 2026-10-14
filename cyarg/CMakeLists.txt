@@ -81,6 +81,8 @@ add_executable(cyarg
     debug.c
     value.h
     value.c
+    value_cell.h
+    value_cell.c
     routine.h
     routine.c
     vm.h
@@ -95,6 +97,8 @@ add_executable(cyarg
     scanner.c
     object.h
     object.c
+    vmobject.h
+    vmobject.c
     table.h
     table.c
     native.h
@@ -105,6 +109,10 @@ add_executable(cyarg
     channel.c
     yargtype.h
     yargtype.c
+    yargobject.h
+    yargobject.c
+    packed_containers.h
+    packed_containers.c
     vm_mutex.h
     vm_mutex.c
     sync_group.h

@@ -1,14 +1,15 @@
+#include "channel.h"
+
 #include <stdio.h>
 #ifdef CYARG_PTHREADS_SYNC
 #include <semaphore.h>
 #include <fcntl.h>   // for O_CREAT
 #include <sys/stat.h> // for S_IRUSR and S_IWUSR
 #endif
+#include <string.h>
 
 #include "common.h"
 #include "vm_mutex.h"
-
-#include "channel.h"
 #include "memory.h"
 #include "vm.h"
 #include "debug.h"
@@ -32,7 +33,7 @@ typedef struct ObjChannelContainer {
 
 ObjChannelContainer* newChannel(ObjRoutine* routine, size_t capacity) {
     ObjChannelContainer* channel = ALLOCATE_OBJ(ObjChannelContainer, OBJ_CHANNELCONTAINER);
-    tempRootPush(OBJ_VAL(channel));
+    tempObjRootPush((Obj*)channel);
     channel->overflow = false;
 
     channel->buffer = ALLOCATE(Value, capacity);
@@ -54,18 +55,17 @@ ObjChannelContainer* newChannel(ObjRoutine* routine, size_t capacity) {
     return channel;
 }
 
-void freeChannelObject(Obj* object) {
-    ObjChannelContainer* channel = (ObjChannelContainer*)object;
+void freeChannelObject(ObjChannelContainer* channel) {
     vm_mutex_deinit(&channel->lock);
 #ifdef CYARG_PTHREADS_SYNC    
     sem_close(channel->access);
 #endif
 
     FREE_ARRAY(Value, channel->buffer, channel->bufferSize);
-    FREE(ObjChannelContainer, object); 
+    FREE(ObjChannelContainer, channel); 
 }
 
-size_t readCursor(ObjChannelContainer* channel) {
+size_t readCursor(const ObjChannelContainer* channel) {
     size_t count = channel->occupied;
     size_t size = channel->bufferSize;
     size_t cursor = (channel->writeCursor + size - count) % size;
@@ -90,7 +90,7 @@ void markChannel(ObjChannelContainer* channel) {
     }
 }
 
-ObjString* channelToString(ObjChannelContainer* channel) {
+ObjString* channelToString(const ObjChannelContainer* channel) {
     char buffer[256];
     snprintf(buffer, sizeof(buffer), "channel{");
     size_t string_cursor = strlen(buffer);

@@ -1,13 +1,19 @@
+#include "table.h"
+
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "memory.h"
 #include "object.h"
-#include "table.h"
 #include "value.h"
 #include "yargtype.h"
+#include "yargobject.h"
+#include "debug.h"
 
 #define TABLE_MAX_LOAD 0.75
+
+bool tableInvariant(ValueTable* table);
 
 void initTable(ValueTable* table) {
     table->count = 0;
@@ -43,10 +49,12 @@ static Entry* findEntry(Entry* entries, int capacity, ObjString* key) {
     }
 }
 
-bool tableGet(ValueTable* table, ObjString* key, Value* value) {
+bool tableGet(const ValueTable* table, ObjString* key, Value* value) {
     if (table->count == 0) return false;
 
-    Entry* entry = findEntry(table->entries, table->capacity, key);
+    ValueTable* writeableTable = (ValueTable*) table;   // TODO: fix this
+
+    Entry* entry = findEntry(writeableTable->entries, table->capacity, key);
     if (entry->key == NULL) return false;
 
     *value = entry->value;
@@ -74,9 +82,13 @@ static void adjustCapacity(ValueTable* table, int capacity) {
     FREE_ARRAY(Entry, table->entries, table->capacity);
     table->entries = entries;
     table->capacity = capacity;
+
+    assert(tableInvariant(table));
 }
 
 bool tableSet(ValueTable* table, ObjString* key, Value value) {
+    assert(tableInvariant(table));
+
     if (table->count + 1 > table->capacity * TABLE_MAX_LOAD) {
         int capacity = GROW_CAPACITY(table->capacity);
         adjustCapacity(table, capacity);
@@ -114,6 +126,7 @@ void tableAddAll(ValueTable* from, ValueTable* to) {
 }
 
 ObjString* tableFindString(ValueTable* table, const char* chars, int length, uint32_t hash) {
+    assert(tableInvariant(table));
     if (table->count == 0) return NULL;
 
     uint32_t index = hash & (table->capacity - 1);
@@ -134,21 +147,62 @@ ObjString* tableFindString(ValueTable* table, const char* chars, int length, uin
 }
 
 void tableRemoveWhite(ValueTable* table) {
+    assert(tableInvariant(table));
     for (int i = 0; i < table->capacity; i++) {
         Entry* entry = &table->entries[i];
         if (entry->key != NULL && !entry->key->obj.isMarked) {
             tableDelete(table, entry->key);
         }
     }
+    assert(tableInvariant(table));
 }
 
 void markTable(ValueTable* table) {
+    assert(tableInvariant(table));
     for (int i = 0; i < table->capacity; i++) {
         Entry* entry = &table->entries[i];
         if (entry->key != NULL) {
             markObject((Obj*)entry->key);
             markValue(entry->value);
         }
+    }
+}
+
+void printTable(ValueTable* table) {
+    FPRINTMSG(stderr, "ValueTable %p (%d:%d)\n", table, table->capacity, table->count);
+    for (int i = 0; i < table->capacity; i++) {
+        Entry* entry = &table->entries[i];
+        if (entry->key != NULL) {
+            FPRINTMSG(stderr, "  [");
+            fprintValue(stderr, STRING_VAL((Obj*)entry->key));
+            FPRINTMSG(stderr, "] = ");
+            if (!IS_NIL(entry->value)) {
+                fprintValue(stderr, entry->value);
+            } else {
+                FPRINTMSG(stderr, "nil");
+            }
+            FPRINTMSG(stderr, "\n");
+        }
+    }
+}
+
+bool tableInvariant(ValueTable* table) {
+    // Check that the count of entries matches the number of non-NULL keys.
+    if (table->capacity == 0) return table->count == 0;
+
+    size_t actualCount = 0;
+    size_t tombCount = 0;
+    for (int i = 0; i < table->capacity; i++) {
+        Entry* entry = &table->entries[i];
+        if (entry->key != NULL) actualCount++;
+        if (entry->key == NULL && valuesEqual(entry->value, BOOL_VAL(true))) tombCount++;
+    }
+
+    if ((actualCount + tombCount) != table->count) {
+        printTable(table);
+        return false;
+    } else {
+        return true;
     }
 }
 
@@ -242,6 +296,7 @@ bool tableCellSet(ValueCellTable* table, ObjString* key, ValueCell cell) {
 
     entry->key = key;
     entry->cell = cell;
+
     return isNewKey;
 }
 
@@ -308,14 +363,14 @@ void markCellTable(ValueCellTable* table) {
 }
 
 void printCellTable(ValueCellTable* table) {
+    FPRINTMSG(stderr, "ValueCellTable %p (%d:%d)\n", table, table->capacity, table->count);
     for (int i = 0; i < table->capacity; i++) {
         EntryCell* entry = &table->entries[i];
         if (entry->key != NULL) {
-            printValue(OBJ_VAL((Obj*)entry->key));
-            FPRINTMSG(stderr, ":::");
-            printValue(entry->cell.value);
-            FPRINTMSG(stderr, ":::");
-            printValue(OBJ_VAL((Obj*)entry->cell.cellType));
+            FPRINTMSG(stderr, "  [");
+            fprintValue(stderr, STRING_VAL((Obj*)entry->key));
+            FPRINTMSG(stderr, "] = ");
+            fprintValueCell(stderr, &entry->cell);
             FPRINTMSG(stderr, "\n");
         }
     }

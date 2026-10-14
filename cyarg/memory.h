@@ -5,8 +5,11 @@
 
 #include "common.h"
 #include "object.h"
+#include "value.h"
 
+typedef struct ObjFunction ObjFunction;
 typedef struct O1HeapInstance O1HeapInstance;
+typedef struct ValueCell ValueCell;
 
 void init_heap_instance(O1HeapInstance** instance);
 
@@ -33,6 +36,7 @@ void* gc_free(void* pointer, size_t oldSize, size_t newSize);
 void* reallocate(void* pointer, size_t oldSize, size_t newSize);
 
 void tempRootPush(Value value);
+void tempObjRootPush(Obj* object);
 Value tempRootPop();
 
 void markObject(Obj* object);

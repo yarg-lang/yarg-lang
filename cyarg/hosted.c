@@ -1,14 +1,17 @@
+#include "hosted.h"
+
 #include <stdlib.h>
 #include <sysexits.h>
 #include <assert.h>
+#include <string.h>
 
 #include "common.h"
-#include "hosted.h"
 #include "object.h"
 #include "memory.h"
 #include "debug.h"
 #include "pack.h"
 #include "vm.h"
+#include "vmobject.h"
 
 Host vmHost;
 
@@ -29,7 +32,7 @@ int bootstrapHostedFile(const char* path) {
     vmHost.exitCode = EX_OK;
 
     ObjString* pathString = copyString(path, (int) strlen(path));
-    tempRootPush(OBJ_VAL(pathString));
+    tempRootPush(STRING_VAL(pathString));
 
     InterpretResult result = bootScript(pathString);
 
@@ -44,7 +47,7 @@ int bootstrapHostedFile(const char* path) {
 int compileFile(const char* path, const char* outputPath) {
 
     ObjString* pathString = copyString(path, (int) strlen(path));
-    tempRootPush(OBJ_VAL(pathString));
+    tempRootPush(STRING_VAL(pathString));
 
     Value compilerResult;
     InterpretResult result = compileScript(pathString, &compilerResult);
@@ -69,7 +72,7 @@ int compileFile(const char* path, const char* outputPath) {
 int disassembleFile(const char* path) {
 
     ObjString* pathString = copyString(path, (int)strlen(path));
-    tempRootPush(OBJ_VAL(pathString));
+    tempRootPush(STRING_VAL(pathString));
 
     Value compilerResult;
     InterpretResult result = compileScript(pathString, &compilerResult);
