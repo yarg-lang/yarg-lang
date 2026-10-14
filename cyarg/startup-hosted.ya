@@ -29,7 +29,10 @@ fun getBoolArgument(name) {
     return false;
 }
 
-yarg_library_path = getRawHostArgument("--lib");
+var libArg = getRawHostArgument("--lib");
+if (libArg != nil) {
+    yarg_library_path = libArg;
+}
 yarg_library_path = yarg_library_path + "/";
 
 var yarg_source = vm_read_xip_file(2, 1);
