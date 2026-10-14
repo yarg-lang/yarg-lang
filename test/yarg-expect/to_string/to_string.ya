@@ -44,7 +44,7 @@ var struct {
     int x;
     int y;
 } point;
-print point; // expect: struct{|2:16|0; 0; }
+print point; // expect: struct{|2:32|0; 0; }
 
 var map = new(any[string]);
 print map; // expect: <map (0) Type:any[string] >
