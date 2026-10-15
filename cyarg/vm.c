@@ -1613,16 +1613,16 @@ void binaryIntOp(ObjRoutine* routine, char const *c)
     switch (*c)
     {
     case '+': case '-':
-        s = 1 + (a->m_ > b->m_ ? a->m_ : b->m_);
+        s = 1 + (a->d_ > b->d_ ? a->d_ : b->d_);
         break;
     case '*':
-        s = a->m_ + b->m_;
+        s = a->d_ + b->d_;
         break;
     case '/':
-        s = a->m_ ;
+        s = a->d_ ;
         break;
     case '%':
-        s = a->m_ > b->m_ ? a->m_ : b->m_;
+        s = a->d_ > b->d_ ? a->d_ : b->d_;
         break;
     default:
         assert(!"IntOp");
