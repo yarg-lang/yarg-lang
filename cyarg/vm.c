@@ -1234,7 +1234,7 @@ InterpretResult run(ObjRoutine* routine) {
                 *reg = val;
 #elif defined(CYARG_OS_HOSTED)
 #if defined(CYARG_FEATURE_TEST_SYSTEM)
-                tsWrite((uint32_t)nominal_address, val);
+                tsWrite(nominal_address, val);
 #endif
                 printf("poke 0x%08lx, 0x%08zx\n", nominal_address, val);
 #endif

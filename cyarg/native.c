@@ -49,13 +49,19 @@ bool irq_add_shared_handlerNative(ObjRoutine* routine, int argCount, Value* resu
     }        
 
     size_t num = as_positive_integer(numVal);
+    if (num > UINT32_MAX) {
+        runtimeError(routine, "Interrupt must fit in uint32");
+        return false;
+    }
+    
+    uint32_t interrupt_num = (uint32_t) num;
     uintptr_t isrRoutine = AS_ADDRESS(address);
 
 #if defined(CYARG_PICO_SDK_TARGET)
     size_t prio = as_positive_integer(prioVal);
-    irq_add_shared_handler(num, (irq_handler_t) isrRoutine, prio);
+    irq_add_shared_handler(interrupt_num, (irq_handler_t) isrRoutine, prio);
 #elif defined(CYARG_FEATURE_TEST_SYSTEM)
-    tsAddInterruptHandler(num, (void *) isrRoutine);
+    tsAddInterruptHandler(interrupt_num, (void *) isrRoutine);
 #else
     #error "No IRQ handler implementation for this build."
 #endif
@@ -76,14 +82,19 @@ bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, Value* result) 
         runtimeError(routine, "Expected an a positive integer.");
         return false;
     }
-
     size_t num = as_positive_integer(numVal);
+    if (num > UINT32_MAX) {
+        runtimeError(routine, "Interrupt must fit in uint32");
+        return false;
+    }
+    
+    uint32_t interrupt_num = (uint32_t) num;
     uintptr_t isrRoutine = AS_ADDRESS(address);
 
 #if defined(CYARG_PICO_SDK_TARGET)
-    irq_remove_handler(num, (irq_handler_t) isrRoutine);
+    irq_remove_handler(interrupt_num, (irq_handler_t) isrRoutine);
 #elif defined(CYARG_FEATURE_TEST_SYSTEM)
-    tsRemoveInterruptHandler(num, (void *) isrRoutine);
+    tsRemoveInterruptHandler(interrupt_num, (void *) isrRoutine);
 #else
     #error "No IRQ handler implementation for this build."
 #endif

@@ -425,9 +425,9 @@ bool peekBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     *result = UI32_VAL(res);
 #elif defined(CYARG_OS_HOSTED)
 #ifdef CYARG_FEATURE_TEST_SYSTEM
-    *result = UI32_VAL(tsRead((uint32_t)nominal_address));
+    *result = SIZE_T_UI_VAL(tsRead(nominal_address));
 #else
-    *result = UI32_VAL(0);
+    *result = SIZE_T_UI_VAL(0);
 #endif
     printf("peek(%p) -> %x\n", (void*)nominal_address, AS_UI32(*result));
 #endif

@@ -32,7 +32,7 @@ typedef struct TsExpected {
     struct TsExpectedItem {
         enum TsExpectedType operation_;
         size_t address_;
-        uint32_t value_;
+        size_t value_;
     } *i_;
     pthread_mutex_t mutex_;
 } TsExpected;
@@ -42,7 +42,7 @@ typedef struct TsMemory {
     int e_;
     struct TsMemoryItem {
         size_t address_;
-        uint32_t value_;
+        size_t value_;
     } *i_;
     pthread_mutex_t mutex_;
 } TsMemory;
@@ -94,8 +94,8 @@ static void *simulateInterrupt(void *); // thread entry
 static TestSystem *self(void);
 static void extend(void *, size_t); // ensure appropriate mutex is held
 
-static uint32_t read(size_t address);
-static void write(size_t address, uint32_t value);
+static size_t read(size_t address);
+static void write(size_t address, size_t value);
 static void addInterruptHandler(uint32_t intId, void (*address)(void));
 static void removeInterruptHandler(uint32_t intId, void (*address)(void));
 static void log(char const *, ...);
@@ -203,12 +203,12 @@ TestSystem *self(void)
     return (TestSystem *)&ts;
 }
 
-uint32_t tsRead(size_t address)
+size_t tsRead(size_t address)
 {
     return read(address);
 }
 
-void tsWrite(size_t address, uint32_t value)
+void tsWrite(size_t address, size_t value)
 {
     write(address, value);
 }
@@ -306,12 +306,12 @@ void *simulateInterrupt(void *indexAsP) // thread entry
 }
 
 // system under test interface
-uint32_t read(size_t address)
+size_t read(size_t address)
 {
     TestSystem *ts = self();
 
     bool writtenOrSet = false;
-    uint32_t valueWrittenOrSet;
+    size_t valueWrittenOrSet;
     {
         assert(pthread_mutex_lock(&ts->memory_.mutex_) == 0);
         for (int i = 0; i < ts->memory_.n_; i++)
@@ -388,7 +388,7 @@ uint32_t read(size_t address)
     return valueWrittenOrSet;
 }
     
-void write(size_t address, uint32_t value)
+void write(size_t address, size_t value)
 {
     TestSystem *ts = self();
     {
