@@ -7,9 +7,7 @@ for file in \
 ./hostyarg/testdata/fresh_cheese \
 ./yarg/lang/yarg \
 ./yarg/stdlib/xip_library \
-./yarg/stdlib/repl \
-./cyarg/startup \
-./cyarg/startup-hosted
+./yarg/stdlib/repl
 do
     echo "Processing $file"
     $HOSTYARG compile --interpreter bin/cyarg --source "$file.ya" --output "$file.yb"

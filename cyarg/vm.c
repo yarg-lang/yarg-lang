@@ -209,7 +209,7 @@ void initVMRuntime() {
     defineNative("host_exitCode", host_exitCodeNative);
 #endif
 
-    uintptr_t vm_xip_start = (uintptr_t)&cyarg_ylib[0];
+    uintptr_t vm_xip_start = (uintptr_t)xipLibHeader;
     defineGlobal("vm_xip_start", ADDRESS_VAL(vm_xip_start));
 
     defineNative("vm_xip_string_node", vm_xip_string_nodeNative);

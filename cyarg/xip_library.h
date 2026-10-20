@@ -5,10 +5,6 @@
 #include <stddef.h>
 #include "value.h"
 
-// interim hosting of the XIP library in .rodata.
-extern unsigned const char cyarg_ylib[];
-extern unsigned int cyarg_ylib_len;
-
 /*
  * xipLibrary
  *
@@ -16,10 +12,11 @@ extern unsigned int cyarg_ylib_len;
  * Intended for XIP Yarg bytecode.
  */
 
+typedef struct XIPLibHeader XIPLibHeader;
+extern const struct XIPLibHeader *const xipLibHeader;
+
 bool xipLibraryReadFilename(const char* filename, const uint8_t** data, size_t* size);
 bool xipLibraryReadNode(uint16_t node, const uint8_t** data, size_t* size);
 const char* xipLibraryStringNode(uint16_t node);
 
 #endif
-
-

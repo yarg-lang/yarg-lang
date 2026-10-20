@@ -4,6 +4,8 @@
 #include <stdalign.h>
 #include <string.h>
 
+#include "bootstrap/cyarg_ylib.h"
+
 // the library is linearised a set of 'nodes', all concatenated in memory.
 // the tool creating the library will pad nodes as needed for alignment.
 // the first node (0) contains an index offset and length of all nodes, including itself.
@@ -23,8 +25,15 @@ const uint16_t expectedByteOrder = 0xff58;
 
 const uint16_t expectedVersion = 0x2602;
 
+// hosting of the bootstrap XIP library in .rodata.
+#ifdef CYARG_OS_HOSTED
+const struct XIPLibHeader *const xipLibHeader = (const struct XIPLibHeader*)&cyarg_hosted_ylib[0];
+#else
 const struct XIPLibHeader *const xipLibHeader = (const struct XIPLibHeader*)&cyarg_ylib[0];
-const uint8_t* const xipLibraryBytes = &cyarg_ylib[0];
+#endif
+
+const uint8_t* const xipLibraryBytes = (const uint8_t*)xipLibHeader;
+
 
 struct nodeIndex {
     uint32_t offset;
@@ -87,7 +96,11 @@ const struct directoryEntry* directoryEntryForFile(const char* filename) {
 
 void xipLibraryInvariant() {
     assert(xipLibHeader->version == expectedVersion);
+#ifdef CYARG_OS_HOSTED
+    assert(xipLibHeader->length == cyarg_hosted_ylib_len);
+#else
     assert(xipLibHeader->length == cyarg_ylib_len);
+#endif
     assert(xipLibHeader->byteOrder == expectedByteOrder);
 
     for (int i = 0; i < sizeof(xipLibHeader->magic) / sizeof(xipLibHeader->magic[0]); i++) {
