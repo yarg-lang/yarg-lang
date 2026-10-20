@@ -372,8 +372,7 @@ static ObjString* stackTraceString(Value str) {
     char presentedBuffer[13];
     snprintf(presentedBuffer, sizeof(presentedBuffer), "\"%s\"", buffer);
     
-    ObjString* strObj = copyString(presentedBuffer, strlen(presentedBuffer));
-    return strObj;
+    return AS_STRING(cstring_val(presentedBuffer));
 }
 
 static void snprintValueDescription(char* buffer, size_t bufferSize, Value value) {

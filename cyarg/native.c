@@ -327,7 +327,7 @@ bool vm_xip_string_nodeNative(ObjRoutine* routine, int argCount, Value* result) 
         return false;
     }
 
-    Value stringVal = STRING_VAL(copyString(string, strlen(string)));
+    Value stringVal = cstring_val(string);
     *result = stringVal;
     return true;
 }

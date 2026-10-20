@@ -180,3 +180,7 @@ ObjString* copyStringWithEscapes(const char* chars, int length)
     *out = '\0';
     return allocateString(heapChars, lengthOut, hash);
 }
+
+Value cstring_val(const char *cstring) {
+    return STRING_VAL(copyString(cstring, (int) strlen(cstring)));
+}

@@ -44,6 +44,8 @@ typedef struct ObjConcreteYargType ObjConcreteYargType;
 #define BOUNDMETHOD_VAL(object)  ((Value){.type = &yargTypes.function, .as.obj = (Obj*) object})
 #define MAP_VAL(object)        ((Value){.type = ((const ObjConcreteYargType*)((ObjMap*)object)->type), .as.obj = (Obj*) object})
 
+Value cstring_val(const char*);
+
 struct ObjString {
     Obj obj;
     int length;
