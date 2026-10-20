@@ -143,7 +143,7 @@ ObjConcreteYargType* newYargPointerType(const ObjConcreteYargType* targetType) {
 size_t addFieldType(ObjConcreteYargTypeStruct* st, size_t index, size_t fieldOffset, ObjConcreteYargType* type, ObjString* name) {
     st->field_types[index] = type;
     tableSet(&st->field_names, name, SIZE_T_UI_VAL(index));
-    uint32_t alignmentPadding = 0;
+    size_t alignmentPadding = 0;
     size_t alignment = yt_alignmentfor_type_storage(type);
     alignmentPadding = (alignment - (fieldOffset % alignment)) % alignment;
     st->field_indexes[index] = fieldOffset + alignmentPadding;
