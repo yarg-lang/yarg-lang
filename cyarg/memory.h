@@ -7,12 +7,6 @@
 #include "object.h"
 #include "value.h"
 
-typedef struct ObjFunction ObjFunction;
-typedef struct O1HeapInstance O1HeapInstance;
-typedef struct ValueCell ValueCell;
-
-void init_heap_instance(O1HeapInstance** instance);
-
 #define TEMP_ROOTS_MAX 8
 #define FIRST_GC_AT 50 * 1024
 #define ALWAYS_GC_ABOVE 100 * 1024
@@ -31,13 +25,21 @@ void init_heap_instance(O1HeapInstance** instance);
 void* reallocate(void* pointer, size_t oldSize, size_t newSize);
 void vm_free(void* pointer);
 
-
-// for use only when the garbage collector is freeing an object.
-void gc_free(void* pointer);
-
 void tempRootPush(Value value);
 void tempObjRootPush(Obj* object);
 Value tempRootPop();
+
+void init_heap_instance(O1HeapInstance** instance);
+
+
+// functions that are 'internal to heap management'
+
+typedef struct ObjFunction ObjFunction;
+typedef struct O1HeapInstance O1HeapInstance;
+typedef struct ValueCell ValueCell;
+
+// for use only when the garbage collector is freeing an object.
+void gc_free(void* pointer);
 
 void markObject(Obj* object);
 void markDynamicObjArray(DynamicObjArray* array);
