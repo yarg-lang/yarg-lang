@@ -1222,10 +1222,6 @@ bool parse(ObjAst* ast_root) {
         }
     }
 
-#ifdef DEBUG_AST_PARSE
-    printf("Parse Tree max working objects: %d\n", parser.workingNodes.objectCapacity);
-#endif
-
     endParser();
     return parser.hadError;
 }

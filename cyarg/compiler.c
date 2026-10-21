@@ -1146,21 +1146,8 @@ ObjFunction* compile(const char* source) {
     struct Compiler compiler;
     initCompiler(&compiler, TYPE_SCRIPT, NULL);
 
-#ifdef DEBUG_AST_PARSE
-    collectGarbage();
-    size_t bytesAllocated = vm.bytesAllocated;
-#endif
-
     bool parseError = parse(current->ast);
-
-#ifdef DEBUG_AST_PARSE
-    collectGarbage();
-    printf("Parse Tree (%zu net bytes)\n", vm.bytesAllocated - bytesAllocated);
-    printStmts(current->ast->statements);
-#endif
-
     if (!parseError) {
-
         generate(current->ast->statements);
     }
 

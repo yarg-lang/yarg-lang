@@ -178,7 +178,6 @@ endif()
 
 if (CYARG_FEATURE_INTERACTIVE_TRACE STREQUAL "TRUE")
 add_compile_definitions(DEBUG_TRACE_EXECUTION)
-add_compile_definitions(DEBUG_AST_PARSE)
 add_compile_definitions(DEBUG_STRESS_GC)
 endif()
 
