@@ -679,7 +679,9 @@ void collectGarbage() {
     size_t before = vm.bytesAllocated;
 #endif
 
-    assert(o1heapDoInvariantsHold(vm.heap_instance));
+    if (!o1heapDoInvariantsHold(vm.heap_instance)) {
+        fatalVMError("heap invariants do not hold as gc starts");
+    }
 
     markRoots();
     traceReferences();
