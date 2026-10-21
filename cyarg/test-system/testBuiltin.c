@@ -148,7 +148,7 @@ bool syncBuiltin(ObjRoutine *routineContext, int argCount, Value *result)
 //        printf("%s\n", log->i_[i]); // until log gets coppied to *result
         ObjString *s = copyString(log->i_[i], (int)strlen(log->i_[i]));
         tempRootPush(STRING_VAL(s));
-        reallocate(log->i_[i], (int)strlen(log->i_[i]) + 1, 0);
+        vm_free(log->i_[i]);
         setArrayElement(resultArrayVal, i, STRING_VAL(s));
         tempRootPop(); // s
     }

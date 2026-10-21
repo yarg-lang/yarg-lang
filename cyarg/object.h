@@ -1,19 +1,26 @@
 #ifndef cyarg_object_h
 #define cyarg_object_h
 
-/* Obj memory management
+/* Memory Management
  *
- * memory in cyarg is managed through reallocate() and assorted free functions in memory.h
- *
- * These functions will call the underlying malloc & free functions from the C standard library
- * or other allocator.
+ * the VM aims to provide a managed memory system for Obj based memory, and additionally
+ * to intercept all C memory allocations in target images.
  * 
- * reallocate() will examine the current memory usage and determine if garbage collection is 
- * necessary before allocating new memory. It currently uses a mark-and-sweep garbage collection 
- * strategy.
+ * A goal is for memory allocation required in the langauge to be O(1) and therefore useable
+ * in contexts like interrupt response, where predictable time is desired.
+ * 
+ * Currently, an external heap (o1heap) is used, and reserves a large static array for all
+ * allocations.
+ * 
+ * There are therefore a suite of C-like memory management functions (see memory.h), and a 
+ * garbage collector to manage Obj instances (see here, and memory.h)
+ * 
+ * The system is safe for concurrent access from multiple cores and interrupt contexts.
+ * 
+ * Most VM memory allocation is for Obj instances.
  *
- * Therefore for all memory allocated to an Obj instance, free will be called automatically 
- * when the object is no longer referenced.
+ * The garbage collector is hooked into the standard allocation functions. In time, it will
+ * also be designed to be O(1) in cases needed by the language, but this is not yet implemented.
  *
  * Obj instances are tracked in two places. All instances can be traversed, by the linked
  * list formed from the next member of Obj.
@@ -27,7 +34,6 @@
  * often need care in storage during this phase. Commonly either push()'d onto the
  * language stack, or tempRootPush()'d onto the temporary root stack. Note that a partially constructed object
  * must be safe to free, and object allocation zero's the whole memory cell as a convenience for this
- *
  */
 
 #include <stdbool.h>

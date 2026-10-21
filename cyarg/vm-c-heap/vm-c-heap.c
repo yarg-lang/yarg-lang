@@ -21,17 +21,16 @@ void WRAPPER_FUNC(free)(void* ptr) {
 }
 
 void *WRAPPER_FUNC(malloc)(size_t size) {
-    return reallocate(NULL, 0, size);
+    return vm_allocate(size);
 }
 
 void *WRAPPER_FUNC(calloc)(size_t nmemb, size_t size) {
-    void* cell = reallocate(NULL, 0, nmemb * size);
+    void* cell = vm_allocate(nmemb * size);
     if (cell)
         memset(cell, 0, nmemb * size);
     return cell;
 }
 
 void *WRAPPER_FUNC(realloc)(void* ptr, size_t size) {
-    // note that 0 may be incorrect, but is the best we can do for now.
-    return reallocate(ptr, 0, size);
+    return vm_reallocate(ptr, size);
 }

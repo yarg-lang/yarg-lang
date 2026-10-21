@@ -17,10 +17,11 @@ typedef struct O1HeapInstance O1HeapInstance;
 // general purpose memory allocation functions
 
 #define ALLOCATE(type, count) \
-    (type*)reallocate(NULL, 0, sizeof(type) * (count))
+    (type*)vm_allocate(sizeof(type) * (count))
 
-// reallocate will call vm_free if newSize is 0
-void* reallocate(void* pointer, size_t oldSize, size_t newSize);
+void* vm_allocate(size_t newSize);
+// vm_reallocate will call vm_free if newSize is 0
+void* vm_reallocate(void* pointer, size_t newSize);
 void vm_free(void* pointer);
 
 // conveniences for the vm's internal dynamic arrays.
@@ -28,8 +29,7 @@ void vm_free(void* pointer);
     ((capacity) < 8 ? 8 : (capacity) * 2)
 
 #define GROW_ARRAY(type, pointer, oldCount, newCount) \
-    (type*)reallocate(pointer, sizeof(type) * (oldCount), \
-        sizeof(type) * (newCount))
+    (type*)vm_reallocate(pointer, sizeof(type) * (newCount))
 
 // temporary root management for the garbage collector
 void tempRootPush(Value value);

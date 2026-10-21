@@ -49,21 +49,38 @@ size_t vm_bytesAllocated() {
     return diagnostics.allocated;
 }
 
-void* reallocate(void* pointer, size_t oldSize, size_t newSize) {
-    vm_mutex_enter_blocking(&vm.heap);
-
+static void gc_if_needed(size_t newSize) {
     size_t before = vm_bytesAllocated();
-
-    before += newSize - oldSize;
-    if (newSize > oldSize) {
 #ifdef DEBUG_STRESS_GC
-        collectGarbage();
+    collectGarbage();
 #endif
 
-        if (before > vm.nextGC) {
-            collectGarbage();
-        }
+    before += newSize;
+    if (before > vm.nextGC) {
+        collectGarbage();
     }
+}
+
+void* vm_allocate(size_t newSize) {
+    if (newSize == 0) return NULL;
+
+    vm_mutex_enter_blocking(&vm.heap);
+
+    gc_if_needed(newSize);
+
+    void* result = o1heapAllocate(vm.heap_instance, newSize);
+    if (result == NULL) {
+        PRINTERR("help! no memory.");
+        exit(1);
+    }
+    vm_mutex_exit(&vm.heap);
+    return result;
+}
+
+void* vm_reallocate(void* pointer, size_t newSize) {
+    vm_mutex_enter_blocking(&vm.heap);
+
+    gc_if_needed(newSize);
 
     if (newSize == 0) {
         o1heapFree(vm.heap_instance, pointer);

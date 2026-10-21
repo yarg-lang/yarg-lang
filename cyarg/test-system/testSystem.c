@@ -544,7 +544,7 @@ void log(char const *s, ...)
 
     len++;
 
-    char *newString = reallocate(0, 0, len);
+    char *newString = vm_allocate(len);
     va_start(args, s);
     (void)vsnprintf(newString, len, s, args);
     va_end(args);
@@ -784,7 +784,7 @@ void extend(void *collection, size_t itemSize)
     if (c->n_ == c->e_)
     {
         int newSize = c->e_ + 4;
-        c->i_ = reallocate(c->i_, c->e_ * itemSize, newSize * itemSize);
+        c->i_ = vm_reallocate(c->i_, newSize * itemSize);
         c->e_ = newSize;
     }
 }

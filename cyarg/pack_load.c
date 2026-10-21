@@ -112,7 +112,7 @@ ObjFunction *loadPackageFromBuffer(ObjRoutine* context, uint8_t* buffer, size_t 
                         int capacity = cf->chunk.lineCapacity;
                         int newCapacity = capacity + 16;
                         cf->chunk.lineCapacity = newCapacity;
-                        cf->chunk.lines = reallocate(cf->chunk.lines, sizeof (ChunkSource) * capacity, sizeof (ChunkSource) * newCapacity);
+                        cf->chunk.lines = vm_reallocate(cf->chunk.lines, sizeof (ChunkSource) * newCapacity);
                     }
                     cf->chunk.lines[cf->chunk.numLines++] = (ChunkSource){ .address = offset - start, .line = i + 1};
                     break;
