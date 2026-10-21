@@ -59,6 +59,7 @@ endif()
 
 if(PICO_BOARD)
 set(PICO_USE_FASTEST_SUPPORTED_CLOCK 1)
+set(SKIP_PICO_MALLOC 1)
 endif()
 
 # The PICO SDK will also need CXX & ASM toolchains to assemble the firmware image
@@ -67,6 +68,18 @@ project(cyarg VERSION 0.1.0 LANGUAGES C CXX ASM)
 if (PICO_BOARD)
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
+endif()
+
+
+if (PICO_BOARD)
+# a library that wraps the C heap functions, so we can intercept 
+# them and manage memory ourselves.
+pico_add_library(vm_c_heap)
+target_sources(vm_c_heap INTERFACE vm-c-heap/vm-c-heap.c)
+pico_wrap_function(vm_c_heap malloc)
+pico_wrap_function(vm_c_heap calloc)
+pico_wrap_function(vm_c_heap realloc)
+pico_wrap_function(vm_c_heap free)
 endif()
 
 add_executable(cyarg 
@@ -200,6 +213,7 @@ pico_enable_stdio_usb(cyarg 1)
 target_link_libraries(cyarg
         hardware_pio
         hardware_flash
+        vm_c_heap
         pico_stdlib
         pico_multicore
         pico_sync
