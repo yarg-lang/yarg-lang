@@ -119,7 +119,6 @@ void markPackedStorage(ObjPackedStorage* storage) {
 
 void gc_freePackedStorage(ObjPackedStorage* storage) {
     gc_free(storage->values);
-    gc_free(storage);
 }
 
 bool is_uniformarray(Value value) {
