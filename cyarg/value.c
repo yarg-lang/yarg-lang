@@ -193,7 +193,7 @@ void appendToDynamicValueArray(DynamicValueArray* array, Value value) {
 }
 
 void freeDynamicValueArray(DynamicValueArray* array) {
-    FREE_ARRAY(Value, array->values, array->capacity);
+    vm_free(array->values);
     initDynamicValueArray(array);
 }
 

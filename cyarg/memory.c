@@ -44,17 +44,6 @@ void init_heap_instance(O1HeapInstance** instance) {
     }
 }
 
-// can only be called during gc, so the heap critical section is already held.
-void* gc_free(void* pointer, size_t oldSize, size_t newSize) {
-    if (newSize != 0) {
-        PRINTERR("help! bad free.\n");
-        exit(1);
-    }
-
-    o1heapFree(vm.heap_instance, pointer);
-    return NULL;
-}
-
 size_t vm_bytesAllocated() {
     O1HeapDiagnostics diagnostics = o1heapGetDiagnostics(vm.heap_instance);
     return diagnostics.allocated;
@@ -90,6 +79,20 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize) {
     vm_mutex_exit(&vm.heap);
     return result;
 }
+
+void vm_free(void* pointer) {
+    vm_mutex_enter_blocking(&vm.heap);
+    o1heapFree(vm.heap_instance, pointer);
+    vm_mutex_exit(&vm.heap);
+    return;
+}
+
+// can only be called during gc, so the heap critical section is already held.
+void gc_free(void* pointer) {
+    o1heapFree(vm.heap_instance, pointer);
+    return;
+}
+
 
 void tempRootPush(Value value) {
 
@@ -486,27 +489,25 @@ static void blackenObject(Obj* object) {
 }
 
 #define GC_FREE_ARRAY(type, pointer, oldCount) \
-    gc_free(pointer, sizeof(type) * oldCount, 0)
-
-#define GC_FREE(type, pointer) gc_free(pointer, sizeof(type), 0)
+    gc_free(pointer)
 
 static void gc_freeDynamicObjArray(DynamicObjArray* array) {
-    GC_FREE_ARRAY(Obj*, array->objects, array->objectCapacity);
+    gc_free(array->objects);
 }
 
 static void gc_freeDynamicValueArray(DynamicValueArray* array) {
-    GC_FREE_ARRAY(Value, array->values, array->capacity);
+    gc_free(array->values);
 }
 
 static void gc_freeTable(ValueTable* table) {
-    GC_FREE_ARRAY(Entry, table->entries, table->capacity);
+    gc_free(table->entries);
 }
 
 void gc_freeChunk(Chunk* chunk) {
     if (!chunk->xip) {
-        gc_free(chunk->code, sizeof(uint8_t) * chunk->capacity, 0);
+        gc_free(chunk->code);
     }
-    gc_free(chunk->lines, sizeof(ChunkSource) * chunk->lineCapacity, 0);
+    gc_free(chunk->lines);
     gc_freeDynamicValueArray(&chunk->constants);
 }
 
@@ -516,131 +517,131 @@ static void freeObject(Obj* object) {
 #endif
 
     switch (object->type) {
-        case OBJ_BOUND_METHOD: GC_FREE(ObjBoundMethod, object); break;
+        case OBJ_BOUND_METHOD: gc_free(object); break;
         case OBJ_CLASS: {
             ObjClass* klass = (ObjClass*)object;
             gc_freeTable(&klass->methods);
-            GC_FREE(ObjClass, object);
+            gc_free(object);
             break;
         }
         case OBJ_CLOSURE: {
             ObjClosure* closure = (ObjClosure*)object;
-            GC_FREE_ARRAY(ObjUpvalue*, closure->upvalues, closure->cUpvalueCount);
-            GC_FREE(ObjClosure, object);
+            gc_free(closure->upvalues);
+            gc_free(object);
             break;
         }
         case OBJ_FUNCTION: {
             ObjFunction* function = (ObjFunction*)object;
             gc_freeChunk(&function->chunk);
-            GC_FREE(ObjFunction, object);
+            gc_free(object);
             break;
         }
         case OBJ_INSTANCE: {
             ObjInstance* instance = (ObjInstance*)object;
             gc_freeTable(&instance->fields);
-            GC_FREE(ObjInstance, object);
+            gc_free(object);
             break;
         }
-        case OBJ_NATIVE: GC_FREE(ObjNative, object); break;
-        case OBJ_BUILTIN: GC_FREE(ObjBuiltin, object); break;
+        case OBJ_NATIVE: gc_free(object); break;
+        case OBJ_BUILTIN: gc_free(object); break;
         case OBJ_ROUTINE:
-            GC_FREE(ObjRoutine, object);
+            gc_free(object);
             break;
         case OBJ_STRING: {
             ObjString* string = (ObjString*)object;
-            GC_FREE_ARRAY(char, string->chars, string->length + 1);
-            GC_FREE(ObjString, object);
+            gc_free(string->chars);
+            gc_free(object);
             break;
         }
-        case OBJ_UPVALUE: GC_FREE(ObjUpvalue, object); break;
+        case OBJ_UPVALUE: gc_free(object); break;
         case OBJ_CHANNELCONTAINER: gc_freeChannelObject((ObjChannelContainer*)object); break;
         case OBJ_PACKEDSTORAGE: gc_freePackedStorage((ObjPackedStorage*)object); break;
-        case OBJ_UNOWNED_PACKEDCONTAINER: GC_FREE(ObjPackedContainer, object); break;
-        case OBJ_PACKEDCONTAINER: GC_FREE(ObjOwningPackedContainer, object); break;
+        case OBJ_UNOWNED_PACKEDCONTAINER: gc_free(object); break;
+        case OBJ_PACKEDCONTAINER: gc_free(object); break;
         case OBJ_MAP: {
             ObjMap* map = (ObjMap*)object;
             gc_freeTable(&map->entries);
-            GC_FREE(ObjMap, object);
+            gc_free(object);
             break;
         }
-        case OBJ_YARGTYPE: GC_FREE(ObjConcreteYargType, object); break;
-        case OBJ_YARGTYPE_ARRAY: GC_FREE(ObjConcreteYargTypeArray, object); break;
+        case OBJ_YARGTYPE: gc_free(object); break;
+        case OBJ_YARGTYPE_ARRAY: gc_free(object); break;
         case OBJ_YARGTYPE_STRUCT: {
             ObjConcreteYargTypeStruct* t = (ObjConcreteYargTypeStruct*)object;
             GC_FREE_ARRAY(ObjConcreteYargType*, t->field_types, t->field_count);
             GC_FREE_ARRAY(size_t, t->field_indexes, t->field_count);
             gc_freeTable(&t->field_names);
-            GC_FREE(ObjConcreteYargTypeStruct, object);
+            gc_free(object);
             break;
         }
-        case OBJ_YARGTYPE_MAP: GC_FREE(ObjConcreteYargTypeMap, object); break;
-        case OBJ_YARGTYPE_POINTER: GC_FREE(ObjConcreteYargTypePointer, object); break;
-        case OBJ_SYNCGROUP: freeSyncGroup(object); break;
-        case OBJ_STACKSLICE: GC_FREE(ObjStackSlice, object); break;
-        case OBJ_AST: GC_FREE(ObjAst, object); break;
-        case OBJ_PLACEALIAS: GC_FREE(ObjPlaceAlias, object); break;
+        case OBJ_YARGTYPE_MAP: gc_free(object); break;
+        case OBJ_YARGTYPE_POINTER: gc_free(object); break;
+        case OBJ_SYNCGROUP: gc_freeSyncGroup(object); break;
+        case OBJ_STACKSLICE: gc_free(object); break;
+        case OBJ_AST: gc_free(object); break;
+        case OBJ_PLACEALIAS: gc_free(object); break;
         case OBJ_STMT_RETURN: // fall through
         case OBJ_STMT_YIELD:
         case OBJ_STMT_PRINT:
-        case OBJ_STMT_EXPRESSION: GC_FREE(ObjStmtExpression, object); break;
-        case OBJ_STMT_POKE: GC_FREE(ObjStmtPoke, object); break;
-        case OBJ_STMT_VARDECLARATION: GC_FREE(ObjStmtVarDeclaration, object); break;
-        case OBJ_STMT_FIELDDECLARATION: GC_FREE(ObjStmtFieldDeclaration, object); break;
+        case OBJ_STMT_EXPRESSION: gc_free(object); break;
+        case OBJ_STMT_POKE: gc_free(object); break;
+        case OBJ_STMT_VARDECLARATION: gc_free(object); break;
+        case OBJ_STMT_FIELDDECLARATION: gc_free(object); break;
         case OBJ_STMT_PLACEDECLARATION: {
             ObjStmtPlaceDeclaration* stmt = (ObjStmtPlaceDeclaration*)object;
             gc_freeDynamicObjArray(&stmt->aliases);
-            GC_FREE(ObjStmtPlaceDeclaration, object);
+            gc_free(object);
             break;
         }
-        case OBJ_STMT_BLOCK: GC_FREE(ObjStmtBlock, object); break;
-        case OBJ_STMT_IF: GC_FREE(ObjStmtIf, object); break;
+        case OBJ_STMT_BLOCK: gc_free(object); break;
+        case OBJ_STMT_IF: gc_free(object); break;
         case OBJ_STMT_FUNDECLARATION: {
             ObjStmtFunDeclaration* fun = (ObjStmtFunDeclaration*)object;
             gc_freeDynamicObjArray(&fun->parameters);
-            GC_FREE(ObjStmtFunDeclaration, object); 
+            gc_free(object); 
             break;
         }
-        case OBJ_STMT_WHILE: GC_FREE(ObjStmtWhile, object); break;
-        case OBJ_STMT_FOR: GC_FREE(ObjStmtFor, object); break;
+        case OBJ_STMT_WHILE: gc_free(object); break;
+        case OBJ_STMT_FOR: gc_free(object); break;
         case OBJ_STMT_CLASSDECLARATION: {
             ObjStmtClassDeclaration* decl = (ObjStmtClassDeclaration*)object;
             gc_freeDynamicObjArray(&decl->methods);
-            GC_FREE(ObjStmtClassDeclaration, object);
+            gc_free(object);
             break;
         }
-        case OBJ_EXPR_NUMBER: GC_FREE(ObjExprNumber, object); break;
-        case OBJ_EXPR_ADDRESS: GC_FREE(ObjExprAddress, object); break;
-        case OBJ_EXPR_OPERATION: GC_FREE(ObjExprOperation, object); break;
-        case OBJ_EXPR_GROUPING: GC_FREE(ObjExprGrouping, object); break;
-        case OBJ_EXPR_NAMEDVARIABLE: GC_FREE(ObjExprNamedVariable, object); break;
-        case OBJ_EXPR_LITERAL: GC_FREE(ObjExprLiteral, object); break;
-        case OBJ_EXPR_STRING: GC_FREE(ObjExprString, object); break;
+        case OBJ_EXPR_NUMBER: gc_free(object); break;
+        case OBJ_EXPR_ADDRESS: gc_free(object); break;
+        case OBJ_EXPR_OPERATION: gc_free(object); break;
+        case OBJ_EXPR_GROUPING: gc_free(object); break;
+        case OBJ_EXPR_NAMEDVARIABLE: gc_free(object); break;
+        case OBJ_EXPR_LITERAL: gc_free(object); break;
+        case OBJ_EXPR_STRING: gc_free(object); break;
         case OBJ_EXPR_CALL: {
             ObjExprCall* call = (ObjExprCall*)object;
             gc_freeDynamicObjArray(&call->arguments);
-            GC_FREE(ObjExprCall, object); 
+            gc_free(object); 
             break;
         }
         case OBJ_EXPR_COLLECTION_INITIALIZER: {
             ObjExprCollectionInitializer* init = (ObjExprCollectionInitializer*)object;
             gc_freeDynamicObjArray(&init->initializers);
-            GC_FREE(ObjExprCollectionInitializer, object); 
+            gc_free(object); 
             break;
         }
-        case OBJ_EXPR_COLLECTION_ELEMENT: GC_FREE(ObjExprCollectionElement, object); break;
-        case OBJ_EXPR_PAIR: GC_FREE(ObjExprPair, object); break;
-        case OBJ_EXPR_BUILTIN: GC_FREE(ObjExprBuiltin, object); break;
-        case OBJ_EXPR_DOT: GC_FREE(ObjExprDot, object); break;
-        case OBJ_EXPR_SUPER: GC_FREE(ObjExprSuper, object); break;
-        case OBJ_EXPR_TYPE: GC_FREE(ObjExprTypeLiteral, object); break;
+        case OBJ_EXPR_COLLECTION_ELEMENT: gc_free(object); break;
+        case OBJ_EXPR_PAIR: gc_free(object); break;
+        case OBJ_EXPR_BUILTIN: gc_free(object); break;
+        case OBJ_EXPR_DOT: gc_free(object); break;
+        case OBJ_EXPR_SUPER: gc_free(object); break;
+        case OBJ_EXPR_TYPE: gc_free(object); break;
         case OBJ_EXPR_TYPE_STRUCT: {
             ObjExprTypeStruct* expr = (ObjExprTypeStruct*)object;
             gc_freeDynamicValueArray(&expr->fieldsByIndex);
-            GC_FREE(ObjExprTypeStruct, object);
+            gc_free(object);
             break;
         }
-        case OBJ_EXPR_TYPE_INDEXED_COLLECTION: GC_FREE(ObjExprTypeIndexedCollection, object); break;
-        case OBJ_INT: GC_FREE(ObjInt, object); break;
+        case OBJ_EXPR_TYPE_INDEXED_COLLECTION: gc_free(object); break;
+        case OBJ_INT: gc_free(object); break;
     }
 }
 

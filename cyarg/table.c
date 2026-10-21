@@ -22,7 +22,7 @@ void initTable(ValueTable* table) {
 }
 
 void freeTable(ValueTable* table) {
-    FREE_ARRAY(Entry, table->entries, table->capacity);
+    vm_free(table->entries);
     initTable(table);
 }
 
@@ -79,7 +79,7 @@ static void adjustCapacity(ValueTable* table, int capacity) {
         table->count++;
     }
 
-    FREE_ARRAY(Entry, table->entries, table->capacity);
+    vm_free(table->entries);
     table->entries = entries;
     table->capacity = capacity;
 
@@ -213,7 +213,7 @@ void initCellTable(ValueCellTable* table) {
 }
 
 void freeCellTable(ValueCellTable* table) {
-    FREE_ARRAY(EntryCell, table->entries, table->capacity);
+    vm_free(table->entries);
     initCellTable(table);
 }
 
@@ -279,7 +279,7 @@ static void adjustCellCapacity(ValueCellTable* table, int capacity) {
         table->count++;
     }
 
-    FREE_ARRAY(EntryCell, table->entries, table->capacity);
+    vm_free(table->entries);
     table->entries = entries;
     table->capacity = capacity;
 }

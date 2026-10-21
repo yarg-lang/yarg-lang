@@ -134,7 +134,7 @@ ObjString* takeString(char* chars, int length) {
     uint32_t hash = hashString(chars, length);
     ObjString* interned = tableFindString(&vm.strings, chars, length, hash);
     if (interned != NULL) {
-        FREE_ARRAY(char, chars, length + 1);
+        vm_free(chars);
         return interned;
     }
 
@@ -173,7 +173,7 @@ ObjString* copyStringWithEscapes(const char* chars, int length)
     ObjString* interned = tableFindString(&vm.strings, heapChars, lengthOut, hash);
     if (interned != NULL)
     {
-        FREE(char, heapChars);
+        vm_free(heapChars);
         return interned;
     }
 

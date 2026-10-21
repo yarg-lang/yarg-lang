@@ -41,7 +41,7 @@ void initDynamicObjArray(DynamicObjArray* array) {
 }
 
 void freeDynamicObjArray(DynamicObjArray* array) {
-    FREE_ARRAY(Obj*, array->objects, array->objectCapacity);
+    vm_free(array->objects);
     initDynamicObjArray(array);
 }
 

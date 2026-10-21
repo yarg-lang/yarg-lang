@@ -703,7 +703,7 @@ static ObjExpr* number(bool canAssign) {
             memcpy(heapChars, msb, number - msb);
             val = newExprNumberInt((int)(msb - number_start + number_len));
             int_set_s(heapChars, &val->bigInt);
-            FREE(char, heapChars);
+            vm_free(heapChars);
         } else if (state == NUMBER_DOT_AND_MSB || state == NUMBER_FRAC || state == NUMBER_EXPONENT) {
             char *end;
             val = newExprNumberDouble(strtod(number_start, &end));

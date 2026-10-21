@@ -104,7 +104,7 @@ ObjPackedStorage* newPackedStorage(const ObjConcreteYargType* type) {
         }
     }
 
-    FREE_ARRAY(FlattenedElements, elements, packed_elements);
+    vm_free(elements);
     tempRootPop();
     return storage;
 }
@@ -118,8 +118,8 @@ void markPackedStorage(ObjPackedStorage* storage) {
 }
 
 void gc_freePackedStorage(ObjPackedStorage* storage) {
-    gc_free((Value*)storage->values, storage->value_elements * sizeof(Value*), 0);
-    gc_free(storage, storage->storage_size, 0);
+    gc_free(storage->values);
+    gc_free(storage);
 }
 
 bool is_uniformarray(Value value) {

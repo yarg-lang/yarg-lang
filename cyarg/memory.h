@@ -20,8 +20,6 @@ void init_heap_instance(O1HeapInstance** instance);
 #define ALLOCATE(type, count) \
     (type*)reallocate(NULL, 0, sizeof(type) * (count))
 
-#define FREE(type, pointer) reallocate(pointer, sizeof(type), 0)
-
 #define GROW_CAPACITY(capacity) \
     ((capacity) < 8 ? 8 : (capacity) * 2)
 
@@ -29,13 +27,13 @@ void init_heap_instance(O1HeapInstance** instance);
     (type*)reallocate(pointer, sizeof(type) * (oldCount), \
         sizeof(type) * (newCount))
 
-#define FREE_ARRAY(type, pointer, oldCount) \
-    reallocate(pointer, sizeof(type) * oldCount, 0)
-
+// general purpose memory management functions
 void* reallocate(void* pointer, size_t oldSize, size_t newSize);
+void vm_free(void* pointer);
+
 
 // for use only when the garbage collector is freeing an object.
-void* gc_free(void* pointer, size_t oldSize, size_t newSize);
+void gc_free(void* pointer);
 
 void tempRootPush(Value value);
 void tempObjRootPush(Obj* object);

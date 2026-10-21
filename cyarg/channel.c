@@ -61,8 +61,8 @@ void gc_freeChannelObject(ObjChannelContainer* channel) {
     sem_close(channel->access);
 #endif
 
-    gc_free(channel->buffer, channel->bufferSize * sizeof(Value), 0);
-    gc_free(channel, sizeof(ObjChannelContainer), 0); 
+    gc_free(channel->buffer);
+    gc_free(channel); 
 }
 
 size_t readCursor(const ObjChannelContainer* channel) {
