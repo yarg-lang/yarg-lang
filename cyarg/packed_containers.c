@@ -117,8 +117,8 @@ void markPackedStorage(ObjPackedStorage* storage) {
     }
 }
 
-void freePackedStorage(ObjPackedStorage* storage) {
-    FREE_ARRAY(Value*, storage->values, storage->value_elements);
+void gc_freePackedStorage(ObjPackedStorage* storage) {
+    gc_free((Value*)storage->values, storage->value_elements * sizeof(Value*), 0);
     gc_free(storage, storage->storage_size, 0);
 }
 

@@ -55,14 +55,14 @@ ObjChannelContainer* newChannel(ObjRoutine* routine, size_t capacity) {
     return channel;
 }
 
-void freeChannelObject(ObjChannelContainer* channel) {
+void gc_freeChannelObject(ObjChannelContainer* channel) {
     vm_mutex_deinit(&channel->lock);
 #ifdef CYARG_PTHREADS_SYNC    
     sem_close(channel->access);
 #endif
 
-    FREE_ARRAY(Value, channel->buffer, channel->bufferSize);
-    FREE(ObjChannelContainer, channel); 
+    gc_free(channel->buffer, channel->bufferSize * sizeof(Value), 0);
+    gc_free(channel, sizeof(ObjChannelContainer), 0); 
 }
 
 size_t readCursor(const ObjChannelContainer* channel) {

@@ -79,7 +79,7 @@ bool isUint32Pointer(Value val);
 #define IS_STRUCT(value)       is_struct(value)
 
 void markPackedStorage(ObjPackedStorage* storage);
-void freePackedStorage(ObjPackedStorage* storage);
+void gc_freePackedStorage(ObjPackedStorage* storage);
 
 Value newPackedValueContainer(const ObjConcreteYargType* type);
 Value createPackedValueContainerAt(void* location, const ObjConcreteYargType* type);

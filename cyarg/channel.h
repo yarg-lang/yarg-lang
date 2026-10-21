@@ -10,7 +10,7 @@ typedef struct ObjRoutine ObjRoutine;
 
 ObjChannelContainer* newChannel(ObjRoutine* routine, size_t capacity);
 
-void freeChannelObject(ObjChannelContainer* channel);
+void gc_freeChannelObject(ObjChannelContainer* channel);
 void markChannel(ObjChannelContainer* channel);
 
 ObjString* channelToString(const ObjChannelContainer* channel);
