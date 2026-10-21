@@ -36,7 +36,6 @@ typedef struct {
     Value tempRoots[TEMP_ROOTS_MAX];
     Value* tempRootsTop;
 
-    size_t bytesAllocated;
     size_t nextGC;
     Obj* objects;
     int grayCount;

@@ -50,22 +50,28 @@ void* gc_free(void* pointer, size_t oldSize, size_t newSize) {
         PRINTERR("help! bad free.\n");
         exit(1);
     }
-    vm.bytesAllocated += newSize - oldSize;
 
     o1heapFree(vm.heap_instance, pointer);
     return NULL;
 }
 
+size_t vm_bytesAllocated() {
+    O1HeapDiagnostics diagnostics = o1heapGetDiagnostics(vm.heap_instance);
+    return diagnostics.allocated;
+}
+
 void* reallocate(void* pointer, size_t oldSize, size_t newSize) {
     vm_mutex_enter_blocking(&vm.heap);
 
-    vm.bytesAllocated += newSize - oldSize;
+    size_t before = vm_bytesAllocated();
+
+    before += newSize - oldSize;
     if (newSize > oldSize) {
 #ifdef DEBUG_STRESS_GC
         collectGarbage();
 #endif
 
-        if (vm.bytesAllocated > vm.nextGC) {
+        if (before > vm.nextGC) {
             collectGarbage();
         }
     }
@@ -672,11 +678,23 @@ static void sweep() {
     }
 }
 
+void fprintHeapDiagnostics(FILE* out) {
+    O1HeapDiagnostics diagnostics = o1heapGetDiagnostics(vm.heap_instance);
+    fprintf(out, "Heap Diagnostics:\n");
+    fprintf(out, "  Bytes Allocated: %zu\n", diagnostics.allocated);
+    fprintf(out, "  Capacity: %zu\n", diagnostics.capacity);
+    fprintf(out, "  Peak Allocation: %zu\n", diagnostics.peak_allocated);
+    fprintf(out, "  Peak Requested: %zu\n", diagnostics.peak_request_size);
+    fprintf(out, "  Failed Allocations: %llu\n", diagnostics.oom_count);
+}
+
 void collectGarbage() {
 
 #ifdef DEBUG_LOG_GC
-    PRINTERR("-- gc begin\n");
-    size_t before = vm.bytesAllocated;
+    FPRINTMSG(stderr, "-- gc begin\n");
+    fprintHeapDiagnostics(stderr);
+    O1HeapDiagnostics diagnostics = o1heapGetDiagnostics(vm.heap_instance);
+    size_t before = diagnostics.allocated;
 #endif
 
     if (!o1heapDoInvariantsHold(vm.heap_instance)) {
@@ -688,13 +706,15 @@ void collectGarbage() {
     tableRemoveWhite(&vm.strings);
     sweep();
 
-    size_t candidateGC = vm.bytesAllocated * GC_HEAP_GROW_FACTOR;
+    size_t after = vm_bytesAllocated();
+
+    size_t candidateGC = after * GC_HEAP_GROW_FACTOR;
     vm.nextGC = candidateGC > ALWAYS_GC_ABOVE ? ALWAYS_GC_ABOVE : candidateGC;
 
 #ifdef DEBUG_LOG_GC
-    PRINTERR("-- gc end\n");
-    PRINTERR("   collected %zu bytes (from %zu to %zu) next at %zu\n",
-             before - vm.bytesAllocated, before, vm.bytesAllocated,
+    FPRINTMSG(stderr, "-- gc end\n");
+    FPRINTMSG(stderr, "   collected %zu bytes (from %zu to %zu) next at %zu\n",
+             before - after, before, after,
              vm.nextGC);
 #endif
 
