@@ -47,6 +47,9 @@ func CreateExpectationTest(testfile, fsname string) (test *testSuite, total int)
 	}
 
 	test.fsname = fsname
+
+	log.Printf("test: %v", test)
+
 	return test, test.expectations
 }
 
