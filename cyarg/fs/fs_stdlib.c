@@ -4,6 +4,7 @@
 
 #include "fs.h"
 #include "../print.h"
+#include "../memory.h"
 
 char* readFile(const char* path) {
     FILE* file = fopen(path, "rb");
@@ -21,7 +22,7 @@ char* readFile(const char* path) {
     size_t fileSize = ftell(file);
     rewind(file);
 
-    char* buffer = (char*)malloc(fileSize + 1);
+    char* buffer = (char*)vm_allocate(fileSize + 1);
     if (buffer == NULL) {
         FPRINTMSG(stderr, "Not enough memory to read \"%s\".\n", path);
         exit(74);

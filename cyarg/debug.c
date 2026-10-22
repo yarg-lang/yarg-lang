@@ -47,15 +47,15 @@ void disassembleChunk(Chunk* chunk, const char* name) {
     for (int i = 0; i < chunk->constants.count; i++) {
         if (IS_FUNCTION(chunk->constants.values[i])) {
             ObjFunction *fun = AS_FUNCTION(chunk->constants.values[i]);
-            char *funNameC = realloc(0, fun->fName->length + 1);
+            char *funNameC = vm_allocate(fun->fName->length + 1);
             memcpy(funNameC, fun->fName->chars, fun->fName->length + 1);
             int line = fun->chunk.numLines > 0 ? fun->chunk.lines[0].line : 0;
             size_t l = snprintf(0, 0, "%s/%s(%d)", name, funNameC, line);
-            char *funName = realloc(0, l + 1);
+            char *funName = vm_allocate(l + 1);
             snprintf(funName, l + 1, "%s/%s(%d)", name, funNameC, line);
             disassembleChunk(&fun->chunk, funName);
-            free(funName);
-            free(funNameC);
+            vm_free(funName);
+            vm_free(funNameC);
         }
     }
 }

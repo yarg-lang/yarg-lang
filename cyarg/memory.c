@@ -527,7 +527,7 @@ void gc_freeChunk(Chunk* chunk) {
 
 static void freeObject(Obj* object) {
 #ifdef DEBUG_LOG_GC
-    PRINTERR("%p free type %d\n", (void*)object, object->type);
+    PRINTERR("%p freeObject type %d\n", (void*)object, object->type);
 #endif
 
     switch (object->type) {

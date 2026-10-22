@@ -59,14 +59,14 @@ exit:
     fclose(file);
 
     for (int i = 0; i < f.funsFile_.n_; i++) {
-        free(f.funsFile_.i_[i].chunk_.constTypesAndOffsets_.i_);
+        vm_free(f.funsFile_.i_[i].chunk_.constTypesAndOffsets_.i_);
     }
-    free(f.addressesFile_.i_);
-    free(f.funsFile_.i_);
-    free(f.intsFile_.i_);
-    free(f.doublesFile_.i_);
-    free(f.stringsFile_.i_);
-    free(f.linesFile_.i_);
+    vm_free(f.addressesFile_.i_);
+    vm_free(f.funsFile_.i_);
+    vm_free(f.intsFile_.i_);
+    vm_free(f.doublesFile_.i_);
+    vm_free(f.stringsFile_.i_);
+    vm_free(f.linesFile_.i_);
 
     if (r != EX_OK) {
         remove(path);
@@ -383,7 +383,7 @@ void fileSet(void *f, int n, size_t i) {
     LinesFile *file = (LinesFile *) f;
 
     file->extent_ = n;
-    file->i_ = realloc(file->i_, file->extent_ * i);
+    file->i_ = vm_reallocate(file->i_, file->extent_ * i);
 }
 
 void fileExtend(void *f, int n, size_t i) {

@@ -76,7 +76,7 @@ ObjFunction *loadPackageFromBuffer(ObjRoutine* context, uint8_t* buffer, size_t 
     }
 
     ObjFunction *currentFunction;
-    functions = realloc(0, h->numChunks_ * sizeof (ObjFunction *));
+    functions = vm_allocate(h->numChunks_ * sizeof (ObjFunction *));
 
     for (int i = 0; i < h->numChunks_; i++) {
         functions[i] = newFunction();
@@ -207,7 +207,7 @@ exit:
         for (int i = 0; i < h->numChunks_; i++) {
             pop(context);
         }
-        free(functions);
+        vm_free(functions);
     } else {
         currentFunction = 0;
     }

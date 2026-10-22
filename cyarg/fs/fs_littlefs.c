@@ -2,6 +2,7 @@
 #include "pico_lfs_hal.h"
 #include "pico_flash_fs.h"
 #include "../print.h"
+#include "../memory.h"
 
 static struct lfs_config cfg = {
     .read = pico_read_flash_block,
@@ -90,7 +91,7 @@ char* readFile(const char* path) {
     }
     int fileSize = info.size;
 
-    char* buffer = (char*)malloc(fileSize + 1);
+    char* buffer = (char*)vm_allocate(fileSize + 1);
     if (buffer == NULL) {
         FPRINTMSG(stderr, "Not enough memory to read \"%s\".\n", path);
         return NULL;
