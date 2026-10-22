@@ -4,8 +4,9 @@
 #include <stdbool.h>
 
 typedef struct ObjAst ObjAst;
+typedef struct ObjScanner ObjScanner;
 
-bool parse(ObjAst* ast);
+bool parse(ObjAst* ast, ObjScanner* scanner);
 void markParserRoots();
 
 

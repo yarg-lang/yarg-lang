@@ -6,7 +6,7 @@
 
 typedef struct ObjFunction ObjFunction;
 
-ObjFunction* compile(const char* source);
+ObjFunction* compile(ObjString* source);
 void markCompilerRoots();
 
 #endif

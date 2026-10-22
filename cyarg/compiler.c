@@ -1139,14 +1139,15 @@ static ObjFunction* endCompiler() {
     return function;
 }
 
-ObjFunction* compile(const char* source) {
+ObjFunction* compile(ObjString* source) {
     hadCompilerError = false;
 
-    initScanner(source);
+    ObjScanner* scanner = newScanner(source);
+    tempObjRootPush((Obj*)scanner);
     struct Compiler compiler;
     initCompiler(&compiler, TYPE_SCRIPT, NULL);
 
-    bool parseError = parse(current->ast);
+    bool parseError = parse(current->ast, scanner);
     if (!parseError) {
         generate(current->ast->statements);
     }
@@ -1154,6 +1155,8 @@ ObjFunction* compile(const char* source) {
     ObjFunction* function = endCompiler();
     
     bool compileError = parseError || hadCompilerError;
+
+    tempRootPop();
 
     return compileError ? NULL : function;
 }

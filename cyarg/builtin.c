@@ -140,7 +140,7 @@ bool compileBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         return false;
     }
 
-    const char* source = AS_CSTRING(peek(routineContext, 0));
+    ObjString* source = AS_STRING(peek(routineContext, 0));
     ObjFunction* function = compile(source);
     if (function == NULL) {
         *result = NIL_VAL;
@@ -167,7 +167,7 @@ bool loadBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         uint8_t* buffer = (uint8_t*)container->loc;
         function = loadPackageFromBuffer(routineContext, buffer, arrayType->cardinality);
     } else if (IS_STRING(arg)) {
-        const char* source = AS_CSTRING(arg);
+        ObjString* source = AS_STRING(arg);
         function = compile(source);
     } else {
         runtimeError(routineContext, "Argument to load must be a byte array or a string.");

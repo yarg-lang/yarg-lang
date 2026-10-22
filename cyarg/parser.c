@@ -35,28 +35,32 @@ typedef struct {
     bool hadError;
     bool panicMode;
     DynamicObjArray workingNodes;
+    ObjScanner* scanner;
     ObjExpr* prevExpr;
     ObjAst* ast;
 } Parser;
 
 Parser parser;
 
-void initParser(ObjAst* ast) {
+void initParser(ObjAst* ast, ObjScanner* scanner) {
     parser.hadError = false;
     parser.panicMode = false;
     parser.ast = ast;
     parser.prevExpr = NULL;
     initDynamicObjArray(&parser.workingNodes);
+    parser.scanner = scanner;
 }
 
 void endParser() {
     parser.ast = NULL;
+    parser.scanner = NULL;
     freeDynamicObjArray(&parser.workingNodes);
 }
 
 void markParserRoots() {
     markObject((Obj*)parser.ast);
     markObject((Obj*)parser.prevExpr);
+    markObject((Obj*)parser.scanner);
     markDynamicObjArray(&parser.workingNodes);
 }
 
@@ -115,7 +119,7 @@ static void advance() {
     parser.previous = parser.current;
 
     for (;;) {
-        parser.current = scanToken();
+        parser.current = scanToken(parser.scanner);
         if (parser.current.type != TOKEN_ERROR) break;
 
         errorAtCurrent(parser.current.start);
@@ -1210,8 +1214,8 @@ ObjStmt* declaration() {
     return stmt;
 }
 
-bool parse(ObjAst* ast_root) {
-    initParser(ast_root);
+bool parse(ObjAst* ast_root, ObjScanner* scanner) {
+    initParser(ast_root, scanner);
     advance();
 
     ObjStmt** cursor = &ast_root->statements;

@@ -20,6 +20,8 @@
 #include "builtin.h"
 #include "value_cell.h"
 #include "packed_containers.h"
+#include "scanner.h"
+
 
 #include "../external/o1heap/o1heap/o1heap.h"
 
@@ -502,6 +504,7 @@ static void blackenObject(Obj* object) {
             markObject((Obj*)pair->b);
             break;
         }
+        case OBJ_SCANNER: markScanner((ObjScanner*)object); break;
     }
 }
 
@@ -633,6 +636,7 @@ static void freeObject(Obj* object) {
         }
         case OBJ_EXPR_TYPE_INDEXED_COLLECTION: break;
         case OBJ_INT: break;
+        case OBJ_SCANNER: break;
     }
     gc_free(object);
 }
