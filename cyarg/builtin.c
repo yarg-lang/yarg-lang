@@ -140,13 +140,12 @@ bool compileBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         return false;
     }
 
-    ObjString* source = AS_STRING(peek(routineContext, 0));
-    ObjFunction* function = compile(source);
-    if (function == NULL) {
+    Value functionVal = compile(routineContext);
+    if (IS_NIL(functionVal)) {
         *result = NIL_VAL;
     } else {
-        push(routineContext, FUNCTION_VAL(function));
-        ObjClosure* closure = newClosure(function);
+        push(routineContext, functionVal);
+        ObjClosure* closure = newClosure(AS_FUNCTION(functionVal));
         pop(routineContext);
         *result = CLOSURE_VAL(closure);
     }
@@ -159,26 +158,26 @@ bool loadBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         return false;
     }
     Value arg = peek(routineContext, 0);
-    ObjFunction* function = NULL;
+    Value functionVal = NIL_VAL;
     
     if (isByteArray(arg)) {
         ObjPackedContainer* container = AS_PACKEDCONTAINER(arg);
         const ObjConcreteYargTypeArray* arrayType = (const ObjConcreteYargTypeArray*) arg.type;
         uint8_t* buffer = (uint8_t*)container->loc;
-        function = loadPackageFromBuffer(routineContext, buffer, arrayType->cardinality);
+        ObjFunction* function = loadPackageFromBuffer(routineContext, buffer, arrayType->cardinality);
+        functionVal = function ? FUNCTION_VAL(function) : NIL_VAL;
     } else if (IS_STRING(arg)) {
-        ObjString* source = AS_STRING(arg);
-        function = compile(source);
+        functionVal = compile(routineContext);
     } else {
         runtimeError(routineContext, "Argument to load must be a byte array or a string.");
         return false;
     }
 
-    if (function == NULL) {
+    if (IS_NIL(functionVal)) {
         *result = NIL_VAL;
     } else {
-        push(routineContext, FUNCTION_VAL(function));
-        ObjClosure* closure = newClosure(function);
+        push(routineContext, functionVal);
+        ObjClosure* closure = newClosure(AS_FUNCTION(functionVal));
         *result = CLOSURE_VAL(closure);
         pop(routineContext);
     }

@@ -13,6 +13,7 @@
 #include "object.h"
 #include "yargobject.h"
 #include "scanner.h"
+#include "routine.h"
 
 static void generateExpr(ObjExpr* expr);
 
@@ -36,9 +37,8 @@ typedef struct {
 
 typedef struct Compiler {
     struct Compiler* enclosing;
-    ObjParser* parser;
+    ObjRoutine* context;
     ObjFunction* function;
-    ObjAst* ast;
     FunctionType type;
     ObjStmt* recent;
     bool hadError;
@@ -59,11 +59,10 @@ bool hadCompilerError = false;
 static struct Compiler* current = NULL;
 static ClassCompiler* currentClass = NULL;
 
-static void initCompiler(Compiler* compiler, FunctionType type, ObjString* name) {
+static void initCompiler(Compiler* compiler, FunctionType type, ObjString* name, ObjRoutine* context) {
 
     compiler->enclosing = current;
-    compiler->parser = NULL;
-    compiler->ast = NULL;
+    compiler->context = context;
     compiler->function = NULL;
     compiler->type = type;
     compiler->recent = NULL;
@@ -76,8 +75,6 @@ static void initCompiler(Compiler* compiler, FunctionType type, ObjString* name)
     // set the current compiler before we start adding new objects to it.
     current = compiler;
 
-    compiler->parser = newParser();
-    compiler->ast = newObjAst();
     compiler->function = newFunction();
 
     if (type != TYPE_SCRIPT) {
@@ -877,7 +874,8 @@ static void generateStmtIf(ObjStmtIf* ctrl) {
 
 static void generateFunction(FunctionType type, ObjStmtFunDeclaration* decl) {
     Compiler compiler;
-    initCompiler(&compiler, type, decl->name);
+    assert(current->context != NULL);
+    initCompiler(&compiler, type, decl->name, current->context);
     beginScope();
 
     for (int i = 0; i < decl->parameters.objectCount; i++) {
@@ -1133,8 +1131,7 @@ static void generate(ObjStmt* stmt) {
 static ObjFunction* endCompiler() {
     emitReturn();
 
-    current->ast = NULL;
-    current->parser = NULL;
+    current->context = NULL;
     current->recent = NULL;
     hadCompilerError |= current->hadError;
     ObjFunction* function = current->function;
@@ -1144,34 +1141,44 @@ static ObjFunction* endCompiler() {
     return function;
 }
 
-ObjFunction* compile(ObjString* source) {
+Value compile(ObjRoutine* context) {
     hadCompilerError = false;
 
-    ObjScanner* scanner = newScanner(source);
-    tempObjRootPush((Obj*)scanner);
-    struct Compiler compiler;
-    initCompiler(&compiler, TYPE_SCRIPT, NULL);
+    Value source = peek(context, 0);
 
-    bool parseError = parse(current->parser, current->ast, scanner);
+    ObjScanner* scanner = newScanner(AS_STRING(source));
+    push(context, IMPL_OBJ_VAL((Obj*)scanner));
+
+    ObjAst* ast = newObjAst();
+    push(context, IMPL_OBJ_VAL((Obj*)ast));
+
+    ObjParser* parser = newParser(context, ast, scanner);
+    push(context, IMPL_OBJ_VAL((Obj*)parser));
+
+    struct Compiler compiler;
+    initCompiler(&compiler, TYPE_SCRIPT, NULL, context);
+
+    bool parseError = parse(parser);
     if (!parseError) {
-        generate(current->ast->statements);
+        generate(ast->statements);
     }
 
     ObjFunction* function = endCompiler();
     
     bool compileError = parseError || hadCompilerError;
 
-    tempRootPop();
+    pop(context);
+    pop(context);
+    pop(context);
 
-    return compileError ? NULL : function;
+    return compileError ? NIL_VAL : FUNCTION_VAL(function);
 }
 
 void markCompilerRoots() {
     Compiler* compiler = current;
     while (compiler != NULL) {
         markObject((Obj*)compiler->function);
-        markObject((Obj*)compiler->parser);
-        markObject((Obj*)compiler->ast);
+        markObject((Obj*)compiler->context);
         markObject((Obj*)compiler->recent);
 
         for (int i = 0; i < compiler->localCount; i++) {

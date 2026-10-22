@@ -13,6 +13,7 @@
 #include "yargobject.h"
 
 #include "scanner.h"
+#include "routine.h"
 
 typedef enum {
     PREC_NONE,
@@ -41,24 +42,17 @@ typedef struct ObjParser {
     ObjAst* ast;
 } ObjParser;
 
-ObjParser* newParser() {
+ObjParser* newParser(ObjRoutine* context, ObjAst* ast, ObjScanner* scanner) {
     ObjParser* parser = ALLOCATE_OBJ(ObjParser, OBJ_PARSER);
-    return parser;
-}
-
-void initParser(ObjParser* parser, ObjAst* ast, ObjScanner* scanner) {
+    push(context, IMPL_OBJ_VAL((Obj*)parser));
     parser->hadError = false;
     parser->panicMode = false;
     parser->ast = ast;
     parser->prevExpr = NULL;
     initDynamicObjArray(&parser->workingNodes);
     parser->scanner = scanner;
-}
-
-void endParser(ObjParser* parser) {
-    parser->ast = NULL;
-    parser->scanner = NULL;
-    freeDynamicObjArray(&parser->workingNodes);
+    pop(context);
+    return parser;
 }
 
 void gc_freeParser(ObjParser* parser) {
@@ -1222,11 +1216,10 @@ ObjStmt* declaration(ObjParser* parser) {
     return stmt;
 }
 
-bool parse(ObjParser* parser, ObjAst* ast_root, ObjScanner* scanner) {
-    initParser(parser, ast_root, scanner);
+bool parse(ObjParser* parser) {
     advance(parser);
 
-    ObjStmt** cursor = &ast_root->statements;
+    ObjStmt** cursor = &parser->ast->statements;
     while (!match(parser, TOKEN_EOF)) {
         *cursor = declaration(parser);
         if (*cursor) {
@@ -1234,6 +1227,5 @@ bool parse(ObjParser* parser, ObjAst* ast_root, ObjScanner* scanner) {
         }
     }
 
-    endParser(parser);
     return parser->hadError;
 }

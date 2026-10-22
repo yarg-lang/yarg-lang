@@ -3,14 +3,15 @@
 
 #include <stdbool.h>
 
+typedef struct ObjRoutine ObjRoutine;
 typedef struct ObjAst ObjAst;
 typedef struct ObjScanner ObjScanner;
 typedef struct ObjParser ObjParser;
 
-ObjParser* newParser();
+ObjParser* newParser(ObjRoutine* context, ObjAst* ast, ObjScanner* scanner);
 void markParser(ObjParser* parser);
 void gc_freeParser(ObjParser* parser);
 
-bool parse(ObjParser*, ObjAst* ast, ObjScanner* scanner);
+bool parse(ObjParser*);
 
 #endif

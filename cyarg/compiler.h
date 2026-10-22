@@ -1,12 +1,12 @@
 #ifndef cyarg_compiler_h
 #define cyarg_compiler_h
 
-#include "object.h"
-#include "vm.h"
+#include "value.h"
 
 typedef struct ObjFunction ObjFunction;
+typedef struct ObjRoutine ObjRoutine;
 
-ObjFunction* compile(ObjString* source);
+Value compile(ObjRoutine* context);
 void markCompilerRoots();
 
 #endif
