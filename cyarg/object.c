@@ -43,6 +43,10 @@ void freeDynamicObjArray(DynamicObjArray* array) {
     initDynamicObjArray(array);
 }
 
+void gc_freeDynamicObjArray(DynamicObjArray* array) {
+    gc_free(array->objects);
+}
+
 void appendToDynamicObjArray(DynamicObjArray* array, Obj* obj) {
     array->stash = obj;
     if (array->objectCapacity < array->objectCount + 1) {

@@ -21,6 +21,7 @@
 #include "value_cell.h"
 #include "packed_containers.h"
 #include "scanner.h"
+#include "parser.h"
 
 
 #include "../external/o1heap/o1heap/o1heap.h"
@@ -505,11 +506,8 @@ static void blackenObject(Obj* object) {
             break;
         }
         case OBJ_SCANNER: markScanner((ObjScanner*)object); break;
+        case OBJ_PARSER: markParser((ObjParser*)object); break;
     }
-}
-
-static void gc_freeDynamicObjArray(DynamicObjArray* array) {
-    gc_free(array->objects);
 }
 
 static void gc_freeDynamicValueArray(DynamicValueArray* array) {
@@ -637,6 +635,7 @@ static void freeObject(Obj* object) {
         case OBJ_EXPR_TYPE_INDEXED_COLLECTION: break;
         case OBJ_INT: break;
         case OBJ_SCANNER: break;
+        case OBJ_PARSER: gc_freeParser((ObjParser*)object); break;
     }
     gc_free(object);
 }

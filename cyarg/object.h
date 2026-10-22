@@ -68,6 +68,7 @@ typedef enum {
     OBJ_AST,
     OBJ_PLACEALIAS,
     OBJ_SCANNER,
+    OBJ_PARSER,
     OBJ_STMT_EXPRESSION,
     OBJ_STMT_PRINT,
     OBJ_STMT_POKE,
@@ -127,6 +128,7 @@ ObjString* objectToString(const Obj* value);
 
 void initDynamicObjArray(DynamicObjArray* array);
 void freeDynamicObjArray(DynamicObjArray* array);
+void gc_freeDynamicObjArray(DynamicObjArray* array);
 void appendToDynamicObjArray(DynamicObjArray* array, Obj* obj);
 Obj* removeLastFromDynamicObjArray(DynamicObjArray* array);
 

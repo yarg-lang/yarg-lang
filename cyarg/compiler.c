@@ -36,6 +36,7 @@ typedef struct {
 
 typedef struct Compiler {
     struct Compiler* enclosing;
+    ObjParser* parser;
     ObjFunction* function;
     ObjAst* ast;
     FunctionType type;
@@ -61,6 +62,7 @@ static ClassCompiler* currentClass = NULL;
 static void initCompiler(Compiler* compiler, FunctionType type, ObjString* name) {
 
     compiler->enclosing = current;
+    compiler->parser = NULL;
     compiler->ast = NULL;
     compiler->function = NULL;
     compiler->type = type;
@@ -71,9 +73,11 @@ static void initCompiler(Compiler* compiler, FunctionType type, ObjString* name)
     compiler->localCount = 0;
     compiler->scopeDepth = 0;
 
-    compiler->ast = newObjAst();
+    // set the current compiler before we start adding new objects to it.
     current = compiler;
 
+    compiler->parser = newParser();
+    compiler->ast = newObjAst();
     compiler->function = newFunction();
 
     if (type != TYPE_SCRIPT) {
@@ -1130,6 +1134,7 @@ static ObjFunction* endCompiler() {
     emitReturn();
 
     current->ast = NULL;
+    current->parser = NULL;
     current->recent = NULL;
     hadCompilerError |= current->hadError;
     ObjFunction* function = current->function;
@@ -1147,7 +1152,7 @@ ObjFunction* compile(ObjString* source) {
     struct Compiler compiler;
     initCompiler(&compiler, TYPE_SCRIPT, NULL);
 
-    bool parseError = parse(current->ast, scanner);
+    bool parseError = parse(current->parser, current->ast, scanner);
     if (!parseError) {
         generate(current->ast->statements);
     }
@@ -1165,9 +1170,9 @@ void markCompilerRoots() {
     Compiler* compiler = current;
     while (compiler != NULL) {
         markObject((Obj*)compiler->function);
+        markObject((Obj*)compiler->parser);
         markObject((Obj*)compiler->ast);
         markObject((Obj*)compiler->recent);
-        markParserRoots();
 
         for (int i = 0; i < compiler->localCount; i++) {
             markObject((Obj*)compiler->locals[i].name);
