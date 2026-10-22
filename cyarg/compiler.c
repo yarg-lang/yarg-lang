@@ -531,11 +531,11 @@ static void generateExprCollectionInit(ObjExprCollectionInitializer* collection)
             emitByte(OP_SET_ELEMENT);
         } else {
             ObjExpr* element = (ObjExpr*)newExprNumberFromCint(i);
-            tempObjRootPush((Obj*)element);
+            push(current->context, IMPL_OBJ_VAL((Obj*)element));
             generateExpr(element);
             generateExpr((ObjExpr*)item_or_pair);
             emitByte(OP_SET_ELEMENT);
-            tempRootPop();
+            pop(current->context);
         }
     }
 }
@@ -617,9 +617,9 @@ static void generateExprSuper(ObjExprSuper* super) {
     uint8_t name = identifierConstant(super->name);
 
     ObjString* this_ = copyString("this", 4);
-    tempRootPush(STRING_VAL(this_));
+    push(current->context, STRING_VAL(this_));
     ObjString* super_ = copyString("super", 5);
-    tempRootPush(STRING_VAL(super_));
+    push(current->context, STRING_VAL(super_));
 
     generateGetNamedVariable(this_);
     if (super->call) {
@@ -632,8 +632,8 @@ static void generateExprSuper(ObjExprSuper* super) {
         emitBytes(OP_GET_SUPER, name);
     }
 
-    tempRootPop();
-    tempRootPop();
+    pop(current->context);
+    pop(current->context);
 }
 
 static void generateExprType(ObjExprTypeLiteral* type) {
@@ -997,7 +997,7 @@ static void generateStmtMethodDeclaration(ObjStmtFunDeclaration* method) {
 
     FunctionType type = TYPE_METHOD;
     ObjString* init = copyString("init", 4);
-    tempRootPush(STRING_VAL(init));
+    push(current->context, STRING_VAL(init));
     if (identifiersEqual(method->name, init)) {
         type = TYPE_INITIALIZER;
     }
@@ -1005,7 +1005,7 @@ static void generateStmtMethodDeclaration(ObjStmtFunDeclaration* method) {
     generateFunction(type, method);
 
     emitBytes(OP_METHOD, constant);
-    tempRootPop(); // init
+    pop(current->context); // init
 }
 
 static void generateStmtClassDeclaration(ObjStmtClassDeclaration* decl) {
@@ -1025,14 +1025,14 @@ static void generateStmtClassDeclaration(ObjStmtClassDeclaration* decl) {
 
         beginScope();
         ObjString* super = copyString("super", 5);
-        tempRootPush(STRING_VAL(super));
+        push(current->context, STRING_VAL(super));
         addLocal(super);
         defineVariable(0);
 
         generateGetNamedVariable(decl->name);
         emitByte(OP_INHERIT);
         classCompiler.hasSuperclass = true;
-        tempRootPop(); // super
+        pop(current->context); // super
     }
 
     // Make the class name conveniently available on the stack for method definition.
@@ -1158,14 +1158,14 @@ Value compile(ObjRoutine* context) {
     struct Compiler compiler;
     initCompiler(&compiler, TYPE_SCRIPT, NULL, context);
 
-    bool parseError = parse(parser);
-    if (!parseError) {
+    Value parseError = parse(context);
+    if (!AS_BOOL(parseError)) {
         generate(ast->statements);
     }
 
     ObjFunction* function = endCompiler();
     
-    bool compileError = parseError || hadCompilerError;
+    bool compileError = AS_BOOL(parseError) || hadCompilerError;
 
     pop(context);
     pop(context);

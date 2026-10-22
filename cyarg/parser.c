@@ -36,7 +36,7 @@ typedef struct ObjParser {
     Token previous;
     bool hadError;
     bool panicMode;
-    DynamicObjArray workingNodes;
+    ObjRoutine* context;
     ObjScanner* scanner;
     ObjExpr* prevExpr;
     ObjAst* ast;
@@ -47,34 +47,27 @@ ObjParser* newParser(ObjRoutine* context, ObjAst* ast, ObjScanner* scanner) {
     push(context, IMPL_OBJ_VAL((Obj*)parser));
     parser->hadError = false;
     parser->panicMode = false;
+    parser->context = context;
     parser->ast = ast;
     parser->prevExpr = NULL;
-    initDynamicObjArray(&parser->workingNodes);
     parser->scanner = scanner;
     pop(context);
     return parser;
-}
-
-void gc_freeParser(ObjParser* parser) {
-    parser->ast = NULL;
-    parser->scanner = NULL;
-    gc_freeDynamicObjArray(&parser->workingNodes);
 }
 
 void markParser(ObjParser* parser) {
     markObject((Obj*)parser->ast);
     markObject((Obj*)parser->prevExpr);
     markObject((Obj*)parser->scanner);
-    markDynamicObjArray(&parser->workingNodes);
+    markObject((Obj*)parser->context);
 }
 
 void pushWorkingNode(ObjParser* parser, Obj* obj) {
-    appendToDynamicObjArray(&parser->workingNodes, obj);
-
+    push(parser->context, IMPL_OBJ_VAL(obj));
 }
 
 void popWorkingNode(ObjParser* parser) {
-    removeLastFromDynamicObjArray(&parser->workingNodes);
+    pop(parser->context);
 } 
 
 typedef ObjExpr* (*AstParseFn)(ObjParser* parser, bool canAssign);
@@ -1216,7 +1209,9 @@ ObjStmt* declaration(ObjParser* parser) {
     return stmt;
 }
 
-bool parse(ObjParser* parser) {
+Value parse(ObjRoutine* context) {
+
+    ObjParser* parser = (ObjParser*)AS_OBJ(peek(context, 0));
     advance(parser);
 
     ObjStmt** cursor = &parser->ast->statements;
@@ -1227,5 +1222,5 @@ bool parse(ObjParser* parser) {
         }
     }
 
-    return parser->hadError;
+    return parser->hadError ? BOOL_VAL(true) : BOOL_VAL(false);
 }
