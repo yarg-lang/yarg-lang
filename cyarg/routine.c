@@ -365,75 +365,95 @@ static void bufferEscape(const char* src, char* dest, size_t destSize) {
     dest[dest_cursor] = '\0';
 }
 
-static ObjString* stackTraceString(Value str) {
-    char* cellStr = AS_CSTRING(str);
-    char buffer[11];
-    bufferEscape(cellStr, buffer, sizeof(buffer));
-    char presentedBuffer[13];
-    snprintf(presentedBuffer, sizeof(presentedBuffer), "\"%s\"", buffer);
-    
-    return AS_STRING(cstring_val(presentedBuffer));
-}
+
+// configure the grid used for stack trace display
+
+// prefix + 5 cells
+#define LOG_WIDTH 141
+
+#define TYPEFIELD_WIDTH 7
+#define VALUEFIELD_WIDTH 14
+
+// maximum number of stack trace lines to display; 0 means no limit
+#define MAX_STACK_TRACE_LINES 2
 
 static void snprintValueDescription(char* buffer, size_t bufferSize, Value value) {
-    ObjString* valueStr;
     if (IS_STRING(value)) {
-        valueStr = stackTraceString(value);
+        ObjString* str = AS_STRING(value);
+        char escaped[VALUEFIELD_WIDTH + 1];
+        bufferEscape(str->chars, escaped, sizeof(escaped));
+        char display[VALUEFIELD_WIDTH + 2 + 1];
+        snprintf(display, sizeof(display), "\"%s\"", escaped);
+        size_t displayLength = strlen(display);
+
+        if (displayLength > bufferSize - 1) {
+            int width = bufferSize - 1 - 3; // account for null terminator, and "..." 
+            snprintf(buffer, bufferSize, "%*.*s...", width, width, display);
+        } else {
+            int width = bufferSize - 1; // account for quotes and null terminator
+            snprintf(buffer, bufferSize, "%*.*s", width, width, display);
+        }
     } else {
-        valueStr = valueToString(value);
-    }
+        ObjString* valueStr = valueToString(value);
     
-    if (valueStr->length > (bufferSize - 1)) {
-        snprintf(buffer, bufferSize, "%8.8s...", valueStr->chars);
-    } else {
-        snprintf(buffer, bufferSize, "%11.11s", valueStr->chars);
+        assert(bufferSize > 4);
+        int max_width = (int)(bufferSize - 1);
+
+        if (valueStr->length > max_width) {
+            int width = max_width - 3; // length of "..."
+            snprintf(buffer, bufferSize, "%*.*s...", width, width, valueStr->chars);
+        } else {
+            snprintf(buffer, bufferSize, "%*.*s", max_width, max_width, valueStr->chars);
+        }
     }
 }
 
 static void snprintTypeDescription(char* buffer, size_t bufferSize, const ObjConcreteYargType* type) {
     ObjString* typeStr = typeToString(type);
 
-    if (typeStr->length > (bufferSize - 1) && type) {
-        snprintf(buffer, bufferSize, "%7.7s...", typeStr->chars);
+    assert(bufferSize > 4);
+    int max_width = (int)(bufferSize - 1);
+    if (typeStr->length > max_width && type) {
+        int width = max_width - 3;
+        snprintf(buffer, bufferSize, "%*.*s...", width, width, typeStr->chars);
     } else if (type) {
-        snprintf(buffer, bufferSize, "%10.10s", typeStr->chars);
+        snprintf(buffer, bufferSize, "%*.*s", max_width, max_width, typeStr->chars);
     } else {
-        snprintf(buffer, bufferSize, "%10.10s", "any");
+        snprintf(buffer, bufferSize, "%*.*s", max_width, max_width, "any");
     }
 }
 
-
+#define PREFIX_WIDTH 21
+#define VALUECELL_WIDTH (TYPEFIELD_WIDTH + VALUEFIELD_WIDTH + 3)
+#define MAX_STACK_LINE_VALUECELLS ((LOG_WIDTH - PREFIX_WIDTH) / VALUECELL_WIDTH)
 static void traceValueStack(ObjRoutine* routine) {
-    // configure the grid used for stack trace display
-    const unsigned int max_stack_trace_lines = 2;
-    const unsigned int max_stack_line_width = 5;
 
-    assert(max_stack_trace_lines > 1);
     size_t stackSize = routine->stackTopIndex;
-    size_t stack_lines = (stackSize + max_stack_line_width - 1) / max_stack_line_width;
+    size_t stack_lines = (stackSize + MAX_STACK_LINE_VALUECELLS - 1) / MAX_STACK_LINE_VALUECELLS;
+    size_t max_lines = MAX_STACK_TRACE_LINES == 0 ? stack_lines : MAX_STACK_TRACE_LINES;
 
-    for (size_t line = stack_lines - 1, line_cursor = 0; line_cursor < stack_lines && line_cursor < max_stack_trace_lines; line--, line_cursor++) {
-        char prefix[21] = "                    ";
+    for (size_t line = stack_lines - 1, line_cursor = 0; line_cursor < stack_lines && line_cursor < max_lines; line--, line_cursor++) {
+        char prefix[PREFIX_WIDTH] = "                    ";
         if (line_cursor == 0) { // first line identifes the routine and the total stack size
             ObjString* routineStr = valueToString(ROUTINE_VAL(routine));
             snprintf(prefix, sizeof(prefix), "%s[%3zu]:", routineStr->chars, stackSize);
         }
         // if this the last line to trace, and there are more stack elements skipped, then indicate that with an ellipsis
-        if (line_cursor == max_stack_trace_lines - 1 && line_cursor != stack_lines - 1) {
-            snprintf(&prefix[17], 4, "...");
+        if (line_cursor == max_lines - 1 && line_cursor != stack_lines - 1) {
+            snprintf(&prefix[PREFIX_WIDTH - 4], 4, "...");
         }
         printf("%s", prefix);
 
-        for (size_t cursor = 0; cursor < max_stack_line_width; cursor++) {
-            size_t slot =  line * max_stack_line_width + cursor;
+        for (size_t cursor = 0; cursor < MAX_STACK_LINE_VALUECELLS; cursor++) {
+            size_t slot =  line * MAX_STACK_LINE_VALUECELLS + cursor;
             if (slot >= stackSize) break;
             ValueCell* cell = peekCell(routine, (int)(stackSize - 1 - slot));
 
-            char value_description[12];
-            snprintValueDescription(value_description, sizeof(value_description), cell->value);
+            char value_description[VALUEFIELD_WIDTH];
+            snprintValueDescription(value_description, VALUEFIELD_WIDTH, cell->value);
 
-            char type_description[11];
-            snprintTypeDescription(type_description, sizeof(type_description), cell->cellType);
+            char type_description[TYPEFIELD_WIDTH];
+            snprintTypeDescription(type_description, TYPEFIELD_WIDTH, cell->cellType);
 
             printf("[%s|%s]", value_description, type_description);
         }
