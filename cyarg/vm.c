@@ -1479,8 +1479,11 @@ InterpretResult run(ObjRoutine* routine) {
                 }
                 uintptr_t address = AS_ADDRESS(location);
                 const ObjConcreteYargType* pointerType = newYargPointerType(AS_YARGTYPE(type));
+                push(routine, YARGTYPE_VAL(pointerType));
 
                 Value result = createPackedValueContainerAt((void*)address, pointerType);
+
+                pop(routine);
 
                 pop(routine);
                 pop(routine);
