@@ -465,12 +465,11 @@ void traceExecution(ObjRoutine* routine) {
     CallFrame* frame = &routine->frames[routine->frameCount - 1];
 
     traceValueStack(routine);
-    ObjString* routineStr = valueToString(ROUTINE_VAL(routine));
-    tempRootPush(STRING_VAL(routineStr));
-    printf("%s %s:", routineStr->chars, frame->closure->function->fName ? frame->closure->function->fName->chars : "script");
+    char functionName[17];
+    snprintf(functionName, sizeof(functionName), "%s:", frame->closure->function->fName ? frame->closure->function->fName->chars : "script");
+    printf("    %-16s", functionName);
     disassembleInstruction(&frame->closure->function->chunk, 
         (int)(frame->ip - frame->closure->function->chunk.code));
-    tempRootPop();
 }
 
 ObjString* routineToString(const ObjRoutine* routine) {
