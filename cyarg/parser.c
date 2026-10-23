@@ -14,6 +14,7 @@
 
 #include "scanner.h"
 #include "routine.h"
+#include "packed_containers.h"
 
 typedef enum {
     PREC_NONE,
@@ -34,7 +35,6 @@ typedef struct ObjParser {
     Obj obj;
     Token current;
     Token previous;
-    bool hadError;
     bool panicMode;
     ObjRoutine* context;
     ObjScanner* scanner;
@@ -46,7 +46,6 @@ typedef struct ObjParser {
 ObjParser* newParser(ObjRoutine* context, ObjAst* ast, ObjScanner* scanner) {
     ObjParser* parser = ALLOCATE_OBJ(ObjParser, OBJ_PARSER);
     push(context, IMPL_OBJ_VAL((Obj*)parser));
-    parser->hadError = false;
     parser->panicMode = false;
     parser->context = context;
     parser->ast = ast;
@@ -90,21 +89,69 @@ static ObjExpr* parsePrecedence(ObjParser* parser, Precedence precedence);
 static ObjExpr* expression(ObjParser* parser);
 static ObjExpr* typeExpression(ObjParser* parser);
 
-void errorAt(ObjParser* parser, Token* token, const char* message) {
+ObjString* concatenate_c_string(ObjString* a, const char* b, size_t len) {
+    ObjString* cstr = copyString(b, len);
+    tempRootPush(STRING_VAL(cstr));
+    ObjString* newstr = concatenateStrings(a, cstr);
+    tempRootPop();
+    return newstr;
+}
+
+void errorAt(ObjParser* parser, Token* token, const char* report) {
     if (parser->panicMode) return;
     parser->panicMode = true;
-    FPRINTMSG(stderr, "[line %d] Error", token->line);
+
+    uint32_t displayed_line = (uint32_t) token->line;
+    ObjString* display_line_str = valueToString(UI32_VAL(displayed_line));
+    tempRootPush(STRING_VAL(display_line_str));
+
+    ObjString* message = copyString("[line ", 6);
+    tempRootPush(STRING_VAL(message));
+
+    message = concatenateStrings(message, display_line_str);
+    tempRootPop();
+    tempRootPop();
+    tempRootPush(STRING_VAL(message));
+
+    message = concatenate_c_string(message, "] Error", 7);
+    tempRootPop();
+    tempRootPush(STRING_VAL(message));
 
     if (token->type == TOKEN_EOF) {
-        FPRINTMSG(stderr, " at end");
+        message = concatenate_c_string(message, " at end", 7);
+        tempRootPop();
+        tempRootPush(STRING_VAL(message));
     } else if (token->type == TOKEN_ERROR) {
         // Nothing.
     } else {
-        FPRINTMSG(stderr, " at '%.*s'", token->length, token->start);
+        message = concatenate_c_string(message, " at '", 5);
+        tempRootPop();
+        tempRootPush(STRING_VAL(message));
+
+        ObjString* tokenStr = copyString(token->start, token->length);
+        tempRootPush(STRING_VAL(tokenStr));
+
+        message = concatenateStrings(message, tokenStr);
+        tempRootPop();
+        tempRootPop();
+        tempRootPush(STRING_VAL(message));
+
+        message = concatenate_c_string(message, "'", 1);
+        tempRootPop();
+        tempRootPush(STRING_VAL(message));
     }
 
-    FPRINTMSG(stderr, ": %s\n", message);
-    parser->hadError = true;
+    message = concatenate_c_string(message, ": ", 2);
+    tempRootPop();
+    tempRootPush(STRING_VAL(message));
+
+    message = concatenate_c_string(message, report, strlen(report));
+    tempRootPop();
+    tempRootPush(STRING_VAL(message));
+
+    appendToDynamicObjArray(&parser->errors, (Obj*)message);
+
+    tempRootPop();
 }
 
 void error(ObjParser* parser, const char* message) {
@@ -1229,5 +1276,20 @@ Value parse(ObjRoutine* context) {
         }
     }
 
-    return parser->hadError ? BOOL_VAL(true) : BOOL_VAL(false);
+    if (parser->errors.objectCount > 0) {
+        return BOOL_VAL(true);
+    } else {
+        return BOOL_VAL(false);
+    }
+}
+
+Value parse_errors(ObjParser* parser) {
+    size_t error_count = parser->errors.objectCount;
+    Value errorVal = allocValueArray(error_count);
+    tempRootPush(errorVal);
+    for (size_t cursor = 0; cursor < error_count; cursor++) {
+        setArrayElement(errorVal, cursor, STRING_VAL(parser->errors.objects[cursor]));
+    }
+    tempRootPop();
+    return errorVal;
 }

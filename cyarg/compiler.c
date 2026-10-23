@@ -14,6 +14,8 @@
 #include "yargobject.h"
 #include "scanner.h"
 #include "routine.h"
+#include "packed_containers.h"
+#include "yargstructtype.h"
 
 static void generateExpr(ObjExpr* expr);
 
@@ -1161,17 +1163,48 @@ Value compile(ObjRoutine* context) {
     Value parseError = parse(context);
     if (!AS_BOOL(parseError)) {
         generate(ast->statements);
+    } else {
+        Value errors = parse_errors(parser);
+        tempRootPush(errors);
+        size_t error_count = ((ObjConcreteYargTypeArray*) errors.type)->cardinality;
+        for (size_t cursor = 0; cursor < error_count; cursor++) {
+            Value errStr = arrayElement(errors, cursor);
+            FPRINTMSG(stderr, "%s\n", AS_STRING(errStr)->chars);
+        }
+        tempRootPop();
     }
 
     ObjFunction* function = endCompiler();
+    push(context, FUNCTION_VAL(function));
     
     bool compileError = AS_BOOL(parseError) || hadCompilerError;
 
+    ObjConcreteYargTypeStruct* result_struct_type = (ObjConcreteYargTypeStruct*) newYargStructType(2);
+    push(context, IMPL_OBJ_VAL((Obj*)result_struct_type));
+    ObjString* compileErrorFieldName = copyString("compileError", 12);
+    push(context, STRING_VAL(compileErrorFieldName));
+    ObjString* resultFieldName = copyString("result", 6);
+    push(context, STRING_VAL(resultFieldName));
+
+    size_t offset_cursor = 0;
+    offset_cursor += addFieldType(result_struct_type, 0, offset_cursor, NULL, compileErrorFieldName);
+    offset_cursor += addFieldType(result_struct_type, 1, offset_cursor, NULL, resultFieldName);
+
+    Value result_container = newPackedValueContainer((ObjConcreteYargType*) result_struct_type);
+    push(context, result_container);
+    setStructField(result_container, 0, BOOL_VAL(compileError));
+    setStructField(result_container, 1, compileError ? NIL_VAL : FUNCTION_VAL(function));
+
+    pop(context);
+    pop(context);
+    pop(context);
+    pop(context);
+    pop(context);
     pop(context);
     pop(context);
     pop(context);
 
-    return compileError ? NIL_VAL : FUNCTION_VAL(function);
+    return result_container;
 }
 
 void markCompilerRoots() {

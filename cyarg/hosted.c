@@ -12,6 +12,7 @@
 #include "pack.h"
 #include "vm.h"
 #include "vmobject.h"
+#include "packed_containers.h"
 
 Host vmHost;
 
@@ -53,14 +54,17 @@ int compileFile(const char* path, const char* outputPath) {
     InterpretResult result = compileScript(pathString, &compilerResult);
     tempRootPush(compilerResult);
 
+    Value compileError = structField(compilerResult, 0);
+    Value compilerResultClosure = structField(compilerResult, 1);
+
     int exitCode = EX_OK;
     if (result == INTERPRET_RUNTIME_ERROR) {
         exitCode = EX_SOFTWARE;
-    } else if (result == INTERPRET_OK && IS_NIL(compilerResult)) {
+    } else if (result == INTERPRET_OK && valuesEqual(compileError, BOOL_VAL(true))) {
         exitCode = EX_DATAERR;
     } else {
-        if (outputPath && IS_CLOSURE(compilerResult)) {
-            exitCode = packScript(path, AS_CLOSURE(compilerResult)->function, true, outputPath);
+        if (outputPath && IS_CLOSURE(compilerResultClosure)) {
+            exitCode = packScript(path, AS_CLOSURE(compilerResultClosure)->function, true, outputPath);
         }
     }
 
@@ -78,6 +82,9 @@ int disassembleFile(const char* path) {
     InterpretResult result = compileScript(pathString, &compilerResult);
     tempRootPush(compilerResult);
 
+    Value compileError = structField(compilerResult, 0);
+    Value compilerResultClosure = structField(compilerResult, 1);
+
     char const *file = strrchr(path, '/');
     if (file == 0) {
         file = path;
@@ -89,11 +96,11 @@ int disassembleFile(const char* path) {
 
     if (result == INTERPRET_RUNTIME_ERROR) {
         returnCode = EX_SOFTWARE;
-    } else if (result == INTERPRET_OK && IS_NIL(compilerResult)) {
+    } else if (result == INTERPRET_OK && valuesEqual(compileError, BOOL_VAL(true))) {
         returnCode = EX_DATAERR;
     } else {
         returnCode = EX_OK;
-        ObjFunction* function = AS_CLOSURE(compilerResult)->function;
+        ObjFunction* function = AS_CLOSURE(compilerResultClosure)->function;
 
         disassembleChunk(&function->chunk, file);
     }

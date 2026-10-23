@@ -140,15 +140,16 @@ bool compileBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         return false;
     }
 
-    Value functionVal = compile(routineContext);
-    if (IS_NIL(functionVal)) {
-        *result = NIL_VAL;
-    } else {
-        push(routineContext, functionVal);
-        ObjClosure* closure = newClosure(AS_FUNCTION(functionVal));
-        pop(routineContext);
-        *result = CLOSURE_VAL(closure);
+    Value compileResult = compile(routineContext);
+    Value compileError = structField(compileResult, 0);
+    Value compileFunction = structField(compileResult, 1);
+
+    if (valuesEqual(compileError, BOOL_VAL(false))) {
+        ObjClosure* closure = newClosure(AS_FUNCTION(compileFunction));
+        setStructField(compileResult, 1, CLOSURE_VAL(closure));
     }
+
+    *result = compileResult;
     return true;
 }
 
@@ -167,7 +168,15 @@ bool loadBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         ObjFunction* function = loadPackageFromBuffer(routineContext, buffer, arrayType->cardinality);
         functionVal = function ? FUNCTION_VAL(function) : NIL_VAL;
     } else if (IS_STRING(arg)) {
-        functionVal = compile(routineContext);
+        Value compileResult = compile(routineContext);
+        Value compileError = structField(compileResult, 0);
+        Value compileFunction = structField(compileResult, 1);
+
+        if (valuesEqual(compileError, BOOL_VAL(true))) {
+            functionVal = NIL_VAL;
+        } else {
+            functionVal = compileFunction;
+        }
     } else {
         runtimeError(routineContext, "Argument to load must be a byte array or a string.");
         return false;
