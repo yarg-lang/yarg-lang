@@ -404,29 +404,28 @@ static void snprintTypeDescription(char* buffer, size_t bufferSize, const ObjCon
 
 
 static void traceValueStack(ObjRoutine* routine) {
-    const unsigned int max_stack_trace_lines = 3;
+    // configure the grid used for stack trace display
+    const unsigned int max_stack_trace_lines = 2;
     const unsigned int max_stack_line_width = 5;
+
     assert(max_stack_trace_lines > 1);
-
     size_t stackSize = routine->stackTopIndex;
-    size_t stack_lines = (stackSize / max_stack_line_width);
-    if (stackSize % max_stack_line_width != 0) {
-        stack_lines++;
-    }
+    size_t stack_lines = (stackSize + max_stack_line_width - 1) / max_stack_line_width;
 
-    for (size_t line = stack_lines, line_cursor = 0; line >= 0 && line_cursor < stack_lines; line--, line_cursor++) {
+    for (size_t line = stack_lines - 1, line_cursor = 0; line_cursor < stack_lines && line_cursor < max_stack_trace_lines; line--, line_cursor++) {
         char prefix[21] = "                    ";
         if (line_cursor == 0) { // first line identifes the routine and the total stack size
             ObjString* routineStr = valueToString(ROUTINE_VAL(routine));
             snprintf(prefix, sizeof(prefix), "%s[%3zu]:", routineStr->chars, stackSize);
         }
         // if this the last line to trace, and there are more stack elements skipped, then indicate that with an ellipsis
-        if (line_cursor == max_stack_trace_lines - 1 && line_cursor > 0 && line_cursor != stack_lines - 1) {
+        if (line_cursor == max_stack_trace_lines - 1 && line_cursor != stack_lines - 1) {
             snprintf(&prefix[17], 4, "...");
         }
         printf("%s", prefix);
+
         for (size_t cursor = 0; cursor < max_stack_line_width; cursor++) {
-            size_t slot = (line - 1) * max_stack_line_width + cursor;
+            size_t slot =  line * max_stack_line_width + cursor;
             if (slot >= stackSize) break;
             ValueCell* cell = peekCell(routine, (int)(stackSize - 1 - slot));
 
@@ -439,9 +438,6 @@ static void traceValueStack(ObjRoutine* routine) {
             printf("[%s|%s]", value_description, type_description);
         }
         printf("\n");
-        if (line_cursor == max_stack_trace_lines - 1 && line > 0) {
-            break;
-        }
     }
 }
 
