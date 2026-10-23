@@ -11,6 +11,7 @@ typedef struct ObjParser ObjParser;
 
 ObjParser* newParser(ObjRoutine* context, ObjAst* ast, ObjScanner* scanner);
 void markParser(ObjParser* parser);
+void gc_freeParser(ObjParser*);
 
 Value parse(ObjRoutine* context);
 

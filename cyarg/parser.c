@@ -40,6 +40,7 @@ typedef struct ObjParser {
     ObjScanner* scanner;
     ObjExpr* prevExpr;
     ObjAst* ast;
+    DynamicObjArray errors;
 } ObjParser;
 
 ObjParser* newParser(ObjRoutine* context, ObjAst* ast, ObjScanner* scanner) {
@@ -51,6 +52,7 @@ ObjParser* newParser(ObjRoutine* context, ObjAst* ast, ObjScanner* scanner) {
     parser->ast = ast;
     parser->prevExpr = NULL;
     parser->scanner = scanner;
+    initDynamicObjArray(&parser->errors);
     pop(context);
     return parser;
 }
@@ -60,6 +62,11 @@ void markParser(ObjParser* parser) {
     markObject((Obj*)parser->prevExpr);
     markObject((Obj*)parser->scanner);
     markObject((Obj*)parser->context);
+    markDynamicObjArray(&parser->errors);
+}
+
+void gc_freeParser(ObjParser* parser) {
+    gc_freeDynamicObjArray(&parser->errors);
 }
 
 void pushWorkingNode(ObjParser* parser, Obj* obj) {

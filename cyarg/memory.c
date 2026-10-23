@@ -635,7 +635,7 @@ static void freeObject(Obj* object) {
         case OBJ_EXPR_TYPE_INDEXED_COLLECTION: break;
         case OBJ_INT: break;
         case OBJ_SCANNER: break;
-        case OBJ_PARSER: break;
+        case OBJ_PARSER: gc_freeParser((ObjParser*)object); break;
     }
     gc_free(object);
 }
