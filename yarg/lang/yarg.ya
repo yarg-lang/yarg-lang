@@ -8,15 +8,6 @@ fun exec(source) {
     }
 }
 
-fun load_file(path) {
-
-    var file_size = c_fileSize(path);
-    var buffer = new(uint8[file_size]);
-    var address = pin(buffer);
-    c_readFileIntoBuffer(path, address, file_size);
-    return load(buffer);
-}
-
 var yarg_imports = new(any[string]);
 
 fun yarg_library_filename(library, extension) {
