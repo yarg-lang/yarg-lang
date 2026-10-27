@@ -1186,9 +1186,8 @@ Value compile(ObjRoutine* context) {
     ObjString* resultFieldName = copyString("result", 6);
     push(context, STRING_VAL(resultFieldName));
 
-    size_t offset_cursor = 0;
-    offset_cursor += addFieldType(result_struct_type, 0, offset_cursor, NULL, compileErrorFieldName);
-    offset_cursor += addFieldType(result_struct_type, 1, offset_cursor, NULL, resultFieldName);
+    appendFieldType(result_struct_type, NULL, compileErrorFieldName);
+    appendFieldType(result_struct_type, NULL, resultFieldName);
 
     Value result_container = newPackedValueContainer((ObjConcreteYargType*) result_struct_type);
     push(context, result_container);

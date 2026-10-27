@@ -7,8 +7,8 @@ x.f = 4.4;
 
 print x;
 
-struct { int8 i8; int16 i16; int32 i32; mfloat64 f; int8 i8; any a; } y;
-y.i8 = int8(1);
+struct { int8 i8; int16 i16; int32 i32; mfloat64 f; int8 i81; any a; } y;
+y.i81 = int8(1);
 y.i16 = int16(2);
 y.i32 = int32(3);
 y.f = 4.4;
@@ -17,19 +17,19 @@ print y;
 
  class c { x() {return 7;}}
  print c().x();
-struct { int8 i8; int16 i16; int32 i32; mfloat64 f; int8 i8; any a; } y;
-y.a = c();
- print y;
-print y.a.x();
-struct { int8 i8; int16 i16; int32 i32; mfloat64 f; int8 i8; any a; } y2;
- y.a=y2;
-print y;
-y.a=[1,2,4];
-print y;
+struct { int8 i8; int16 i16; int32 i32; mfloat64 f; int8 i81; any a; } y1;
+y1.a = c();
+ print y1;
+print y1.a.x();
+struct { int8 i8; int16 i16; int32 i32; mfloat64 f; int8 i81; any a; } y2;
+ y1.a=y2;
+print y1;
+y1.a=[1,2,4];
+print y1;
 
 fun f() {return 11;}
-y.a[0] = f;
-print y;
+y1.a[0] = f;
+print y1;
 
 // expect: struct{|4:15|4.40000; 3; 2; 1; }
 // expect: struct{|6:48|0; 2; 3; 4.40000; 1; nil; }

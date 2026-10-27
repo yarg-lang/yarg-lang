@@ -1,0 +1,1 @@
+var struct { i; i; } s; // expect runtime error: Field already exists in struct.

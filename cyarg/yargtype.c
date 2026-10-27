@@ -140,27 +140,35 @@ ObjConcreteYargType* newYargPointerType(const ObjConcreteYargType* targetType) {
     return (ObjConcreteYargType*)p;
 }
 
-size_t addFieldType(ObjConcreteYargTypeStruct* st, size_t index, size_t fieldOffset, ObjConcreteYargType* type, ObjString* name) {
+void appendFieldType(ObjConcreteYargTypeStruct* st, ObjConcreteYargType* type, ObjString* name) {
+    size_t index = st->field_names.count;
+
+    assert(st->field_types[index] == NULL);
+
     st->field_types[index] = type;
     tableSet(&st->field_names, name, SIZE_T_UI_VAL(index));
-    size_t alignmentPadding = 0;
-    size_t alignment = yt_alignmentfor_type_storage(type);
-    alignmentPadding = (alignment - (fieldOffset % alignment)) % alignment;
+
+    size_t fieldAlignment = yt_alignmentfor_type_storage(type);
+    size_t fieldOffset = st->storage_size;
+    size_t alignmentPadding = (fieldAlignment - (fieldOffset % fieldAlignment)) % fieldAlignment;
+    
     st->field_indexes[index] = fieldOffset + alignmentPadding;
-    if (alignment > st->alignment) {
-        st->alignment = alignment;
-    }
     st->storage_size = fieldOffset + alignmentPadding + yt_sizeof_type_storage(type);
-    return st->storage_size;
+
+    if (fieldAlignment > st->alignment) {
+        st->alignment = fieldAlignment;
+    }
 }
 
-size_t addFieldTypeAtOffset(ObjConcreteYargTypeStruct* st, size_t index, ObjConcreteYargType* type, size_t offset, ObjString* name) {
+void appendFieldTypeAtOffset(ObjConcreteYargTypeStruct* st, ObjConcreteYargType* type, size_t offset, ObjString* name) {
+    size_t index = st->field_names.count;
+
+    assert(st->field_types[index] == NULL);
+
     st->field_types[index] = type;
     tableSet(&st->field_names, name, SIZE_T_UI_VAL(index));
-    uint32_t alignmentPadding = 0;
     st->field_indexes[index] = offset;
-    st->storage_size = offset + alignmentPadding + yt_sizeof_type_storage(type);
-    return st->storage_size;
+    st->storage_size = offset + yt_sizeof_type_storage(type);
 }
 
 size_t structFieldOffset(const ObjConcreteYargTypeStruct* type, size_t fieldIndex) {

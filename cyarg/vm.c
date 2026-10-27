@@ -1377,7 +1377,6 @@ InterpretResult run(ObjRoutine* routine) {
                 uint8_t fieldCount = READ_BYTE();
                 ObjConcreteYargTypeStruct* st = (ObjConcreteYargTypeStruct*) newYargStructType(fieldCount);
                 tempObjRootPush((Obj*)st);
-                size_t fieldOffset = 0;
                 for (uint8_t i = 0; i < fieldCount; i++) {
                     // field type can be nil (any) or a concrete Yarg type
                     Value fieldTypeVal = peek(routine, 2);
@@ -1387,14 +1386,20 @@ InterpretResult run(ObjRoutine* routine) {
                     }
 
                     ObjString* fieldName = AS_STRING(peek(routine, 0));
+                    size_t existing_index = 0;
+                    bool fieldExists = structFieldIndex(st, fieldName, &existing_index);
+                    if (fieldExists) {
+                        runtimeError(routine, "Field already exists in struct.");
+                        return INTERPRET_RUNTIME_ERROR;
+                    }
 
                     // offset value can be nil (auto) or a positive integer
                     Value offsetValue = peek(routine, 1);
                     if (IS_NIL(offsetValue)) {
-                        fieldOffset = addFieldType(st, i, fieldOffset, fieldType, fieldName);
+                        appendFieldType(st, fieldType, fieldName);
                     } else if (is_positive_integer(offsetValue)) {
                         size_t offset = as_positive_integer(offsetValue);
-                        fieldOffset = addFieldTypeAtOffset(st, i, fieldType, offset, fieldName);
+                        appendFieldTypeAtOffset(st, fieldType, offset, fieldName);
                     }
                     pop(routine);
                     pop(routine);
