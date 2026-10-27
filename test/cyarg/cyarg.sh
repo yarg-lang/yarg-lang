@@ -3,6 +3,7 @@ INTERPRETER="./bin/cyarg"
 CYARG_ERROR=0
 
 $INTERPRETER --help || CYARG_ERROR=$?
+$INTERPRETER --bootstrap test/cyarg/simple.ya || CYARG_ERROR=$?
 $INTERPRETER --lib yarg/specimen test/cyarg/simple.ya || CYARG_ERROR=$?
 $INTERPRETER --lib yarg/specimen test/cyarg/hosted.ya -- test || CYARG_ERROR=$?
 $INTERPRETER --lib yarg/specimen test/cyarg/hosted.ya || CYARG_ERROR=$?
