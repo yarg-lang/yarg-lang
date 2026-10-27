@@ -1160,50 +1160,37 @@ Value compile(ObjRoutine* context) {
     struct Compiler compiler;
     initCompiler(&compiler, TYPE_SCRIPT, NULL, context);
 
-    Value parseError = parse(context);
-    if (!AS_BOOL(parseError)) {
+    Value parseErrors = parse(context);
+    push(context, parseErrors);
+    if (IS_NIL(parseErrors)) {
         generate(ast->statements);
-    } else {
-        Value errors = parse_errors(parser);
-        tempRootPush(errors);
-        size_t error_count = ((ObjConcreteYargTypeArray*) errors.type)->cardinality;
-        for (size_t cursor = 0; cursor < error_count; cursor++) {
-            Value errStr = arrayElement(errors, cursor);
-            FPRINTMSG(stderr, "%s\n", AS_STRING(errStr)->chars);
-        }
-        tempRootPop();
     }
-
+    
     ObjFunction* function = endCompiler();
     push(context, FUNCTION_VAL(function));
-    
-    bool compileError = AS_BOOL(parseError) || hadCompilerError;
 
-    ObjConcreteYargTypeStruct* result_struct_type = (ObjConcreteYargTypeStruct*) newYargStructType(2);
-    push(context, IMPL_OBJ_VAL((Obj*)result_struct_type));
-    ObjString* compileErrorFieldName = copyString("compileError", 12);
-    push(context, STRING_VAL(compileErrorFieldName));
-    ObjString* resultFieldName = copyString("result", 6);
-    push(context, STRING_VAL(resultFieldName));
+    Value result = allocValueStructPair("compileError", "result");
+    push(context, result);
 
-    appendFieldType(result_struct_type, NULL, compileErrorFieldName);
-    appendFieldType(result_struct_type, NULL, resultFieldName);
+    if (!IS_NIL(parseErrors)) {
+        setStructField(result, 0, parseErrors);
+        setStructField(result, 1, NIL_VAL);
+    } else if (hadCompilerError) {
+        setStructField(result, 0, BOOL_VAL(true));
+        setStructField(result, 1, NIL_VAL);
+    } else {
+        setStructField(result, 0, NIL_VAL);
+        setStructField(result, 1, FUNCTION_VAL(function));
+    }
 
-    Value result_container = newPackedValueContainer((ObjConcreteYargType*) result_struct_type);
-    push(context, result_container);
-    setStructField(result_container, 0, BOOL_VAL(compileError));
-    setStructField(result_container, 1, compileError ? NIL_VAL : FUNCTION_VAL(function));
+    pop(context); // result
+    pop(context); // function
+    pop(context); // parser
+    pop(context); // ast
+    pop(context); // scanner
 
-    pop(context);
-    pop(context);
-    pop(context);
-    pop(context);
-    pop(context);
-    pop(context);
-    pop(context);
-    pop(context);
-
-    return result_container;
+    pop(context); // parseErrors
+    return result;
 }
 
 void markCompilerRoots() {

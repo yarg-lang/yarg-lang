@@ -102,11 +102,6 @@ size_t arrayElementOffset(const ObjConcreteYargTypeArray* arrayType, size_t inde
     return index * yt_sizeof_type_storage(arrayElementType((const ObjConcreteYargType*)arrayType));
 }
 
-size_t arrayCardinality(const ObjConcreteYargType* arrayType) {
-    const ObjConcreteYargTypeArray* t = (const ObjConcreteYargTypeArray*) arrayType;
-    return t->cardinality;
-}
-
 ObjConcreteYargType* newYargStructType(size_t fieldCount) {
     ObjConcreteYargTypeStruct* t = ALLOCATE_OBJ(ObjConcreteYargTypeStruct, OBJ_YARGTYPE_STRUCT);
     t->core.yt = TypeStruct;

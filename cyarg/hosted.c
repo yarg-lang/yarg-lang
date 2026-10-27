@@ -45,6 +45,16 @@ int bootstrapHostedFile(const char* path) {
     }
 }
 
+void reportCompileErrors(Value compileError) {
+    assert(IS_UNIFORMARRAY(compileError));
+
+    size_t cardinality = arrayCardinality(compileError);
+    for (size_t i = 0; i < cardinality; i++) {
+        Value error = arrayElement(compileError, i);
+        fprintf(stderr, "%s\n", AS_CSTRING(error));
+    }
+}
+
 int compileFile(const char* path, const char* outputPath) {
 
     ObjString* pathString = copyString(path, (int) strlen(path));
@@ -54,13 +64,14 @@ int compileFile(const char* path, const char* outputPath) {
     InterpretResult result = compileScript(pathString, &compilerResult);
     tempRootPush(compilerResult);
 
-    Value compileError = structField(compilerResult, 0);
+    Value compileErrors = structField(compilerResult, 0);
     Value compilerResultClosure = structField(compilerResult, 1);
 
     int exitCode = EX_OK;
     if (result == INTERPRET_RUNTIME_ERROR) {
         exitCode = EX_SOFTWARE;
-    } else if (result == INTERPRET_OK && valuesEqual(compileError, BOOL_VAL(true))) {
+    } else if (result == INTERPRET_OK && !IS_NIL(compileErrors)) {
+        reportCompileErrors(compileErrors);
         exitCode = EX_DATAERR;
     } else {
         if (outputPath && IS_CLOSURE(compilerResultClosure)) {
@@ -82,7 +93,7 @@ int disassembleFile(const char* path) {
     InterpretResult result = compileScript(pathString, &compilerResult);
     tempRootPush(compilerResult);
 
-    Value compileError = structField(compilerResult, 0);
+    Value compileErrors = structField(compilerResult, 0);
     Value compilerResultClosure = structField(compilerResult, 1);
 
     char const *file = strrchr(path, '/');
@@ -96,7 +107,8 @@ int disassembleFile(const char* path) {
 
     if (result == INTERPRET_RUNTIME_ERROR) {
         returnCode = EX_SOFTWARE;
-    } else if (result == INTERPRET_OK && valuesEqual(compileError, BOOL_VAL(true))) {
+    } else if (result == INTERPRET_OK && !IS_NIL(compileErrors)) {
+        reportCompileErrors(compileErrors);
         returnCode = EX_DATAERR;
     } else {
         returnCode = EX_OK;

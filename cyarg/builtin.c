@@ -144,7 +144,7 @@ bool compileBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     Value compileError = structField(compileResult, 0);
     Value compileFunction = structField(compileResult, 1);
 
-    if (valuesEqual(compileError, BOOL_VAL(false))) {
+    if (IS_NIL(compileError)) {
         ObjClosure* closure = newClosure(AS_FUNCTION(compileFunction));
         setStructField(compileResult, 1, CLOSURE_VAL(closure));
     }
@@ -169,14 +169,24 @@ bool loadBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         functionVal = function ? FUNCTION_VAL(function) : NIL_VAL;
     } else if (IS_STRING(arg)) {
         Value compileResult = compile(routineContext);
+        push(routineContext, compileResult);
         Value compileError = structField(compileResult, 0);
         Value compileFunction = structField(compileResult, 1);
 
-        if (valuesEqual(compileError, BOOL_VAL(true))) {
+        if (!IS_NIL(compileError)) {
+            if (IS_UNIFORMARRAY(compileError)) {
+                size_t cardinality = arrayCardinality(compileError);
+                for (size_t i = 0; i < cardinality; i++) {
+                    Value error = arrayElement(compileError, i);
+                    fprintf(stderr, "%s\n", AS_CSTRING(error));
+                }
+            }
+
             functionVal = NIL_VAL;
         } else {
             functionVal = compileFunction;
         }
+        pop(routineContext);
     } else {
         runtimeError(routineContext, "Argument to load must be a byte array or a string.");
         return false;

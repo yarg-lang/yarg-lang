@@ -95,14 +95,16 @@ Value duplicateStruct(Value structVal);
 Value duplicateArray(Value arrayVal);
 Value duplicatePointer(Value pointer);
 
-// Two useful conveniences - a byte array and a value array.
+// Three useful conveniences: a byte array, a value array, and a struct pair.
 // byte arrays can create a buffer, or be placed over an existing memory location.
 Value allocByteArray(size_t length);
 Value createByteArrayAt(uint8_t* location, size_t length);
 bool  isByteArray(Value value);
 // value arrays can contain any value.
 Value allocValueArray(size_t length);
+Value allocValueStructPair(const char* leftFieldName, const char* rightFieldName);
 
+size_t arrayCardinality(Value array);
 Value arrayElement(Value array, size_t index);
 Value pointerDestination(Value pointer);
 Value structField(Value structVal, size_t fieldIndex);

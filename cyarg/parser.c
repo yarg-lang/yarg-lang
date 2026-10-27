@@ -1277,9 +1277,15 @@ Value parse(ObjRoutine* context) {
     }
 
     if (parser->errors.objectCount > 0) {
-        return BOOL_VAL(true);
+        Value result = allocValueArray(parser->errors.objectCount);
+        push(context, result);
+        for (size_t cursor = 0; cursor < parser->errors.objectCount; cursor++) {
+            setArrayElement(result, cursor, STRING_VAL(parser->errors.objects[cursor]));
+        }
+        pop(context);
+        return result;
     } else {
-        return BOOL_VAL(false);
+        return NIL_VAL;
     }
 }
 
