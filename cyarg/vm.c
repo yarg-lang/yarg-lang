@@ -323,23 +323,41 @@ static InterpretResult invokeFromClass(ObjRoutine* routine, ObjClass* klass, Obj
 static InterpretResult invoke(ObjRoutine* routine, ObjString* name, int argCount) {
     Value receiver = peek(routine, argCount);
 
-    if (!IS_INSTANCE(receiver)) {
+    if (!IS_INSTANCE(receiver) && !IS_STRUCT(receiver)) {
         runtimeError(routine, "Only instances have methods.");
         return INTERPRET_RUNTIME_ERROR;
     }
 
-    ObjInstance* instance = AS_INSTANCE(receiver);
+    if (IS_INSTANCE(receiver)) {
+        ObjInstance* instance = AS_INSTANCE(receiver);
 
-    Value value;
-    if (tableGet(&instance->fields, name, &value)) {
-        ValueCell* target = peekCell(routine, argCount);
+        Value value;
+        if (tableGet(&instance->fields, name, &value)) {
+            ValueCell* target = peekCell(routine, argCount);
 
-        target->value = value;
-        target->cellType = NULL;
-        return callValue(routine, value, argCount);
+            target->value = value;
+            target->cellType = NULL;
+            return callValue(routine, value, argCount);
+        }
+
+        return invokeFromClass(routine, instance->klass, name, argCount);
+    } else {
+        assert(IS_STRUCT(receiver));
+
+        size_t index;
+        const ObjConcreteYargTypeStruct* structType = (const ObjConcreteYargTypeStruct*)receiver.type;
+        if (!structFieldIndex(structType, name, &index)) {
+            runtimeError(routine, "field not present in struct.");
+            return INTERPRET_RUNTIME_ERROR;
+        }
+        Value result = structField(receiver, index);
+        if (!IS_CLOSURE(result)) {
+            runtimeError(routine, "field value must be function.");
+            return INTERPRET_RUNTIME_ERROR;
+        }
+
+        return callfn(routine, AS_CLOSURE(result), argCount) ? INTERPRET_OK : INTERPRET_RUNTIME_ERROR;
     }
-
-    return invokeFromClass(routine, instance->klass, name, argCount);
 }
 
 static bool bindMethod(ObjRoutine* routine, ObjClass* klass, ObjString* name) {

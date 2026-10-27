@@ -1,6 +1,5 @@
 var struct { errors; result; } result = compile("print 1 + 1;");
-var callable = result.result;
-callable(); // expect: 2
+result.result(); // expect: 2
 // compile returns nil if an error occurs during compilation
 result = compile("print 2 * 3");
 print result.result == nil; // expect: true
