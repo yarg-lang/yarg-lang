@@ -23,6 +23,40 @@ bool isObjType(Value value, ObjType type) {
     return isObjValue(value) && AS_OBJ(value)->type == type;
 }
 
+bool is_promotable_to_val(Obj* object) {
+    if (object == NULL) return true;
+
+    switch (object->type) {
+        case OBJ_STRING:
+        case OBJ_INT:
+        case OBJ_CLASS:
+        case OBJ_YARGTYPE:
+            return true;
+        default:
+            return false;
+    }
+}
+
+Value as_val(Obj* object) {
+    if (!is_promotable_to_val(object)) {
+        fatalVMError("Object is not promotable to a value.");
+    }
+    if (object == NULL) {
+        return NIL_VAL;
+    } else if (object->type == OBJ_STRING) {
+        return TYPED_VAL(object, &yargTypes.string);
+    } else if (object->type == OBJ_INT) {
+        return TYPED_VAL(object, &yargTypes.integer);
+    } else if (object->type == OBJ_CLASS) {
+        return TYPED_VAL(object, &yargTypes.class_);
+    } else if (object->type == OBJ_YARGTYPE) {
+        return TYPED_VAL(object, &yargTypes.type);
+    } else {
+        fatalVMError("Unsupported object type for as_val: %d", object->type);
+        return IMPL_OBJ_VAL(object);
+    }
+}
+
 bool is_nil(Value value) {
     if (value.type == NULL && value.as.obj == NULL) return true;
     if (value.type == &yargTypes.implementation_obj && value.as.obj != NULL) return false;

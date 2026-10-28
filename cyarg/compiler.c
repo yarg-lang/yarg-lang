@@ -43,7 +43,8 @@ typedef struct Compiler {
     ObjFunction* function;
     FunctionType type;
     ObjStmt* recent;
-    bool hadError;
+
+    DynamicObjArray errors;
     bool panicMode;
 
     Local locals[UINT8_COUNT];
@@ -57,7 +58,6 @@ typedef struct ClassCompiler {
     bool hasSuperclass;
 } ClassCompiler;
 
-bool hadCompilerError = false;
 static struct Compiler* current = NULL;
 static ClassCompiler* currentClass = NULL;
 
@@ -68,7 +68,7 @@ static void initCompiler(Compiler* compiler, FunctionType type, ObjString* name,
     compiler->function = NULL;
     compiler->type = type;
     compiler->recent = NULL;
-    compiler->hadError = false;
+    initDynamicObjArray(&compiler->errors);
     compiler->panicMode = false;
 
     compiler->localCount = 0;
@@ -94,36 +94,65 @@ static void initCompiler(Compiler* compiler, FunctionType type, ObjString* name,
     }
 }
 
+// see: https://stackoverflow.com/questions/43787672/the-max-number-of-digits-in-an-int-based-on-number-of-bits
+#define DECIMAL_DIGITS_BOUND(t) (241 * sizeof(t) / 100 + 1)
+
 static void errorAt(const char* location, const char* message) {
     if (current->panicMode) return;
 
     current->panicMode = true;
 
-    int line = current->recent ? current->recent->line : 1;
-    FPRINTMSG(stderr, "[line %d] Error", line);
+    size_t bufferLength = DECIMAL_DIGITS_BOUND(int) + 13; // strlen("[line ] Error");
+    if (location) bufferLength += strlen(location) + 5; // " at ''"
+    if (message) bufferLength += strlen(message) + 2; // ": "
+    bufferLength += 1; // for null terminator
 
+    char* buffer = (char*)ALLOCATE(char, bufferLength);
+    snprintf(buffer, bufferLength, "[line %d] Error", current->recent ? current->recent->line : 1);
     if (location) {
-        FPRINTMSG(stderr, " at '%s'", location);
+        strcat(buffer, " at '");
+        strcat(buffer, location);
+        strcat(buffer, "'");
     }
 
-    FPRINTMSG(stderr, ": %s\n", message);
-    current->hadError = true;
+    if (message) {
+        strcat(buffer, ": ");
+        strcat(buffer, message);
+    }
+
+    ObjString* errorString = copyString(buffer, bufferLength - 1);
+    tempRootPush(STRING_VAL(errorString));
+    appendToDynamicObjArray(&current->errors, (Obj*)errorString);
+    tempRootPop();
+    vm_free(buffer);
 }
 
 static void errorAtValue(Value location, const char* message) {
     if (current->panicMode) return;
 
-    current->panicMode = true;
+    size_t locationLength = 0;
+    if (IS_STRING(location)) {
+        char* cstring = AS_CSTRING(location);
+        locationLength = strlen(cstring) + 2; // for surrounding quotes
+    } else {
+        ObjString* string = valueToString(location);
+        tempRootPush(STRING_VAL(string));
+        locationLength = string->length;
+        tempRootPop();
+    }
+    char* location_str = ALLOCATE(char, locationLength + 1);
+    if (IS_STRING(location)) {
+        char* cstring = AS_CSTRING(location);
+        snprintf(location_str, locationLength + 1, "\"%s\"", cstring);
+    } else {
+        ObjString* string = valueToString(location);
+        tempRootPush(STRING_VAL(string));
+        snprintf(location_str, locationLength + 1, "%s", string->chars);
+        tempRootPop();
+    }
 
-    int line = current->recent ? current->recent->line : 1;
-    FPRINTMSG(stderr, "[line %d] Error", line);
-
-    FPRINTMSG(stderr, " at '");
-    printSourceValue(stderr, location);
-    FPRINTMSG(stderr, "'");
-
-    FPRINTMSG(stderr, ": %s\n", message);
-    current->hadError = true;
+    errorAt(location_str, message);
+    vm_free(location_str);
 }
 
 
@@ -887,6 +916,8 @@ static void generateFunction(FunctionType type, ObjStmtFunDeclaration* decl) {
 
     generate(decl->body);
 
+    assert(current->enclosing != NULL);
+
     ObjFunction* function = endCompiler();
     function->arity = decl->parameters.objectCount;
     emitBytes(OP_CLOSURE, makeConstant(FUNCTION_VAL(function)));
@@ -1135,17 +1166,20 @@ static ObjFunction* endCompiler() {
 
     current->context = NULL;
     current->recent = NULL;
-    hadCompilerError |= current->hadError;
     ObjFunction* function = current->function;
 
-    current = current->enclosing;
+    if (current->errors.objectCount > 0 && current->enclosing) {
+        for (int i = 0; i < current->errors.objectCount; i++) {
+            appendToDynamicObjArray(&current->enclosing->errors, current->errors.objects[i]);
+        }
+    }
+    freeDynamicObjArray(&current->errors);
 
+    current = current->enclosing;
     return function;
 }
 
 Value compile(ObjRoutine* context) {
-    hadCompilerError = false;
-
     Value source = peek(context, 0);
 
     ObjScanner* scanner = newScanner(AS_STRING(source));
@@ -1165,6 +1199,9 @@ Value compile(ObjRoutine* context) {
     if (IS_NIL(parseErrors)) {
         generate(ast->statements);
     }
+
+    Value errors = duplicateAsValueArray(&compiler.errors);
+    push(context, errors);
     
     ObjFunction* function = endCompiler();
     push(context, FUNCTION_VAL(function));
@@ -1175,8 +1212,8 @@ Value compile(ObjRoutine* context) {
     if (!IS_NIL(parseErrors)) {
         setStructField(result, 0, parseErrors);
         setStructField(result, 1, NIL_VAL);
-    } else if (hadCompilerError) {
-        setStructField(result, 0, BOOL_VAL(true));
+    } else if (!IS_NIL(errors)) {
+        setStructField(result, 0, errors);
         setStructField(result, 1, NIL_VAL);
     } else {
         setStructField(result, 0, NIL_VAL);
@@ -1185,6 +1222,7 @@ Value compile(ObjRoutine* context) {
 
     pop(context); // result
     pop(context); // function
+    pop(context); // errors
     pop(context); // parser
     pop(context); // ast
     pop(context); // scanner
@@ -1199,6 +1237,7 @@ void markCompilerRoots() {
         markObject((Obj*)compiler->function);
         markObject((Obj*)compiler->context);
         markObject((Obj*)compiler->recent);
+        markDynamicObjArray(&compiler->errors);
 
         for (int i = 0; i < compiler->localCount; i++) {
             markObject((Obj*)compiler->locals[i].name);

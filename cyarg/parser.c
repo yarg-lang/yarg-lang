@@ -1277,13 +1277,7 @@ Value parse(ObjRoutine* context) {
     }
 
     if (parser->errors.objectCount > 0) {
-        Value result = allocValueArray(parser->errors.objectCount);
-        push(context, result);
-        for (size_t cursor = 0; cursor < parser->errors.objectCount; cursor++) {
-            setArrayElement(result, cursor, STRING_VAL(parser->errors.objects[cursor]));
-        }
-        pop(context);
-        return result;
+        return duplicateAsValueArray(&parser->errors);
     } else {
         return NIL_VAL;
     }

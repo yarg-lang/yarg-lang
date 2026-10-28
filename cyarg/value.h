@@ -82,7 +82,7 @@ typedef struct {
 #define UI64_VAL(a)         ((Value){.type = &yargTypes.uint64, {.ui64 = a}})
 #define ADDRESS_VAL(value)  ((Value){.type = &yargTypes.address, { .address = value}})
 #define IMPL_OBJ_VAL(object)     ((Value){.type = &yargTypes.implementation_obj, {.obj = (Obj*)object}})
-#define TYPED_VAL(object, type) ((Value){.type = ((const ObjConcreteYargType*)type), .as.obj = (Obj*) object})
+#define TYPED_VAL(object, t) ((Value){.type = ((const ObjConcreteYargType*)t), .as.obj = (Obj*) object})
 
 
 #if IS_64BIT
@@ -131,6 +131,8 @@ bool isAddressValue(Value value);
 
 bool isObjType(Value value, ObjType type);
 bool isObjValue(Value value);
+bool is_promotable_to_val(Obj* object);
+Value as_val(Obj* object);
 
 bool isInitialisableType(const ObjConcreteYargType* lhsType, Value rhsValue, Value *promotedRhs); // promotedRhs will be VAL_NIL if no promotion
 

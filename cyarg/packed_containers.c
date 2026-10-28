@@ -364,6 +364,24 @@ Value allocValueStructPair(const char* leftFieldName, const char* rightFieldName
     return result_container;
 }
 
+Value duplicateAsValueArray(DynamicObjArray* array) {
+    if (array->objectCount == 0) {
+        return NIL_VAL;
+    }
+    Value result = allocValueArray(array->objectCount);
+    tempRootPush(result);
+    for (size_t cursor = 0; cursor < array->objectCount; cursor++) {
+        Obj* obj = array->objects[cursor];
+        if (!is_promotable_to_val(obj)) {
+            fatalVMError("Object is not promotable to a value.");
+        }
+        setArrayElement(result, cursor, as_val(array->objects[cursor]));
+    }
+    tempRootPop();
+    return result;
+}
+
+
 
 void offsetPointerDestination(Value pointerVal, Value offsetVal) {
     size_t offset = as_positive_integer(offsetVal);

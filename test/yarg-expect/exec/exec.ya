@@ -5,4 +5,9 @@ exec("fun test() { print 10; }");
 test(); // expect: 10
 
 exec("print 5"); 
-// expect: Compilation failed.
+
+var result = exec("print 5");
+print result.result == nil; // expect: true
+print result.compileError != nil; // expect: true
+print len(result.compileError); // expect: 1
+print(result.compileError[0]); // expect: [line 1] Error at end: Expect ';' after value.
