@@ -159,47 +159,54 @@ bool loadBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         return false;
     }
     Value arg = peek(routineContext, 0);
-    Value functionVal = NIL_VAL;
     
     if (isByteArray(arg)) {
         ObjPackedContainer* container = AS_PACKEDCONTAINER(arg);
         const ObjConcreteYargTypeArray* arrayType = (const ObjConcreteYargTypeArray*) arg.type;
         uint8_t* buffer = (uint8_t*)container->loc;
         ObjFunction* function = loadPackageFromBuffer(routineContext, buffer, arrayType->cardinality);
-        functionVal = function ? FUNCTION_VAL(function) : NIL_VAL;
+        Value functionVal = function ? FUNCTION_VAL(function) : NIL_VAL;
+        push(routineContext, functionVal);
+        Value loadResult = allocValueStructPair("compileError", "result");
+        pop(routineContext);
+        push(routineContext, loadResult);
+
+        setStructField(loadResult, 1, functionVal);
     } else if (IS_STRING(arg)) {
         Value compileResult = compile(routineContext);
         push(routineContext, compileResult);
         Value compileError = structField(compileResult, 0);
         Value compileFunction = structField(compileResult, 1);
 
-        if (!IS_NIL(compileError)) {
-            if (IS_UNIFORMARRAY(compileError)) {
-                size_t cardinality = arrayCardinality(compileError);
-                for (size_t i = 0; i < cardinality; i++) {
-                    Value error = arrayElement(compileError, i);
-                    fprintf(stderr, "%s\n", AS_CSTRING(error));
-                }
-            }
+        Value loadResult = allocValueStructPair("compileError", "result");
+        push(routineContext, loadResult);
 
-            functionVal = NIL_VAL;
+
+        if (!IS_NIL(compileError)) {
+            setStructField(loadResult, 0, compileError);
         } else {
-            functionVal = compileFunction;
+            setStructField(loadResult, 1, compileFunction);
         }
         pop(routineContext);
+        pop(routineContext);
+        push(routineContext, loadResult);
     } else {
         runtimeError(routineContext, "Argument to load must be a byte array or a string.");
         return false;
     }
 
-    if (IS_NIL(functionVal)) {
-        *result = NIL_VAL;
-    } else {
+    Value loadResult = peek(routineContext, 0);
+    Value functionVal = structField(loadResult, 1);
+
+    if (!IS_NIL(functionVal)) {
         push(routineContext, functionVal);
         ObjClosure* closure = newClosure(AS_FUNCTION(functionVal));
-        *result = CLOSURE_VAL(closure);
+        setStructField(loadResult, 1, CLOSURE_VAL(closure));
         pop(routineContext);
     }
+
+    pop(routineContext);
+    *result = loadResult;
     return true;
 }
 

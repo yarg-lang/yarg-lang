@@ -1,4 +1,4 @@
 var yarg_library_path = "";
-load(vm_read_xip_file(2, 1))();
+load(vm_read_xip_file(2, 1)).result();
 
 repl();

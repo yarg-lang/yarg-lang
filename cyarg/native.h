@@ -12,6 +12,8 @@ bool irq_remove_handlerNative(ObjRoutine* routine, int argCount, Value* result);
 bool stdin_getsNative(ObjRoutine* routine, int argCount, Value* result);
 bool stdin_eofNative(ObjRoutine* routine, int argCount, Value* result);
 bool stdout_putsNative(ObjRoutine* routine, int argCount, Value* result);
+bool stderr_putsNative(ObjRoutine* routine, int argCount, Value* result);
+bool stderr_put_newlineNative(ObjRoutine* routine, int argCount, Value* result);
 
 bool readFileIntoBufferNative(ObjRoutine* routine, int argCount, Value* result);
 bool fileSizeNative(ObjRoutine* routine, int argCount, Value* result);

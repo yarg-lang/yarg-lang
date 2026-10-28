@@ -182,6 +182,44 @@ bool stdout_putsNative(ObjRoutine* routine, int argCount, Value* result) {
     return true;
 }
 
+bool stderr_putsNative(ObjRoutine* routine, int argCount, Value* result) {
+    if (argCount != 1) {
+        runtimeError(routine, "Expected 1 argument but got %d.", argCount);
+        return false;
+    }
+
+    Value strVal = nativeArgument(routine, argCount, 0);
+    if (!IS_STRING(strVal)) {
+        runtimeError(routine, "Expected a string.");
+        return false;
+    }
+#ifdef CYARG_PICO_STDLIB
+    printf("%s", AS_CSTRING(strVal));
+    *result = I32_VAL(0);
+#else
+    int32_t res = fputs(AS_CSTRING(strVal), stderr);
+    *result = I32_VAL(res);
+#endif
+    return true;
+}
+
+bool stderr_put_newlineNative(ObjRoutine* routine, int argCount, Value* result) {
+    if (argCount != 0) {
+        runtimeError(routine, "Expected 0 arguments but got %d.", argCount);
+        return false;
+    }
+
+#ifdef CYARG_PICO_STDLIB
+    printf("\n");
+    *result = I32_VAL(0);
+#else
+    int32_t res = fputs("\n", stderr);
+    *result = I32_VAL(res);
+#endif
+    return true;
+}
+
+
 #if defined(CYARG_FEATURE_HOSTED_REPL)
 bool host_argcNative(ObjRoutine* routine, int argCount, Value* result) {
     if (argCount != 0) {

@@ -198,6 +198,8 @@ void initVMRuntime() {
     defineNative("c_stdin_gets", stdin_getsNative);
     defineNative("c_stdin_eof", stdin_eofNative);
     defineNative("c_stdout_puts", stdout_putsNative);
+    defineNative("c_stderr_puts", stderr_putsNative);
+    defineNative("c_stderr_put_newline", stderr_put_newlineNative);
 
     defineNative("c_readFileIntoBuffer", readFileIntoBufferNative);
     defineNative("c_fileSize", fileSizeNative);
@@ -447,11 +449,14 @@ static bool derefArrayElement(ObjRoutine* routine) {
     return true;
 }
 
-static bool derefMapElement(ObjRoutine* routine, ObjMap* map, Value key) {
+static bool derefMapElement(ObjRoutine* routine) {
+    Value key = peek(routine, 0);
+    Value mapVal = peek(routine, 1);
     if (!IS_STRING(key)) {
         runtimeError(routine, "Expected a string key.");
         return false;
     }
+    ObjMap* map = AS_MAP(mapVal);
     Value result;
     if (!tableGet(&map->entries, AS_STRING(key), &result)) {
         result = NIL_VAL;
@@ -462,17 +467,36 @@ static bool derefMapElement(ObjRoutine* routine, ObjMap* map, Value key) {
     return true;
 }
 
+static bool derefStructElement(ObjRoutine* routine) {
+    Value indexVal = peek(routine, 0);
+    Value container = peek(routine, 1);
+
+    if (!is_positive_integer(indexVal)) {
+        runtimeError(routine, "Expected a positive integer.");
+        return false;
+    }
+    
+    size_t index = as_positive_integer(indexVal);
+    Value result = structField(container, index);
+
+    pop(routine);
+    pop(routine);
+    push(routine, result);
+    return true;
+}
+
 static bool derefElement(ObjRoutine* routine) {
 
     Value collection = peek(routine, 1);
-    Value index = peek(routine, 0);
 
     if (IS_UNIFORMARRAY(collection) || isArrayPointer(collection)) {
         return derefArrayElement(routine);
     } else if (IS_MAP(collection)) {
-        return derefMapElement(routine, AS_MAP(collection), index);
+        return derefMapElement(routine);
+    } else if (IS_STRUCT(collection)) {
+        return derefStructElement(routine);
     } else {
-        runtimeError(routine, "Expected a map or array as target.");
+        runtimeError(routine, "Expected a map, struct, or array as target.");
         return false;
     }
     return false;
@@ -523,6 +547,9 @@ static bool setElement(ObjRoutine* routine) {
         result = setMapElement(routine, AS_MAP(collection), index, rhs);
     } else if (IS_UNIFORMARRAY(collection)) {
         result = setAnArrayElement(routine, collection, index, rhs);
+    } else if (IS_STRUCT(collection)) {
+        runtimeError(routine, "Setting struct elements is not supported yet.");
+        return false;
     } else {
         runtimeError(routine, "Expected an array and a positive or unsigned integer.");
         return false;
@@ -1551,6 +1578,8 @@ uint8_t bootstrap[] = {
     OP_CONSTANT, 0,
     OP_CALL, 1,
     OP_CALL, 1,
+    OP_IMMEDIATE_P8, 1,
+    OP_ELEMENT,
     OP_CALL, 0,
     OP_RETURN
 };
@@ -1575,6 +1604,8 @@ uint8_t xip_bootstrap[] = {
     OP_IMMEDIATE_P8, 1,
     OP_CALL, 2,
     OP_CALL, 1,
+    OP_IMMEDIATE_P8, 1,
+    OP_ELEMENT,
     OP_CALL, 0,
     OP_RETURN
 };

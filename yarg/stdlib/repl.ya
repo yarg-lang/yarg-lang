@@ -1,10 +1,14 @@
 fun line_repl() {
-    c_stdout_puts("yarg> ");
     while (true) {
+        c_stdout_puts("yarg> ");
         var line = c_stdin_gets();
         if (line != nil and line != "") {
-            exec(line);
-            c_stdout_puts("yarg> ");
+            var result = exec(line);
+            if (result.compileError != nil) {
+                for (var i = 0; i < len(result.compileError); i = i + 1) {
+                    print result.compileError[i];
+                }
+            }
         }
         else {
             var feofi = c_stdin_eof(); // c_stdin_gets returns null when pause/continue in lldb

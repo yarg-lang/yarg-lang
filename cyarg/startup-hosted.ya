@@ -40,7 +40,7 @@ if (yarg_source == nil or yarg_source == "") {
     print "Failed to read yarg.yb";
     host_exitCode(EX_DATAERR);
 }
-var yarg_target = load(yarg_source);
+var yarg_target = load(yarg_source).result;
 if (yarg_target == nil) {
     print "Failed to load yarg.yb";
     host_exitCode(EX_DATAERR);
@@ -64,9 +64,13 @@ if (int(host_argc()) == 4 or (int(host_argc()) > 4 and host_argn(4) == "--")) {
     var source = read_yarg_source(hostArgs[0]);
 
     var target = load(source);
-    if (target != nil) {
-        target();
+    if (target.compileError == nil) {
+        target.result();
     } else {
+        for (var i = 0; i < len(target.compileError); i = i + 1) {
+            c_stderr_puts(target.compileError[i]);
+            c_stderr_put_newline();
+        }
         host_exitCode(EX_DATAERR);
     }
 } else {
