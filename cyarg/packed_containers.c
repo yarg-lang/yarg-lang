@@ -372,9 +372,7 @@ Value duplicateAsValueArray(DynamicObjArray* array) {
     tempRootPush(result);
     for (size_t cursor = 0; cursor < array->objectCount; cursor++) {
         Obj* obj = array->objects[cursor];
-        if (!is_promotable_to_val(obj)) {
-            fatalVMError("Object is not promotable to a value.");
-        }
+        assert(is_promotable_to_val(obj));
         setArrayElement(result, cursor, as_val(array->objects[cursor]));
     }
     tempRootPop();

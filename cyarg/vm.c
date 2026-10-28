@@ -117,13 +117,8 @@ void fatalVMError(const char* format, ...) {
     vfprintf(stderr, format, args);
     va_end(args);
 
-    FPRINTMSG(stderr, "fatal VM error\n");
+    PRINTERR("fatal VM error\n");
     exit(5);
-}
-
-void yarg_panic(void) {
-    assert(false && "yarg panic");
-    exit(EXIT_FAILURE);
 }
 
 static void defineNative(const char* name, NativeFn function) {
