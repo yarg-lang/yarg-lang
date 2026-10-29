@@ -121,29 +121,29 @@ void fatalVMError(const char* format, ...) {
     exit(5);
 }
 
-static void defineNative(const char* name, NativeFn function) {
+static void defineNative(ObjRoutine* context, const char* name, NativeFn function) {
     ObjString* nameString = copyString(name, (int)strlen(name));
-    tempRootPush(STRING_VAL(nameString));
+    push(context, STRING_VAL(nameString));
     ObjNative* native = newNative(function);
-    tempObjRootPush((Obj*)native);
+    push(context, IMPL_OBJ_VAL(native));
 
     ValueCell cell;
     cell.value = NATIVE_VAL(native);
     cell.cellType = NULL;
     tableCellSet(&vm.globals, nameString, cell);
-    tempRootPop();
-    tempRootPop();
+    pop(context);
+    pop(context);
 }
 
-static void defineGlobal(const char* name, Value value) {
+static void defineGlobal(ObjRoutine* context, const char* name, Value value) {
     ObjString* nameString = copyString(name, (int)strlen(name));
-    tempRootPush(STRING_VAL(nameString));
+    push(context, STRING_VAL(nameString));
 
     ValueCell cell;
     cell.value = value;
     cell.cellType = NULL;
     tableCellSet(&vm.globals, nameString, cell);
-    tempRootPop();
+    pop(context);
 }
 
 void initVMMemory() {
@@ -184,32 +184,32 @@ void initVMRuntime() {
     
     vm.initString = copyString("init", 4);
 
-    defineNative("clock", clockNative);
-    defineNative("c_clock_get_hz", clock_get_hzNative);
+    defineNative(&vm.core0, "clock", clockNative);
+    defineNative(&vm.core0, "c_clock_get_hz", clock_get_hzNative);
 
-    defineNative("irq_remove_handler", irq_remove_handlerNative);
-    defineNative("irq_add_shared_handler", irq_add_shared_handlerNative);
+    defineNative(&vm.core0, "irq_remove_handler", irq_remove_handlerNative);
+    defineNative(&vm.core0, "irq_add_shared_handler", irq_add_shared_handlerNative);
 
-    defineNative("c_stdin_gets", stdin_getsNative);
-    defineNative("c_stdin_eof", stdin_eofNative);
-    defineNative("c_stdout_puts", stdout_putsNative);
-    defineNative("c_stderr_puts", stderr_putsNative);
-    defineNative("c_stderr_put_newline", stderr_put_newlineNative);
+    defineNative(&vm.core0, "c_stdin_gets", stdin_getsNative);
+    defineNative(&vm.core0, "c_stdin_eof", stdin_eofNative);
+    defineNative(&vm.core0, "c_stdout_puts", stdout_putsNative);
+    defineNative(&vm.core0, "c_stderr_puts", stderr_putsNative);
+    defineNative(&vm.core0, "c_stderr_put_newline", stderr_put_newlineNative);
 
-    defineNative("c_readFileIntoBuffer", readFileIntoBufferNative);
-    defineNative("c_fileSize", fileSizeNative);
-    defineNative("c_fileExists", fileExistsNative);
+    defineNative(&vm.core0, "c_readFileIntoBuffer", readFileIntoBufferNative);
+    defineNative(&vm.core0, "c_fileSize", fileSizeNative);
+    defineNative(&vm.core0, "c_fileExists", fileExistsNative);
 
 #if defined(CYARG_FEATURE_HOSTED_REPL)
-    defineNative("host_argc", host_argcNative);
-    defineNative("host_argn", host_argnNative);
-    defineNative("host_exitCode", host_exitCodeNative);
+    defineNative(&vm.core0, "host_argc", host_argcNative);
+    defineNative(&vm.core0, "host_argn", host_argnNative);
+    defineNative(&vm.core0, "host_exitCode", host_exitCodeNative);
 #endif
 
     uintptr_t vm_xip_start = (uintptr_t)xipLibHeader;
-    defineGlobal("vm_xip_start", ADDRESS_VAL(vm_xip_start));
+    defineGlobal(&vm.core0, "vm_xip_start", ADDRESS_VAL(vm_xip_start));
 
-    defineNative("vm_xip_string_node", vm_xip_string_nodeNative);
+    defineNative(&vm.core0, "vm_xip_string_node", vm_xip_string_nodeNative);
 }
 
 void freeVM() {
@@ -652,20 +652,20 @@ static void promote(Value *left, Value *right)
     }
 }
 
-void reportBinaryOpTypeError(ObjRoutine* routine, Value lhs, Value rhs, const char* op) {
+void runtimeBinaryOpTypeError(ObjRoutine* routine, const char* op, const char* message) {
+    Value lhs = peek(routine, 1);
+    Value rhs = peek(routine, 0);
+
     Value lhsType = concrete_typeof(lhs);
-    tempRootPush(lhsType);
+    push(routine, lhsType);
     Value rhsType = concrete_typeof(rhs);
-    tempRootPush(rhsType);
+    push(routine, rhsType);
     ObjString* lhsTypeName = valueToString(lhsType);
-    tempRootPush(STRING_VAL(lhsTypeName));
+    push(routine, STRING_VAL(lhsTypeName));
     ObjString* rhsTypeName = valueToString(rhsType);
-    tempRootPush(STRING_VAL(rhsTypeName));
-    runtimeError(routine, "%s Operands %s %s must both be numbers, integers or unsigned integers.", op, lhsTypeName->chars, rhsTypeName->chars);
-    tempRootPop();
-    tempRootPop();
-    tempRootPop();
-    tempRootPop();
+    push(routine, STRING_VAL(rhsTypeName));
+
+    runtimeError(routine, "%s Operands %s %s must both be %s", op, lhsTypeName->chars, rhsTypeName->chars, message);
 }
 
 InterpretResult run(ObjRoutine* routine) {
@@ -724,7 +724,7 @@ InterpretResult run(ObjRoutine* routine) {
         } else if (IS_INT(peek(routine, 0)) && IS_INT(peek(routine, 1))) { \
             binaryIntOp(routine, #op); \
         } else { \
-            reportBinaryOpTypeError(routine, peek(routine, 1), peek(routine, 0), #op); \
+            runtimeBinaryOpTypeError(routine, #op, "numbers, integers or unsigned integers."); \
             return INTERPRET_RUNTIME_ERROR; \
         } \
     } while (false)
@@ -769,7 +769,7 @@ InterpretResult run(ObjRoutine* routine) {
         } else if (IS_INT(peek(routine, 0)) && IS_INT(peek(routine, 1))) { \
             binaryIntBoolOp(routine, #op); \
         } else { \
-            reportBinaryOpTypeError(routine, peek(routine, 1), peek(routine, 0), #op); \
+            runtimeBinaryOpTypeError(routine, #op, "numbers, integers or unsigned integers."); \
             return INTERPRET_RUNTIME_ERROR; \
         } \
     } while (false)
@@ -797,7 +797,7 @@ InterpretResult run(ObjRoutine* routine) {
             uint64_t c = a op b; \
             push(routine, UI64_VAL(c)); \
         } else { \
-            runtimeError(routine, #op " Operands %d %d must be unsigned integers.", peek(routine, 1).type, peek(routine, 0).type); \
+            runtimeBinaryOpTypeError(routine, #op, "unsigned integers."); \
             return INTERPRET_RUNTIME_ERROR; \
         } \
     } while (false)
@@ -1229,24 +1229,20 @@ InterpretResult run(ObjRoutine* routine) {
             }
             case OP_PRINT: {
                 ObjString* string = valueToString(peek(routine, 0));
-                tempRootPush(STRING_VAL(string));
+                push(routine, STRING_VAL(string));
                 printf("%s\n", string->chars);
-                tempRootPop();
+                pop(routine);
                 pop(routine);
                 break;
             }
             case OP_POKE: {
                 Value location = peek(routine, 0);
                 Value assignment = peek(routine, 1);
-                Value assignment_type = concrete_typeof(assignment);
-                tempRootPush(assignment_type);
                 if (!(isAddressValue(location) || isUint32Pointer(location))) {
-                    tempRootPop();
                     runtimeError(routine, "Location must be a pointer to an uint32 or address.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
                 if (!is_positive_integer(assignment)) {
-                    tempRootPop();
                     runtimeError(routine, "Value must be a positive integer.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
@@ -1278,7 +1274,6 @@ InterpretResult run(ObjRoutine* routine) {
 #endif
                 printf("poke 0x%08lx, 0x%08zx\n", nominal_address, val);
 #endif
-                tempRootPop();
                 pop(routine);
                 pop(routine);
 
