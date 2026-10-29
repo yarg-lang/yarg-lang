@@ -14,6 +14,5 @@ void markParser(ObjParser* parser);
 void gc_freeParser(ObjParser*);
 
 Value parse(ObjRoutine* context);
-Value parse_errors(ObjParser* parser);
 
 #endif

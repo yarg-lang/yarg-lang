@@ -1248,14 +1248,3 @@ Value parse(ObjRoutine* context) {
         return NIL_VAL;
     }
 }
-
-Value parse_errors(ObjParser* parser) {
-    size_t error_count = parser->errors.objectCount;
-    Value errorVal = allocValueArray(error_count);
-    tempRootPush(errorVal);
-    for (size_t cursor = 0; cursor < error_count; cursor++) {
-        setArrayElement(errorVal, cursor, STRING_VAL(parser->errors.objects[cursor]));
-    }
-    tempRootPop();
-    return errorVal;
-}
