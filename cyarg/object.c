@@ -31,6 +31,8 @@ Obj* allocateObject(size_t size, ObjType type) {
     return object;
 }
 
+// note that this call can be omitted for objects where
+// the DynamicObjArray is a member, and Zero filled
 void initDynamicObjArray(DynamicObjArray* array) {
     array->objects = NULL;
     array->stash = NULL;
@@ -57,15 +59,6 @@ void appendToDynamicObjArray(DynamicObjArray* array, Obj* obj) {
     array->objects[array->objectCount] = obj;
     array->objectCount++;
     array->stash = NULL;
-}
-
-Obj* removeLastFromDynamicObjArray(DynamicObjArray* array) {
-    Obj* end = NULL;
-    if (array->objectCount > 0) {
-        end = array->objects[array->objectCount - 1];
-        array->objectCount--;
-    }
-    return end;
 }
 
 ObjString* objectToString(const Obj* value) {

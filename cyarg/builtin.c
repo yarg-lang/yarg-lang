@@ -52,14 +52,14 @@ bool readYargSourceBuiltin(ObjRoutine* routineContext, int argCount, Value* resu
         size_t file_size = fileSize(filename);
 
         Value byteBuffer = allocByteArray(file_size);
-        tempRootPush(byteBuffer);
+        push(routineContext, byteBuffer);
 
         
         readFileIntoBuffer(filename, AS_PACKEDCONTAINER(byteBuffer)->loc, file_size);
 
         *result = byteBuffer;
 
-        tempRootPop(); // byteBuffer
+        pop(routineContext); // byteBuffer
     }
     else {
         // assume a text file
@@ -518,16 +518,16 @@ bool pinBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     }
 }
 
-Value createPointerAndTarget(const ObjConcreteYargType* targetType) {
+Value createPointerAndTarget(ObjRoutine* routineContext, const ObjConcreteYargType* targetType) {
 
     const ObjConcreteYargType* pointerType = newYargPointerType(targetType);
-    tempRootPush(YARGTYPE_VAL(pointerType));
+    push(routineContext, YARGTYPE_VAL(pointerType));
 
     Value targetVal = newPackedValueContainer(targetType);
     ObjPackedContainer* targetContainer = AS_PACKEDCONTAINER(targetVal);
 
     Value pointerVal = createPackedContainerFor(targetContainer, 0, pointerType);
-    tempRootPop();
+    pop(routineContext);
     return pointerVal;
 }
 
@@ -547,7 +547,7 @@ bool new_Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
 
     if (IS_NIL(typeToCreate)) {
         // make an 'any' cell, ie a heap allocated Value.
-        *result = createPointerAndTarget(NULL);
+        *result = createPointerAndTarget(routineContext, NULL);
         return true;
     }
 
@@ -564,7 +564,7 @@ bool new_Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
         case TypeInt64:
         case TypeUint64:
         case TypeStruct: {
-            *result = createPointerAndTarget(AS_YARGTYPE(typeToCreate));
+            *result = createPointerAndTarget(routineContext, AS_YARGTYPE(typeToCreate));
             return true;
         }
         case TypeArray:

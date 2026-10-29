@@ -113,9 +113,11 @@ bool valuesEqual(Value a, Value b);
 
 ObjString* valueToString(Value value);
 
+// Dynamic array of Values. Takes ownership of the passed value before growing the array.
 typedef struct {
     int capacity;
     int count;
+    Value stash;
     Value* values;
 } DynamicValueArray;
 

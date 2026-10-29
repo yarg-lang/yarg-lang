@@ -121,9 +121,7 @@ static void errorAt(const char* location, const char* message) {
     }
 
     ObjString* errorString = copyString(buffer, bufferLength - 1);
-    tempRootPush(STRING_VAL(errorString));
     appendToDynamicObjArray(&current->errors, (Obj*)errorString);
-    tempRootPop();
     vm_free(buffer);
 }
 
@@ -136,9 +134,7 @@ static void errorAtValue(Value location, const char* message) {
         locationLength = strlen(cstring) + 2; // for surrounding quotes
     } else {
         ObjString* string = valueToString(location);
-        tempRootPush(STRING_VAL(string));
         locationLength = string->length;
-        tempRootPop();
     }
     char* location_str = ALLOCATE(char, locationLength + 1);
     if (IS_STRING(location)) {

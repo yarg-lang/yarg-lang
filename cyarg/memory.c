@@ -176,10 +176,11 @@ void markValueCell(ValueCell* cell) {
     markObject((Obj*)cell->cellType);
 }
 
-static void markArray(DynamicValueArray* array) {
+static void markDynamicValueArray(DynamicValueArray* array) {
     for (int i = 0; i < array->count; i++) {
         markValue(array->values[i]);
     }
+    markValue(array->stash);
 }
 
 static void markExpr(Obj* expr) {
@@ -199,7 +200,7 @@ void markDynamicObjArray(DynamicObjArray* array) {
 
 void markFunction(ObjFunction* function) {
     markObject((Obj*)function->fName);
-    markArray(&function->chunk.constants);
+    markDynamicValueArray(&function->chunk.constants);
 }
 
 static void blackenObject(Obj* object) {
@@ -233,7 +234,7 @@ static void blackenObject(Obj* object) {
         case OBJ_FUNCTION: {
             ObjFunction* function = (ObjFunction*)object;
             markObject((Obj*)function->fName);
-            markArray(&function->chunk.constants);
+            markDynamicValueArray(&function->chunk.constants);
             break;
         }
         case OBJ_INSTANCE: {
@@ -489,7 +490,7 @@ static void blackenObject(Obj* object) {
         case OBJ_EXPR_TYPE_STRUCT: {
             markExpr(object);
             ObjExprTypeStruct* expr = (ObjExprTypeStruct*)object;
-            markArray(&expr->fieldsByIndex);
+            markDynamicValueArray(&expr->fieldsByIndex);
             break;
         }
         case OBJ_EXPR_TYPE_INDEXED_COLLECTION: {

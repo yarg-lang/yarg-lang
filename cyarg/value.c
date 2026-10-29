@@ -154,14 +154,12 @@ Value duplicateValue(Value src) {
     if (IS_INT(src)) {
         ObjInt* rhs = AS_INTOBJ(src);
         ObjInt* lhs = allocateIntObject(rhs->bigInt.m_);
-        tempRootPush(INTOBJ_VAL(lhs));
         uint16_t* lhs_w = (uint16_t*) &lhs->bigInt.w_[0];
         uint16_t* rhs_w = (uint16_t*) &rhs->bigInt.w_[0];
         memcpy(lhs_w, rhs_w, rhs->bigInt.m_ * sizeof(uint16_t));
         lhs->bigInt.neg_ = rhs->bigInt.neg_;
         lhs->bigInt.d_ = rhs->bigInt.d_;
         lhs->isLiteral = rhs->isLiteral;
-        tempRootPop();
         return INTOBJ_VAL(lhs);
     } else if (IS_STRUCT(src)) {
         return duplicateStruct(src);
@@ -213,9 +211,12 @@ void initDynamicValueArray(DynamicValueArray* array) {
     array->values = NULL;
     array->capacity = 0;
     array->count = 0;
+    array->stash = NIL_VAL;
 }
 
 void appendToDynamicValueArray(DynamicValueArray* array, Value value) {
+    array->stash = value;
+
     if (array->capacity < array->count + 1) {
         int oldCapacity = array->capacity;
         array->capacity = GROW_CAPACITY(oldCapacity);
@@ -224,6 +225,7 @@ void appendToDynamicValueArray(DynamicValueArray* array, Value value) {
 
     array->values[array->count] = value;
     array->count++;
+    array->stash = NIL_VAL;
 }
 
 void freeDynamicValueArray(DynamicValueArray* array) {

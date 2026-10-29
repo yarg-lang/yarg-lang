@@ -491,9 +491,7 @@ static ObjExprTypeStruct* structExpression(ObjParser* parser) {
 
     while (!check(parser, TOKEN_RIGHT_BRACE)) {
         ObjStmtFieldDeclaration* field = fieldStmt(parser);
-        pushWorkingNode(parser, (Obj*)field);
         appendToDynamicValueArray(&struct_declaration->fieldsByIndex, IMPL_OBJ_VAL(field));
-        popWorkingNode(parser);
     }
     
     consume(parser, TOKEN_RIGHT_BRACE, "Expect '}' after field declarations.");

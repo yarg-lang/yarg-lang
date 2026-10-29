@@ -38,8 +38,6 @@ int addConstant(Chunk* chunk, Value value) {
         }
     }
 
-    tempRootPush(value);
     appendToDynamicValueArray(&chunk->constants, value);
-    tempRootPop();
     return chunk->constants.count - 1;
 }

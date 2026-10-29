@@ -111,6 +111,7 @@ typedef struct Obj {
     Obj* next;
 } Obj;
 
+// Dynamic array of Object pointers. Takes ownership of the passed object before growing the array.
 typedef struct {
     Obj* stash;
     Obj** objects;
@@ -130,6 +131,5 @@ void initDynamicObjArray(DynamicObjArray* array);
 void freeDynamicObjArray(DynamicObjArray* array);
 void gc_freeDynamicObjArray(DynamicObjArray* array);
 void appendToDynamicObjArray(DynamicObjArray* array, Obj* obj);
-Obj* removeLastFromDynamicObjArray(DynamicObjArray* array);
 
 #endif
