@@ -11,6 +11,7 @@
 #include "yargtype.h"
 #include "routine.h"
 #include "memory.h"
+#include "pack_format.h"
 
 void printValue(Value value) {
     fprintValue(stdout, value);
@@ -357,4 +358,24 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             printf("Unknown opcode %d\n", instruction);
             return offset + 1;
     }
+}
+
+void print_cyarg_info() {
+#ifdef CYARG_SELF_HOSTED
+    printf("self-hosted\n");
+#elif CYARG_OS_HOSTED
+    printf("os-hosted\n");
+#else
+    printf("unknown hosting environment\n");
+#endif
+#if IS_64BIT
+    printf("64-bit word size\n");
+#elif IS_32BIT
+    printf("32-bit word size\n");
+#else
+    printf("Unknown word size\n");
+#endif
+    printf("sizeof(Value): %zu\n", sizeof(Value));
+    printf("sizeof(ValueCell): %zu\n", sizeof(ValueCell));
+    printf("Yarg binary format version: 0x%04x\n", packageVersion);
 }

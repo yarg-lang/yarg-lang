@@ -12,6 +12,7 @@
 #include "common.h"
 #include "vm_mutex.h"
 #include "vm.h"
+#include "debug.h"
 #ifdef CYARG_FEATURE_HOSTED_REPL
 #include "hosted.h"
 #endif
@@ -28,6 +29,9 @@ void usageMessage(FILE* destination) {
           "\n"
           "\tcyarg --help\n"
           "\tDisplay this help message.\n"
+          "\n"
+          "\tcyarg --info\n"
+          "\tDisplay information about the cyarg configuration.\n"
           "\n"
           "\tcyarg --bootstrap <path>\n"
           "\tExecute a Yarg script, without the language context. For testing of cyarg.\n"
@@ -56,6 +60,9 @@ int main() {
 #ifdef CYARG_PICO_STDLIB
     stdio_init_all();
 #endif
+#ifdef DEBUG_TRACE_EXECUTION
+    print_cyarg_info();
+#endif
 
     initVMMemory();
     initVMRuntime();
@@ -70,9 +77,15 @@ int main(int argc, const char* argv[]) {
 #ifdef CYARG_PICO_STDLIB
     stdio_init_all();
 #endif
+#ifdef DEBUG_TRACE_EXECUTION
+    print_cyarg_info();
+#endif
 
-    if (argv[1] && strcmp(argv[1], "--help") == 0) {
+    if (argv[1] && strcmp(argv[1], "--help") == 0 && argc == 2) {
         usageMessage(stdout);
+        return EX_OK;
+    } else if (argv[1] && strcmp(argv[1], "--info") == 0 && argc == 2) {
+        print_cyarg_info();
         return EX_OK;
     }
 

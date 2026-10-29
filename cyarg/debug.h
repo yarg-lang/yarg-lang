@@ -9,6 +9,8 @@
 void disassembleChunk(Chunk* chunk, const char* name);
 int disassembleInstruction(Chunk* chunk, int offset);
 
+void print_cyarg_info();
+
 void printValue(Value value);
 void fprintValue(FILE* op, Value value);
 
