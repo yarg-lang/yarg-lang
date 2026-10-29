@@ -33,7 +33,7 @@ typedef struct ObjChannelContainer {
 
 ObjChannelContainer* newChannel(ObjRoutine* routine, size_t capacity) {
     ObjChannelContainer* channel = ALLOCATE_OBJ(ObjChannelContainer, OBJ_CHANNELCONTAINER);
-    tempObjRootPush((Obj*)channel);
+    push(routine, IMPL_OBJ_VAL(channel));
     channel->overflow = false;
 
     channel->buffer = ALLOCATE(Value, capacity);
@@ -47,11 +47,11 @@ ObjChannelContainer* newChannel(ObjRoutine* routine, size_t capacity) {
 #ifdef CYARG_PTHREADS_SYNC
     channel->access = sem_open("/semaphore", O_CREAT, S_IRUSR | S_IWUSR, 0);
     if (channel->access == SEM_FAILED) {
-        tempRootPop();
+        pop(routine);
         runtimeError(routine, "Semaphore open failed.");
     }
 #endif
-    tempRootPop();
+    pop(routine);
     return channel;
 }
 
