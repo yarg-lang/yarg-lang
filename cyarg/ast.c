@@ -8,6 +8,7 @@
 #include "memory.h"
 #include "big-int/big-int.h"
 #include "yargobject.h"
+#include "routine.h"
 
 #include "debug.h"
 
@@ -31,12 +32,12 @@ ObjStmtPoke* newStmtPoke(int line) {
     return stmt;
 }
 
-ObjStmtVarDeclaration* newStmtVarDeclaration(const char* name, int nameLength, int line) {
+ObjStmtVarDeclaration* newStmtVarDeclaration(ObjRoutine* context, const char* name, int nameLength, int line) {
     ObjStmtVarDeclaration* stmt = ALLOCATE_OBJ(ObjStmtVarDeclaration, OBJ_STMT_VARDECLARATION);
-    tempObjRootPush((Obj*)stmt);
+    push(context, IMPL_OBJ_VAL(stmt));
     stmt->stmt.line = line;
     stmt->name = copyString(name, nameLength);
-    tempRootPop();
+    pop(context);
     return stmt;
 }
 
@@ -74,13 +75,13 @@ ObjStmtIf* newStmtIf(int line) {
     return ctrl;
 }
 
-ObjStmtFunDeclaration* newStmtFunDeclaration(const char* name, int nameLength, int line) {
+ObjStmtFunDeclaration* newStmtFunDeclaration(ObjRoutine* context, const char* name, int nameLength, int line) {
     ObjStmtFunDeclaration* fun = ALLOCATE_OBJ(ObjStmtFunDeclaration, OBJ_STMT_FUNDECLARATION);
     fun->stmt.line = line;
     initDynamicObjArray(&fun->parameters);
-    tempObjRootPush((Obj*)fun);
+    push(context, IMPL_OBJ_VAL(fun));
     fun->name = copyString(name, nameLength);
-    tempRootPop();
+    pop(context);
     return fun;
 }
 
@@ -104,13 +105,13 @@ ObjStmtFor* newStmtFor(int line) {
     return loop;
 }
 
-ObjStmtClassDeclaration* newStmtClassDeclaration(const char* name, int nameLength, int line) {
+ObjStmtClassDeclaration* newStmtClassDeclaration(ObjRoutine* context, const char* name, int nameLength, int line) {
     ObjStmtClassDeclaration* decl = ALLOCATE_OBJ(ObjStmtClassDeclaration, OBJ_STMT_CLASSDECLARATION);
     decl->stmt.line = line;
     initDynamicObjArray(&decl->methods);
-    tempObjRootPush((Obj*)decl);
+    push(context, IMPL_OBJ_VAL(decl));
     decl->name = copyString(name, nameLength);
-    tempRootPop();
+    pop(context);
     return decl;
 }
 
@@ -155,11 +156,11 @@ ObjExprNumber* newExprNumberFromCint(int constant) {
     return num;
 }
 
-ObjExprNamedVariable* newExprNamedVariable(const char* name, int nameLength) {
+ObjExprNamedVariable* newExprNamedVariable(ObjRoutine* context, const char* name, int nameLength) {
     ObjExprNamedVariable* var = ALLOCATE_OBJ(ObjExprNamedVariable, OBJ_EXPR_NAMEDVARIABLE);
-    tempObjRootPush((Obj*)var);
+    push(context, IMPL_OBJ_VAL(var));
     var->name = copyString(name, nameLength);
-    tempRootPop();
+    pop(context);
     return var;
 }
 
@@ -176,13 +177,11 @@ ObjExprAddress* newExprAddress(uintptr_t value) {
     return addr;
 }
 
-ObjExprString* newExprString(const char* str, int strLength) {
+ObjExprString* newExprString(ObjRoutine* context, const char* str, int strLength) {
     ObjExprString* string = ALLOCATE_OBJ(ObjExprString, OBJ_EXPR_STRING);
-    string->expr.nextExpr = NULL;
-    string->string = NULL;
-    tempObjRootPush((Obj*)string);
+    push(context, IMPL_OBJ_VAL(string));
     string->string = copyStringWithEscapes(str, strLength);
-    tempRootPop();
+    pop(context);
     return string;
 }
 
@@ -223,19 +222,19 @@ ObjExprBuiltin* newExprBuiltin(ExprBuiltin fn, int arity) {
     return builtin;
 }
 
-ObjExprDot* newExprDot(const char* name, int nameLength) {
+ObjExprDot* newExprDot(ObjRoutine* context, const char* name, int nameLength) {
     ObjExprDot* expr = ALLOCATE_OBJ(ObjExprDot, OBJ_EXPR_DOT);
-    tempObjRootPush((Obj*)expr);
+    push(context, IMPL_OBJ_VAL(expr));
     expr->name = copyString(name, nameLength);
-    tempRootPop();
+    pop(context);
     return expr;
 }
 
-ObjExprSuper* newExprSuper(const char* name, int nameLength) {
+ObjExprSuper* newExprSuper(ObjRoutine* context, const char* name, int nameLength) {
     ObjExprSuper* expr = ALLOCATE_OBJ(ObjExprSuper, OBJ_EXPR_SUPER);
-    tempObjRootPush((Obj*)expr);
+    push(context, IMPL_OBJ_VAL(expr));
     expr->name = copyString(name, nameLength);
-    tempRootPop();
+    pop(context);
     return expr;
 }
 
@@ -247,18 +246,16 @@ ObjExprTypeLiteral* newExprType(ExprTypeLiteral type) {
 
 ObjExprTypeStruct* newExprTypeStruct() {
     ObjExprTypeStruct* expr = ALLOCATE_OBJ(ObjExprTypeStruct, OBJ_EXPR_TYPE_STRUCT);
-    tempObjRootPush((Obj*)expr);
     initDynamicValueArray(&expr->fieldsByIndex);
-    tempRootPop();
     return expr;
 }
 
-ObjStmtFieldDeclaration* newStmtFieldDeclaration(const char* name, int nameLength, int line) {
+ObjStmtFieldDeclaration* newStmtFieldDeclaration(ObjRoutine* context, const char* name, int nameLength, int line) {
     ObjStmtFieldDeclaration* decl = ALLOCATE_OBJ(ObjStmtFieldDeclaration, OBJ_STMT_FIELDDECLARATION);
     decl->stmt.line = line;
-    tempObjRootPush((Obj*)decl);
+    push(context, IMPL_OBJ_VAL(decl));
     decl->name = copyString(name, nameLength);
-    tempRootPop();
+    pop(context);
     return decl;
 }
 

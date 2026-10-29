@@ -245,9 +245,9 @@ static uint64_t strtoNum(const char* literal, int length, int radix) {
 static ObjExpr* namedVariable(ObjParser* parser, Token name, bool canAssign) {
 
     ObjString* nameString = copyString(name.start, name.length);
-    tempRootPush(STRING_VAL(nameString));
+    pushWorkingNode(parser, (Obj*)nameString);
 
-    ObjExprNamedVariable* expr = newExprNamedVariable(name.start, name.length);
+    ObjExprNamedVariable* expr = newExprNamedVariable(parser->context, name.start, name.length);
 
     if (canAssign && match(parser, TOKEN_EQUAL)) {
         pushWorkingNode(parser, (Obj*)expr);
@@ -255,7 +255,7 @@ static ObjExpr* namedVariable(ObjParser* parser, Token name, bool canAssign) {
         popWorkingNode(parser);
     }
 
-    tempRootPop();
+    popWorkingNode(parser);
     return (ObjExpr*)expr;
 }
 
@@ -307,7 +307,7 @@ static ObjExpr* super_(ObjParser* parser, bool canAssign) {
 
     consume(parser, TOKEN_DOT, "Expect '.' after 'super'.");
     consume(parser, TOKEN_IDENTIFIER, "Expect superclass method name.");
-    ObjExprSuper* super_ = newExprSuper(parser->previous.start, parser->previous.length);
+    ObjExprSuper* super_ = newExprSuper(parser->context, parser->previous.start, parser->previous.length);
     pushWorkingNode(parser, (Obj*)super_);
 
     if (match(parser, TOKEN_LEFT_PAREN)) {
@@ -321,7 +321,7 @@ static ObjExpr* super_(ObjParser* parser, bool canAssign) {
 static ObjExpr* dot(ObjParser* parser, bool canAssign) { 
 
     consume(parser, TOKEN_IDENTIFIER, "Expect property name after '.'.");
-    ObjExprDot* expr = newExprDot(parser->previous.start, parser->previous.length);
+    ObjExprDot* expr = newExprDot(parser->context, parser->previous.start, parser->previous.length);
     pushWorkingNode(parser, (Obj*)expr);
     
     if (canAssign && match(parser, TOKEN_EQUAL)) {
@@ -373,7 +373,7 @@ static ObjExpr* call(ObjParser* parser, bool canAssign) {
 }
 
 static ObjExpr* string(ObjParser* parser, bool canAssign) {
-    return (ObjExpr*) newExprString(parser->previous.start + 1, parser->previous.length - 2);
+    return (ObjExpr*) newExprString(parser->context, parser->previous.start + 1, parser->previous.length - 2);
 }
 
 static ObjExpr* literal(ObjParser* parser, bool canAssign) {     
@@ -441,7 +441,7 @@ static ObjStmtFieldDeclaration* fieldStmt(ObjParser* parser) {
     pushWorkingNode(parser, (Obj*)offset);
 
     consume(parser, TOKEN_IDENTIFIER, "Expect name of field.");
-    ObjStmtFieldDeclaration* field = newStmtFieldDeclaration(parser->previous.start, parser->previous.length, parser->previous.line);
+    ObjStmtFieldDeclaration* field = newStmtFieldDeclaration(parser->context, parser->previous.start, parser->previous.length, parser->previous.line);
     field->type = type;
     field->offset = offset;
     consume(parser, TOKEN_SEMICOLON, "Expect ';' after field declaration.");
@@ -985,7 +985,7 @@ static ObjStmt* varDeclaration(ObjParser* parser) {
     }
     
     consume(parser, TOKEN_IDENTIFIER, "Expect variable name.");
-    ObjStmtVarDeclaration* decl = newStmtVarDeclaration((char*)parser->previous.start, parser->previous.length, parser->previous.line);
+    ObjStmtVarDeclaration* decl = newStmtVarDeclaration(parser->context, (char*)parser->previous.start, parser->previous.length, parser->previous.line);
     pushWorkingNode(parser, (Obj*)decl);
 
     decl->type = typeExpr;
@@ -1126,7 +1126,7 @@ ObjStmt* statement(ObjParser* parser) {
 
 static ObjStmtFunDeclaration* funDeclaration(ObjParser* parser, const char* msg) {
     consume(parser, TOKEN_IDENTIFIER, msg);
-    ObjStmtFunDeclaration* fun = newStmtFunDeclaration(parser->previous.start, parser->previous.length, parser->previous.line);
+    ObjStmtFunDeclaration* fun = newStmtFunDeclaration(parser->context, parser->previous.start, parser->previous.length, parser->previous.line);
     pushWorkingNode(parser, (Obj*)fun);
 
     consume(parser, TOKEN_LEFT_PAREN, "Expect '(' after function name.");
@@ -1156,7 +1156,7 @@ static ObjStmtClassDeclaration* classDeclaration(ObjParser* parser) {
     consume(parser, TOKEN_IDENTIFIER, "Expect class name.");
     Token className = parser->previous;
 
-    ObjStmtClassDeclaration* decl = newStmtClassDeclaration(className.start, className.length, parser->previous.line);
+    ObjStmtClassDeclaration* decl = newStmtClassDeclaration(parser->context, className.start, className.length, parser->previous.line);
     pushWorkingNode(parser, (Obj*)decl);
 
     if (match(parser, TOKEN_LESS)) {
