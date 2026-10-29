@@ -252,59 +252,58 @@ ObjString* doubleToString(double value) {
 }
 
 ObjString* i8ToString(int8_t value) {
-    char buffer[5];
-    snprintf(buffer, sizeof(buffer), "%d", value);
-    return copyString(buffer, (int)strlen(buffer));
+    char* buffer = ALLOCATE(char, DECIMAL_DIGITS_BOUND(int8_t) + 2); // +1 for possible '-' sign, +1 for null terminator
+    snprintf(buffer, DECIMAL_DIGITS_BOUND(int8_t) + 2, "%d", value);
+    return takeString(buffer, (int)strlen(buffer));
 }
 
 ObjString* ui8ToString(uint8_t value) {
-    char buffer[4];
-    snprintf(buffer, sizeof(buffer), "%u", value);
-    return copyString(buffer, (int)strlen(buffer));
+    char* buffer = ALLOCATE(char, DECIMAL_DIGITS_BOUND(uint8_t) + 1);
+    snprintf(buffer, DECIMAL_DIGITS_BOUND(uint8_t) + 1, "%u", value);
+    return takeString(buffer, (int)strlen(buffer));
 }
 
 ObjString* i16ToString(int16_t value) {
-    char buffer[7];
-    snprintf(buffer, sizeof(buffer), "%d", value);
-    return copyString(buffer, (int)strlen(buffer));
+    char* buffer = ALLOCATE(char, DECIMAL_DIGITS_BOUND(int16_t) + 2);  // +1 for possible '-' sign, +1 for null terminator
+    snprintf(buffer, DECIMAL_DIGITS_BOUND(int16_t) + 2, "%d", value);
+    return takeString(buffer, (int)strlen(buffer));
 }
 
 ObjString* ui16ToString(uint16_t value) {
-    char buffer[6];
-    snprintf(buffer, sizeof(buffer), "%u", value);
-    return copyString(buffer, (int)strlen(buffer));
+    char* buffer = ALLOCATE(char, DECIMAL_DIGITS_BOUND(uint16_t) + 1);
+    snprintf(buffer, DECIMAL_DIGITS_BOUND(uint16_t) + 1, "%u", value);
+    return takeString(buffer, (int)strlen(buffer));
 }
 
 ObjString* i32ToString(int32_t value) {
-    char buffer[12];
-    snprintf(buffer, sizeof(buffer), "%d", value);
-    return copyString(buffer, (int)strlen(buffer));
+    char* buffer = ALLOCATE(char, DECIMAL_DIGITS_BOUND(int32_t) + 2); // +1 for possible '-' sign, +1 for null terminator
+    snprintf(buffer, DECIMAL_DIGITS_BOUND(int32_t) + 2, "%d", value);
+    return takeString(buffer, (int)strlen(buffer));
 }
 
 ObjString* ui32ToString(uint32_t value) {
-    char buffer[11];
-    snprintf(buffer, sizeof(buffer), "%u", value);
-    return copyString(buffer, (int)strlen(buffer));
+    char* buffer = ALLOCATE(char, DECIMAL_DIGITS_BOUND(uint32_t) + 1);
+    snprintf(buffer, DECIMAL_DIGITS_BOUND(uint32_t) + 1, "%u", value);
+    return takeString(buffer, (int)strlen(buffer));
 }
 
 ObjString* i64ToString(int64_t value) {
-    char buffer[21];
-    snprintf(buffer, sizeof(buffer), "%" PRId64, value);
-    return copyString(buffer, (int)strlen(buffer));
+    char* buffer = ALLOCATE(char, DECIMAL_DIGITS_BOUND(int64_t) + 2); // +1 for possible '-' sign, +1 for null terminator
+    snprintf(buffer, DECIMAL_DIGITS_BOUND(int64_t) + 2, "%" PRId64, value);
+    return takeString(buffer, (int)strlen(buffer));
 }
 
 ObjString* ui64ToString(uint64_t value) {
-    char buffer[21];
-    snprintf(buffer, sizeof(buffer), "%" PRIu64, value);
-    return copyString(buffer, (int)strlen(buffer));
+    char* buffer = ALLOCATE(char, DECIMAL_DIGITS_BOUND(uint64_t) + 1);
+    snprintf(buffer, DECIMAL_DIGITS_BOUND(uint64_t) + 1, "%" PRIu64, value);
+    return takeString(buffer, (int)strlen(buffer));
 }
 
 ObjString* addressToString(uintptr_t value) {
-    char buffer[19];
-    snprintf(buffer, sizeof(buffer), "%p", (void*)value);
-    return copyString(buffer, (int)strlen(buffer));
+    char* buffer = ALLOCATE(char, 18 + 1);
+    snprintf(buffer, 18 + 1, "%p", (void*)value);
+    return takeString(buffer, (int)strlen(buffer));
 }
-
 
 static ObjString* arrayToString(Value arrayVal) {
     const ObjConcreteYargTypeArray* arrayType = (const ObjConcreteYargTypeArray*)arrayVal.type;
@@ -337,19 +336,13 @@ static ObjString* pointerToString(Value ptrVal) {
     ObjString* targetTypeStr = valueToString(targetType);
     tempRootPush(STRING_VAL(targetTypeStr));
 
-    ObjString* prefix = copyString("<*", 2);
-    tempRootPush(STRING_VAL(prefix));
-    ObjString* working = concatenateStrings(prefix, targetTypeStr);
-    tempRootPush(STRING_VAL(working));
+    size_t string_length = targetTypeStr->length;
+    string_length += DECIMAL_DIGITS_BOUND(uintptr_t) + 4; // "<*%s:%p>"
 
-    int length = working->length + 12;
-    char* chars = ALLOCATE(char, length + 1);
-    memcpy(chars, working->chars, working->length);
-    snprintf(chars + working->length, 12 + 1, ":%p>", ptr->loc);
+    char* chars = ALLOCATE(char, string_length + 1);
+    snprintf(chars, string_length + 1, "<*%s:%p>", targetTypeStr->chars, ptr->loc);
 
-    ObjString* result = takeString(chars, length);
-    tempRootPop();
-    tempRootPop();
+    ObjString* result = takeString(chars, strlen(chars));
     tempRootPop();
     return result;
 }
