@@ -703,11 +703,22 @@ void printStmts(ObjStmt* stmts) {
     }
 }
 
-void printSourceValue(FILE* op, Value value) {
+ObjString* valueAsSourceString(Value value) {
     if (IS_STRING(value)) {
-        FPRINTMSG(op, "\"%s\"", AS_CSTRING(value));
-        return;
+        ObjString* str = AS_STRING(value);
+        char* sourceStr = ALLOCATE(char, str->length + 3); // for quotes and null terminator
+        snprintf(sourceStr, str->length + 3, "\"%s\"", str->chars);
+        return takeString(sourceStr, str->length + 2);
     } else {
-        fprintValue(op, value);
+        ObjString* str = valueToString(value);
+        return str;
     }
+}
+
+
+void printSourceValue(FILE* op, Value value) {
+    ObjString* str = valueAsSourceString(value);
+    tempRootPush(STRING_VAL(str));
+    fprintf(op, "%s", str->chars);
+    tempRootPop();
 }

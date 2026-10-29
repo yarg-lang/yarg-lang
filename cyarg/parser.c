@@ -89,69 +89,37 @@ static ObjExpr* parsePrecedence(ObjParser* parser, Precedence precedence);
 static ObjExpr* expression(ObjParser* parser);
 static ObjExpr* typeExpression(ObjParser* parser);
 
-ObjString* concatenate_c_string(ObjString* a, const char* b, size_t len) {
-    ObjString* cstr = copyString(b, len);
-    tempRootPush(STRING_VAL(cstr));
-    ObjString* newstr = concatenateStrings(a, cstr);
-    tempRootPop();
-    return newstr;
-}
-
 void errorAt(ObjParser* parser, Token* token, const char* report) {
     if (parser->panicMode) return;
     parser->panicMode = true;
 
-    uint32_t displayed_line = (uint32_t) token->line;
-    ObjString* display_line_str = valueToString(UI32_VAL(displayed_line));
-    tempRootPush(STRING_VAL(display_line_str));
-
-    ObjString* message = copyString("[line ", 6);
-    tempRootPush(STRING_VAL(message));
-
-    message = concatenateStrings(message, display_line_str);
-    tempRootPop();
-    tempRootPop();
-    tempRootPush(STRING_VAL(message));
-
-    message = concatenate_c_string(message, "] Error", 7);
-    tempRootPop();
-    tempRootPush(STRING_VAL(message));
-
+    size_t messageLength = DECIMAL_DIGITS_BOUND(int) + 13; // strlen("[line ] Error");
     if (token->type == TOKEN_EOF) {
-        message = concatenate_c_string(message, " at end", 7);
-        tempRootPop();
-        tempRootPush(STRING_VAL(message));
+        messageLength += 7; // strlen(" at end");
     } else if (token->type == TOKEN_ERROR) {
         // Nothing.
     } else {
-        message = concatenate_c_string(message, " at '", 5);
-        tempRootPop();
-        tempRootPush(STRING_VAL(message));
-
-        ObjString* tokenStr = copyString(token->start, token->length);
-        tempRootPush(STRING_VAL(tokenStr));
-
-        message = concatenateStrings(message, tokenStr);
-        tempRootPop();
-        tempRootPop();
-        tempRootPush(STRING_VAL(message));
-
-        message = concatenate_c_string(message, "'", 1);
-        tempRootPop();
-        tempRootPush(STRING_VAL(message));
+        messageLength += 6; // strlen(" at ''")
+        messageLength += token->length;
     }
+    messageLength += strlen(report) + 2; // ": " and report itself
 
-    message = concatenate_c_string(message, ": ", 2);
-    tempRootPop();
-    tempRootPush(STRING_VAL(message));
+    char* message = ALLOCATE(char, messageLength + 1);
+    snprintf(message, messageLength + 1, "[line %d] Error", token->line);
+    if (token->type == TOKEN_EOF) {
+        strcat(message, " at end");
+    } else if (token->type == TOKEN_ERROR) {
+        // Nothing.
+    } else {
+        strcat(message, " at '");
+        strncat(message, token->start, token->length);
+        strcat(message, "'");
+    }
+    strcat(message, ": ");
+    strcat(message, report);
+    ObjString* errorString = takeString(message, messageLength);
 
-    message = concatenate_c_string(message, report, strlen(report));
-    tempRootPop();
-    tempRootPush(STRING_VAL(message));
-
-    appendToDynamicObjArray(&parser->errors, (Obj*)message);
-
-    tempRootPop();
+    appendToDynamicObjArray(&parser->errors, (Obj*)errorString);
 }
 
 void error(ObjParser* parser, const char* message) {

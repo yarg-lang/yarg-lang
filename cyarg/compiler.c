@@ -94,9 +94,6 @@ static void initCompiler(Compiler* compiler, FunctionType type, ObjString* name,
     }
 }
 
-// see: https://stackoverflow.com/questions/43787672/the-max-number-of-digits-in-an-int-based-on-number-of-bits
-#define DECIMAL_DIGITS_BOUND(t) (241 * sizeof(t) / 100 + 1)
-
 static void errorAt(const char* location, const char* message) {
     if (current->panicMode) return;
 
@@ -128,27 +125,10 @@ static void errorAt(const char* location, const char* message) {
 static void errorAtValue(Value location, const char* message) {
     if (current->panicMode) return;
 
-    size_t locationLength = 0;
-    if (IS_STRING(location)) {
-        char* cstring = AS_CSTRING(location);
-        locationLength = strlen(cstring) + 2; // for surrounding quotes
-    } else {
-        ObjString* string = valueToString(location);
-        locationLength = string->length;
-    }
-    char* location_str = ALLOCATE(char, locationLength + 1);
-    if (IS_STRING(location)) {
-        char* cstring = AS_CSTRING(location);
-        snprintf(location_str, locationLength + 1, "\"%s\"", cstring);
-    } else {
-        ObjString* string = valueToString(location);
-        tempRootPush(STRING_VAL(string));
-        snprintf(location_str, locationLength + 1, "%s", string->chars);
-        tempRootPop();
-    }
-
-    errorAt(location_str, message);
-    vm_free(location_str);
+    ObjString* locationString = valueAsSourceString(location);
+    push(current->context, STRING_VAL(locationString));
+    errorAt(locationString->chars, message);
+    pop(current->context);
 }
 
 

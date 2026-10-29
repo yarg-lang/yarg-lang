@@ -330,6 +330,8 @@ ObjStmtIf* newStmtIf(int line);
 ObjStmtWhile* newStmtWhile(int line);
 ObjStmtFor* newStmtFor(int line);
 
+ObjString* valueAsSourceString(Value value);
+
 void printStmts(ObjStmt* stmts);
 void printExpr(ObjExpr* expr);
 void printSourceValue(FILE* op, Value value);
