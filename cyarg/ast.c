@@ -17,102 +17,51 @@ ObjAst* newObjAst() {
     return ast;
 }
 
-ObjStmtExpression* newStmtExpression(ObjExpr* expr, ObjType type, int line) {
-    ObjStmtExpression* stmt = ALLOCATE_OBJ(ObjStmtExpression, type);
-    stmt->stmt.line = line;
-    stmt->expression = expr;
-
-    return stmt;
-}
-
-ObjStmtPoke* newStmtPoke(int line) {
-    ObjStmtPoke* stmt = ALLOCATE_OBJ(ObjStmtPoke, OBJ_STMT_POKE);
-    stmt->stmt.line = line;
-
-    return stmt;
-}
-
-ObjStmtVarDeclaration* newStmtVarDeclaration(ObjRoutine* context, const char* name, int nameLength, int line) {
-    ObjStmtVarDeclaration* stmt = ALLOCATE_OBJ(ObjStmtVarDeclaration, OBJ_STMT_VARDECLARATION);
+ObjStmt* pushNewStmt(ObjRoutine* context, ObjType type, int line) {
+    ObjStmt* stmt = NULL;
+    switch (type) {
+        case OBJ_STMT_EXPRESSION: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtExpression, OBJ_STMT_EXPRESSION); break;
+        case OBJ_STMT_RETURN: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtExpression, OBJ_STMT_RETURN); break;
+        case OBJ_STMT_YIELD: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtExpression, OBJ_STMT_YIELD); break;
+        case OBJ_STMT_PRINT: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtExpression, OBJ_STMT_PRINT); break;
+        case OBJ_STMT_BLOCK: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtBlock, OBJ_STMT_BLOCK); break;
+        case OBJ_STMT_IF: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtIf, OBJ_STMT_IF); break;
+        case OBJ_STMT_WHILE: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtWhile, OBJ_STMT_WHILE); break;
+        case OBJ_STMT_FOR: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtFor, OBJ_STMT_FOR); break;
+        case OBJ_STMT_POKE: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtPoke, OBJ_STMT_POKE); break;
+        case OBJ_STMT_PLACEDECLARATION: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtPlaceDeclaration, OBJ_STMT_PLACEDECLARATION); break;
+        case OBJ_STMT_VARDECLARATION: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtVarDeclaration, OBJ_STMT_VARDECLARATION); break;
+        case OBJ_STMT_FUNDECLARATION: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtFunDeclaration, OBJ_STMT_FUNDECLARATION); break;
+        case OBJ_STMT_CLASSDECLARATION: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtClassDeclaration, OBJ_STMT_CLASSDECLARATION); break;
+        case OBJ_STMT_FIELDDECLARATION: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtFieldDeclaration, OBJ_STMT_FIELDDECLARATION); break;
+        default: assert(!"Unsupported statement type in pushNewStmt"); break;
+    }
     push(context, IMPL_OBJ_VAL(stmt));
-    stmt->stmt.line = line;
-    stmt->name = copyString(name, nameLength);
-    pop(context);
+    stmt->line = line;
     return stmt;
 }
 
-ObjStmtPlaceDeclaration* newStmtPlaceDeclaration(int line) {
-    ObjStmtPlaceDeclaration* stmt = ALLOCATE_OBJ(ObjStmtPlaceDeclaration, OBJ_STMT_PLACEDECLARATION);
-    stmt->stmt.line = line;
-    initDynamicObjArray(&stmt->aliases);
+ObjStmt* pushNewStmtDeclaration(ObjRoutine* context, ObjType type, const char* name, int nameLength, int line) {
+    ObjStmt* stmt = pushNewStmt(context, type, line);
+
+    ObjString* objName = copyString(name, nameLength);
+    switch (type) {
+        case OBJ_STMT_VARDECLARATION: ((ObjStmtVarDeclaration*)stmt)->name = objName; break;
+        case OBJ_STMT_FUNDECLARATION: ((ObjStmtFunDeclaration*)stmt)->name = objName; break;
+        case OBJ_STMT_CLASSDECLARATION: ((ObjStmtClassDeclaration*)stmt)->name = objName; break;
+        case OBJ_STMT_FIELDDECLARATION: ((ObjStmtFieldDeclaration*)stmt)->name = objName; break;
+        default: assert(!"Unsupported statement type in pushNewStmtDeclaration"); break;
+    }
     return stmt;
 }
 
-void appendPlaceAlias(ObjStmtPlaceDeclaration* place, ObjExpr* location, const char* name, int nameLength) {
+void appendPlaceAlias(ObjRoutine* context, ObjStmtPlaceDeclaration* place, ObjExpr* location, const char* name, int nameLength) {
     ObjPlaceAlias* alias = ALLOCATE_OBJ(ObjPlaceAlias, OBJ_PLACEALIAS);
-    tempObjRootPush((Obj*)alias);
+    push(context, IMPL_OBJ_VAL(alias));
     alias->name = copyString(name, nameLength);
     alias->location = location;
     appendToDynamicObjArray(&place->aliases, (Obj*)alias);
-    tempRootPop();
-}
-
-ObjStmtBlock* newStmtBlock(int line) {
-    ObjStmtBlock* block = ALLOCATE_OBJ(ObjStmtBlock, OBJ_STMT_BLOCK);
-    block->stmt.nextStmt = NULL;
-    block->stmt.line = line;
-    block->statements = NULL;
-    return block;
-}
-
-ObjStmtIf* newStmtIf(int line) {
-    ObjStmtIf* ctrl = ALLOCATE_OBJ(ObjStmtIf, OBJ_STMT_IF);
-    ctrl->stmt.nextStmt = NULL;
-    ctrl->stmt.line = line;
-    ctrl->test = NULL;
-    ctrl->ifStmt = NULL;
-    ctrl->elseStmt = NULL;
-    return ctrl;
-}
-
-ObjStmtFunDeclaration* newStmtFunDeclaration(ObjRoutine* context, const char* name, int nameLength, int line) {
-    ObjStmtFunDeclaration* fun = ALLOCATE_OBJ(ObjStmtFunDeclaration, OBJ_STMT_FUNDECLARATION);
-    fun->stmt.line = line;
-    initDynamicObjArray(&fun->parameters);
-    push(context, IMPL_OBJ_VAL(fun));
-    fun->name = copyString(name, nameLength);
     pop(context);
-    return fun;
-}
-
-ObjStmtWhile* newStmtWhile(int line) {
-    ObjStmtWhile* loop = ALLOCATE_OBJ(ObjStmtWhile, OBJ_STMT_WHILE);
-    loop->stmt.nextStmt = NULL;
-    loop->stmt.line = line;
-    loop->test = NULL;
-    loop->loop = NULL;
-    return loop;
-}
-
-ObjStmtFor* newStmtFor(int line) {
-    ObjStmtFor* loop = ALLOCATE_OBJ(ObjStmtFor, OBJ_STMT_FOR);
-    loop->stmt.nextStmt = NULL;
-    loop->stmt.line = line;
-    loop->condition = NULL;
-    loop->initializer = NULL;
-    loop->loopExpression = NULL;
-    loop->body = NULL;
-    return loop;
-}
-
-ObjStmtClassDeclaration* newStmtClassDeclaration(ObjRoutine* context, const char* name, int nameLength, int line) {
-    ObjStmtClassDeclaration* decl = ALLOCATE_OBJ(ObjStmtClassDeclaration, OBJ_STMT_CLASSDECLARATION);
-    decl->stmt.line = line;
-    initDynamicObjArray(&decl->methods);
-    push(context, IMPL_OBJ_VAL(decl));
-    decl->name = copyString(name, nameLength);
-    pop(context);
-    return decl;
 }
 
 ObjExprOperation* newExprOperation(ObjExpr* rhs, ExprOp op) {
@@ -187,13 +136,11 @@ ObjExprString* newExprString(ObjRoutine* context, const char* str, int strLength
 
 ObjExprCall* newExprCall() {
     ObjExprCall* call = ALLOCATE_OBJ(ObjExprCall, OBJ_EXPR_CALL);
-    initDynamicObjArray(&call->arguments);
     return call;
 }
 
 ObjExprCollectionInitializer* newExprCollectionInitializer() {
     ObjExprCollectionInitializer* collection = ALLOCATE_OBJ(ObjExprCollectionInitializer, OBJ_EXPR_COLLECTION_INITIALIZER);
-    initDynamicObjArray(&collection->initializers);
     return collection;
 }
 
@@ -246,17 +193,7 @@ ObjExprTypeLiteral* newExprType(ExprTypeLiteral type) {
 
 ObjExprTypeStruct* newExprTypeStruct() {
     ObjExprTypeStruct* expr = ALLOCATE_OBJ(ObjExprTypeStruct, OBJ_EXPR_TYPE_STRUCT);
-    initDynamicValueArray(&expr->fieldsByIndex);
     return expr;
-}
-
-ObjStmtFieldDeclaration* newStmtFieldDeclaration(ObjRoutine* context, const char* name, int nameLength, int line) {
-    ObjStmtFieldDeclaration* decl = ALLOCATE_OBJ(ObjStmtFieldDeclaration, OBJ_STMT_FIELDDECLARATION);
-    decl->stmt.line = line;
-    push(context, IMPL_OBJ_VAL(decl));
-    decl->name = copyString(name, nameLength);
-    pop(context);
-    return decl;
 }
 
 static int indendation = 0;

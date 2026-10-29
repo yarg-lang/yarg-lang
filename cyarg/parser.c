@@ -441,11 +441,12 @@ static ObjStmtFieldDeclaration* fieldStmt(ObjParser* parser) {
     pushWorkingNode(parser, (Obj*)offset);
 
     consume(parser, TOKEN_IDENTIFIER, "Expect name of field.");
-    ObjStmtFieldDeclaration* field = newStmtFieldDeclaration(parser->context, parser->previous.start, parser->previous.length, parser->previous.line);
+    ObjStmtFieldDeclaration* field = (ObjStmtFieldDeclaration*) pushNewStmtDeclaration(parser->context, OBJ_STMT_FIELDDECLARATION, parser->previous.start, parser->previous.length, parser->previous.line);
     field->type = type;
     field->offset = offset;
     consume(parser, TOKEN_SEMICOLON, "Expect ';' after field declaration.");
 
+    popWorkingNode(parser);
     popWorkingNode(parser);
     popWorkingNode(parser);
     return field;
@@ -902,18 +903,23 @@ static ObjExpr* expression(ObjParser* parser) {
     return parsePrecedence(parser, PREC_ASSIGNMENT);
 }
 
-static ObjStmtExpression* printStatement(ObjParser* parser) {
-    ObjExpr* expr = expression(parser);
-    pushWorkingNode(parser, (Obj*)expr);
-    consume(parser, TOKEN_SEMICOLON, "Expect ';' after value.");
-    ObjStmtExpression* print = newStmtExpression(expr, OBJ_STMT_PRINT, parser->previous.line);
-    popWorkingNode(parser);
-    return print;
+static ObjStmtExpression* expressionStatement(ObjParser* parser, ObjType type, bool expectExpression, const char* msg) {
+    ObjStmtExpression* stmt = (ObjStmtExpression*) pushNewStmt(parser->context, type, parser->current.line);
+    
+    if (match(parser, TOKEN_SEMICOLON)) {
+        if (expectExpression) {
+            error(parser, "Expression expected.");
+        }
+    } else {
+        stmt->expression = expression(parser);
+        consume(parser, TOKEN_SEMICOLON, msg);
+    }
+    pop(parser->context);
+    return stmt;
 }
 
 static ObjStmtPoke* pokeStatement(ObjParser* parser) {
-    ObjStmtPoke* stmt = newStmtPoke(parser->previous.line);
-    pushWorkingNode(parser, (Obj*)stmt);
+    ObjStmtPoke* stmt = (ObjStmtPoke*) pushNewStmt(parser->context, OBJ_STMT_POKE, parser->current.line);
     stmt->location = expression(parser);
     consume(parser, TOKEN_COMMA, "Expect ',' after location.");
     stmt->assignment = expression(parser);
@@ -924,17 +930,8 @@ static ObjStmtPoke* pokeStatement(ObjParser* parser) {
         stmt->assignment = expression(parser);
     }
     consume(parser, TOKEN_SEMICOLON, "Expect ';' after value.");
-    popWorkingNode(parser);
+    pop(parser->context);
     return stmt;
-}
-
-static ObjStmtExpression* expressionStatement(ObjParser* parser) {
-    ObjExpr* expr = expression(parser);
-    pushWorkingNode(parser, (Obj*)expr);
-    consume(parser, TOKEN_SEMICOLON, "Expect ';' after expression.");
-    ObjStmtExpression* expressionStatement = newStmtExpression(expr, OBJ_STMT_EXPRESSION, parser->previous.line);
-    popWorkingNode(parser);
-    return expressionStatement;
 }
 
 static ObjExpr* typeExpression(ObjParser* parser) {
@@ -985,8 +982,7 @@ static ObjStmt* varDeclaration(ObjParser* parser) {
     }
     
     consume(parser, TOKEN_IDENTIFIER, "Expect variable name.");
-    ObjStmtVarDeclaration* decl = newStmtVarDeclaration(parser->context, (char*)parser->previous.start, parser->previous.length, parser->previous.line);
-    pushWorkingNode(parser, (Obj*)decl);
+    ObjStmtVarDeclaration* decl = (ObjStmtVarDeclaration*) pushNewStmtDeclaration(parser->context, OBJ_STMT_VARDECLARATION, parser->previous.start, parser->previous.length, parser->previous.line);
 
     decl->type = typeExpr;
 
@@ -1019,8 +1015,7 @@ static void block(ObjParser* parser, ObjStmt** statements) {
 }
 
 ObjStmt* ifStatement(ObjParser* parser) {
-    ObjStmtIf* ctrl = newStmtIf(parser->previous.line);
-    pushWorkingNode(parser, (Obj*)ctrl);
+    ObjStmtIf* ctrl = (ObjStmtIf*) pushNewStmt(parser->context, OBJ_STMT_IF, parser->previous.line);
 
     consume(parser, TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
     ctrl->test = expression(parser);
@@ -1030,13 +1025,13 @@ ObjStmt* ifStatement(ObjParser* parser) {
     if (match(parser, TOKEN_ELSE)) {
         ctrl->elseStmt = statement(parser);
     }
-    popWorkingNode(parser);
+    
+    pop(parser->context);
     return (ObjStmt*)ctrl;
 }
 
 ObjStmtWhile* whileStatement(ObjParser* parser) {
-    ObjStmtWhile* loop = newStmtWhile(parser->previous.line);
-    pushWorkingNode(parser, (Obj*)loop);
+    ObjStmtWhile* loop = (ObjStmtWhile*) pushNewStmt(parser->context, OBJ_STMT_WHILE, parser->previous.line);
 
     consume(parser, TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
     loop->test = expression(parser);
@@ -1044,30 +1039,13 @@ ObjStmtWhile* whileStatement(ObjParser* parser) {
 
     loop->loop = statement(parser);
 
-    popWorkingNode(parser);
+    pop(parser->context);
     return loop;
-}
-
-static ObjStmtExpression* returnOrYieldStatement(ObjParser* parser, ObjType type, const char* msg) {
-    ObjStmtExpression* stmt = newStmtExpression(NULL, type, parser->previous.line);
-    pushWorkingNode(parser, (Obj*)stmt);
-    
-    if (match(parser, TOKEN_SEMICOLON)) {
-        popWorkingNode(parser);
-        return stmt;
-    } else {
-        stmt->expression = expression(parser);
-        consume(parser, TOKEN_SEMICOLON, msg);
-        
-        popWorkingNode(parser);
-        return stmt;
-    }
 }
 
 static ObjStmtFor* forStatement(ObjParser* parser) {
 
-    ObjStmtFor* loop = newStmtFor(parser->previous.line);
-    pushWorkingNode(parser, (Obj*)loop);
+    ObjStmtFor* loop = (ObjStmtFor*) pushNewStmt(parser->context, OBJ_STMT_FOR, parser->previous.line);
 
     consume(parser, TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
     if (match(parser, TOKEN_SEMICOLON)) {
@@ -1075,7 +1053,7 @@ static ObjStmtFor* forStatement(ObjParser* parser) {
     } else if (match(parser, TOKEN_VAR)) {
         loop->initializer = varDeclaration(parser);
     } else {
-        loop->initializer = (ObjStmt*) expressionStatement(parser);
+        loop->initializer = (ObjStmt*) expressionStatement(parser, OBJ_STMT_EXPRESSION, true, "Expect ';' after expression.");
     }
 
     if (!match(parser, TOKEN_SEMICOLON)) {
@@ -1090,21 +1068,20 @@ static ObjStmtFor* forStatement(ObjParser* parser) {
 
     loop->body = statement(parser);
 
-    popWorkingNode(parser);
+    pop(parser->context);
     return loop;
 }
 
 ObjStmtBlock* blockStatement(ObjParser* parser) {
-    ObjStmtBlock* stmt = newStmtBlock(parser->previous.line);
-    pushWorkingNode(parser, (Obj*)stmt);
+    ObjStmtBlock* stmt = (ObjStmtBlock*) pushNewStmt(parser->context, OBJ_STMT_BLOCK, parser->previous.line);
     block(parser, &stmt->statements);
-    popWorkingNode(parser);
+    pop(parser->context);
     return stmt;
 }
 
 ObjStmt* statement(ObjParser* parser) {
     if (match(parser, TOKEN_PRINT)) {
-        return (ObjStmt*) printStatement(parser);
+        return (ObjStmt*) expressionStatement(parser, OBJ_STMT_PRINT, true, "Expect ';' after value.");
     } else if (match(parser, TOKEN_POKE)) {
         return (ObjStmt*) pokeStatement(parser);
     } else if (match(parser, TOKEN_FOR)) {
@@ -1112,22 +1089,21 @@ ObjStmt* statement(ObjParser* parser) {
     } else if (match(parser, TOKEN_IF)) {
         return ifStatement(parser);
     } else if (match(parser, TOKEN_YIELD)) {
-        return (ObjStmt*) returnOrYieldStatement(parser, OBJ_STMT_YIELD, "Expect ';' after yield value.");
+        return (ObjStmt*) expressionStatement(parser, OBJ_STMT_YIELD, false, "Expect ';' after yield value.");
     } else if (match(parser, TOKEN_RETURN)) {
-        return (ObjStmt*) returnOrYieldStatement(parser, OBJ_STMT_RETURN, "Expect ';' after return value.");
+        return (ObjStmt*) expressionStatement(parser, OBJ_STMT_RETURN, false, "Expect ';' after return value.");
     } else if (match(parser, TOKEN_WHILE)) {
         return (ObjStmt*) whileStatement(parser);
     } else if (match(parser, TOKEN_LEFT_BRACE)) {
         return (ObjStmt*) blockStatement(parser);
     } else {
-        return (ObjStmt*) expressionStatement(parser);
+        return (ObjStmt*) expressionStatement(parser, OBJ_STMT_EXPRESSION, true, "Expect ';' after expression.");
     }
 }
 
 static ObjStmtFunDeclaration* funDeclaration(ObjParser* parser, const char* msg) {
     consume(parser, TOKEN_IDENTIFIER, msg);
-    ObjStmtFunDeclaration* fun = newStmtFunDeclaration(parser->context, parser->previous.start, parser->previous.length, parser->previous.line);
-    pushWorkingNode(parser, (Obj*)fun);
+    ObjStmtFunDeclaration* fun = (ObjStmtFunDeclaration*) pushNewStmtDeclaration(parser->context, OBJ_STMT_FUNDECLARATION, parser->previous.start, parser->previous.length, parser->previous.line);
 
     consume(parser, TOKEN_LEFT_PAREN, "Expect '(' after function name.");
     if (!check(parser, TOKEN_RIGHT_PAREN)) {
@@ -1156,8 +1132,7 @@ static ObjStmtClassDeclaration* classDeclaration(ObjParser* parser) {
     consume(parser, TOKEN_IDENTIFIER, "Expect class name.");
     Token className = parser->previous;
 
-    ObjStmtClassDeclaration* decl = newStmtClassDeclaration(parser->context, className.start, className.length, parser->previous.line);
-    pushWorkingNode(parser, (Obj*)decl);
+    ObjStmtClassDeclaration* decl = (ObjStmtClassDeclaration*) pushNewStmtDeclaration(parser->context, OBJ_STMT_CLASSDECLARATION, className.start, className.length, parser->previous.line);
 
     if (match(parser, TOKEN_LESS)) {
         consume(parser, TOKEN_IDENTIFIER, "Expect superclass name.");
@@ -1182,19 +1157,18 @@ static ObjStmtClassDeclaration* classDeclaration(ObjParser* parser) {
 static void placeAliasDeclaration(ObjParser* parser, ObjStmtPlaceDeclaration* place) {
 
     ObjExpr* location = expression(parser);
-    pushWorkingNode(parser, (Obj*)location);
+    push(parser->context, IMPL_OBJ_VAL(location));
 
     consume(parser, TOKEN_IDENTIFIER, "Expect place name.");
-    appendPlaceAlias(place, location, parser->previous.start, parser->previous.length);
+    appendPlaceAlias(parser->context, place, location, parser->previous.start, parser->previous.length);
 
-    popWorkingNode(parser);
+    pop(parser->context);
     consume(parser, TOKEN_SEMICOLON, "Expect ';' after place declaration.");
 }
 
 static ObjStmtPlaceDeclaration* placeDeclaration(ObjParser* parser) {
 
-    ObjStmtPlaceDeclaration* place = newStmtPlaceDeclaration(parser->previous.line);
-    pushWorkingNode(parser, (Obj*)place);
+    ObjStmtPlaceDeclaration* place = (ObjStmtPlaceDeclaration*) pushNewStmt(parser->context, OBJ_STMT_PLACEDECLARATION, parser->previous.line);
     place->type = expression(parser);
 
     if (match(parser, TOKEN_LEFT_BRACE)) {
@@ -1206,7 +1180,7 @@ static ObjStmtPlaceDeclaration* placeDeclaration(ObjParser* parser) {
         placeAliasDeclaration(parser, place);
     }
 
-    popWorkingNode(parser);
+    pop(parser->context);
     return place;
 }
 
