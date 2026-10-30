@@ -564,7 +564,11 @@ static void freeObject(Obj* object) {
         }
         case OBJ_NATIVE: break;
         case OBJ_BUILTIN: break;
-        case OBJ_ROUTINE: break;
+        case OBJ_ROUTINE: {
+            ObjRoutine* routine = (ObjRoutine*)object;
+            gc_freeDynamicObjArray(&routine->runtimeErrors);
+            break;
+        }
         case OBJ_STRING: gc_free(((ObjString*)object)->chars); break;
         case OBJ_UPVALUE: break;
         case OBJ_CHANNELCONTAINER: gc_freeChannelObject((ObjChannelContainer*)object); break;

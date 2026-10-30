@@ -357,17 +357,16 @@ static InterpretResult invoke(ObjRoutine* routine, ObjString* name, int argCount
     }
 }
 
-static bool bindMethod(ObjRoutine* routine, ObjClass* klass, ObjString* name) {
+static void bindMethod(ObjRoutine* routine, ObjClass* klass, ObjString* name) {
     Value method;
     if (!tableGet(&klass->methods, name, &method)) {
         runtimeError(routine, "Undefined property '%s'.", name->chars);
-        return false;
+        return;
     }
 
     ObjBoundMethod* bound = newBoundMethod(peek(routine, 0), AS_CLOSURE(method));
     pop(routine);
     push(routine, BOUNDMETHOD_VAL(bound));
-    return true;
 }
 
 static ObjUpvalue* captureUpvalue(ObjRoutine* routine, ValueCell* local, size_t stackOffset) {
@@ -480,22 +479,21 @@ static bool derefStructElement(ObjRoutine* routine) {
     return true;
 }
 
-static bool derefElement(ObjRoutine* routine) {
+static void op_deref_element(ObjRoutine* routine) {
 
     Value collection = peek(routine, 1);
 
     if (IS_UNIFORMARRAY(collection) || isArrayPointer(collection)) {
-        return derefArrayElement(routine);
+        derefArrayElement(routine);
     } else if (IS_MAP(collection)) {
-        return derefMapElement(routine);
+        derefMapElement(routine);
     } else if (IS_STRUCT(collection)) {
-        return derefStructElement(routine);
+        derefStructElement(routine);
     } else {
         runtimeError(routine, "Expected a map, struct, or array as target.");
-        return false;
     }
-    return false;
 }
+
 
 static bool setAnArrayElement(ObjRoutine* routine, Value arrayVal, Value indexVal, Value rhs) {
 
@@ -530,7 +528,7 @@ static bool setMapElement(ObjRoutine* routine, ObjMap* map, Value key, Value rhs
     return true;
 }
 
-static bool setElement(ObjRoutine* routine) {
+static void op_set_element(ObjRoutine* routine) {
 
     Value collection = peek(routine, 2);
     Value index = peek(routine, 1);
@@ -544,17 +542,14 @@ static bool setElement(ObjRoutine* routine) {
         result = setAnArrayElement(routine, collection, index, rhs);
     } else if (IS_STRUCT(collection)) {
         runtimeError(routine, "Setting struct elements is not supported yet.");
-        return false;
     } else {
         runtimeError(routine, "Expected an array and a positive or unsigned integer.");
-        return false;
     }
 
     if (result) {
         pop(routine);
         pop(routine);
     }
-    return result;
 }
 
 static void derefPtr(ObjRoutine* routine) {
@@ -804,7 +799,7 @@ InterpretResult run(ObjRoutine* routine) {
 
     for (;;) {
         if (routine->state == EXEC_ERROR) {
-            runtimeError(routine, "Error");
+            assert(!IS_NIL(routine->error));
             return INTERPRET_RUNTIME_ERROR;
         }
         if (routine->traceExecution) {
@@ -960,10 +955,7 @@ InterpretResult run(ObjRoutine* routine) {
                         break;
                     }
 
-                    if (!bindMethod(routine, instance->klass, name)) {
-                        runtimeError(routine, "Error");
-                        return INTERPRET_RUNTIME_ERROR;
-                    }
+                    bindMethod(routine, instance->klass, name);
                 } else if (IS_STRUCT(peek(routine, 0))) {
                     Value structVal = peek(routine, 0);
                     ObjString* name = READ_STRING();
@@ -1041,10 +1033,7 @@ InterpretResult run(ObjRoutine* routine) {
                 ObjString* name = READ_STRING();
                 ObjClass* superclass = AS_CLASS(pop(routine));
 
-                if (!bindMethod(routine, superclass, name)) {
-                    runtimeError(routine, "Error");
-                    return INTERPRET_RUNTIME_ERROR;
-                }
+                bindMethod(routine, superclass, name);
                 break;
             }
             case OP_EQUAL: case OP_GREATER: case OP_LESS: {
@@ -1388,20 +1377,8 @@ InterpretResult run(ObjRoutine* routine) {
             case OP_METHOD:
                 defineMethod(routine, READ_STRING());
                 break;
-            case OP_ELEMENT: {
-                if (!derefElement(routine)) {
-                    runtimeError(routine, "Error");
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-                break;
-            }
-            case OP_SET_ELEMENT: {
-                if (!setElement(routine)) {
-                    runtimeError(routine, "Error");
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-                break;
-            }
+            case OP_ELEMENT: op_deref_element(routine); break;
+            case OP_SET_ELEMENT: op_set_element(routine); break;
             case OP_TYPE_LITERAL: {
                 uint8_t typeCode = READ_BYTE();
                 const ObjConcreteYargType* typeObj = newYargTypeFromTypeCode(typeCode);

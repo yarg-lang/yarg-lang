@@ -52,9 +52,12 @@ typedef struct ObjRoutine {
     DynamicObjArray additionalSlicesArray;
     AddSliceFn addSlice;
 
+    DynamicObjArray runtimeErrors;
+
     ObjClosure* entryFunction;
     Value entryArg;
     Value result;
+    Value error;
 
     ObjUpvalue* openUpvalues;
 

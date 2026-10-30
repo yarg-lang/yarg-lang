@@ -14,6 +14,7 @@
 #include "yargobject.h"
 #include "vmobject.h"
 #include "value_cell.h"
+#include "packed_containers.h"
 
 bool addSlice(ObjRoutine* routine);
 
@@ -21,6 +22,7 @@ void initRoutine(ObjRoutine* routine) {
     routine->entryFunction = NULL;
     routine->entryArg = NIL_VAL;
     routine->state = EXEC_UNBOUND;
+    routine->error = NIL_VAL;
     routine->sliceCount = 0;
     initDynamicObjArray(&routine->additionalSlicesArray);
 
@@ -43,6 +45,7 @@ void initRoutine(ObjRoutine* routine) {
 void resetRoutine(ObjRoutine* routine) {
 
     routine->result = NIL_VAL;
+    initDynamicObjArray(&routine->runtimeErrors);
 
     routine->stackTopIndex = 0;
     routine->frameCount = 0;
@@ -234,23 +237,24 @@ void markRoutine(ObjRoutine* routine) {
     }
 
     markDynamicObjArray(&routine->additionalSlicesArray);
+    markDynamicObjArray(&routine->runtimeErrors);
 
     markObject((Obj*)routine->entryFunction);
     markValue(routine->entryArg);
     markValue(routine->result);
+    markValue(routine->error);
 }
 
 void runtimeError(ObjRoutine* routine, const char* format, ...) {
+
     va_list args;
     va_start(args, format);
     size_t buffer_required = vsnprintf(NULL, 0, format, args);
     char* message_buffer = ALLOCATE(char, buffer_required + 1);
-    vsnprintf(message_buffer, buffer_required + 1, format, args);
+    int written = vsnprintf(message_buffer, buffer_required + 1, format, args);
+    ObjString* errorMessage = takeString(message_buffer, written);
+    appendToDynamicObjArray(&routine->runtimeErrors, (Obj*)errorMessage);
     va_end(args);
-
-    fputs(message_buffer, stderr);
-    fputs("\n", stderr);
-    vm_free(message_buffer);
 
     for (int i = routine->frameCount - 1; i >= 0; i--) {
         CallFrame* frame = &routine->frames[i];
@@ -265,12 +269,11 @@ void runtimeError(ObjRoutine* routine, const char* format, ...) {
         const char* scriptName = function->fName ? function->fName->chars : "<script>";
         size_t buffer_required = snprintf(NULL, 0, "[line %d] in %s", line, scriptName);
         char* buffer = ALLOCATE(char, buffer_required + 1);
-        snprintf(buffer, buffer_required + 1, "[line %d] in %s", line, scriptName);
-        fputs(buffer, stderr);
-        fputs("\n", stderr);
-        vm_free(buffer);
+        int written = snprintf(buffer, buffer_required + 1, "[line %d] in %s", line, scriptName);
+        appendToDynamicObjArray(&routine->runtimeErrors, (Obj*)takeString(buffer, written));
     }
 
+    routine->error = duplicateAsValueArray(&routine->runtimeErrors);
     routine->state = EXEC_ERROR;
     resetRoutine(routine);
 }
