@@ -51,8 +51,7 @@ void init_heap_instance(O1HeapInstance** instance) {
 
     *instance = o1heapInit(heapArena, sizeof(heapArena));
     if (*instance == NULL) {
-        PRINTERR("Failed to initialize heap instance.\n");
-        exit(1);
+        fatalVMError("Failed to initialize heap instance.");
     }
 }
 
@@ -82,8 +81,7 @@ void* vm_allocate(size_t newSize) {
 
     void* result = o1heapAllocate(vm.heap_instance, newSize);
     if (result == NULL) {
-        PRINTERR("help! no memory.");
-        exit(1);
+        fatalVMError("help! no memory.");
     }
     vm_mutex_exit(&vm.heap);
     return result;
@@ -102,8 +100,7 @@ void* vm_reallocate(void* pointer, size_t newSize) {
 
     void* result = o1heapReallocate(vm.heap_instance, pointer, newSize);
     if (result == NULL) {
-        PRINTERR("help! no memory.");
-        exit(1);
+        fatalVMError("help! no memory.");
     }
     vm_mutex_exit(&vm.heap);
     return result;
@@ -166,7 +163,7 @@ void markObject(Obj* object) {
         vm.grayCapacity = GROW_CAPACITY(vm.grayCapacity);
         vm.grayStack = (Obj**)o1heapReallocate(vm.heap_instance, vm.grayStack, sizeof(Obj*) * vm.grayCapacity);
 
-        if (vm.grayStack == NULL) exit(1);
+        if (vm.grayStack == NULL) fatalVMError("Failed to allocate gray stack.");
     }
 
     vm.grayStack[vm.grayCount++] = object;
