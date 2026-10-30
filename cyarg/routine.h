@@ -80,7 +80,8 @@ void runAndRenter(ObjRoutine* routine);
 
 bool resumeRoutine(ObjRoutine* context, ObjRoutine* target, size_t argCount, Value argument, Value* result);
 void yieldFromRoutine(ObjRoutine* routine);
-void returnFromRoutine(ObjRoutine* routine, Value result);
+int op_return(ObjRoutine* routine, CallFrame* frame);
+void op_close_upvalues(ObjRoutine* routine);
 bool startRoutine(ObjRoutine* context, ObjRoutine* target, size_t argCount, Value argument);
 bool receiveFromRoutine(ObjRoutine* routine, Value* result);
 

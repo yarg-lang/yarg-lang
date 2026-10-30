@@ -393,15 +393,6 @@ static ObjUpvalue* captureUpvalue(ObjRoutine* routine, ValueCell* local, size_t 
     return createdUpvalue;
 }
 
-static void closeUpvalues(ObjRoutine* routine, size_t last) {
-    while (routine->openUpvalues != NULL && routine->openUpvalues->stackOffset >= last) {
-        ObjUpvalue* upvalue = routine->openUpvalues;
-        upvalue->closed = *upvalue->contents;
-        upvalue->contents = &upvalue->closed;
-        routine->openUpvalues = upvalue->next;
-    }
-}
-
 static void defineMethod(ObjRoutine* routine, ObjString* name) {
     Value method = peek(routine, 0);
     ObjClass* klass = AS_CLASS(peek(routine, 1));
@@ -1332,10 +1323,7 @@ InterpretResult run(ObjRoutine* routine) {
                 }
                 break;
             }
-            case OP_CLOSE_UPVALUE:
-                closeUpvalues(routine, routine->stackTopIndex - 1);
-                pop(routine);
-                break;
+            case OP_CLOSE_UPVALUE: op_close_upvalues(routine); break;
             case OP_YIELD: {
                 if (routine == &vm.core0) {
                     runtimeError(routine, "Cannot yield from initial routine.");
@@ -1345,15 +1333,8 @@ InterpretResult run(ObjRoutine* routine) {
                 return INTERPRET_OK;
             }
             case OP_RETURN: {
-                Value result = pop(routine);
-                tempRootPush(result);
-                closeUpvalues(routine, frame->stackEntryIndex);
-                routine->frameCount--;
-                popFrame(routine, frame);
-                push(routine, result);
-                tempRootPop();
-                if (routine->frameCount == 0) {
-                    returnFromRoutine(routine, result);
+                int remainingFrames = op_return(routine, frame);
+                if (remainingFrames == 0) {
                     return INTERPRET_OK;
                 }
                 frame = &routine->frames[routine->frameCount - 1];

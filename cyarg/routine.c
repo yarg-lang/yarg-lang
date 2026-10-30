@@ -164,11 +164,34 @@ void yieldFromRoutine(ObjRoutine* context) {
     context->state = EXEC_SUSPENDED;
 }
 
-void returnFromRoutine(ObjRoutine* context, Value result) {
-    assert(context->frameCount == 0);
-    context->result = result;
-    context->state = EXEC_CLOSED;
+static void closeUpvalues(ObjRoutine* routine, size_t last) {
+    while (routine->openUpvalues != NULL && routine->openUpvalues->stackOffset >= last) {
+        ObjUpvalue* upvalue = routine->openUpvalues;
+        upvalue->closed = *upvalue->contents;
+        upvalue->contents = &upvalue->closed;
+        routine->openUpvalues = upvalue->next;
+    }
 }
+
+void op_close_upvalues(ObjRoutine* routine) {
+    closeUpvalues(routine, routine->stackTopIndex - 1);
+    pop(routine);
+}
+
+int op_return(ObjRoutine* routine, CallFrame* frame) {
+    routine->result = pop(routine);
+    closeUpvalues(routine, frame->stackEntryIndex);
+    routine->frameCount--;
+    popFrame(routine, frame);
+    push(routine, routine->result);
+    if (routine->frameCount == 0) {
+        routine->state = EXEC_CLOSED;
+    } else {
+        routine->result = NIL_VAL;
+    }
+    return routine->frameCount;
+}
+
 
 bool startRoutine(ObjRoutine* context, ObjRoutine* target, size_t argCount, Value argument) {
 
