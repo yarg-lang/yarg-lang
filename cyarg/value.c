@@ -12,6 +12,7 @@
 #include "yargstructtype.h"
 #include "value_cell.h"
 #include "packed_containers.h"
+#include "routine.h"
 
 bool isObjValue(Value value) {
     if (value.type == &yargTypes.implementation_obj && value.as.obj != NULL) return true;
@@ -397,7 +398,7 @@ ObjString* valueToString(Value value) {
             }
             case TypeMap:      return objectToString(value.as.obj);
             case TypeString:   return objectToString(value.as.obj);
-            case TypeRoutine:  return objectToString(value.as.obj);
+            case TypeRoutine:  return routineToString(value);
             case TypeClass:    return objectToString(value.as.obj);
             case TypeInstance: return objectToString(value.as.obj);
             case TypeFunction: return objectToString(value.as.obj);

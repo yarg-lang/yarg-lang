@@ -95,6 +95,6 @@ void runtimeError(ObjRoutine* routine, const char* format, ...);
 
 void traceExecution(ObjRoutine* routine);
 
-ObjString* routineToString(const ObjRoutine* routine);
+ObjString* routineToString(Value routine);
 
 #endif

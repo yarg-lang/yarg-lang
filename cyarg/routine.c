@@ -479,8 +479,18 @@ void traceExecution(ObjRoutine* routine) {
         (int)(frame->ip - frame->closure->function->chunk.code));
 }
 
-ObjString* routineToString(const ObjRoutine* routine) {
-    char buffer[64];
-    snprintf(buffer, sizeof(buffer), "<R%p>", routine);
-    return copyString(buffer, (int)strlen(buffer));
+ObjString* routineToString(Value routineVal) {
+    assert(!IS_NIL(routineVal));
+    ObjRoutine* routine = AS_ROUTINE(routineVal);
+    int buffer_size = snprintf(NULL, 0, "<R%p>", routine);
+    char* buffer = ALLOCATE(char, buffer_size + 1);
+    if (routine == &vm.core0) {
+        snprintf(buffer, buffer_size + 1, "<R%-*s>", buffer_size - 3, "core0");
+    } else if (vm.core1 && routine == vm.core1) {
+        snprintf(buffer, buffer_size + 1, "<R%-*s>", buffer_size - 3, "core1");
+    } else {
+        snprintf(buffer, buffer_size + 1, "<R%p>", routine);
+    }
+    ObjString* result = takeString(buffer, buffer_size);
+    return result;
 }

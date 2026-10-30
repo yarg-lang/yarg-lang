@@ -89,10 +89,6 @@ ObjString* objectToString(const Obj* value) {
             return copyString("<native fn>", 11);
         case OBJ_BUILTIN:
             return builtinToString((const ObjBuiltin*)value);
-        case OBJ_ROUTINE: {
-            const ObjRoutine* routine = (const ObjRoutine*)value;
-            return routineToString(routine);
-        }
         case OBJ_CHANNELCONTAINER: {
             const ObjChannelContainer* channel = (const ObjChannelContainer*)value;
             return channelToString(channel);
