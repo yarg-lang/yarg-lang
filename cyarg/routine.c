@@ -243,9 +243,14 @@ void markRoutine(ObjRoutine* routine) {
 void runtimeError(ObjRoutine* routine, const char* format, ...) {
     va_list args;
     va_start(args, format);
-    vfprintf(stderr, format, args);
+    size_t buffer_required = vsnprintf(NULL, 0, format, args);
+    char* message_buffer = ALLOCATE(char, buffer_required + 1);
+    vsnprintf(message_buffer, buffer_required + 1, format, args);
     va_end(args);
+
+    fputs(message_buffer, stderr);
     fputs("\n", stderr);
+    vm_free(message_buffer);
 
     for (int i = routine->frameCount - 1; i >= 0; i--) {
         CallFrame* frame = &routine->frames[i];
@@ -256,12 +261,14 @@ void runtimeError(ObjRoutine* routine, const char* format, ...) {
             if (function->chunk.lines[s].address > instruction) break;
             line = function->chunk.lines[s].line;
         }
-        PRINTERR("[line %d] in ", line);
-        if (function->fName == NULL) {
-            PRINTERR("script\n");
-        } else {
-            PRINTERR("%s()\n", function->fName->chars); // todo: if this is a synthetic fun e.g. boot or file.ya then don’t put parentheses
-        }
+        // todo: add parenthesis after function name if appropriate
+        const char* scriptName = function->fName ? function->fName->chars : "<script>";
+        size_t buffer_required = snprintf(NULL, 0, "[line %d] in %s", line, scriptName);
+        char* buffer = ALLOCATE(char, buffer_required + 1);
+        snprintf(buffer, buffer_required + 1, "[line %d] in %s", line, scriptName);
+        fputs(buffer, stderr);
+        fputs("\n", stderr);
+        vm_free(buffer);
     }
 
     routine->state = EXEC_ERROR;
