@@ -13,7 +13,7 @@ fi
 cp ../../build/yarg-lang.uf2 $TARGETUF2
 
 for y in binary_trees.ya equality.ya fib.ya instantiation.ya \
-         int-perform.ya invocation.ya method_call.ya \
+         int-perform.ya small-int-perform.ya invocation.ya method_call.ya \
          properties.ya string_equality.ya trees.ya zoo_batch.ya \
          zoo.ya stable-interrupt.ya
 do
