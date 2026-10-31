@@ -111,7 +111,7 @@ ObjString* objectToString(const Obj* value) {
             return copyString(string->chars, string->length);
         }
         case OBJ_UPVALUE: {
-            const ObjUpvalue* upvalue = (const ObjUpvalue*)value;
+//            const ObjUpvalue* upvalue = (const ObjUpvalue*)value;
             return copyString("upvalue", 7);
         }
         case OBJ_YARGTYPE:

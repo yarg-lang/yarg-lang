@@ -434,6 +434,10 @@ bool is_positive_integer(Value a) {
     } else if (IS_I64(a) && AS_I64(a) >= 0 && AS_I64(a) <= UINT32_MAX) {
         return true;
     } else if (IS_INT(a)) {
+//    printf("o:%d l:%d\n", a.as.bigSmallInt.obj_, a.as.bigSmallInt.literal_);
+//    if (!a.as.bigSmallInt.obj_) printf("n:%d v:%d o:%d l:%d %d\n", a.as.bigSmallInt.i_.neg_, a.as.bigSmallInt.i_.overflow_, a.as.bigSmallInt.i_.obj_, a.as.bigSmallInt.i_.literal_, a.as.bigSmallInt.i_.w_[0]);
+//    if (a.as.bigSmallInt.obj_) printf("n:%d v:%d o:%d l:%d %d\n", a.as.bigSmallInt.objInt_->bigInt.neg_, a.as.bigSmallInt.i_.overflow_, a.as.bigSmallInt.objInt_->bigInt.obj_, a.as.bigSmallInt.objInt_->bigInt.literal_, a.as.bigSmallInt.objInt_->bigInt.w_[0]);
+
         return int_is_range(AS_INT(a), 0, UINT32_MAX) == INT_WITHIN;
     }
 #endif

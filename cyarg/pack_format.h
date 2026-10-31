@@ -5,6 +5,8 @@
 
 #include <stdint.h>
 
+//#define DEBUG_PACK 1
+
 #if defined(DEBUG_PACK)
 #define DP(DPA) do { DPA; } while (0)
 #else

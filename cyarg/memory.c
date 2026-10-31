@@ -60,6 +60,7 @@ void* gc_free(void* pointer, size_t oldSize, size_t newSize) {
     }
     vm.bytesAllocated += newSize - oldSize;
 
+//    printf("gc_free(%p)\n", pointer);
     o1heapFree(vm.heap_instance, pointer);
     return NULL;
 }
@@ -79,12 +80,14 @@ void* reallocate(void* pointer, size_t oldSize, size_t newSize) {
     }
 
     if (newSize == 0) {
+//        printf("reallocate(%p)\n", pointer);
         o1heapFree(vm.heap_instance, pointer);
         vm_mutex_exit(&vm.heap);
         return NULL;
     }
 
     void* result = o1heapReallocate(vm.heap_instance, pointer, newSize);
+//    printf("reallocate(%p)-->%p\n", pointer, result);
     if (result == NULL) {
         PRINTERR("help! no memory.");
         exit(1);
@@ -134,7 +137,9 @@ void markObject(Obj* object) {
 
     if (vm.grayCapacity < vm.grayCount + 1) {
         vm.grayCapacity = GROW_CAPACITY(vm.grayCapacity);
+//        void *xx = vm.grayStack;
         vm.grayStack = (Obj**)o1heapReallocate(vm.heap_instance, vm.grayStack, sizeof(Obj*) * vm.grayCapacity);
+//        printf("markObject(%p)-->%p\n", xx, vm.grayStack);
 
         if (vm.grayStack == NULL) exit(1);
     }

@@ -275,6 +275,12 @@ static ValueCell* slot(ObjRoutine* routine, size_t index) {
 }
 
 void push(ObjRoutine* routine, Value value) {
+//    if (value.type == VAL_BIG_SMALL_INT) {
+//        Int *i = VALUE_AS_INT(value);
+////        if (i->d_ > i->m_ || i->overflow_) {
+//            printf("What2! %p\n", i);
+//        }
+//    }
     ValueCell* nextSlot = slot(routine, routine->stackTopIndex);
 
     nextSlot->value = value;
@@ -315,9 +321,33 @@ void popN(ObjRoutine* routine, size_t count) {
 void popFrame(ObjRoutine* routine, CallFrame* frame) {
     routine->stackTopIndex = frame->stackEntryIndex;
 }
+//extern Int *iiii;
 
 Value peek(ObjRoutine* routine, int distance) {
     ValueCell* cell = peekCell(routine, distance);
+//    assert(cell->value.type != VAL_OBJ || cell->value.as.obj->type != OBJ_INT);
+//    if (cell->value.type == VAL_OBJ && cell->value.as.obj->type == OBJ_INT) {
+//        printf("Value is VAL_OBJ:OBJ_INT - should be VAL_BIG_SMALL_INT - updating\n");
+//        ObjInt* obj = (ObjInt *)cell->value.as.obj;
+//        uint8_t *flags = (uint8_t *)&obj->bigInt;
+//        cell->value.type = VAL_BIG_SMALL_INT;
+//        cell->value.as.bigSmallInt.objInt_ = (ObjInt *)cell->value.as.obj;
+//        cell->value.as.bigSmallInt.obj_ = true;
+//        bool neg = (*flags & 0xff) != 0;
+//        bool overflow = (*flags & 0xff00) != 0;
+//        cell->value.as.bigSmallInt.objInt_->bigInt.obj_ = true;
+//        cell->value.as.bigSmallInt.objInt_->bigInt.neg_ = neg;
+//        cell->value.as.bigSmallInt.objInt_->bigInt.overflow_ = overflow;
+//    }
+//    if (iiii != 0) {
+//        printf("P %u %u\n", iiii->d_, iiii->m_);
+//    }
+//    if (cell->value.type == VAL_BIG_SMALL_INT) {
+//        Int *i = VALUE_AS_INT(cell->value);
+//        if (i->d_ > i->m_ || i->overflow_) {
+//            printf("What3! %p\n", i);
+//        }
+//    }
     return cell->value;
 }
 

@@ -506,7 +506,7 @@ static bool setElement(ObjRoutine* routine) {
     } else if (IS_UNIFORMARRAY(collection)) {
         result = setAnArrayElement(routine, collection, index, rhs);
     } else {
-        runtimeError(routine, "Expected an array and a positive or unsigned integer.");
+        runtimeError(routine, "3 Expected an array and a positive or unsigned integer.");
         return false;
     }
 
@@ -774,7 +774,10 @@ InterpretResult run(ObjRoutine* routine) {
         uint8_t instruction = READ_BYTE();
         switch (instruction) {
             case OP_CONSTANT: {
+//                printf("Read C %u\n", *frame->ip);
                 Value constant = READ_CONSTANT();
+//                Value constant = frame->closure->function->chunk.constants.values[*frame->ip++];
+
                 push(routine, constant);
                 break;
             }
