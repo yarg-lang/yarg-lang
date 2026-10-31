@@ -9,5 +9,6 @@ pushd yarg/specimen > /dev/null
 ../../bin/yarg cp -fs "../../$FS_PATH" -src serial-echo.ya -dest serial-echo.ya
 ../../bin/yarg cp -fs "../../$FS_PATH" -src serial-input.ya -dest serial-input.ya
 ../../bin/yarg cp -fs "../../$FS_PATH" -src dma-test.ya -dest dma-test.ya
+../../bin/yarg cp -fs "../../$FS_PATH" -src int.ya -dest int.ya
 
 popd > /dev/null
