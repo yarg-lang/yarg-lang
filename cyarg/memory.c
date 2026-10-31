@@ -21,7 +21,15 @@
 #include "value_cell.h"
 #include "packed_containers.h"
 
+#if defined CYARG_NATIVE_HEAP
+#define O1HEAP_ALIGNMENT 8
+#define o1heapInit(a,b) (void *)1
+#define o1heapFree(a,b) free(b)
+#define o1heapReallocate(a,b,c) realloc(b, c)
+#define o1heapDoInvariantsHold(a) true
+#else
 #include "../external/o1heap/o1heap/o1heap.h"
+#endif
 
 #ifdef DEBUG_LOG_GC
 #include "debug.h"
@@ -33,7 +41,7 @@ void init_heap_instance(O1HeapInstance** instance) {
 
 #if defined(CYARG_SELF_HOSTED)
     static alignas(O1HEAP_ALIGNMENT)uint8_t heapArena[190 * 1024];
-#else
+#elif !defined CYARG_NATIVE_HEAP
     static alignas(O1HEAP_ALIGNMENT)uint8_t heapArena[10000 * 1024];
 #endif
 
