@@ -1,0 +1,184 @@
+var int32 job_size = int32(280 * 1);
+var uint32 max_job_length = 30;
+
+// https://github.com/kraj/uClibc/blob/master/libc/stdlib/rand_r.c#L25
+var maxRand = uint32(0x7fffffff);
+var uint32 seed = 173553;
+fun rand()
+{
+    var uint32 next = seed;
+    var uint32 result;
+
+    next = next * 1103515245;
+    next = next + 12345;
+    result = (next / 65536) % 2048;
+
+    next = next * 1103515245;
+    next = next + 12345;
+    result = result << 10;
+    result = result ^ ((next / 65536) % 1024);
+
+    next = next * 1103515245;
+    next = next + 12345;
+    result = result << 10;
+    result = result ^ ((next / 65536) % 1024);
+
+    seed = next;
+    return next & maxRand;
+}
+
+fun int_rand()
+{
+    var shifter = 0x80000000;
+    var size = int(rand() % uint32(33)); // max 33 * 31 => 1023 bits
+    var int x = int(rand());
+
+    for (var i = 0; i < size; i = 1 + i)
+    {
+        x = x * shifter + int(rand());
+    }
+
+    if (size == 32)
+    {
+        if (rand() % uint32(2) == uint32(1))
+        {
+            x = x + 89884656743115795386465259539451236680898848947115328636715040578866337902750481566354238661203768010560056939935696678829394884407208311246423715319737062188883946712432742638151109800623047059726541476042502884419075341171231440736956555270413618581675255342293149119973622969239858152417678164812112068608;
+        }
+    }
+    return x;
+}
+
+
+var int[job_size + 3] rts;
+print "small-int-perform benchmark: job size: " + string(job_size) + ", max job length: " + string(max_job_length) + "secs";
+
+var int32 count = 0;
+var int32 rand_calls = 0;
+while (count < int32(job_size)) {
+    var candidate32 = int_rand() % int(4294967296);
+    if (rand() % uint32(2) == uint32(1)) candidate32 = -candidate32;
+    var int candidate24 = int_rand() % 16777216;
+    if (rand() % uint32(2) == uint32(1)) candidate24 = -candidate24;
+    var int candidate16 = int_rand() % 65536;
+    if (rand() % uint32(2) == uint32(1)) candidate16 = -candidate16;
+    var int candidate8 = int_rand() % 256;
+    if (rand() % uint32(2) == uint32(1)) candidate8 = -candidate8;
+
+    rand_calls = rand_calls + 4;
+    if (candidate32 != 0) {
+        rts[count] = candidate32;
+        count = count + 1;
+    }
+    if (candidate24 != 0) {
+        rts[count] = candidate24;
+        count = count + 1;
+    }
+    if (candidate16 != 0) {
+        rts[count] = candidate16;
+        count = count + 1;
+    }
+    if (candidate8 != 0) {
+        rts[count] = candidate8;
+        count = count + 1;
+    }
+}
+print "Generated " + string(job_size) + " non-zero small random numbers in " + string(rand_calls) + " calls to int_rand()";
+
+fun add_job(i, n) {
+    for (var int32 j = 0; j < n; j = 1 + j)
+    {
+        rts[i] + rts[j];
+    }
+}
+
+fun sub_job(i, n) {
+    for (var int32 j = 0; j < n; j = 1 + j)
+    {
+        rts[i] - rts[j];
+    }
+}
+
+fun mul_job(i, n) {
+    for (var int32 j = 0; j < n; j = 1 + j)
+    {
+        rts[i] * rts[j];
+    }
+}
+
+fun div_job(i, n) {
+    for (var int32 j = 0; j < n; j = 1 + j)
+    {
+        rts[i] / rts[j];
+    }
+}
+
+fun mod_job(i, n) {
+    for (var int32 j = 0; j < n; j = 1 + j)
+    {
+        rts[i] % rts[j];
+    }
+}
+
+fun negate_job(i, n) {
+    for (var int32 j = 0; j < n; j = 1 + j)
+    {
+        -rts[j];
+    }
+}
+
+var x;
+fun assign_job(i, n) {
+    for (var int32 j = 0; j < n; j = 1 + j)
+    {
+        x = rts[j];
+        x = rts[i];
+    }
+}
+
+fun read_job(i, n) {
+    for (var int32 j = 0; j < n; j = 1 + j)
+    {
+        rts[j];
+        rts[i];
+    }
+}
+
+fun null_job(i, n) {
+    for (var int32 j = 0; j < n; j = 1 + j)
+    {
+    }
+}
+
+fun bench_job(job_size, op_job, limit) {
+    for (var int32 i = 0; i < job_size; i = 1 + i)
+    {
+        op_job(i, job_size);
+        if (uint32(clock()) > limit) {
+            return i * job_size;
+        }
+    }
+    return job_size * job_size;
+}
+
+fun bench_op(name, batch_fun) {
+    var start_time = uint32(clock());
+    var total_ops = int(bench_job(job_size, batch_fun, start_time + max_job_length));
+    var time_taken = uint32(clock()) - start_time;
+    var us_per_op = 1000000 * int(time_taken) / total_ops;
+    if (time_taken > 0) {
+        var ops_per_s = total_ops / int(time_taken);
+        print name + " time:" + string(time_taken) + "s, ops:" + string(total_ops) + ", rate:"  + string(ops_per_s) + " ops/s, duration:" + string(us_per_op) + " µs";
+    } else {
+        print name + " time:" + string(time_taken) + "s, ops:" + string(total_ops) + ", rate:∞ ops/s, duration:" + string(us_per_op) + " µs";
+    }
+}
+
+bench_op("Add (x+y)", add_job);
+bench_op("Sub (x-y)", sub_job);
+bench_op("Mul (x*y)", mul_job);
+bench_op("Div (x/y)", div_job);
+bench_op("Mod (x%y)", mod_job);
+bench_op("Negate (-x)", negate_job);
+bench_op("Assign (g = x)", assign_job);
+bench_op("Read (x)", read_job);
+bench_op("Null ()", null_job);
