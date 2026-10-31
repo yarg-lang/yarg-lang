@@ -123,9 +123,8 @@ ObjString* objectToString(const Obj* value) {
         }
         case OBJ_INT: {
             const ObjInt* intObj = (const ObjInt*)value;
-            const Int *i = &intObj->bigInt;
             char sb[INT_STRLEN_FOR_INT254];
-            char const* s = int_to_s(i, sb, INT_STRLEN_FOR_INT254);
+            char const* s = int_to_s(&intObj->bigInt, sb, INT_STRLEN_FOR_INT254);
             return copyString(s, (int)strlen(s));
         }
         case OBJ_MAP: {

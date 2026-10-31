@@ -545,12 +545,12 @@ static void promote(Value *left, Value *right)
     assert(left != 0 && right != 0);
 
     Value *toPromote = 0, *promotionToTypeOf;
-    if (IS_INT(*left) && (AS_INTOBJ(*left)->isLiteral))
+    if (IS_INT(*left) && (AS_INT(*left)->literal_))
     {
         toPromote = left;
         promotionToTypeOf = right;
     }
-    else if (IS_INT(*right) && (AS_INTOBJ(*right)->isLiteral))
+    else if (IS_INT(*right) && (AS_INT(*right)->literal_))
     {
         toPromote = right;
         promotionToTypeOf = left;
@@ -788,10 +788,14 @@ InterpretResult run(ObjRoutine* routine) {
                 {
                     num += 65536 * READ_BYTE();
                 }
-                ObjInt *i = newIntU(num);
-                i->isLiteral = true;
-                i->bigInt.neg_ = instruction == OP_IMMEDIATE_N8 || instruction == OP_IMMEDIATE_N16 || instruction == OP_IMMEDIATE_N24;
-                push(routine, INTOBJ_VAL(i));
+
+                Value i = { .type = &yargTypes.integer };
+                (void) int_init_concrete2(&i.as.bigSmallInt.i_);
+                i.as.bigSmallInt.i_.literal_ = true;
+                int_set_u(num, (Int *)&i.as.bigSmallInt.i_);
+                i.as.bigSmallInt.i_.neg_ = instruction == OP_IMMEDIATE_N8 || instruction == OP_IMMEDIATE_N16 || instruction == OP_IMMEDIATE_N24;
+                int_invariant(AS_INT(i));
+                push(routine, i);
                 break;
             }
             case OP_NIL: push(routine, NIL_VAL); break;
@@ -948,9 +952,9 @@ InterpretResult run(ObjRoutine* routine) {
                     tempRootPop();
                     pop(routine);
                     push(routine, result);
-                } else if (IS_INT(peek(routine, 0)))
-                {
-                    Int *b = AS_INT(pop(routine));
+                } else if (IS_INT(peek(routine, 0))) {
+                    Value i = pop(routine);
+                    Int *b = AS_INT(i);
                     ObjString* name = READ_STRING();
                     if (strcmp(name->chars, "overflow") == 0)
                     {
@@ -1598,18 +1602,22 @@ InterpretResult bootXIP() {
 
 void unaryIntOp(ObjRoutine* routine, int op) {
     assert(op == OP_NEGATE);
-    Int* a = AS_INT(peek(routine, 0));
-    ObjInt *r = allocateIntObject(a->d_);
-    int_set_t(a, &r->bigInt);
-    int_neg(&r->bigInt);
+    Value i = peek(routine, 0);
+    Int *a = AS_INT(i);
+    Value negI;
+    allocateIntValue(&negI, a->d_);
+    int_set_t(a, AS_INT(negI));
+    int_neg(AS_INT(negI));
     pop(routine);
-    push(routine, INTOBJ_VAL(r));
+    push(routine, negI);
 }
 
 void binaryIntOp(ObjRoutine* routine, char const *c)
 {
-    Int *a = AS_INT(peek(routine, 1));
-    Int *b = AS_INT(peek(routine, 0));
+    Value va = peek(routine, 1);
+    Value vb = peek(routine, 0);
+    Int *a = AS_INT(va);
+    Int *b = AS_INT(vb);
 
     int s = 0;
     switch (*c)
@@ -1624,38 +1632,46 @@ void binaryIntOp(ObjRoutine* routine, char const *c)
         s = a->d_ ;
         break;
     case '%':
-        s = a->d_ > b->d_ ? a->d_ : b->d_;
+        s = a->d_ > b->d_ ? b->d_ : a->d_;
+        if (!int_is_zero(a) && ((a->neg_ && !b->neg_) || (!a->neg_ && b->neg_)))
+        {
+            s = 1 + (s > b->d_ ? s : b->d_);
+        }
         break;
     default:
         assert(!"IntOp");
     }
     if (s > 254) s = 254;
-    ObjInt *r = allocateIntObject(s);
-    int_init(&r->bigInt);
+    Value r;
+    allocateIntValue(&r, s);
+    Int *i = AS_INT(r);
+    int_init(i);
 
     switch (*c)
     {
-    case '+': int_add(a, b, &r->bigInt); break;
-    case '-': int_sub(a, b, &r->bigInt); break;
-    case '*': int_mul(a, b, &r->bigInt); break;
-    case '/': int_div(a, b, &r->bigInt, 0); break; // todo - compiler should optimise for /%
+    case '+': int_add(a, b, i); break;
+    case '-': int_sub(a, b, i); break;
+    case '*': int_mul(a, b, i); break;
+    case '/': int_div(a, b, i, 0); break; // todo - compiler should optimise for /%
     case '%': {
         IntConcrete254 q;
         int_init_concrete254(&q);
-        int_div(a, b, (Int *) &q, &r->bigInt); // todo int_div should handle q == 0
+        int_div(a, b, (Int *) &q, i); // todo int_div should handle q == 0
         break;
     }
     default:
         assert(!"IntOp");
     }
     routine->stackTopIndex -= 2;
-    push(routine, INTOBJ_VAL(r));
+    push(routine, r);
 }
 
 void binaryIntBoolOp(ObjRoutine* routine, char const *op)
 {
-    Int *b = AS_INT(pop(routine));
-    Int *a = AS_INT(pop(routine));
+    Value vb = pop(routine);
+    Value va = pop(routine);
+    Int *a = AS_INT(va);
+    Int *b = AS_INT(vb);
     IntComp ic = int_is(a, b);
     bool r;
     switch (*op)

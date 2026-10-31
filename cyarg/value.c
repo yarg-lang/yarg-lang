@@ -117,18 +117,11 @@ Value concrete_typeof(Value a) {
 }
 
 Value duplicateValue(Value src) {
-    if (IS_INT(src)) {
-        ObjInt* rhs = AS_INTOBJ(src);
-        ObjInt* lhs = allocateIntObject(rhs->bigInt.m_);
-        tempRootPush(INTOBJ_VAL(lhs));
-        uint16_t* lhs_w = (uint16_t*) &lhs->bigInt.w_[0];
-        uint16_t* rhs_w = (uint16_t*) &rhs->bigInt.w_[0];
-        memcpy(lhs_w, rhs_w, rhs->bigInt.m_ * sizeof(uint16_t));
-        lhs->bigInt.neg_ = rhs->bigInt.neg_;
-        lhs->bigInt.d_ = rhs->bigInt.d_;
-        lhs->isLiteral = rhs->isLiteral;
-        tempRootPop();
-        return INTOBJ_VAL(lhs);
+    if (IS_BIG_INT(src)) {
+        Value lhs;
+        allocateIntValue(&lhs, AS_BIG_SMALL_INT(src).objInt_->bigInt.d_);
+        int_set_t(&AS_BIG_SMALL_INT(src).objInt_->bigInt, AS_INT(lhs));
+        return lhs;
     } else if (IS_STRUCT(src)) {
         return duplicateStruct(src);
     } else if (IS_UNIFORMARRAY(src)) {
@@ -362,7 +355,14 @@ ObjString* valueToString(Value value) {
             case TypeStruct:   return structToString(value);
             case TypeYargType: return objectToString(value.as.obj);
             case TypePointer:  return pointerToString(value);
-            case TypeInt:      return objectToString(value.as.obj);
+            case TypeInt:
+            if (value.as.bigSmallInt.obj_) {
+                return objectToString((Obj *)value.as.bigSmallInt.objInt_);
+            } else {
+                char sb[INT_STRLEN_FOR_INT254];
+                char const* s = int_to_s((Int *)&value.as.bigSmallInt.i_, sb, INT_STRLEN_FOR_INT254);
+                return copyString(s, (int)strlen(s));
+            }
             case TypeMap:      return objectToString(value.as.obj);
             case TypeString:   return objectToString(value.as.obj);
             case TypeRoutine:  return objectToString(value.as.obj);
@@ -396,8 +396,7 @@ bool valuesEqual(Value a, Value b) {
         case TypeStruct:   return structsEqual(a, b);
         case TypeYargType: return typesEqual(AS_YARGTYPE(a), AS_YARGTYPE(b));
         case TypePointer:  return pointersEqual(a, b);
-        case TypeInt:      return intsEqual(AS_INTOBJ(a), AS_INTOBJ(b));
-
+        case TypeInt:      return int_is(AS_INT(a), AS_INT(b)) == INT_EQ;
         case TypeMap:
         case TypeString:
         case TypeRoutine:
@@ -479,4 +478,15 @@ size_t as_positive_integer(Value a) {
     }
 #endif
     return 0;
+}
+
+void allocateIntValue(Value *newBigSmallInt, size_t numDigits) {
+    newBigSmallInt->type = &yargTypes.integer;
+    BigSmallInt *bsi = &newBigSmallInt->as.bigSmallInt;
+    if (numDigits > 2) {
+        bsi->objInt_ = allocateIntObject(numDigits);
+        bsi->obj_ = true;
+    } else {
+        (void) int_init_concrete2(&bsi->i_);
+    }
 }

@@ -14,7 +14,7 @@
 enum { PACKAGE_OK = 0, PACKAGE_DATAERR = 65, PACKAGE_PROTOCOL = 71, PACKAGE_SOFTWARE = 70 };
 
 int8_t const packageMagic[PACKAGE_MAGIC_LEN] = {0x79, 0x0a, 0x72, 0x67, 0xff, 0x42};
-int16_t const packageVersion = 0x2603;
+int16_t const packageVersion = 0x2604;
 
 ObjFunction *loadPackageFromBuffer(ObjRoutine* context, uint8_t* buffer, size_t bufferSize) {
     int r = PACKAGE_OK;
@@ -156,14 +156,14 @@ ObjFunction *loadPackageFromBuffer(ObjRoutine* context, uint8_t* buffer, size_t 
             }
             case PACK_CONST_TYPE_I: {
                 Int const *thisInt = (Int const *)&intFile[index];
-                ObjInt *obj = allocateIntObject(thisInt->d_);
-                push(context, INTOBJ_VAL(obj));
-                memcpy(&obj->bigInt, thisInt, sizeof (Int) + obj->bigInt.m_ * sizeof (uint16_t)); // should be able to shallow copy
-                Value value = INTOBJ_VAL(obj);
+                Value value;
+                allocateIntValue(&value, thisInt->d_);
+                Int *loadedInt = AS_INT(value);
+                push(context, value);
+                memcpy(loadedInt, thisInt, sizeof (Int) + loadedInt->m_ * sizeof (uint16_t)); // should be able to shallow copy
                 appendToDynamicValueArray(&currentFunction->chunk.constants, value);
                 pop(context);
-                DP(printf(":");
-                int_print(thisInt));
+                DP(printf(":"); int_print(thisInt));
                 break;
             }
             case PACK_CONST_TYPE_D: {

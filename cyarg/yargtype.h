@@ -3,7 +3,7 @@
 
 //               | Value | Placeable | Container | Parameterised | Obj | nil |
 // TypeBool      | x     |           |           |               |     |     |
-// TypeInt       | x     |           |           |               | x   |     |
+// TypeInt       | x     |           |           |               | x1  |     |
 // TypePointer   |       | Packable* | x         | x             | x   | x   |
 // TypeClass     |       |           |           |               | x   | x   |
 // TypeInstance  |       |           |           | x             | x   | x   |
@@ -42,6 +42,7 @@
 // Parameterised - requires information to fully define the type, eg the
 //                 size of an array, or the types of its elements.
 // Obj - Always stored as a heap Obj(ect).
+// Note 1 - Ints ≤ 32 bits are stored as Value; larger Ints are stored as Obj
 //
 // ! will have a c-style string available
 // % routines contain only functions
@@ -49,6 +50,7 @@
 // + both Array and Map will become value types as the implementation is completed.
 
 #include "object.h"
+#include "big-int/big-int.h"
 
 typedef enum {
    TypeBool,
@@ -79,6 +81,7 @@ typedef enum {
 
 typedef union {
     bool boolean;
+    BigSmallInt bigSmallInt;
     double dbl;
     uint8_t ui8;
     int8_t i8;

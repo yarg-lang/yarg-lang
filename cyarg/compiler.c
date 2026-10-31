@@ -240,9 +240,9 @@ static void emitConstant(Value value) {
         emitBytes(OP_CONSTANT, makeConstant(value));
     }
     else if (IS_INT(value)) {
-        ObjInt *oi = (ObjInt *) value.as.obj;
-        if (int_is_range(&oi->bigInt, -UINT24_MAX, UINT24_MAX) == INT_WITHIN) {
-            int32_t v = int_to_i32(&oi->bigInt);
+        Int *i = AS_INT(value);
+        if (int_is_range(i, -UINT24_MAX, UINT24_MAX) == INT_WITHIN) {
+            int32_t v = int_to_i32(i);
             emitImmediateConstant(v);
         }
         else {
@@ -350,10 +350,12 @@ static void generateNumber(ObjExprNumber* num) {
         emitConstant(DOUBLE_VAL(num->dbl));
         break;
     case NUMBER_INT: {
-        ObjInt *objInt = allocateIntObject(num->bigInt.d_);
-        objInt->isLiteral = true;
-        int_set_t(&num->bigInt, &objInt->bigInt);
-        emitConstant(INTOBJ_VAL(objInt));
+        Value v;
+        allocateIntValue(&v, num->bigInt.d_);
+        AS_BIG_SMALL_INT(v).literal_ = true;
+        AS_INT(v)->literal_ = true;
+        int_set_t(&num->bigInt, AS_INT(v));
+        emitConstant(v);
         break;
     }
     default:

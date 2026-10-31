@@ -14,7 +14,7 @@
 #define PACKAGE_MAGIC_LEN 6
 
 typedef struct ObjString ObjString;
-typedef struct ObjInt ObjInt;
+typedef struct BigSmallInt BigSmallInt;
 typedef struct ObjFunction ObjFunction;
 typedef struct Chunk Chunk;
 
@@ -62,13 +62,13 @@ extern int16_t const packageVersion;
 // x1   function names (M)x16 -- included if (L > 0) debug/error reporting, truncated if over 15 chars
 
 #if defined(DEBUG_PACK)
-uint32_t chunks__ = 0;
-uint32_t ints__ = 0;
-uint32_t strings__ = 0;
-uint32_t code__ = 0;
-uint32_t lines__ = 0;
-uint32_t names__ = 0;
-uint32_t end__ = 0;
+extern uint32_t chunks__;
+extern uint32_t ints__;
+extern uint32_t strings__;
+extern uint32_t code__;
+extern uint32_t lines__;
+extern uint32_t names__;
+extern uint32_t end__;
 #endif
 
 typedef struct {
@@ -113,7 +113,7 @@ typedef struct {
 typedef struct {
     uint32_t n_;
     uint32_t extent_;
-        ObjString **i_;
+    ObjString **i_;
     int totalStringLength_;
 } StringsFile;
 
@@ -126,7 +126,7 @@ typedef struct {
 typedef struct {
     uint32_t n_;
     uint32_t extent_;
-    ObjInt **i_;
+    BigSmallInt *i_;
     int totalIntsLength_;
 } IntsFile;
 

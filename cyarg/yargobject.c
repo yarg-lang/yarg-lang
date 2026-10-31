@@ -47,41 +47,25 @@ ObjInstance* newInstance(ObjClass* klass) {
     return instance;
 }
 
-bool intsEqual(const ObjInt* a, const ObjInt* b) {
-    if (a == b) return true;
-
-    return int_is(&a->bigInt, &b->bigInt) == INT_EQ;
-}
-
 ObjInt* allocateIntObject(size_t numDigits) {
     numDigits += numDigits % 2; // numDigits is always even
     assert(numDigits <= 254 && numDigits >= 2);
     ObjInt *i = (ObjInt *) allocateObject(sizeof (ObjInt) + numDigits * sizeof (uint16_t), OBJ_INT);
     i->bigInt.m_ = numDigits;
-    return i;
-}
-
-ObjInt* newInt(int64_t value) {
-    ObjInt *i = allocateIntObject(sizeof value / sizeof (uint16_t));
-    int_set_i(value, &i->bigInt);
-    return i;
-}
-
-ObjInt* newIntU(uint64_t value) {
-    ObjInt *i = allocateIntObject(sizeof value / sizeof (uint16_t));
-    int_set_u(value, &i->bigInt);
+    i->bigInt.obj_ = true;
     return i;
 }
 
 Value defaultIntValue() {
-    ObjInt *intObj = allocateIntObject(1);
-    int_init(&intObj->bigInt);
-    return INTOBJ_VAL(intObj);
+    Value i = { .type = &yargTypes.integer };
+    (void) int_init_concrete2(&i.as.bigSmallInt.i_);
+    return i;
 }
 
-void noLongerLiteralInt(Value value) {
-    if (IS_INT(value)) {
-        ((ObjInt *) value.as.obj)->isLiteral = false;
+void noLongerLiteralInt(Value *value) {
+    if (IS_INT(*value)) {
+        AS_BIG_SMALL_INT(*value).literal_ = false;
+        AS_INT(*value)->literal_ = false; // in the small case this will repeat the assignment above, in the large case there is literal_ in the value and the object
     }
 }
 
@@ -101,8 +85,7 @@ ObjString* mapToString(const ObjMap* map) {
 
 bool isAddressValue(Value val) {
     if (IS_INT(val)) {
-        ObjInt *i = AS_INTOBJ(val);
-        return i->isLiteral;
+        return AS_BIG_SMALL_INT(val).literal_;
     } else if (IS_ADDRESS(val)) {
         return true;
     } else {

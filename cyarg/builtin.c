@@ -445,16 +445,19 @@ bool lenBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (IS_STRING(arg)) {
         ObjString* string = AS_STRING(arg);
         size_t length = string->length;
-        *result = INTOBJ_VAL(newIntU(length));
+        allocateIntValue(result, sizeof (size_t) / sizeof (uint16_t));
+        int_set_u(length, AS_INT(*result));
         return true;
     } else if (IS_UNIFORMARRAY(arg)) {
         ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*) arg.type;
-        *result = INTOBJ_VAL(newIntU(arrayType->cardinality));
+        allocateIntValue(result, sizeof (size_t) / sizeof (uint16_t));
+        int_set_u(arrayType->cardinality, AS_INT(*result));
         return true;
     } else if (IS_MAP(arg)) {
         ObjMap* map = AS_MAP(arg);
         size_t count = map->entries.count;
-        *result = INTOBJ_VAL(newIntU(count));
+        allocateIntValue(result, sizeof (size_t) / sizeof (uint16_t));
+        int_set_u(count, AS_INT(*result));
         return true;
     } else {
         runtimeError(routineContext, "Expected a string, array or map.");
@@ -938,43 +941,51 @@ bool int8Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
 bool intBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     Value arg = peek(routineContext, 0);
     int64_t i;
-    if (IS_I8(arg)) {
+    size_t s;
+    if (IS_I8(arg)) { // todo: optimise with switch
         i = AS_I8(arg);
+        s = 1;
     } else if (IS_I16(arg)) {
         i = AS_I16(arg);
+        s = 1;
     } else if (IS_I32(arg)) {
         i = AS_I32(arg);
+        s = 2;
     } else if (IS_I64(arg)) {
         i = AS_I64(arg);
+        s = 4;
     } else if (IS_UI8(arg)) {
         i = AS_UI8(arg);
+        s = 1;
     } else if (IS_UI16(arg)) {
         i = AS_UI16(arg);
+        s = 1;
     } else if (IS_UI32(arg)) {
         i = AS_UI32(arg);
+        s = 2;
     } else if (IS_UI64(arg)) {
         uint64_t u = AS_UI64(arg);
-        *result = INTOBJ_VAL(newIntU(u));
+        allocateIntValue(result, 4);
+        int_set_u(u, AS_INT(*result));
         return true;
     } else if (IS_STRING(arg)) {
         char *s = AS_CSTRING(arg);
         int il = INT_DIGITS_FOR_S(strlen(s));
-        ObjInt *newObj = allocateIntObject(il);
-        *result = INTOBJ_VAL(newObj);
-        int_set_s(s, &newObj->bigInt);
+        allocateIntValue(result, il);
+        int_set_s(s, AS_INT(*result));
         return true;
     } else if (IS_INT(arg)) {
         Int *from = AS_INT(arg);
         int il = from->d_;
-        ObjInt *newObj = allocateIntObject(il);
-        *result = INTOBJ_VAL(newObj);
-        int_set_t(from, &newObj->bigInt);
+        allocateIntValue(result, il);
+        int_set_t(from, AS_INT(*result));
         return true;
     } else {
         return false;
     }
 
-    *result = INTOBJ_VAL(newInt(i));
+    allocateIntValue(result, s);
+    int_set_i(i, AS_INT(*result)); // todo: optimise as only IS_I64 has obj_
     return true;
 }
 

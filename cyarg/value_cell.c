@@ -8,7 +8,7 @@
 
 bool assignToValueCellTarget(ValueCellTarget lhs, Value rhsValue) {
     if (lhs.cellType == NULL) {
-        noLongerLiteralInt(rhsValue);
+        noLongerLiteralInt(&rhsValue);
         *lhs.value = rhsValue;
         return true;
     } else {
@@ -16,7 +16,7 @@ bool assignToValueCellTarget(ValueCellTarget lhs, Value rhsValue) {
         if (isInitialisableType(lhs.cellType, rhsValue, &promoted)) {
             if (promoted.type == NULL)
             {
-                noLongerLiteralInt(rhsValue);
+                noLongerLiteralInt(&rhsValue);
                 *(lhs.value) = rhsValue;
             }
             else
@@ -38,7 +38,7 @@ bool assignToPlacedValueCellTarget(PlacedValueCellTarget lhs, Value rhsValue) {
         assert(promoted.type != NULL || rhsValue.type != NULL);
 
         if (promoted.type == NULL) {
-            noLongerLiteralInt(rhsValue);
+            noLongerLiteralInt(&rhsValue);
             assert(is_placeable_type(rhsValue.type));
             setPlacedValue((PlacedValue){.value = lhs.value, .type = lhs.cellType}, rhsValue);
         } else {

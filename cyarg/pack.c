@@ -11,6 +11,7 @@
 #include "object.h"
 #include "memory.h"
 #include "yargobject.h"
+#include "big-int/big-int.h"
 
 static void fileSet(void *, int, size_t i);
 static void fileExtend(void *, int, size_t);
@@ -19,6 +20,16 @@ static void flattenConstants(int funIndex, Chunk const *, FlatFiles *);
 static void calcStringAndIntOffsets(FlatFiles *);
 static void flattenLines(FlatFiles *);
 static int pack(char const *, FlatFiles *, FILE *);
+
+#if defined(DEBUG_PACK)
+uint32_t chunks__ = 0;
+uint32_t ints__ = 0;
+uint32_t strings__ = 0;
+uint32_t code__ = 0;
+uint32_t lines__ = 0;
+uint32_t names__ = 0;
+uint32_t end__ = 0;
+#endif
 
 int packScript(char const *sourceFileName, struct ObjFunction const *scriptFn, bool includeLines, char const *path) {
     FILE *file = fopen(path, "wb");
@@ -106,7 +117,7 @@ void flattenConstants(int chunkIndex, Chunk const *chunk, FlatFiles *f) {
         } else if (IS_INT(*v)) {
             fc->constTypesAndOffsets_.i_[i] = (ConstItem){ .type_ = PACK_CONST_TYPE_I, .index_ = f->intsFile_.n_ };
             fileExtend(&f->intsFile_, 16, sizeof *f->intsFile_.i_);
-            f->intsFile_.i_[f->intsFile_.n_++] = AS_INTOBJ(*v);
+            f->intsFile_.i_[f->intsFile_.n_++] = AS_BIG_SMALL_INT(*v);
         } else if (IS_STRING(*v)) {
             ObjString *from = AS_STRING(*v);
             int sI = 0;
@@ -182,7 +193,7 @@ void calcStringAndIntOffsets(FlatFiles *f) {
                 }
             }
         }
-        Int *from = &f->intsFile_.i_[iI]->bigInt;
+        Int *from = BIG_SMALL_INT_AS_INT(f->intsFile_.i_[iI]);
         int len = (int)((char *) from->w_ - (char *) from);
         assert(len == 4);
         len += sizeof (uint16_t) * (from->d_ + from->d_ % 2);
@@ -312,9 +323,9 @@ int pack(char const *sourceFileName, FlatFiles *f, FILE *file) {
 
     DP(ints__ = offset__);
     for (int iI = 0; iI < f->intsFile_.n_; iI++) {
-        Int *bigInt = &f->intsFile_.i_[iI]->bigInt;
+        Int *i = BIG_SMALL_INT_AS_INT(f->intsFile_.i_[iI]);
         IntConcrete254 t;
-        int_set_t(bigInt, int_init_concrete254(&t));
+        int_set_t(i, int_init_concrete254(&t));
         t.m_ = t.d_ + t.d_ % 2;
         written = fwrite__(&t, sizeof (Int) + sizeof (uint16_t) * t.m_, 1, file);
         if (written != 1) return EX_SOFTWARE;

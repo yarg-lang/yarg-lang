@@ -21,42 +21,84 @@
 // multiply by 1/log10(65536) - fails at 1224 decimal digits (255 (16-bit) digits)
 #define INT_DIGITS_FOR_S(STRLEN) ((1651124 + (int)(STRLEN) * 342808) / 1651125)
 
+typedef struct ObjInt ObjInt;
 
 typedef struct
 {
-    bool neg_;
-    bool overflow_;
+    uint16_t neg_ : 1;
+    uint16_t overflow_ : 1;
+    uint16_t obj_ : 1;
+    uint16_t literal_ : 1;
+    uint16_t : 12;
     uint8_t d_; // num (16-bit) digits 1..m_
     uint8_t m_; // max (16-bit) digits - allocated size, always even
+} IntHeader;
+
+typedef struct Int
+{
+    uint16_t neg_ : 1;
+    uint16_t overflow_ : 1;
+    uint16_t obj_ : 1;
+    uint16_t literal_ : 1;
+    uint16_t : 12;
+    uint8_t d_; // num (16-bit) digits 1..m_
+    uint8_t m_; // max (16-bit) digits - allocated size, always even - 2..254
     uint32_t w_[];
 } Int;
 
 typedef struct // smallest concrete type of int - can be a global or a local or const, any IntConcreteX *obj may be cast to (Int *)
 {
-    bool neg_;
-    bool overflow_;
-    uint8_t d_;
-    uint8_t m_; // {2}
+    uint16_t neg_ : 1;
+    uint16_t overflow_ : 1;
+    uint16_t obj_ : 1;
+    uint16_t literal_ : 1;
+    uint16_t : 12;
+    uint8_t d_; // num (16-bit) digits 1..2
+    uint8_t m_; // 2
     uint32_t w_[2 / 2];
 } IntConcrete2;
 
 typedef struct // concrete type of int which can hold uint64_t/int64_t - can be a global or a local
 {
-    bool neg_;
-    bool overflow_;
-    uint8_t d_;
-    uint8_t m_; // {4}
+    uint16_t neg_ : 1;
+    uint16_t overflow_ : 1;
+    uint16_t obj_ : 1;
+    uint16_t literal_ : 1;
+    uint16_t : 12;
+    uint8_t d_; // num (16-bit) digits 1..4
+    uint8_t m_; // 4
     uint32_t w_[4 / 2];
 } IntConcrete4;
 
 typedef struct // largest concrete type of int - can be a global or a local - use sparingly as takes up 512 bytes
 {
-    bool neg_;
-    bool overflow_;
-    uint8_t d_;
-    uint8_t m_; // {254}
+    uint16_t neg_ : 1;
+    uint16_t overflow_ : 1;
+    uint16_t obj_ : 1;
+    uint16_t literal_ : 1;
+    uint16_t : 12;
+    uint8_t d_; // num (16-bit) digits 1..254
+    uint8_t m_; // 254
     uint32_t w_[254 / 2];
 } IntConcrete254;
+
+typedef struct BigSmallInt
+{
+    union
+    {
+        struct
+        {
+            uint16_t : 1;
+            uint16_t : 1;
+            uint16_t obj_ : 1;
+            uint16_t literal_ : 1;
+            uint16_t : 12;
+            uint16_t : 16;
+            ObjInt *objInt_;
+        };
+        IntConcrete2 i_;
+    };
+} BigSmallInt;
 
 typedef enum
 {
@@ -71,7 +113,6 @@ typedef enum
     INT_WITHIN,
     INT_ABOVE
 } IntRange;
-
 
 // constructors
 void int_init(Int *);

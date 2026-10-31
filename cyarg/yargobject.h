@@ -27,12 +27,11 @@ typedef struct ObjConcreteYargType ObjConcreteYargType;
 #define AS_STRING(value)       ((ObjString*)AS_OBJ(value))
 #define AS_CSTRING(value)      (((ObjString*)AS_OBJ(value))->chars)
 #define AS_SYNCGROUP(value)    ((ObjSyncGroup*)AS_OBJ(value))
-#define AS_INTOBJ(value)       ((ObjInt*)AS_OBJ(value))
-#define AS_INT(value)          (&(AS_INTOBJ(value)->bigInt))
+#define AS_INTOBJ(value)       (assert((value).as.bigSmallInt.obj_), (value).as.bigSmallInt.objInt_)
 #define AS_MAP(value)          ((ObjMap*)AS_OBJ(value))
 
 #define STRING_VAL(object)     ((Value){.type = &yargTypes.string, .as.obj = (Obj*) object})
-#define INTOBJ_VAL(object)     ((Value){.type = &yargTypes.integer, .as.obj = (Obj*) object})
+#define INTOBJ_VAL(object)     ((Value){.type = &yargTypes.integer, .as.bigSmallInt.obj_ = true, .as.bigSmallInt.objInt_ = object})
 #define CLASS_VAL(object)      ((Value){.type = &yargTypes.class_, .as.obj = (Obj*) object})
 #define INSTANCE_VAL(object)   ((Value){.type = &yargTypes.function, .as.obj = (Obj*) object})
 #define FUNCTION_VAL(object)   ((Value){.type = &yargTypes.function, .as.obj = (Obj*) object})
@@ -55,7 +54,6 @@ struct ObjString {
 
 typedef struct ObjInt {
     Obj obj;
-    bool isLiteral;
     Int bigInt;
 } ObjInt;
 
@@ -102,9 +100,6 @@ ObjString* concatenateStrings(ObjString* a, ObjString* b);
 
 ObjInt* allocateIntObject(size_t numDigits);
 Value defaultIntValue();
-ObjInt* newInt(int64_t value);
-ObjInt* newIntU(uint64_t value);
-bool intsEqual(const ObjInt* a, const ObjInt* b);
-void noLongerLiteralInt(Value value);
+void noLongerLiteralInt(Value *value);
 
 #endif

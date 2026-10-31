@@ -1,4 +1,4 @@
-var int32 job_size = 280;
+var int32 job_size = int32(280 * 1);
 var uint32 max_job_length = 30;
 
 // https://github.com/kraj/uClibc/blob/master/libc/stdlib/rand_r.c#L25
