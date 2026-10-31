@@ -65,6 +65,9 @@ int main() {
     freeVM();
     return 0;
 }
+
+#elif defined(CYARG_FEATURE_TEST_INT)
+#warning "Feature test ints"
 #elif defined(CYARG_FEATURE_HOSTED_REPL)
 int main(int argc, const char* argv[]) {
 #ifdef CYARG_PICO_STDLIB
