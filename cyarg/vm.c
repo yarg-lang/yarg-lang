@@ -771,8 +771,8 @@ InterpretResult run(ObjRoutine* routine) {
             traceExecution(routine);
         }
 
-        uint8_t instruction;
-        switch (instruction = READ_BYTE()) {
+        uint8_t instruction = READ_BYTE();
+        switch (instruction) {
             case OP_CONSTANT: {
                 Value constant = READ_CONSTANT();
                 push(routine, constant);
