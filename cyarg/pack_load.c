@@ -16,6 +16,11 @@ enum { PACKAGE_OK = 0, PACKAGE_DATAERR = 65, PACKAGE_PROTOCOL = 71, PACKAGE_SOFT
 int8_t const packageMagic[PACKAGE_MAGIC_LEN] = {0x79, 0x0a, 0x72, 0x67, 0xff, 0x42};
 int16_t const packageVersion = 0x2604;
 
+#if !defined DONT_READ_OLD_VERSIONS_OF_INT
+static int16_t const lastPackageVersion = 0x2603;
+static bool oldInt = false;
+#endif
+
 ObjFunction *loadPackageFromBuffer(ObjRoutine* context, uint8_t* buffer, size_t bufferSize) {
     int r = PACKAGE_OK;
 
@@ -27,9 +32,12 @@ ObjFunction *loadPackageFromBuffer(ObjRoutine* context, uint8_t* buffer, size_t 
     if (memcmp(h->magic_, packageMagic, PACKAGE_MAGIC_LEN) != 0) {
         r = PACKAGE_PROTOCOL;
     }
-    if (h->version_ != packageVersion) {
+    if (h->version_ != packageVersion && h->version_ != lastPackageVersion) {
         r = PACKAGE_DATAERR;
         goto exit;
+    }
+    if (h->version_ == lastPackageVersion) {
+        oldInt = true;
     }
 
     assert(h->bodyLength_ == bufferSize - sizeof *h);
@@ -155,6 +163,27 @@ ObjFunction *loadPackageFromBuffer(ObjRoutine* context, uint8_t* buffer, size_t 
                 break;
             }
             case PACK_CONST_TYPE_I: {
+#if !defined DONT_READ_OLD_VERSIONS_OF_INT
+                if (oldInt) {
+                    struct OldInt
+                    {
+                        bool neg_;
+                        bool overflow_;
+                        uint8_t d_; // num (16-bit) digits 1..m_
+                        uint8_t m_; // max (16-bit) digits - allocated size, always even
+                        uint32_t w_[];
+                    };
+                    struct OldInt const *thisInt = (struct OldInt const *)&intFile[index];
+                    Value value;
+                    allocateIntValue(&value, thisInt->d_);
+                    Int *loadedInt = AS_INT(value);
+                    push(context, value);
+                    memcpy(loadedInt, thisInt, sizeof (Int) + loadedInt->m_ * sizeof (uint16_t)); // should be able to shallow copy
+                    appendToDynamicValueArray(&currentFunction->chunk.constants, value);
+                    pop(context);
+                    DP(printf(":"); int_print(thisInt));
+                } else {
+#endif
                 Int const *thisInt = (Int const *)&intFile[index];
                 Value value;
                 allocateIntValue(&value, thisInt->d_);
@@ -164,6 +193,9 @@ ObjFunction *loadPackageFromBuffer(ObjRoutine* context, uint8_t* buffer, size_t 
                 appendToDynamicValueArray(&currentFunction->chunk.constants, value);
                 pop(context);
                 DP(printf(":"); int_print(thisInt));
+#if !defined DONT_READ_OLD_VERSIONS_OF_INT
+                }
+#endif
                 break;
             }
             case PACK_CONST_TYPE_D: {
