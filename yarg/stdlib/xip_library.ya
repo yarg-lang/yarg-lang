@@ -57,20 +57,14 @@ for (var i = 0; i < len(vm_xip_directory_node); i = i + 1) {
     vm_xip_files[fileName] = vm_xip_node_data(int(vm_xip_directory_node[i].File));
 }
 
-fun vm_xip_exec_name(fileName) {
-    if (vm_xip_files[fileName] == nil) {
-        return nil;
-    }
-
-    return exec(vm_xip_files[fileName]);
-}
-
 fun xip_binary_filename(library) {
     return library + ".yb";
 }
 
-fun xip_library_exists(library) {
-    var binary_path = xip_binary_filename(library);
+fun xip_read_file(filename) {
+    return vm_xip_files[filename];
+}
 
-    return vm_xip_files[binary_path] != nil;
+fun xip_file_exists(filename) {
+    return vm_xip_files[filename] != nil;
 }
