@@ -284,9 +284,10 @@ void markRoutine(ObjRoutine* routine) {
 
 void runtimeError(ObjRoutine* routine, const char* format, ...) {
 
-    va_list args;
+    va_list args, args_copy;
     va_start(args, format);
-    size_t buffer_required = vsnprintf(NULL, 0, format, args);
+    va_copy(args_copy, args);
+    size_t buffer_required = vsnprintf(NULL, 0, format, args_copy);
     char* message_buffer = ALLOCATE(char, buffer_required + 1);
     int written = vsnprintf(message_buffer, buffer_required + 1, format, args);
     ObjString* errorMessage = takeString(message_buffer, written);
