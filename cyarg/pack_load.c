@@ -14,7 +14,7 @@
 enum { PACKAGE_OK = 0, PACKAGE_DATAERR = 65, PACKAGE_PROTOCOL = 71, PACKAGE_SOFTWARE = 70 };
 
 int8_t const packageMagic[PACKAGE_MAGIC_LEN] = {0x79, 0x0a, 0x72, 0x67, 0xff, 0x42};
-int16_t const packageVersion = 0x2604;
+int16_t const packageVersion = 0x2605;
 
 ObjFunction *loadPackageFromBuffer(ObjRoutine* context, uint8_t* buffer, size_t bufferSize) {
     int r = PACKAGE_OK;

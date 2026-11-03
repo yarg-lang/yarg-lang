@@ -1211,6 +1211,21 @@ InterpretResult run(ObjRoutine* routine) {
                 }
                 break;
             }
+            case OP_ERROR: {
+                Value errorValue = pop(routine);
+                if (IS_NIL(errorValue)) {
+                    runtimeError(routine, "Error: a non-nil value is required for error.");
+                } else if (IS_UNIFORMARRAY(errorValue)) {
+                    // for now special case an array of errors
+                    routine->error = errorValue;
+                    routine->state = EXEC_ERROR;
+                    resetRoutine(routine);
+                    return INTERPRET_RUNTIME_ERROR;
+                } else {
+                    runtimeError(routine, "Error: %s", valueToString(errorValue)->chars);
+                }
+                return INTERPRET_RUNTIME_ERROR;
+            }
             case OP_PRINT: {
                 ObjString* string = valueToString(peek(routine, 0));
                 push(routine, STRING_VAL(string));

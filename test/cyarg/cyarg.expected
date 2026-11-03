@@ -25,7 +25,7 @@ os-hosted
 64-bit word size
 sizeof(Value): 24
 sizeof(ValueCell): 32
-Yarg binary format version: 0x2604
+Yarg binary format version: 0x2605
 1
 1
 2

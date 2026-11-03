@@ -1,0 +1,1 @@
+error nil;  // expect runtime error: Error: a non-nil value is required for error.

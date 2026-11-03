@@ -67,7 +67,8 @@ typedef enum {
     OP_DEREF_PTR,
     OP_SET_PTR_TARGET,
     OP_PLACE,
-    OP_DUPLICATE
+    OP_DUPLICATE,
+    OP_ERROR
 } OpCode;
 
 typedef struct {

@@ -1092,7 +1092,7 @@ static void generateStmt(ObjStmt* stmt) {
             break;
         case OBJ_STMT_ERROR:
             generateExpr(((ObjStmtExpression*)stmt)->expression);
-            emitByte(OP_POP);
+            emitByte(OP_ERROR);
             break;
         case OBJ_STMT_POKE:
             generateStmtPoke((ObjStmtPoke*)stmt);
@@ -1188,7 +1188,7 @@ Value compile(ObjRoutine* context) {
     ObjFunction* function = endCompiler();
     push(context, FUNCTION_VAL(function));
 
-    Value result = allocValueStructPair("compileError", "result");
+    Value result = allocValueStructPair("errors", "result");
     push(context, result);
 
     if (!IS_NIL(parseErrors)) {

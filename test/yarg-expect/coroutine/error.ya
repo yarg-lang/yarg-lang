@@ -1,1 +1,1 @@
-error(true);
+error true; // expect runtime error: Error: true
