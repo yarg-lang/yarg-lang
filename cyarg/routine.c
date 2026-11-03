@@ -135,6 +135,13 @@ void enterEntryFunction(ObjRoutine* routine) {
     callfn(routine, routine->entryFunction, routine->entryFunction->function->arity);
 }
 
+static Value resultPair(Value error, Value result) {
+    Value resultValue = allocValueStructPair("error", "result");
+    setStructField(resultValue, 0, error);
+    setStructField(resultValue, 1, result);
+    return resultValue;
+}
+
 bool resumeRoutine(ObjRoutine* context, ObjRoutine* target, size_t argCount, Value argument, Value* result) {
     if (target->state == EXEC_UNBOUND) {
         push(target, FUNCTION_VAL(target->entryFunction));
@@ -151,16 +158,12 @@ bool resumeRoutine(ObjRoutine* context, ObjRoutine* target, size_t argCount, Val
 
     InterpretResult execResult = run(target);
     if (execResult == INTERPRET_OK) {
-        Value resultValue = allocValueStructPair("error", "result");
-        setStructField(resultValue, 0, NIL_VAL);
-        setStructField(resultValue, 1, target->result);
         target->result = pop(target);
+        Value resultValue = resultPair(NIL_VAL, target->result);
         *result = resultValue;
         return true;
     } else {
-        Value resultValue = allocValueStructPair("error", "result");
-        setStructField(resultValue, 0, target->error);
-        setStructField(resultValue, 1, NIL_VAL);
+        Value resultValue = resultPair(target->error, NIL_VAL);
         *result = resultValue;
         return true;
     }
@@ -231,15 +234,11 @@ bool receiveFromRoutine(ObjRoutine* routine, Value* result) {
 #endif    
         
     if (routine->state == EXEC_CLOSED || routine->state == EXEC_SUSPENDED) {
-        Value resultValue = allocValueStructPair("error", "result");
-        setStructField(resultValue, 0, NIL_VAL);
-        setStructField(resultValue, 1, routine->result);
+        Value resultValue = resultPair(NIL_VAL, routine->result);
         *result = resultValue;
         return true;
     } else if (routine->state == EXEC_ERROR) {
-        Value resultValue = allocValueStructPair("error", "result");
-        setStructField(resultValue, 0, routine->error);
-        setStructField(resultValue, 1, NIL_VAL);
+        Value resultValue = resultPair(routine->error, NIL_VAL);
         *result = resultValue;
         return true;
     } else {
