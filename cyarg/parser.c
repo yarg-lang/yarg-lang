@@ -809,6 +809,7 @@ static AstParseRule rules[] = {
     [TOKEN_CONST]                = {reserved,  reserved, PREC_NONE},
     [TOKEN_CONTINUE]             = {reserved,  reserved, PREC_NONE},
     [TOKEN_CPEEK]                = {builtin,   NULL,   PREC_NONE},
+    [TOKEN_DEFER]                = {reserved,  reserved, PREC_NONE},
     [TOKEN_ELSE]                 = {NULL,      NULL,   PREC_NONE},
     [TOKEN_STMT_ERROR]           = {NULL,      NULL,   PREC_NONE},
     [TOKEN_FALSE]                = {literal,   NULL,   PREC_NONE},

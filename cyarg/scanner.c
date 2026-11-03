@@ -211,6 +211,13 @@ static TokenType identifierType(ObjScanner* scanner) {
                 }
             }
             break;
+        case 'd':
+            if (scanner->current - scanner->start > 1) {
+                switch (scanner->start[1]) {
+                    case 'e': return checkKeyword(scanner, 2, 3, "fer", TOKEN_DEFER);
+                }
+            }
+            break;
         case 'e': 
             if (scanner->current - scanner->start > 1) {
                 switch (scanner->start[1]) {
