@@ -49,6 +49,7 @@ ObjChannelContainer* newChannel(ObjRoutine* routine, size_t capacity) {
     if (channel->access == SEM_FAILED) {
         pop(routine);
         runtimeError(routine, "Semaphore open failed.");
+        return NULL;
     }
 #endif
     pop(routine);

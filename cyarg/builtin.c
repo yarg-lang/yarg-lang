@@ -233,9 +233,12 @@ bool makeChannelBuiltin(ObjRoutine* routine, int argCount, Value* result) {
     size_t capacity = as_positive_integer(valCapacity);
 
     ObjChannelContainer* channel = newChannel(routine, capacity);
-
-    *result = CHANNEL_VAL((Obj*)channel);
-    return true;
+    if (channel == NULL) {
+        return false;
+    } else {
+        *result = CHANNEL_VAL((Obj*)channel);
+        return true;
+    }
 }
 
 bool sendChannelBuiltin(ObjRoutine* routine, int argCount, Value* result) {
