@@ -3,10 +3,17 @@ fun line_repl() {
         c_stdout_puts("yarg> ");
         var line = c_stdin_gets();
         if (line != nil and line != "") {
-            var result = exec(line);
-            if (result.compileError != nil) {
-                for (var i = 0; i < len(result.compileError); i = i + 1) {
-                    print result.compileError[i];
+            var code = compile(line);
+            var errors = code.compileError;
+            if (errors == nil) {
+                // execute the code in a coroutine, so we can handle runtime errors
+                var runner = make_routine(code.result);
+                var runner_outcome = resume(runner);
+                errors = runner_outcome.error;
+            }
+            if (errors != nil) {
+                for (var i = 0; i < len(errors); i = i + 1) {
+                    print errors[i];
                 }
             }
         }
