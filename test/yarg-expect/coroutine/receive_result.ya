@@ -6,7 +6,9 @@ fun input(n) {
 var coro = make_routine(input);
 
 print resume(coro, 10).result;
-print receive(coro);
+print receive(coro).result;
+print receive(coro).error;
 // expect: 10
 // expect: 9
 // expect: 9
+// expect: nil

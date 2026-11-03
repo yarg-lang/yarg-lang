@@ -231,10 +231,18 @@ bool receiveFromRoutine(ObjRoutine* routine, Value* result) {
 #endif    
         
     if (routine->state == EXEC_CLOSED || routine->state == EXEC_SUSPENDED) {
-        *result = routine->result;
+        Value resultValue = allocValueStructPair("error", "result");
+        setStructField(resultValue, 0, NIL_VAL);
+        setStructField(resultValue, 1, routine->result);
+        *result = resultValue;
         return true;
-    } 
-    else {
+    } else if (routine->state == EXEC_ERROR) {
+        Value resultValue = allocValueStructPair("error", "result");
+        setStructField(resultValue, 0, routine->error);
+        setStructField(resultValue, 1, NIL_VAL);
+        *result = resultValue;
+        return true;
+    } else {
         return false;
     }
 }
