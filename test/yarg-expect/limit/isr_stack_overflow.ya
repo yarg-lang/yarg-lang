@@ -10,7 +10,7 @@ fun foo() {
   var a9;
   var a10;
   var a11;
-  var a12;  // expect runtime error: Fixed Value stack size exceeded.
+  var a12;
   var a13;
   var a14;
   var a15;
@@ -29,4 +29,13 @@ fun foo() {
 var foo_routine = make_routine(foo);
 var isr_routine = pin(foo_routine);
 
-resume(foo_routine);
+var result = resume(foo_routine);
+print result.result; // expect: nil
+for (var i = 0; i < len(result.error); i = i + 1) {
+    print result.error[i];
+}
+// expect: Fixed Value stack size exceeded.
+// expect: [line 13] in foo
+// expect: [line 26] in foo
+// expect: [line 26] in foo
+// expect: [line 26] in foo

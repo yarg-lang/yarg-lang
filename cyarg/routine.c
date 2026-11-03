@@ -151,11 +151,18 @@ bool resumeRoutine(ObjRoutine* context, ObjRoutine* target, size_t argCount, Val
 
     InterpretResult execResult = run(target);
     if (execResult == INTERPRET_OK) {
+        Value resultValue = allocValueStructPair("error", "result");
+        setStructField(resultValue, 0, NIL_VAL);
+        setStructField(resultValue, 1, target->result);
         target->result = pop(target);
-        *result = target->result;
+        *result = resultValue;
         return true;
     } else {
-        return false;
+        Value resultValue = allocValueStructPair("error", "result");
+        setStructField(resultValue, 0, target->error);
+        setStructField(resultValue, 1, NIL_VAL);
+        *result = resultValue;
+        return true;
     }
 }
 

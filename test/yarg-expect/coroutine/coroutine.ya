@@ -5,6 +5,6 @@ fun input(n) {
 
 var coro = make_routine(input);
 
-print resume(coro, 10);
+print resume(coro, 10).result;
 // expect: 10
 // expect: 9
