@@ -329,6 +329,7 @@ static void blackenObject(Obj* object) {
         case OBJ_STMT_YIELD: // fall through
         case OBJ_STMT_RETURN:
         case OBJ_STMT_PRINT:
+        case OBJ_STMT_ERROR:
         case OBJ_STMT_EXPRESSION: {
             markStmt(object);
             markObject((Obj*)((ObjStmtExpression*)object)->expression);
@@ -596,6 +597,7 @@ static void freeObject(Obj* object) {
         case OBJ_STMT_YIELD: break;
         case OBJ_STMT_PRINT: break;
         case OBJ_STMT_EXPRESSION: break;
+        case OBJ_STMT_ERROR: break;
         case OBJ_STMT_POKE: break;
         case OBJ_STMT_VARDECLARATION: break;
         case OBJ_STMT_FIELDDECLARATION: break;

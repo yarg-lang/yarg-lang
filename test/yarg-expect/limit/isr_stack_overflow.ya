@@ -31,8 +31,8 @@ var isr_routine = pin(foo_routine);
 
 var result = resume(foo_routine);
 print result.result; // expect: nil
-for (var i = 0; i < len(result.error); i = i + 1) {
-    print result.error[i];
+for (var i = 0; i < len(result.errors); i = i + 1) {
+    print result.errors[i];
 }
 // expect: Fixed Value stack size exceeded.
 // expect: [line 13] in foo

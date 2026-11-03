@@ -24,6 +24,7 @@ ObjStmt* pushNewStmt(ObjRoutine* context, ObjType type, int line) {
         case OBJ_STMT_RETURN: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtExpression, OBJ_STMT_RETURN); break;
         case OBJ_STMT_YIELD: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtExpression, OBJ_STMT_YIELD); break;
         case OBJ_STMT_PRINT: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtExpression, OBJ_STMT_PRINT); break;
+        case OBJ_STMT_ERROR: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtExpression, OBJ_STMT_ERROR); break;
         case OBJ_STMT_BLOCK: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtBlock, OBJ_STMT_BLOCK); break;
         case OBJ_STMT_IF: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtIf, OBJ_STMT_IF); break;
         case OBJ_STMT_WHILE: stmt = (ObjStmt*) ALLOCATE_OBJ(ObjStmtWhile, OBJ_STMT_WHILE); break;
@@ -516,6 +517,7 @@ void printStmtExpression(ObjStmtExpression* stmt) {
         case OBJ_STMT_RETURN: printf("return "); break;
         case OBJ_STMT_YIELD: printf("yield "); break;
         case OBJ_STMT_PRINT: printf("print "); break;
+        case OBJ_STMT_ERROR: printf("error "); break;
         case OBJ_STMT_EXPRESSION: break;
         default: break;
     }
@@ -619,6 +621,7 @@ void printStmts(ObjStmt* stmts) {
             case OBJ_STMT_RETURN: // fall through
             case OBJ_STMT_YIELD:
             case OBJ_STMT_PRINT:
+            case OBJ_STMT_ERROR:
             case OBJ_STMT_EXPRESSION: printStmtExpression((ObjStmtExpression*)cursor); break;
             case OBJ_STMT_POKE: printStmtPoke((ObjStmtPoke*)cursor); break;
             case OBJ_STMT_VARDECLARATION: printStmtVarDeclaration((ObjStmtVarDeclaration*)cursor); break;

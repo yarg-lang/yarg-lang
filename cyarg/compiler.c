@@ -1090,6 +1090,10 @@ static void generateStmt(ObjStmt* stmt) {
             generateExpr(((ObjStmtExpression*)stmt)->expression);
             emitByte(OP_PRINT);
             break;
+        case OBJ_STMT_ERROR:
+            generateExpr(((ObjStmtExpression*)stmt)->expression);
+            emitByte(OP_POP);
+            break;
         case OBJ_STMT_POKE:
             generateStmtPoke((ObjStmtPoke*)stmt);
             break;

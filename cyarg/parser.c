@@ -810,6 +810,7 @@ static AstParseRule rules[] = {
     [TOKEN_CONTINUE]             = {reserved,  reserved, PREC_NONE},
     [TOKEN_CPEEK]                = {builtin,   NULL,   PREC_NONE},
     [TOKEN_ELSE]                 = {NULL,      NULL,   PREC_NONE},
+    [TOKEN_STMT_ERROR]           = {NULL,      NULL,   PREC_NONE},
     [TOKEN_FALSE]                = {literal,   NULL,   PREC_NONE},
     [TOKEN_FOR]                  = {NULL,      NULL,   PREC_NONE},
     [TOKEN_FUN]                  = {NULL,      NULL,   PREC_NONE},
@@ -1084,6 +1085,8 @@ ObjStmt* statement(ObjParser* parser) {
         return (ObjStmt*) expressionStatement(parser, OBJ_STMT_PRINT, true, "Expect ';' after value.");
     } else if (match(parser, TOKEN_POKE)) {
         return (ObjStmt*) pokeStatement(parser);
+    } else if (match(parser, TOKEN_STMT_ERROR)) {
+        return (ObjStmt*) expressionStatement(parser, OBJ_STMT_ERROR, true, "Expect ';' after error statement.");
     } else if (match(parser, TOKEN_FOR)) {
         return (ObjStmt*) forStatement(parser);
     } else if (match(parser, TOKEN_IF)) {

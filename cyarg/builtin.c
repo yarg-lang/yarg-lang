@@ -153,6 +153,13 @@ bool compileBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     return true;
 }
 
+static Value resultPair(Value error, Value result) {
+    Value resultValue = allocValueStructPair("errors", "result");
+    setStructField(resultValue, 0, error);
+    setStructField(resultValue, 1, result);
+    return resultValue;
+}
+
 bool loadBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     if (argCount != 1) {
         runtimeError(routineContext, "Expected 1 arguments but got %d.", argCount);
@@ -167,7 +174,7 @@ bool loadBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         ObjFunction* function = loadPackageFromBuffer(routineContext, buffer, arrayType->cardinality);
         Value functionVal = function ? FUNCTION_VAL(function) : NIL_VAL;
         push(routineContext, functionVal);
-        Value loadResult = allocValueStructPair("compileError", "result");
+        Value loadResult = resultPair(NIL_VAL, functionVal);
         pop(routineContext);
         push(routineContext, loadResult);
 
@@ -178,13 +185,9 @@ bool loadBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         Value compileError = structField(compileResult, 0);
         Value compileFunction = structField(compileResult, 1);
 
-        Value loadResult = allocValueStructPair("compileError", "result");
+        Value loadResult = resultPair(compileError, NIL_VAL);
         push(routineContext, loadResult);
-
-
-        if (!IS_NIL(compileError)) {
-            setStructField(loadResult, 0, compileError);
-        } else {
+        if (IS_NIL(compileError)) {
             setStructField(loadResult, 1, compileFunction);
         }
         pop(routineContext);

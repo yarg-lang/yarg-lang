@@ -1,7 +1,7 @@
 // execute source, and return a pair of the result and any errors encountered.
 fun exec(source) {
     var target = load(source);
-    if (target.compileError == nil) {
+    if (target.errors == nil) {
         target.result = target.result();
     }
     return target;
@@ -49,11 +49,11 @@ fun import(library) {
 
         var target = load(source);
 
-        if (target.compileError == nil) {
+        if (target.errors == nil) {
             target.result();
             return nil;
         } else {
-            return target.compileError;
+            return target.errors;
         }
     } else if (yarg_imports[library] == nil and xip_library_exists(library)) {
         vm_xip_exec_name(xip_binary_filename(library));

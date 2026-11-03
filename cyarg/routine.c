@@ -136,7 +136,7 @@ void enterEntryFunction(ObjRoutine* routine) {
 }
 
 static Value resultPair(Value error, Value result) {
-    Value resultValue = allocValueStructPair("error", "result");
+    Value resultValue = allocValueStructPair("errors", "result");
     setStructField(resultValue, 0, error);
     setStructField(resultValue, 1, result);
     return resultValue;

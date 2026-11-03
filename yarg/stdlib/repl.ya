@@ -4,12 +4,12 @@ fun line_repl() {
         var line = c_stdin_gets();
         if (line != nil and line != "") {
             var code = compile(line);
-            var errors = code.compileError;
+            var errors = code.errors;
             if (errors == nil) {
                 // execute the code in a coroutine, so we can handle runtime errors
                 var runner = make_routine(code.result);
                 var runner_outcome = resume(runner);
-                errors = runner_outcome.error;
+                errors = runner_outcome.errors;
             }
             if (errors != nil) {
                 for (var i = 0; i < len(errors); i = i + 1) {
