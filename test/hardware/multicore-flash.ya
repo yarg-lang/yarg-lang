@@ -2,11 +2,16 @@ import("machine");
 import("gpio");
 import("timer");
 
+var reps = 2;
+
+fun print_core() {
+    print "core: " + string(coreNum());
+}
+
 fun flash(n) {
 
     fun core1(led_pin) {
-        print "core:";
-        print coreNum();
+        print_core();
 
         gpio_init(led_pin);
         gpio_set_direction(led_pin, true);
@@ -26,8 +31,8 @@ fun flash(n) {
 
     var core = make_routine(core1);
     start(core, pico_led);
-    print "core:";
-    print coreNum();
-    print "count:";
-    print receive(core);
+    print_core();
+    print receive(core).result;
 }
+
+flash(reps);

@@ -1,6 +1,8 @@
 import("gpio");
 import("timer");
 
+var reps = 2;
+
 fun flash(count) {
     gpio_init(pico_led);
     gpio_set_direction(pico_led, true);
@@ -21,7 +23,7 @@ fun flash(count) {
             state = !state;
             if (state) { flashes = flashes + 1; }
             gpio_put(pico_led, state);
-            flashes = flashes + resume(sleeper);
+            flashes = flashes + resume(sleeper).result;
             yield flashes;
         }
         return flashes;
@@ -31,6 +33,8 @@ fun flash(count) {
 
     var x = 0;
     while (x < count * 2) {
-        x = resume(flasher);
+        x = resume(flasher).result;
     }
 }
+
+flash(reps);

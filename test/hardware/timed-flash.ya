@@ -1,6 +1,8 @@
 import("gpio");
 import("timer");
 
+var reps = 2;
+
 fun flash(seconds) {
     gpio_init(pico_led);
     gpio_set_direction(pico_led, true);
@@ -22,3 +24,5 @@ fun flash(seconds) {
     receive(done); 
     cancel_repeating_alarm(0); 
 }
+
+flash(reps);
