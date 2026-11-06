@@ -5,8 +5,9 @@
 #include <inttypes.h>
 #include <assert.h>
 
-#include "object.h"
 #include "memory.h"
+#include "object.h"
+#include "object_gc.h"
 #include "yargtype.h"
 #include "yargobject.h"
 #include "yargstructtype.h"

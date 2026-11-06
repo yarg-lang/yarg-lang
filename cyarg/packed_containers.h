@@ -105,6 +105,7 @@ Value allocValueArray(size_t length);
 Value allocValueStructPair(const char* leftFieldName, const char* rightFieldName);
 
 // convert internal DynamicObjArray to Value array
+typedef struct DynamicObjArray DynamicObjArray;
 Value duplicateAsValueArray(DynamicObjArray* array);
 
 size_t arrayCardinality(Value array);

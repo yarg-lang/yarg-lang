@@ -14,13 +14,13 @@
 #endif
 
 #include "common.h"
+#include "object_gc_impl.h"
 #include "compiler.h"
 #include "debug.h"
 #include "object.h"
 #include "yargtype.h"
 #include "yargobject.h"
 #include "vmobject.h"
-#include "memory.h"
 #include "native.h"
 #include "builtin.h"
 #include "routine.h"
@@ -150,14 +150,9 @@ void initVMMemory() {
 
     memset(&vm, 0, sizeof(VM));
 
-    vm.tempRootsTop = vm.tempRoots;
-
-    vm.nextGC = FIRST_GC_AT;
-
-    vm_mutex_init(&vm.heap);
-    vm_mutex_init(&vm.env);
-
-    init_heap_instance(&vm.heap_instance);
+    vm_mutex_init(&vm.mem);
+    vm_heap_init(&vm.mem);
+    vm_objects_init(&vm.mem);
 }
 
 void initVMRuntime() {
@@ -217,7 +212,11 @@ void freeVM() {
     freeTable(&vm.strings);
     vm.initString = NULL;
     vm.libraryPath = NULL;
-    freeObjects();
+    vm_objects_free();
+}
+
+void vmRemoveUnmarkedRoots() {
+    tableRemoveWhite(&vm.strings);
 }
 
 void markVMRoots() {
@@ -230,10 +229,6 @@ void markVMRoots() {
 
     for (int i = 0; i < MAX_PINNED_ROUTINES; i++) {
         markObject((Obj*)vm.pinnedRoutines[i]);
-    }
-
-    for (Value* slot = vm.tempRoots; slot < vm.tempRootsTop; slot++) {
-        markValue(*slot);
     }
 
     markObject((Obj*)vm.libraryPath);

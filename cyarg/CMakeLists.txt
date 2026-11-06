@@ -52,6 +52,10 @@ elseif(YARG_DEVICE STREQUAL "GENERIC_HOST")
 add_compile_definitions(CYARG_PTHREADS_SYNC)
 endif()
 
+if (CYARG_FEATURE_HEAP STREQUAL "CSTDLIB")
+add_compile_definitions(CYARG_CSTDLIB_HEAP)
+endif()
+
 if(YARG_DEVICE STREQUAL "RASPBERRY_PI_PICO")
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
@@ -110,6 +114,12 @@ add_executable(cyarg
     scanner.c
     object.h
     object.c
+    object_gc.h
+    object_gc_impl.h
+    object_dyn_array.h
+    object_dyn_array.c
+    heap.h
+    heap.c
     vmobject.h
     vmobject.c
     table.h

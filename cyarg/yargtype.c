@@ -4,7 +4,7 @@
 #include <assert.h>
 
 #include "common.h"
-#include "memory.h"
+#include "object_gc.h"
 #include "vm.h"
 #include "yargobject.h"
 #include "vmobject.h"

@@ -3,6 +3,7 @@
 
 #include "value.h"
 #include "object.h"
+#include "object_dyn_array.h"
 #include "value_cell.h"
 
 #define FRAMES_MAX 20

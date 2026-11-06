@@ -1,20 +1,18 @@
 #ifndef cyarg_memory_h
 #define cyarg_memory_h
 
-/* see object.h for memory management details */
+/**
+ * A heap that provides a locking guarantee for memory operations.
+ * No assumptions are made about the underlying heap's thread-safety.
+ * 
+ * In self-hosted builds, this heap can be exposed to other c libraries
+ * with a stdlib compatible interface. See vm-c-heap/ .
+ */
 
-#include "common.h"
-#include "object.h"
-#include "value.h"
+#include <stddef.h>
+#include "vm_mutex.h"
 
-typedef struct O1HeapInstance O1HeapInstance;
-
-// configuration
-#define TEMP_ROOTS_MAX 8
-#define FIRST_GC_AT 50 * 1024
-#define ALWAYS_GC_ABOVE 100 * 1024
-
-// general purpose memory allocation functions
+void vm_heap_init(vm_mutex* mutex);
 
 #define ALLOCATE(type, count) \
     (type*)vm_allocate(sizeof(type) * (count))
@@ -30,31 +28,5 @@ void vm_free(void* pointer);
 
 #define GROW_ARRAY(type, pointer, oldCount, newCount) \
     (type*)vm_reallocate(pointer, sizeof(type) * (newCount))
-
-// temporary root management for the garbage collector
-void tempRootPush(Value value);
-void tempObjRootPush(Obj* object);
-Value tempRootPop();
-
-void init_heap_instance(O1HeapInstance** instance);
-
-
-// functions that are 'internal to heap management'
-
-typedef struct ObjFunction ObjFunction;
-typedef struct ValueCell ValueCell;
-
-// for use only when the garbage collector is freeing an object.
-void gc_free(void* pointer);
-
-void markObject(Obj* object);
-void markDynamicObjArray(DynamicObjArray* array);
-void markValue(Value value);
-void markValueCell(ValueCell* value);
-void markFunction(ObjFunction* function);
-void collectGarbage();
-void freeObjects();
-void printObjects();
-void pinObj(Obj* object);
 
 #endif

@@ -4,13 +4,13 @@
 #include <string.h>
 
 #include "common.h"
+#include "object_gc_impl.h"
 #include "value.h"
 #include "object.h"
 #include "channel.h"
 #include "yargtype.h"
 #include "yargobject.h"
 #include "routine.h"
-#include "memory.h"
 #include "packed_containers.h"
 
 typedef struct ObjSyncGroup {

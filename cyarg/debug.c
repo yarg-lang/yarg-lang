@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "object.h"
+#include "object_gc.h"
 #include "yargobject.h"
 #include "value.h"
 #include "yargtype.h"

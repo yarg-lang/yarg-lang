@@ -9,6 +9,8 @@
 #include "common.h"
 
 #include "memory.h"
+#include "object_gc_impl.h"
+#include "object_dyn_array.h"
 #include "vm.h"
 #include "debug.h"
 #include "yargobject.h"
