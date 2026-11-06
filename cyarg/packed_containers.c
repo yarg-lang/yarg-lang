@@ -6,6 +6,9 @@
 
 #include "common.h"
 #include "memory.h"
+#include "object_gc.h"
+#include "object_gc_impl.h"
+#include "object_dyn_array.h"
 #include "yargtype.h"
 #include "yargstructtype.h"
 #include "value_cell.h"
@@ -82,7 +85,7 @@ size_t yt_flatten_types(FlattenedElements* elements, size_t start_cursor, size_t
 
 ObjPackedStorage* newPackedStorage(const ObjConcreteYargType* type) {
     size_t storage_required = yt_sizeof_type_storage(type);
-    ObjPackedStorage* storage = (ObjPackedStorage*) allocateObject(sizeof(ObjPackedStorage) + storage_required, OBJ_PACKEDSTORAGE);
+    ObjPackedStorage* storage = (ObjPackedStorage*) vm_object_alloc(sizeof(ObjPackedStorage) + storage_required, OBJ_PACKEDSTORAGE);
     storage->storage_size = storage_required;
     tempObjRootPush((Obj*)storage);
 

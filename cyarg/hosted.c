@@ -6,8 +6,8 @@
 #include <string.h>
 
 #include "common.h"
+#include "object_gc.h"
 #include "object.h"
-#include "memory.h"
 #include "debug.h"
 #include "pack.h"
 #include "vm.h"

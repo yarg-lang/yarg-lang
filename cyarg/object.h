@@ -9,16 +9,18 @@
  * A goal is for memory allocation required in the langauge to be O(1) and therefore useable
  * in contexts like interrupt response, where predictable time is desired.
  * 
- * Currently, an external heap (o1heap) is used, and reserves a large static array for all
- * allocations.
- * 
  * There are therefore a suite of C-like memory management functions (see memory.h), and a 
- * garbage collector to manage Obj instances (see here, and memory.h)
+ * garbage collector to manage Obj instances here in object.h.
  * 
- * The system is safe for concurrent access from multiple cores and interrupt contexts.
+ * The system is safe for concurrent access from multiple cores and interrupt contexts. The
+ * locking property (non-reentrant mutexes) required on target is preservered on host.
  * 
  * Most VM memory allocation is for Obj instances.
  *
+ * An external heap implementation (../external/o1heap) is used to provide O(1) allocation,
+ * but it can be switched out (see heap.h & .c), for example to use c stdlib based
+ * memory debug and analysis tools.
+ * 
  * The garbage collector is hooked into the standard allocation functions. In time, it will
  * also be designed to be O(1) in cases needed by the language, but this is not yet implemented.
  *
@@ -38,7 +40,8 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdint.h>
+
+#include "vm_mutex.h"
 
 typedef struct ObjString ObjString;
 
@@ -112,25 +115,14 @@ typedef struct Obj {
     Obj* next;
 } Obj;
 
-// Dynamic array of Object pointers. Takes ownership of the passed object before growing the array.
-typedef struct {
-    Obj* stash;
-    Obj** objects;
-    int objectCapacity;
-    int objectCount;
-} DynamicObjArray;
-
+void vm_objects_init(vm_mutex* mutex);
+void vm_objects_free();
 
 #define ALLOCATE_OBJ(type, objectType) \
-    (type*)allocateObject(sizeof(type), objectType)
+    (type*)vm_object_alloc(sizeof(type), objectType)
 
-Obj* allocateObject(size_t size, ObjType type);
+Obj* vm_object_alloc(size_t size, ObjType type);
 
 ObjString* objectToString(const Obj* value);
-
-void initDynamicObjArray(DynamicObjArray* array);
-void freeDynamicObjArray(DynamicObjArray* array);
-void gc_freeDynamicObjArray(DynamicObjArray* array);
-void appendToDynamicObjArray(DynamicObjArray* array, Obj* obj);
 
 #endif

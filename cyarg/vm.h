@@ -2,12 +2,13 @@
 #define cyarg_vm_h
 
 #include "object.h"
+#include "memory.h"
+#include "object_gc.h"
 #include "yargobject.h"
 #include "table.h"
 #include "value.h"
 #include "vm-result.h"
 
-#include "memory.h"
 #include "routine.h"
 #include "vm_mutex.h"
 
@@ -30,17 +31,7 @@ typedef struct {
     ObjString* initString;
     ObjString* libraryPath;
 
-    vm_mutex heap;
-    O1HeapInstance* heap_instance;
-
-    Value tempRoots[TEMP_ROOTS_MAX];
-    Value* tempRootsTop;
-
-    size_t nextGC;
-    Obj* objects;
-    int grayCount;
-    int grayCapacity;
-    Obj** grayStack;
+    vm_mutex  mem;
 } VM;
 
 extern VM vm;
@@ -50,6 +41,7 @@ void initVMMemory();
 void initVMRuntime();
 void freeVM();
 void markVMRoots();
+void vmRemoveUnmarkedRoots();
 
 InterpretResult bootScript(ObjString* filename);
 InterpretResult compileScript(ObjString* filename, Value* compileResult);

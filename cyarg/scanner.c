@@ -4,7 +4,7 @@
 
 #include "common.h"
 #include "object.h"
-#include "memory.h"
+#include "object_gc_impl.h"
 #include "yargobject.h"
 
 typedef struct ObjScanner {

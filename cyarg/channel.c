@@ -9,12 +9,13 @@
 #include <string.h>
 
 #include "common.h"
-#include "vm_mutex.h"
-#include "memory.h"
+#include "object.h"
+#include "object_gc_impl.h"
 #include "vm.h"
 #include "debug.h"
 #include "yargtype.h"
 #include "sync_group.h"
+#include "vm_mutex.h"
 
 typedef struct ObjChannelContainer {
     Obj obj;

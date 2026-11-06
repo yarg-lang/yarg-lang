@@ -5,6 +5,7 @@
 #include <assert.h>
 
 #include "memory.h"
+#include "object_gc_impl.h"
 #include "object.h"
 #include "value.h"
 #include "yargtype.h"

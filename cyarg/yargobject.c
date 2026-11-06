@@ -5,7 +5,7 @@
 #include <assert.h>
 
 #include "common.h"
-#include "memory.h"
+#include "object_gc.h"
 #include "yargstructtype.h"
 #include "packed_containers.h"
 #include "vm.h"
@@ -50,7 +50,7 @@ ObjInstance* newInstance(ObjClass* klass) {
 ObjInt* allocateIntObject(size_t numDigits) {
     numDigits += numDigits % 2; // numDigits is always even
     assert(numDigits <= 254 && numDigits >= 2);
-    ObjInt *i = (ObjInt *) allocateObject(sizeof (ObjInt) + numDigits * sizeof (uint16_t), OBJ_INT);
+    ObjInt *i = (ObjInt *) vm_object_alloc(sizeof (ObjInt) + numDigits * sizeof (uint16_t), OBJ_INT);
     i->bigInt.m_ = numDigits;
     i->bigInt.obj_ = true;
     return i;

@@ -10,12 +10,14 @@
 
 #include <string.h>
 
+#include "../memory.h"
+#include "../object_gc.h"
+
 #include "../chunk.h"
 #include "../object.h"
 #include "../routine.h"
 #include "../yargtype.h"
 #include "../object.h"
-#include "../memory.h"
 #include "../builtin.h"
 #include "../yargobject.h"
 #include "../packed_containers.h"

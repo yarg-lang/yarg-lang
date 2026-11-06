@@ -4,6 +4,11 @@ A bytecode interpreter for Yarg, implemented in C.
 
 Targets microcontroller devices, currently starting with the Raspberry Pi Pico (RP2040)
 
+## Heap Choice
+
+By default, the external ../external/o1heap will be used as a heap. define CYARG_CSTDLIB_HEAP to prefer the
+standard C library heap (malloc, etc). CMakePresets.json defines this for the interactive debug host build.
+
 ## Host Build
 
 The host build contains a test system for ISRs as host ('pthreads') threads. TODO: add multicore support similarly.

@@ -6,6 +6,8 @@
 #include <assert.h>
 
 #include "memory.h"
+#include "object.h"
+#include "object_gc.h"
 #include "big-int/big-int.h"
 #include "yargobject.h"
 #include "routine.h"
@@ -90,7 +92,7 @@ ObjExprNumber* newExprNumberDouble(double value) {
 ObjExprNumber* newExprNumberInt(int numberDecimalDigits) {
     uint8_t s = INT_DIGITS_FOR_S(numberDecimalDigits);
     s += s % 2;
-    ObjExprNumber *num = (ObjExprNumber *) allocateObject(sizeof (ObjExprNumber) + sizeof (uint16_t) * s, OBJ_EXPR_NUMBER);
+    ObjExprNumber *num = (ObjExprNumber *) vm_object_alloc(sizeof (ObjExprNumber) + sizeof (uint16_t) * s, OBJ_EXPR_NUMBER);
     num->bigInt.m_ = s;
     num->type = NUMBER_INT;
     return num;
@@ -99,7 +101,7 @@ ObjExprNumber* newExprNumberInt(int numberDecimalDigits) {
 ObjExprNumber* newExprNumberFromCint(int constant) {
     int64_t val = constant;
     uint8_t s = (uint8_t) (sizeof(int) / sizeof(uint16_t));
-    ObjExprNumber *num = (ObjExprNumber *) allocateObject(sizeof (ObjExprNumber) + sizeof (uint16_t) * s, OBJ_EXPR_NUMBER);
+    ObjExprNumber *num = (ObjExprNumber *) vm_object_alloc(sizeof (ObjExprNumber) + sizeof (uint16_t) * s, OBJ_EXPR_NUMBER);
     num->type = NUMBER_INT;
     num->bigInt.m_ = s;
     int_set_i(val, &num->bigInt);

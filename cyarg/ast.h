@@ -2,6 +2,7 @@
 #define cyarg_ast_h
 
 #include "object.h"
+#include "object_dyn_array.h"
 #include "value.h"
 #include "big-int/big-int.h"
 

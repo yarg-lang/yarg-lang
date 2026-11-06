@@ -10,6 +10,7 @@
 
 #include "ast.h"
 #include "memory.h"
+#include "object_gc_impl.h"
 #include "yargobject.h"
 
 #include "scanner.h"
