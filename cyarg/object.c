@@ -56,7 +56,7 @@ void vm_objects_free() {
     }
 
     heap_free(vm_objects.grayStack);
-//    assert(heap_bytes_allocated() == 0);
+    assert(heap_bytes_allocated() == 0);
 }
 
 void tempRootPush(Value value) {
