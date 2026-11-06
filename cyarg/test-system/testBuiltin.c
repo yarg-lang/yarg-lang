@@ -148,13 +148,12 @@ bool syncBuiltin(ObjRoutine *routineContext, int argCount, Value *result)
     for (size_t i = 0; i < log->n_; i++)
     {
 //        printf("%s\n", log->i_[i]); // until log gets coppied to *result
-        ObjString *s = copyString(log->i_[i], (int)strlen(log->i_[i]));
-        tempRootPush(STRING_VAL(s));
-        vm_free(log->i_[i]);
+        // log entries created with vm_(re)alloc, so we can take ownership.
+        ObjString *s = takeString(log->i_[i], (int)strlen(log->i_[i]));
         setArrayElement(resultArrayVal, i, STRING_VAL(s));
-        tempRootPop(); // s
     }
-
+    vm_free(log->i_);
+    log->i_ = NULL;
     tempRootPop(); // array
     *result = resultArrayVal;
     log->n_ = 0;

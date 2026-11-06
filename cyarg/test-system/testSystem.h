@@ -13,3 +13,5 @@ size_t tsRead(size_t address);
 void tsWrite(size_t address, size_t value);
 void tsAddInterruptHandler(uint32_t intId, void (*address)(void));
 void tsRemoveInterruptHandler(uint32_t intId, void (*address)(void));
+
+void ts_end_session(void);

@@ -203,6 +203,22 @@ TestSystem *self(void)
     return (TestSystem *)&ts;
 }
 
+// use on VM shutdown, to account for all memory allocated in the VM.
+void ts_end_session(void) {
+    TestSystem *ts = self();
+
+    for (size_t i = 0; i < ts->log_.n_; i++)
+    {
+        vm_free(ts->log_.i_[i]);
+    }
+    vm_free(ts->log_.i_);
+
+    vm_free(ts->expected_.i_);
+    vm_free(ts->memory_.i_);
+    vm_free(ts->handlers_.i_);
+    vm_free(ts->scheduled_.i_);
+}
+
 size_t tsRead(size_t address)
 {
     return read(address);
