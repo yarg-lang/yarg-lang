@@ -98,7 +98,7 @@ static size_t read(size_t address);
 static void write(size_t address, size_t value);
 static void addInterruptHandler(uint32_t intId, void (*address)(void));
 static void removeInterruptHandler(uint32_t intId, void (*address)(void));
-static void log(char const *, ...);
+static void tslog(char const *, ...);
 
 struct { char *name; int number_; } lut[] =
 {
@@ -311,7 +311,7 @@ void *simulateInterrupt(void *indexAsP) // thread entry
         }
         else
         {
-            log("missing irq_add_shared_handler(%u, , );", id);
+            tslog("missing irq_add_shared_handler(%u, , );", id);
         }
         {
             assert(pthread_mutex_lock(&ts->handlers_.itemsMutex_) == 0);
@@ -393,12 +393,12 @@ size_t read(size_t address)
         }
         if (!read)
         {
-            log("missing test_read(0x%06x);", address);
+            tslog("missing test_read(0x%06x);", address);
         }
     }
     else
     {
-        log("missing poke/test_set 0x%06x", address);
+        tslog("missing poke/test_set 0x%06x", address);
         valueWrittenOrSet = 0xa5a5a5u;
     }
     return valueWrittenOrSet;
@@ -473,7 +473,7 @@ void write(size_t address, size_t value)
     }
     if (!written)
     {
-        log("missing test_write(0x%06x, %u);", address, value);
+        tslog("missing test_write(0x%06x, %u);", address, value);
     }
 }
 
@@ -515,7 +515,7 @@ void addInterruptHandler(uint32_t intId, void (*address)(void))
     }
     else
     {
-        log("missing irq_remove_handler(%u, );", intId);
+        tslog("missing irq_remove_handler(%u, );", intId);
     }
 }
 
@@ -547,11 +547,11 @@ void removeInterruptHandler(uint32_t intId, void (*address)(void))
     }
     if (!added)
     {
-        log("missing irq_add_shared_handler(%u, , );", intId);
+        tslog("missing irq_add_shared_handler(%u, , );", intId);
     }
 }
 
-void log(char const *s, ...)
+void tslog(char const *s, ...)
 {
     va_list args;
     va_start(args, s);
@@ -665,23 +665,23 @@ TsLog *testIntrinsicsSync(void)
         int numUnfulfilledExpectations = ts->expected_.n_;
         if (numUnfulfilledExpectations != 0)
         {
-            log("%d unfulfilled expectation%s:", numUnfulfilledExpectations, numUnfulfilledExpectations > 1 ? "s" : "");
+            tslog("%d unfulfilled expectation%s:", numUnfulfilledExpectations, numUnfulfilledExpectations > 1 ? "s" : "");
             //    multiset<tuple<Expected, uint32_t, uint32_t> > expected; // address, value - value == 0 if WriteAny or ReadAny
             for (int i = 0; i < ts->expected_.n_; i++)
             {
                 switch (ts->expected_.i_[i].operation_)
                 {
                 case TsExpectedRead:
-                    log("test_read(0x%06x, %u);", ts->expected_.i_[i].address_, ts->expected_.i_[i].value_);
+                    tslog("test_read(0x%06x, %u);", ts->expected_.i_[i].address_, ts->expected_.i_[i].value_);
                     break;
                 case TsExpectedReadAny:
-                    log("test_read(0x%06x);", ts->expected_.i_[i].address_);
+                    tslog("test_read(0x%06x);", ts->expected_.i_[i].address_);
                     break;
                 case TsExpectedWrite:
-                    log("test_write(0x%06x, %u);", ts->expected_.i_[i].address_, ts->expected_.i_[i].value_);
+                    tslog("test_write(0x%06x, %u);", ts->expected_.i_[i].address_, ts->expected_.i_[i].value_);
                     break;
                 case TsExpectedWriteAny:
-                    log("test_write(0x%06x);", ts->expected_.i_[i].address_);
+                    tslog("test_write(0x%06x);", ts->expected_.i_[i].address_);
                     break;
                 default:
                     assert(!"expectations corrupt");
@@ -787,7 +787,7 @@ bool testIntrinsicsTriggerInterruptNamed(char const *s)
     }
     if (i == sizeof lut / sizeof lut[0])
     {
-        log("Unable to simulate an interrupt named %s", s);
+        tslog("Unable to simulate an interrupt named %s", s);
         return false;
     }
     return true;
