@@ -350,9 +350,9 @@ Value allocValueStructPair(const char* leftFieldName, const char* rightFieldName
     
     ObjConcreteYargTypeStruct* result_struct_type = (ObjConcreteYargTypeStruct*) newYargStructType(2);
     tempRootPush(IMPL_OBJ_VAL((Obj*)result_struct_type));
-    ObjString* leftField = copyString(leftFieldName, strlen(leftFieldName));
+    ObjString* leftField = copyString(leftFieldName, (int) strlen(leftFieldName));
     tempRootPush(STRING_VAL(leftField));
-    ObjString* rightField = copyString(rightFieldName, strlen(rightFieldName));
+    ObjString* rightField = copyString(rightFieldName, (int) strlen(rightFieldName));
     tempRootPush(STRING_VAL(rightField));
 
     appendFieldType(result_struct_type, NULL, leftField);

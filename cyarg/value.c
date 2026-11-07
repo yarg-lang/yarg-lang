@@ -339,7 +339,7 @@ static ObjString* pointerToString(Value ptrVal) {
     char* chars = ALLOCATE(char, string_length + 1);
     snprintf(chars, string_length + 1, "<*%s:%p>", targetTypeStr->chars, ptr->loc);
 
-    ObjString* result = takeString(chars, strlen(chars));
+    ObjString* result = takeString(chars, (int) strlen(chars));
     tempRootPop();
     return result;
 }
