@@ -8,6 +8,8 @@ typedef struct Obj Obj;
 // GC startup
 void vm_objects_init(vm_mutex* mutex);
 
+void gc_register_object(Obj* object);
+
 // shutdown, freeing all GC managed objects
 void vm_objects_free();
 

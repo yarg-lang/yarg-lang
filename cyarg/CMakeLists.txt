@@ -115,6 +115,7 @@ add_executable(cyarg
     object.h
     object.c
     object_gc.h
+    object_gc.c
     object_gc_impl.h
     object_gc_impl.c
     object_dyn_array.h
