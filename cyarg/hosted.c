@@ -13,6 +13,8 @@
 #include "vm.h"
 #include "vmobject.h"
 #include "packed_containers.h"
+#include "fs/fs.h"
+#include "memory.h"
 
 Host vmHost;
 
@@ -117,8 +119,10 @@ int disassembleFile(const char* path) {
     } else {
         returnCode = EX_OK;
         ObjFunction* function = AS_CLOSURE(compilerResultClosure)->function;
+        char* source = readFile(path);
 
-        disassembleChunk(&function->chunk, file);
+        disassembleChunk(&function->chunk, file, source);
+        vm_free(source);
     }
 
     tempRootPop();

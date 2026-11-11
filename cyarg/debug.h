@@ -6,7 +6,7 @@
 #include "value_cell.h"
 #include <stdio.h>
 
-void disassembleChunk(Chunk* chunk, const char* name);
+void disassembleChunk(Chunk* chunk, const char* name, const char* source);
 int disassembleInstruction(Chunk* chunk, int offset);
 
 void print_cyarg_info();

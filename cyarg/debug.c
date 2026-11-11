@@ -41,9 +41,36 @@ void fprintObj(FILE* op, const Obj* object) {
     tempRootPop();
 }
 
-void disassembleChunk(Chunk* chunk, const char* name) {
-    printf("== %s ==\n", name);
+static void printSourceLine(const char* source, uint16_t line) {
+    if (source == NULL || line == 0) return;
+
+    const char* start = source;
+    for (uint16_t current = 1; current < line; current++) {
+        const char* newline = strchr(start, '\n');
+        if (newline == NULL) return;
+        start = newline + 1;
+    }
+
+    const char* end = strchr(start, '\n');
+    if (end == NULL) end = start + strlen(start);
+    if (end > start && end[-1] == '\r') end--;
+
+    printf("    %3d | ", line);
+    fwrite(start, 1, (size_t)(end - start), stdout);
+    printf("\n");
+}
+
+void disassembleChunk(Chunk* chunk, const char* name, const char* source) {
+    printf("%s\n", name);
+
     for (int offset = 0; offset < chunk->count;) {
+        for (int i = 0; source != NULL && chunk->lines != NULL && i < chunk->numLines; i++) {
+            if (chunk->lines[i].address == offset) {
+                printSourceLine(source, chunk->lines[i].line);
+                break;
+            }
+            if (chunk->lines[i].address > offset) break;
+        }
         offset = disassembleInstruction(chunk, offset);
     }
     for (int i = 0; i < chunk->constants.count; i++) {
@@ -52,10 +79,10 @@ void disassembleChunk(Chunk* chunk, const char* name) {
             char *funNameC = vm_allocate(fun->fName->length + 1);
             memcpy(funNameC, fun->fName->chars, fun->fName->length + 1);
             int line = fun->chunk.numLines > 0 ? fun->chunk.lines[0].line : 0;
-            size_t l = snprintf(0, 0, "%s/%s(%d)", name, funNameC, line);
+            size_t l = snprintf(0, 0, "%s: %3d:%s()", name, line, funNameC);
             char *funName = vm_allocate(l + 1);
-            snprintf(funName, l + 1, "%s/%s(%d)", name, funNameC, line);
-            disassembleChunk(&fun->chunk, funName);
+            snprintf(funName, l + 1, "%s: %3d:%s()", name, line, funNameC);
+            disassembleChunk(&fun->chunk, funName, source);
             vm_free(funName);
             vm_free(funNameC);
         }
