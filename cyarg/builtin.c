@@ -141,6 +141,7 @@ bool compileBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
     }
 
     Value compileResult = compile(routineContext);
+    push(routineContext, compileResult);
     Value compileError = structField(compileResult, 0);
     Value compileFunction = structField(compileResult, 1);
 
@@ -148,7 +149,7 @@ bool compileBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         ObjClosure* closure = newClosure(AS_FUNCTION(compileFunction));
         setStructField(compileResult, 1, CLOSURE_VAL(closure));
     }
-
+    pop(routineContext);
     *result = compileResult;
     return true;
 }
