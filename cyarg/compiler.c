@@ -582,7 +582,6 @@ static void generateExprCallBuiltin(ObjExprCallBuiltin* call) {
 
 static void generateExprCollectionInit(ObjExprCollectionInitializer* collection) {
  
-    emitBytes(OP_GET_BUILTIN, BUILTIN_NEW);
     emitByte(OP_NIL);
     if (collection->isMap) {
         emitBytes(OP_TYPE_LITERAL, TYPE_LITERAL_STRING);
@@ -590,7 +589,9 @@ static void generateExprCollectionInit(ObjExprCollectionInitializer* collection)
         generateExpr(collection->cardinality);
     }
     emitByte(OP_TYPE_INDEXED_COLLECTION);
-    emitBytes(OP_CALL, 1);
+    emitByte(OP_CALL_BUILTIN);
+    emitByte(BUILTIN_NEW);
+    emitByte(1);
  
     for (int i = 0; i < collection->initializers.objectCount; i++) {
         Obj* item_or_pair = collection->initializers.objects[i];
