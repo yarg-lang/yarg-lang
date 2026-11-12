@@ -515,11 +515,12 @@ static void generateCallExprs(DynamicObjArray* args) {
 
 static void generateExprCall(ObjExprCall* call) {
     generateCallExprs(&call->arguments);
-    if (call->expr.obj.type == OBJ_EXPR_CALL_BUILTIN) {
-        emitBytes(OP_CALL_BUILTIN, call->arguments.objectCount);
-    } else {
-        emitBytes(OP_CALL, call->arguments.objectCount);
-    }
+    emitBytes(OP_CALL, call->arguments.objectCount);
+}
+
+static void generateExprCallBuiltin(ObjExprCallBuiltin* call) {
+    generateCallExprs(&call->arguments);
+    emitBytes(OP_CALL_BUILTIN, call->arguments.objectCount);
 }
 
 static void generateExprCollectionInit(ObjExprCollectionInitializer* collection) {
@@ -724,7 +725,11 @@ static void generateExprElt(ObjExpr* expr) {
             generateExprString(str);
             break;
         }
-        case OBJ_EXPR_CALL_BUILTIN: // fall through
+        case OBJ_EXPR_CALL_BUILTIN: {
+            ObjExprCallBuiltin* call = (ObjExprCallBuiltin*)expr;
+            generateExprCallBuiltin(call);
+            break;
+        }
         case OBJ_EXPR_CALL: {
             ObjExprCall* call = (ObjExprCall*)expr;
             generateExprCall(call);

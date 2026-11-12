@@ -142,8 +142,9 @@ ObjExprCall* newExprCall() {
     return call;
 }
 
-ObjExprCall* newExprCallBuiltin() {
-    ObjExprCall* call = ALLOCATE_OBJ(ObjExprCall, OBJ_EXPR_CALL_BUILTIN);
+ObjExprCallBuiltin* newExprCallBuiltin(ObjExprBuiltin* callee) {
+    ObjExprCallBuiltin* call = ALLOCATE_OBJ(ObjExprCallBuiltin, OBJ_EXPR_CALL_BUILTIN);
+    call->callee = callee;
     return call;
 }
 

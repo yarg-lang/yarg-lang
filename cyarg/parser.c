@@ -366,16 +366,20 @@ static ObjExpr* collectioninit(ObjParser* parser, bool canAssign) {
 }
 
 static ObjExpr* call(ObjParser* parser, bool canAssign) {
-    ObjExprCall* call;
     if (parser->prevExpr && parser->prevExpr->obj.type == OBJ_EXPR_BUILTIN) {
-        call = newExprCallBuiltin();
+        ObjExprCallBuiltin* call = newExprCallBuiltin((ObjExprBuiltin*)parser->prevExpr);
+        pushWorkingNode(parser, (Obj*)call);
+        expressionList(parser, &call->arguments);
+        popWorkingNode(parser);
+        return (ObjExpr*)call;
     } else {
+        ObjExprCall* call;
         call = newExprCall();
+        pushWorkingNode(parser, (Obj*)call);
+        expressionList(parser, &call->arguments);
+        popWorkingNode(parser);
+        return (ObjExpr*)call;
     }
-    pushWorkingNode(parser, (Obj*)call);
-    expressionList(parser, &call->arguments);
-    popWorkingNode(parser);
-    return (ObjExpr*)call;
 }
 
 static ObjExpr* string(ObjParser* parser, bool canAssign) {

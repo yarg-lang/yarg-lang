@@ -148,6 +148,18 @@ typedef struct {
 
 typedef struct {
     ObjExpr expr;
+    ExprBuiltin builtin;
+    int arity;
+} ObjExprBuiltin;
+
+typedef struct {
+    ObjExpr expr;
+    ObjExprBuiltin* callee;
+    DynamicObjArray arguments;
+} ObjExprCallBuiltin;
+
+typedef struct {
+    ObjExpr expr;
     bool isMap;
     DynamicObjArray initializers;
     ObjExpr* cardinality;
@@ -164,12 +176,6 @@ typedef struct {
     ObjExpr* a;
     ObjExpr* b;
 } ObjExprPair;
-
-typedef struct {
-    ObjExpr expr;
-    ExprBuiltin builtin;
-    int arity;
-} ObjExprBuiltin;
 
 typedef struct {
     ObjExpr expr;
@@ -306,7 +312,7 @@ ObjExprOperation* newExprOperation(ObjExpr* rhs, ExprOp op);
 ObjExprGrouping* newExprGrouping(ObjExpr* expression);
 ObjExprNamedVariable* newExprNamedVariable(ObjRoutine* context, const char* name, int nameLength);
 ObjExprCall* newExprCall();
-ObjExprCall* newExprCallBuiltin();
+ObjExprCallBuiltin* newExprCallBuiltin(ObjExprBuiltin* callee);
 ObjExprCollectionInitializer* newExprCollectionInitializer();
 ObjExprCollectionElement* newExprCollectionElement();
 ObjExprBuiltin* newExprBuiltin(ExprBuiltin fn, int arity);
