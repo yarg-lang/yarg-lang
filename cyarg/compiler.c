@@ -571,12 +571,34 @@ static void generateExprCallBuiltin(ObjExprCallBuiltin* call) {
             generateCallExprs(&call->arguments, false);
             emitByte(OP_LEN_BUILTIN);
             break;
-        default:
-            generateCallExprs(&call->arguments, true);
+        default: {
+            bool byValue = true;
+            switch (call->callee->builtin) {
+                case EXPR_BUILTIN_LEN:
+                case EXPR_BUILTIN_INT:
+                case EXPR_BUILTIN_MFLOAT64:
+                case EXPR_BUILTIN_PIN:
+                case EXPR_BUILTIN_INT8:
+                case EXPR_BUILTIN_UINT8:
+                case EXPR_BUILTIN_INT16:
+                case EXPR_BUILTIN_UINT16:
+                case EXPR_BUILTIN_INT32:
+                case EXPR_BUILTIN_UINT32:
+                case EXPR_BUILTIN_INT64:
+                case EXPR_BUILTIN_UINT64:
+                case EXPR_BUILTIN_STRING:
+                    byValue = false;
+                    break;
+                default:
+                    byValue = true;
+                    break;
+            }
+            generateCallExprs(&call->arguments, byValue);
             emitByte(OP_CALL_BUILTIN);
             emitByte(builtinExprToBuiltinFn(call->callee->builtin));
             emitByte(call->arguments.objectCount);
             break;
+        }
     }
 }
 
