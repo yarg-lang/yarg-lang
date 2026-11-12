@@ -1586,37 +1586,31 @@ static void bindBootstrapScript(const char* name, size_t nameLength,
 // note that it is assumed that the initial script is well-formed and won't
 // produce a compile error. (use --compile to check this when editing the script)
 uint8_t bootstrap[] = {
-    OP_GET_BUILTIN, BUILTIN_LOAD,
-    OP_GET_BUILTIN, BUILTIN_READ_YARG_SOURCE,
     OP_CONSTANT, 0,
-    OP_CALL, 1,
-    OP_CALL, 1,
+    OP_CALL_BUILTIN, BUILTIN_READ_YARG_SOURCE, 1,
+    OP_CALL_BUILTIN, BUILTIN_LOAD, 1,
     OP_IMMEDIATE_P8, 1,
     OP_ELEMENT,
     OP_CALL, 0,
     OP_RETURN
 };
 
-size_t bootstrap_parameter_offset = 5;
+size_t bootstrap_parameter_offset = 1;
 
 uint8_t compile_bootstrap[] = {
-    OP_GET_BUILTIN, BUILTIN_COMPILE,
-    OP_GET_BUILTIN, BUILTIN_READ_YARG_SOURCE,
     OP_CONSTANT, 0,
-    OP_CALL, 1,
-    OP_CALL, 1,
+    OP_CALL_BUILTIN, BUILTIN_READ_YARG_SOURCE, 1,
+    OP_CALL_BUILTIN, BUILTIN_COMPILE, 1,
     OP_RETURN
 };
 
-size_t compile_bootstrap_parameter_offset = 5;
+size_t compile_bootstrap_parameter_offset = 1;
 
 uint8_t xip_bootstrap[] = {
-    OP_GET_BUILTIN, BUILTIN_LOAD,
-    OP_GET_BUILTIN, BUILTIN_READ_XIP_FILE,
     OP_IMMEDIATE_P8, 1,
     OP_IMMEDIATE_P8, 1,
-    OP_CALL, 2,
-    OP_CALL, 1,
+    OP_CALL_BUILTIN, BUILTIN_READ_XIP_FILE, 2,
+    OP_CALL_BUILTIN, BUILTIN_LOAD, 1,
     OP_IMMEDIATE_P8, 1,
     OP_ELEMENT,
     OP_CALL, 0,
