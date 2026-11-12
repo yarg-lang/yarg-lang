@@ -459,6 +459,8 @@ bool is_positive_integer(Value a) {
         return true;
     } else if (IS_I64(a) && AS_I64(a) >= 0) {
         return true;
+    } else if (IS_SMALL_INT(a)) {
+        return AS_BIG_SMALL_INT(a).i_.neg_ == false;
     } else if (IS_INT(a)) {
         return int_is_range(AS_INT(a), 0, UINT64_MAX) == INT_WITHIN;
     }
@@ -467,6 +469,8 @@ bool is_positive_integer(Value a) {
         return true;
     } else if (IS_I64(a) && AS_I64(a) >= 0 && AS_I64(a) <= UINT32_MAX) {
         return true;
+    } else if (IS_SMALL_INT(a)) {
+        return AS_BIG_SMALL_INT(a).i_.neg_ == false;
     } else if (IS_INT(a)) {
         return int_is_range(AS_INT(a), 0, UINT32_MAX) == INT_WITHIN;
     }
@@ -497,6 +501,9 @@ size_t as_positive_integer(Value a) {
 #if IS_64BIT
     } else if (IS_UI64(a)) {
         return AS_UI64(a);
+    } else if (IS_SMALL_INT(a)) {
+        uint32_t* i = AS_BIG_SMALL_INT(a).i_.w_;
+        return (size_t) *i;
     } else if (IS_INT(a)) {
         if (int_is_range(AS_INT(a), 0, UINT64_MAX) == INT_WITHIN) {
             return int_to_u64(AS_INT(a));
@@ -505,6 +512,9 @@ size_t as_positive_integer(Value a) {
 #else
     } else if (IS_UI64(a) && AS_UI64(a) <= UINT32_MAX) {
         return (uint32_t) AS_UI64(a);
+    } else if (IS_SMALL_INT(a)) {
+        uint32_t* i = AS_BIG_SMALL_INT(a).i_.w_;
+        return (size_t) *i;
     } else if (IS_INT(a)) {
         if (int_is_range(AS_INT(a), 0, UINT32_MAX) == INT_WITHIN) {
             return int_to_u32(AS_INT(a));
