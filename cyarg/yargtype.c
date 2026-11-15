@@ -576,34 +576,32 @@ bool structFieldIndex(const ObjConcreteYargTypeStruct* type, ObjString* name, si
 
 bool typesEqual(const ObjConcreteYargType* a, const ObjConcreteYargType* b) {
     if (a == b) return true;
-    if (a != NULL) {
-        if (b == NULL) return false;
-        if (a->yt != b->yt) return false;
-        if (a->yt == TypePointer) {
-            assert(b->yt == TypePointer);
-            const ObjConcreteYargTypePointer* pointer_a = (const ObjConcreteYargTypePointer*)a;
-            const ObjConcreteYargTypePointer* pointer_b = (const ObjConcreteYargTypePointer*)b;
-            return typesEqual(pointer_a->target_type, pointer_b->target_type);
+    else if (a != NULL && b == NULL) return false;
+    else if (a == NULL && b != NULL) return false;
+    else if (a->yt != b->yt) return false;
+    else if (a->yt == TypePointer) {
+        assert(b->yt == TypePointer);
+        const ObjConcreteYargTypePointer* pointer_a = (const ObjConcreteYargTypePointer*)a;
+        const ObjConcreteYargTypePointer* pointer_b = (const ObjConcreteYargTypePointer*)b;
+        return typesEqual(pointer_a->target_type, pointer_b->target_type);
+    } else if (a->yt == TypeArray) {
+        assert(b->yt == TypeArray);
+        const ObjConcreteYargTypeArray* array_a = (const ObjConcreteYargTypeArray*)a;
+        const ObjConcreteYargTypeArray* array_b = (const ObjConcreteYargTypeArray*)b;
+        return array_a->cardinality == array_b->cardinality
+            && typesEqual(array_a->element_type, array_b->element_type);
+    } else if (a->yt == TypeStruct) {
+        assert(b->yt == TypeStruct);
+        const ObjConcreteYargTypeStruct* struct_a = (const ObjConcreteYargTypeStruct*)a;
+        const ObjConcreteYargTypeStruct* struct_b = (const ObjConcreteYargTypeStruct*)b;
+        if (struct_a->field_count != struct_b->field_count) return false;
+        for (size_t i = 0; i < struct_a->field_count; i++) {
+            if (!typesEqual(struct_a->field_types[i], struct_b->field_types[i])) return false;
         }
-        if (a->yt == TypeArray) {
-            assert(b->yt == TypeArray);
-            const ObjConcreteYargTypeArray* array_a = (const ObjConcreteYargTypeArray*)a;
-            const ObjConcreteYargTypeArray* array_b = (const ObjConcreteYargTypeArray*)b;
-            if (!typesEqual(array_a->element_type, array_b->element_type)) return false;
-            return array_a->cardinality == array_b->cardinality;
-        }
-        if (a->yt == TypeStruct) {
-            assert(b->yt == TypeStruct);
-            const ObjConcreteYargTypeStruct* struct_a = (const ObjConcreteYargTypeStruct*)a;
-            const ObjConcreteYargTypeStruct* struct_b = (const ObjConcreteYargTypeStruct*)b;
-            if (struct_a->field_count != struct_b->field_count) return false;
-            for (size_t i = 0; i < struct_a->field_count; i++) {
-                if (!typesEqual(struct_a->field_types[i], struct_b->field_types[i])) return false;
-            }
-            return true;
-        }
+        return true;
+    } else {
+        assert(b->yt == a->yt);
         // TODO: maps, other complex types
-        return a->yt == b->yt;
+        return true;
     }
-    return false;
 }
