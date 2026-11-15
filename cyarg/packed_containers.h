@@ -69,14 +69,11 @@ typedef struct ObjOwningPackedContainer {
 
 #define AS_PACKEDCONTAINER(value) ((ObjPackedContainer*)AS_OBJ(value))
 
-bool is_uniformarray(Value value);
-bool is_pointer(Value value);
-bool is_struct(Value value);
 bool isUint32Pointer(Value val);
 
-#define IS_UNIFORMARRAY(value) is_uniformarray(value)
-#define IS_POINTER(value)      is_pointer(value)
-#define IS_STRUCT(value)       is_struct(value)
+#define IS_UNIFORMARRAY(value) ((value.type != NULL && value.type->yt == TypeArray) ? true : false)
+#define IS_POINTER(value)      ((value.type != NULL && value.type->yt == TypePointer) ? true : false)
+#define IS_STRUCT(value)       ((value.type != NULL && value.type->yt == TypeStruct) ? true : false)
 
 Value newPackedValueContainer(const ObjConcreteYargType* type);
 Value createPackedValueContainerAt(void* location, const ObjConcreteYargType* type);

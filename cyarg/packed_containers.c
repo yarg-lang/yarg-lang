@@ -125,20 +125,6 @@ void gc_freePackedStorage(ObjPackedStorage* storage) {
     gc_free(storage->values);
 }
 
-bool is_uniformarray(Value value) {
-    if (value.type == NULL) return false;
-    return value.type->yt == TypeArray;
-}
-bool is_pointer(Value value) {
-    if (value.type == NULL) return false;
-    return value.type->yt == TypePointer;
-}
-
-bool is_struct(Value value) {
-    if (value.type == NULL) return false;
-    return value.type->yt == TypeStruct;
-}
-
 bool yt_packs_asValue(const ObjConcreteYargType* type) {
     if (type == NULL) {
         assert(yt_sizeof_type_storage(type) == sizeof(Value));
@@ -305,12 +291,17 @@ Value pinPackedValueContainer(Value packedValueContainer) {
 }
 
 bool  isByteArray(Value value) {
-    if (!is_uniformarray(value)) return false;
-    const ObjConcreteYargTypeArray* arrayType = (const ObjConcreteYargTypeArray*) value.type;
-    if (arrayType->element_type) {
-        return arrayType->element_type->yt == TypeUint8;
+    if (!IS_UNIFORMARRAY(value)) return false;
+    else if (value.type) {
+        const ObjConcreteYargTypeArray* arrayType = (const ObjConcreteYargTypeArray*) value.type;
+        if (arrayType->element_type) {
+            return arrayType->element_type->yt == TypeUint8;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
     }
-    return false;
 }
 
 Value allocByteArray(size_t length) {
