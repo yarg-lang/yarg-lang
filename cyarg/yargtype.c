@@ -55,10 +55,10 @@ bool is_obj_yargtype(const ObjConcreteYargType* type) {
 
 bool is_packable_container_type(const ObjConcreteYargType* type) {
     if (type == NULL) return false;
-    if (type->yt == TypeArray) return true;
-    if (type->yt == TypeStruct) return true;
-    if (type->yt == TypePointer) return true;
-    return false;
+    else if (type->yt == TypeArray) return true;
+    else if (type->yt == TypeStruct) return true;
+    else if (type->yt == TypePointer) return true;
+    else return false;
 }
 
 const ObjConcreteYargType* newYargTypeFromTypeCode(uint8_t typeCode) {
