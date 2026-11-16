@@ -590,7 +590,8 @@ bool new_Builtin(ObjRoutine* routineContext, int argCount, Value* result) {
         case TypeMap: {
             // TODO: revisit if maps become value types.
             if (isSupportedMapKeyType(AS_YARGTYPE(typeToCreate))) {
-                *result = MAP_VAL(newMap((ObjConcreteYargTypeMap*)AS_YARGTYPE(typeToCreate)));
+                ObjMap *map = newMap((ObjConcreteYargTypeMap*)AS_YARGTYPE(typeToCreate));
+                *result = MAP_VAL(map);
                 return true;
             } else {
                 runtimeError(routineContext, "Unsupported map key type.");
