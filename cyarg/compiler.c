@@ -693,8 +693,7 @@ static void generateExprSuper(ObjExprSuper* super) {
         emitBytes(OP_GET_SUPER, name);
     }
 
-    pop(current->context);
-    pop(current->context);
+    popN(current->context, 2);
 }
 
 static void generateExprType(ObjExprTypeLiteral* type) {
@@ -1261,14 +1260,7 @@ Value compile(ObjRoutine* context) {
         setStructField(result, 1, FUNCTION_VAL(function));
     }
 
-    pop(context); // result
-    pop(context); // function
-    pop(context); // errors
-    pop(context); // parser
-    pop(context); // ast
-    pop(context); // scanner
-
-    pop(context); // parseErrors
+    popN(context, 7);
     return result;
 }
 

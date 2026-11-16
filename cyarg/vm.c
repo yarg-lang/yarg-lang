@@ -129,8 +129,7 @@ static void defineNative(ObjRoutine* context, const char* name, NativeFn functio
     push(context, IMPL_OBJ_VAL(native));
 
     keyValueStoreSetValue(&vm.globals, nameString, &NATIVE_VAL(native));
-    pop(context);
-    pop(context);
+    popN(context, 2);
 }
 
 static void defineGlobal(ObjRoutine* context, const char* name, Value value) {
@@ -429,8 +428,7 @@ static bool derefArrayElement(ObjRoutine* routine) {
         tempRootPop();
     }
 
-    pop(routine);
-    pop(routine);
+    popN(routine, 2);
     push(routine, result);
     return true;
 }
@@ -447,8 +445,7 @@ static bool derefMapElement(ObjRoutine* routine) {
     if (!keyValueStoreGetValue(&map->entries, AS_STRING(key), &result)) {
         result = NIL_VAL;
     }
-    pop(routine);
-    pop(routine);
+    popN(routine, 2);
     push(routine, result);
     return true;
 }
@@ -465,8 +462,7 @@ static bool derefStructElement(ObjRoutine* routine) {
     size_t index = as_positive_integer(indexVal);
     Value result = structField(container, index);
 
-    pop(routine);
-    pop(routine);
+    popN(routine, 2);
     push(routine, result);
     return true;
 }
@@ -539,8 +535,7 @@ static void op_set_element(ObjRoutine* routine) {
     }
 
     if (result) {
-        pop(routine);
-        pop(routine);
+        popN(routine, 2);
     }
 }
 
@@ -562,8 +557,7 @@ static void concatenate(ObjRoutine* routine) {
     ObjString* a = AS_STRING(peek(routine, 1));
 
     ObjString* result = concatenateStrings(a, b);
-    pop(routine);
-    pop(routine);
+    popN(routine, 2);
     push(routine, STRING_VAL(result));
 }
 
@@ -944,8 +938,7 @@ InterpretResult run(ObjRoutine* routine) {
                     runtimeError(routine, "Cannot initialise variable with this value.");
                     return INTERPRET_RUNTIME_ERROR;
                 }
-                pop(routine);
-                pop(routine);
+                popN(routine, 2);
                 pushTyped(routine, result, targetType);
                 break;
             }
@@ -1284,8 +1277,7 @@ InterpretResult run(ObjRoutine* routine) {
                 ObjString* string = valueToString(peek(routine, 0));
                 push(routine, STRING_VAL(string));
                 printf("%s\n", string->chars);
-                pop(routine);
-                pop(routine);
+                popN(routine, 2);
                 break;
             }
             case OP_POKE: {
@@ -1332,8 +1324,7 @@ InterpretResult run(ObjRoutine* routine) {
 #endif
                 printf("poke 0x%08lx, 0x%08zx\n", nominal_address, val);
 #endif
-                pop(routine);
-                pop(routine);
+                popN(routine, 2);
 
                 break;
             }
@@ -1499,9 +1490,7 @@ InterpretResult run(ObjRoutine* routine) {
                         size_t offset = as_positive_integer(offsetValue);
                         appendFieldTypeAtOffset(st, fieldType, offset, fieldName);
                     }
-                    pop(routine);
-                    pop(routine);
-                    pop(routine);
+                    popN(routine, 3);
                 }
                 push(routine, YARGTYPE_VAL(st));
                 tempRootPop();
@@ -1539,8 +1528,7 @@ InterpretResult run(ObjRoutine* routine) {
                     return INTERPRET_RUNTIME_ERROR;
                 }
 
-                pop(routine);
-                pop(routine);
+                popN(routine, 2);
                 push(routine, YARGTYPE_VAL(typeObject));
                 break;
             }
@@ -1553,8 +1541,7 @@ InterpretResult run(ObjRoutine* routine) {
                 Value lhs = peek(routine, 1);
 
                 if (setPointerDestination(lhs, rhs)) {
-                    pop(routine);
-                    pop(routine);
+                    popN(routine, 2);
                     push(routine, rhs);
                 } else {
                     runtimeError(routine, "Cannot set pointer target to incompatible type.");
@@ -1579,10 +1566,7 @@ InterpretResult run(ObjRoutine* routine) {
 
                 Value result = createPackedValueContainerAt((void*)address, pointerType);
 
-                pop(routine);
-
-                pop(routine);
-                pop(routine);
+                popN(routine, 3);
                 push(routine, result);
                 break;
             }
@@ -1753,7 +1737,7 @@ void binaryIntOp(ObjRoutine* routine, char const *c)
     default:
         assert(!"IntOp");
     }
-    routine->stackTopIndex -= 2;
+    popN(routine, 2);
     push(routine, r);
 }
 

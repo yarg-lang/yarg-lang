@@ -364,9 +364,7 @@ Value pop(ObjRoutine* routine) {
 }
 
 void popN(ObjRoutine* routine, size_t count) {
-    for (size_t i = 0; i < count; i++) {
-        pop(routine);
-    }
+    routine->stackTopIndex -= count;
 }
 
 void popFrame(ObjRoutine* routine, CallFrame* frame) {
