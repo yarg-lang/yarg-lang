@@ -1301,7 +1301,8 @@ InterpretResult run(ObjRoutine* routine) {
             }
             case OP_CALL: {
                 int argCount = READ_BYTE();
-                InterpretResult result = callValue(routine, peek(routine, argCount), argCount);
+                Value closure = peek(routine, argCount);
+                InterpretResult result = callValue(routine, closure, argCount);
                 if (result != INTERPRET_OK) {
                     return result;
                 }
