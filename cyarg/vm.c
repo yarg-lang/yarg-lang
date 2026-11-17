@@ -949,7 +949,7 @@ InterpretResult run(ObjRoutine* routine) {
                 pushTyped(routine, result, targetType);
                 break;
             }
-            case OP_DUPLICATE: {
+            case OP_VALUE_BY_VALUE: {
                 Value rhs = peek(routine, 0);
                 Value lhs = duplicateValue(rhs);
                 pop(routine);

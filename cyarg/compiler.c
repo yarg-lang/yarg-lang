@@ -491,7 +491,7 @@ static void generateExprNamedVariable(ObjExprNamedVariable* var) {
     
     if (var->assignment) {
         generateExpr(var->assignment);
-        emitByte(OP_DUPLICATE);
+        emitByte(OP_VALUE_BY_VALUE);
         emitBytes(setOp, (uint8_t)arg);
     } else {
         emitBytes(getOp, (uint8_t)arg);
@@ -510,7 +510,7 @@ static void generateCallExprs(DynamicObjArray* args, bool byValue) {
     for (int i = 0; i < args->objectCount; i++) {
         generateExpr((ObjExpr*)args->objects[i]);
         if (byValue) {
-            emitByte(OP_DUPLICATE);
+            emitByte(OP_VALUE_BY_VALUE);
         }
     } 
 }
@@ -869,12 +869,12 @@ static void generateVarDeclaration(ObjStmtVarDeclaration* decl) {
         emitByte(OP_INITIALISE_DEFAULT);
     } else if (decl->type == NULL && decl->initialiser) {
         generateExpr(decl->initialiser);
-        emitByte(OP_DUPLICATE);
+        emitByte(OP_VALUE_BY_VALUE);
     } else {
         assert(decl->type && decl->initialiser);
         generateExpr(decl->type);
         generateExpr(decl->initialiser);
-        emitByte(OP_DUPLICATE);
+        emitByte(OP_VALUE_BY_VALUE);
         emitByte(OP_INITIALISE);
     }
 

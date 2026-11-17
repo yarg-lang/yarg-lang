@@ -69,7 +69,7 @@ typedef enum {
     OP_DEREF_PTR,
     OP_SET_PTR_TARGET,
     OP_PLACE,
-    OP_DUPLICATE,
+    OP_VALUE_BY_VALUE,
     OP_ERROR
 } OpCode;
 
