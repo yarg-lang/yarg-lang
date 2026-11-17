@@ -1,1 +1,1 @@
-print len(3, 4);  // expect runtime error: Expected 1 argument, but got 2.
+print len(3, 4);  // [line 1] Error at ')': len expects exactly one argument.

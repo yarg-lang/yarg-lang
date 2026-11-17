@@ -1313,6 +1313,16 @@ InterpretResult run(ObjRoutine* routine) {
                 frame->ip -= offset;
                 break;
             }
+            case OP_LEN_BUILTIN: {
+                Value result = NIL_VAL;
+                if (lenBuiltin(routine, 1, &result)) {
+                    popN(routine, 1);
+                    push(routine, result);
+                } else {
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                break;
+            }
             case OP_CALL_BUILTIN: {
                 int argCount = READ_BYTE();
                 Value callee = peek(routine, argCount);

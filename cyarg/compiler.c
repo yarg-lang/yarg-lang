@@ -506,21 +506,36 @@ static void generateExprLiteral(ObjExprLiteral* lit) {
     }
 }
 
-static void generateCallExprs(DynamicObjArray* args) {
+static void generateCallExprs(DynamicObjArray* args, bool byValue) {
     for (int i = 0; i < args->objectCount; i++) {
         generateExpr((ObjExpr*)args->objects[i]);
-        emitByte(OP_DUPLICATE);
+        if (byValue) {
+            emitByte(OP_DUPLICATE);
+        }
     } 
 }
 
 static void generateExprCall(ObjExprCall* call) {
-    generateCallExprs(&call->arguments);
+    generateCallExprs(&call->arguments, true);
     emitBytes(OP_CALL, call->arguments.objectCount);
 }
 
 static void generateExprCallBuiltin(ObjExprCallBuiltin* call) {
-    generateCallExprs(&call->arguments);
-    emitBytes(OP_CALL_BUILTIN, call->arguments.objectCount);
+    switch (call->callee->builtin) {
+        case EXPR_BUILTIN_LEN:
+            if (call->arguments.objectCount != 1) {
+                errorAt("len", "len expects exactly one argument.");
+                return;
+            }
+            emitByte(OP_POP);
+            generateCallExprs(&call->arguments, false);
+            emitByte(OP_LEN_BUILTIN);
+            break;
+        default:
+            generateCallExprs(&call->arguments, true);
+            emitBytes(OP_CALL_BUILTIN, call->arguments.objectCount);
+            break;
+    }
 }
 
 static void generateExprCollectionInit(ObjExprCollectionInitializer* collection) {
@@ -613,7 +628,7 @@ static void generateExprDot(ObjExprDot* dot) {
         generateExpr(dot->assignment);
         emitBytes(OP_SET_PROPERTY, name);
     } else if (dot->call) {
-        generateCallExprs(&dot->call->arguments);
+        generateCallExprs(&dot->call->arguments, true);
         emitBytes(OP_INVOKE, name);
         emitByte(dot->call->arguments.objectCount);
     } else {
@@ -636,7 +651,7 @@ static void generateExprSuper(ObjExprSuper* super) {
 
     generateGetNamedVariable(this_);
     if (super->call) {
-        generateCallExprs(&super->call->arguments);
+        generateCallExprs(&super->call->arguments, true);
         generateGetNamedVariable(super_);
         emitBytes(OP_SUPER_INVOKE, name);
         emitByte(super->call->arguments.objectCount);

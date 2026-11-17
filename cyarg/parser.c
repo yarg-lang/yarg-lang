@@ -371,6 +371,10 @@ static ObjExpr* call(ObjParser* parser, bool canAssign) {
         pushWorkingNode(parser, (Obj*)call);
         expressionList(parser, &call->arguments);
         popWorkingNode(parser);
+        if (call->callee->builtin == EXPR_BUILTIN_LEN && call->arguments.objectCount != 1) {
+            errorAt(parser, &parser->previous, "len expects exactly one argument.");
+            return NULL;
+        }
         return (ObjExpr*)call;
     } else {
         ObjExprCall* call;

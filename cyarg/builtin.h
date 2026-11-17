@@ -18,4 +18,6 @@ ObjString* builtinToString(const ObjBuiltin* builtin);
 
 #define BUILTIN_VAL(object)     ((Value){.type = &yargTypes.function, .as.obj = (Obj*) object})
 
+bool lenBuiltin(ObjRoutine* routineContext, int argCount, Value* result);
+
 #endif
