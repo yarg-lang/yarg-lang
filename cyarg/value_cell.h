@@ -22,6 +22,7 @@ typedef struct {
     const ObjConcreteYargType* cellType;
 } PlacedValueCellTarget;
 
+bool canInitialiseType(Value targetType, Value rhsValue, Value* resultOut);
 bool assignToValueCellTarget(ValueCellTarget lhs, Value rhsValue);
 bool assignToPlacedValueCellTarget(PlacedValueCellTarget lhs, Value rhsValue);
 

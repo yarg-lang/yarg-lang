@@ -30,6 +30,31 @@ bool assignToValueCellTarget(ValueCellTarget lhs, Value rhsValue) {
     }
 }
 
+bool canInitialiseType(Value targetType, Value rhsValue, Value* resultOut) {
+    if (IS_NIL(targetType)) {
+        noLongerLiteralInt(&rhsValue);
+        *resultOut = rhsValue;
+        return true;
+    } else {
+        Value promoted;
+        const ObjConcreteYargType* targetTypeConcrete = AS_YARGTYPE(targetType);
+        if (isInitialisableType(targetTypeConcrete, rhsValue, &promoted)) {
+            if (promoted.type == NULL)
+            {
+                noLongerLiteralInt(&rhsValue);
+                *resultOut = rhsValue;
+            }
+            else
+            {
+                *resultOut = promoted;
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
 bool assignToPlacedValueCellTarget(PlacedValueCellTarget lhs, Value rhsValue) {
     assert(lhs.cellType != NULL);
 

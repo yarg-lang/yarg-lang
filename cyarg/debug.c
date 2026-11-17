@@ -264,6 +264,8 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             return constantInstruction("OP_SET_GLOBAL", chunk, offset);
         case OP_INITIALISE:
             return simpleInstruction("OP_INITIALISE", offset);
+        case OP_INITIALISE_DEFAULT:
+            return simpleInstruction("OP_INITIALISE_DEFAULT", offset);
         case OP_GET_UPVALUE:
             return byteInstruction("OP_GET_UPVALUE", chunk, offset);
         case OP_SET_UPVALUE:
@@ -374,8 +376,6 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             return byteInstruction("OP_TYPE_STRUCT", chunk, offset);
         case OP_TYPE_INDEXED_COLLECTION:
             return simpleInstruction("OP_TYPE_INDEXED_COLLECTION", offset);
-        case OP_SET_CELL_TYPE:
-            return simpleInstruction("OP_SET_CELL_TYPE", offset);
         case OP_DEREF_PTR:
             return simpleInstruction("OP_DEREF_PTR", offset);
         case OP_SET_PTR_TARGET:
