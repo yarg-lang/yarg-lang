@@ -133,6 +133,7 @@ add_executable(cyarg
     channel.h
     channel.c
     yargtype.h
+    yargstructtype.h
     yargtype.c
     yargobject.h
     yargobject.c
