@@ -28,7 +28,10 @@ ObjString *stringStoreStore(StringStore *ss, ObjString *newS) {
     ObjString *towardsRoot = 0;
     while (s != 0) {
         towardsRoot = s;
-        cmp = strcmp(newS->chars, s->chars);
+        cmp = strncmp(newS->chars, s->chars, newS->length);
+        if (cmp == 0) { // simulate a trailing null terminator in newS
+            cmp = '\0' - s->chars[newS->length];
+        }
         if (cmp < 0) {
             s = s->sss.l;
         } else if (cmp > 0) {
@@ -77,7 +80,10 @@ ObjString *stringStoreStore(StringStore *ss, ObjString *newS) {
 ObjString *stringStoreGet(StringStore *ss, char const *chars, int length) {
     ObjString *s = ss->root;
     while (s != 0) {
-        int cmp = strncmp(chars, s->chars, (size_t) length);
+        int cmp = strncmp(chars, s->chars, length);
+        if (cmp == 0) { // simulate a trailing null terminator in chars
+            cmp = '\0' - s->chars[length];
+        }
         if (cmp < 0) {
             s = s->sss.l;
         } else if (cmp > 0) {
