@@ -122,6 +122,7 @@ Int *int_init_concrete4(IntConcrete4 *);
 Int *int_init_concrete254(IntConcrete254 *);
 void int_set_i(int64_t, Int *);
 void int_set_u(uint64_t, Int *);
+void int_set_u8(uint8_t, Int *);
 void int_set_s(char const *, Int *);
 void int_set_t(Int const *, Int *);
 

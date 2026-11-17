@@ -120,6 +120,16 @@ void int_set_i(int64_t to, Int *i)
     i->neg_ = to < 0;
 }
 
+void int_set_u8(uint8_t to, Int *i)
+{
+    assert(i->m_ != 0 && i->m_ % 2 == 0);
+    i->overflow_ = false;
+    i->neg_ = false;
+
+    i->w_[0] = (uint32_t) to;
+    i->d_ = 1;
+}
+
 void int_set_u(uint64_t to, Int *i)
 {
     assert(i->m_ != 0 && i->m_ % 2 == 0);
