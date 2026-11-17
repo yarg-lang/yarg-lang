@@ -83,7 +83,7 @@ typedef struct {
     ValueTable entries;
 } ObjMap;
 
-ObjFunction* newFunction();
+ObjFunction* newFunction(void);
 void initFunction(ObjFunction* function);
 ObjString* functionToString(const ObjFunction* function);
 void freeFunction(ObjFunction* function);
@@ -100,7 +100,7 @@ ObjString* copyStringWithEscapes(const char* chars, int length);
 ObjString* concatenateStrings(ObjString* a, ObjString* b);
 
 ObjInt* allocateIntObject(size_t numDigits);
-Value defaultIntValue();
+Value defaultIntValue(void);
 void noLongerLiteralInt(Value *value);
 
 #endif

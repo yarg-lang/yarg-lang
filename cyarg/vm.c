@@ -77,7 +77,7 @@ bool removePinnedRoutine(uintptr_t address) {
 // cyarg: use ascii 'y' 'a' 'r' 'g'
 #define FLAG_VALUE 0x79617267
 
-void vmCore1Entry() {
+void vmCore1Entry(void) {
 #ifdef CYARG_PICO_SDK_TARGET
     multicore_fifo_push_blocking(FLAG_VALUE);
     uint32_t g = multicore_fifo_pop_blocking();
@@ -146,7 +146,7 @@ static void defineGlobal(ObjRoutine* context, const char* name, Value value) {
     pop(context);
 }
 
-void initVMMemory() {
+void initVMMemory(void) {
 
     memset(&vm, 0, sizeof(VM));
 
@@ -155,7 +155,7 @@ void initVMMemory() {
     vm_objects_init(&vm.mem);
 }
 
-void initVMRuntime() {
+void initVMRuntime(void) {
     vm.pinnedRoutineHandlers[0] = pinnedRoutine0;
     vm.pinnedRoutineHandlers[1] = pinnedRoutine1;
     vm.pinnedRoutineHandlers[2] = pinnedRoutine2;
@@ -225,8 +225,8 @@ void vmRemoveUnmarkedRoots() {
     tableRemoveWhite(&vm.strings);
 }
 
-void markVMRoots() {
-    
+void markVMRoots(void) {
+
     // Don't use markObject, as these are not on the heap.
     markRoutine(&vm.core0);
     markFunction(&vm.bootFunction);
@@ -1624,7 +1624,7 @@ InterpretResult compileScript(ObjString* filename, Value* result) {
     return runResult;
 }
 
-InterpretResult bootXIP() {
+InterpretResult bootXIP(void) {
     bindBootstrapCode("boot", 4, xip_bootstrap, sizeof(xip_bootstrap));
     Value discardedResult;
     InterpretResult runResult = bootstrapVM(&discardedResult, NULL);
