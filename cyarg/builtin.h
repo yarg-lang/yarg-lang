@@ -4,14 +4,14 @@
 #include "value.h"
 #include "object.h"
 
-Value getBuiltin(uint8_t builtin);
-
 typedef bool (*BuiltinFun)(ObjRoutine* routine, int argCount, Value* result);
 
 typedef struct {
     Obj obj;
     BuiltinFun function;
 } ObjBuiltin;
+
+BuiltinFun getBuiltinFunction(uint8_t builtin);
 
 ObjBuiltin* newBuiltin(BuiltinFun function);
 ObjString* builtinToString(const ObjBuiltin* builtin);

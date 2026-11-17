@@ -150,6 +150,7 @@ typedef struct {
     ObjExpr expr;
     ExprBuiltin builtin;
     int arity;
+    bool calledImmediately;
 } ObjExprBuiltin;
 
 typedef struct {

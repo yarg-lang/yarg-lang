@@ -161,9 +161,7 @@ static int jumpInstruction(const char* name, int sign, Chunk* chunk, int offset)
     return offset + 3;
 }
 
-static int builtinInstruction(const char* name, Chunk* chunk, int offset) {
-    uint8_t slot = chunk->code[offset + 1];
-    printf("%-16s ", name);
+static void printBuiltinName(uint8_t slot) {
     switch (slot) {
         case BUILTIN_PEEK: printf("peek"); break;
         case BUILTIN_READ_YARG_SOURCE: printf("read_yarg_source"); break;
@@ -198,8 +196,14 @@ static int builtinInstruction(const char* name, Chunk* chunk, int offset) {
         case BUILTIN_MFLOAT64:  printf("mfloat64"); break;
         case BUILTIN_STRING: printf("string"); break;
         case BUILTIN_LOAD: printf("load"); break;
-        default: printf("<unknown %4d>", slot); break;
+        default: printf("<unknown %3d>", slot); break;
     }
+}
+
+static int builtinInstruction(const char* name, Chunk* chunk, int offset) {
+    uint8_t slot = chunk->code[offset + 1];
+    printf("%-16s ", name);
+    printBuiltinName(slot);
     printf("\n");
     return offset + 2;
 }
@@ -320,8 +324,15 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             return jumpInstruction("OP_LOOP", -1, chunk, offset);
         case OP_CALL:
             return byteInstruction("OP_CALL", chunk, offset);
-        case OP_CALL_BUILTIN:
-            return byteInstruction("OP_CALL_BUILTIN", chunk, offset);
+        case OP_CALL_BUILTIN: {
+            offset++;
+            uint8_t builtin = chunk->code[offset++];
+            uint8_t argCount = chunk->code[offset++];
+            printf("%-16s ", "OP_CALL_BUILTIN");
+            printBuiltinName(builtin);
+            printf(" %4d\n", argCount);
+            return offset;
+        }
         case OP_LEN_BUILTIN:
             return simpleInstruction("OP_LEN_BUILTIN", offset);
         case OP_INVOKE:

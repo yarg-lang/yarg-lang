@@ -834,8 +834,13 @@ InterpretResult run(ObjRoutine* routine) {
             case OP_POP: pop(routine); break;
             case OP_GET_BUILTIN: {
                 uint8_t builtin = READ_BYTE();
-                Value bFn = getBuiltin(builtin);
-                push(routine, bFn);
+                BuiltinFun builtinFn = getBuiltinFunction(builtin);
+                if (builtinFn == NULL) {
+                    runtimeError(routine, "Undefined builtin function (OP_GET_BUILTIN) '%d'.", builtin);
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                ObjBuiltin* builtinObj = newBuiltin(builtinFn);
+                push(routine, BUILTIN_VAL(builtinObj));
                 break;
             }
             case OP_SET_LOCAL: {
@@ -1324,12 +1329,16 @@ InterpretResult run(ObjRoutine* routine) {
                 break;
             }
             case OP_CALL_BUILTIN: {
+                int builtin = READ_BYTE();
                 int argCount = READ_BYTE();
-                Value callee = peek(routine, argCount);
-                BuiltinFun builtin = AS_BUILTIN(callee);
+                BuiltinFun builtinFn = getBuiltinFunction(builtin);
+                if (builtinFn == NULL) {
+                    runtimeError(routine, "Undefined builtin function (OP_CALL_BUILTIN) '%d'.", builtin);
+                    return INTERPRET_RUNTIME_ERROR;
+                }
                 Value result = NIL_VAL;
-                if (builtin(routine, argCount, &result)) {
-                    popN(routine, argCount + 1);
+                if (builtinFn(routine, argCount, &result)) {
+                    popN(routine, argCount);
                     push(routine, result);
                 } else {
                     return INTERPRET_RUNTIME_ERROR;

@@ -28,15 +28,15 @@ static bool writeBuiltin(ObjRoutine *, int, Value *);
 static bool interruptBuiltin(ObjRoutine *, int, Value *);
 static bool syncBuiltin(ObjRoutine *, int, Value *);
 
-Value getTestSystemBuiltin(uint8_t builtin)
+BuiltinFun getTestSystemBuiltin(uint8_t builtin)
 {
     switch (builtin) {
-        case BUILTIN_TS_SET: return BUILTIN_VAL(newBuiltin(setBuiltin));
-        case BUILTIN_TS_READ: return BUILTIN_VAL(newBuiltin(readBuiltin));
-        case BUILTIN_TS_WRITE: return BUILTIN_VAL(newBuiltin(writeBuiltin));
-        case BUILTIN_TS_INTERRUPT: return BUILTIN_VAL(newBuiltin(interruptBuiltin));
-        case BUILTIN_TS_SYNC: return BUILTIN_VAL(newBuiltin(syncBuiltin));
-        default: return NIL_VAL;
+        case BUILTIN_TS_SET: return setBuiltin;
+        case BUILTIN_TS_READ: return readBuiltin;
+        case BUILTIN_TS_WRITE: return writeBuiltin;
+        case BUILTIN_TS_INTERRUPT: return interruptBuiltin;
+        case BUILTIN_TS_SYNC: return syncBuiltin;
+        default: return NULL;
     }
 }
 

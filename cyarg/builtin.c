@@ -1086,38 +1086,38 @@ ObjBuiltin* newBuiltin(BuiltinFun function) {
     return builtin;
 }
 
-Value getBuiltin(uint8_t builtin) {
+BuiltinFun getBuiltinFunction(uint8_t builtin) {
     switch (builtin) {
-        case BUILTIN_PEEK: return BUILTIN_VAL(newBuiltin(peekBuiltin));
-        case BUILTIN_READ_YARG_SOURCE: return BUILTIN_VAL(newBuiltin(readYargSourceBuiltin));
-        case BUILTIN_READ_XIP_FILE: return BUILTIN_VAL(newBuiltin(readYargROMSourceBuiltin));
-        case BUILTIN_COMPILE: return BUILTIN_VAL(newBuiltin(compileBuiltin));
-        case BUILTIN_MAKE_ROUTINE: return BUILTIN_VAL(newBuiltin(makeRoutineBuiltin));
-        case BUILTIN_RESUME: return BUILTIN_VAL(newBuiltin(resumeBuiltin));
-        case BUILTIN_START: return BUILTIN_VAL(newBuiltin(startBuiltin));
-        case BUILTIN_MAKE_CHANNEL: return BUILTIN_VAL(newBuiltin(makeChannelBuiltin));
-        case BUILTIN_SEND: return BUILTIN_VAL(newBuiltin(sendChannelBuiltin));
-        case BUILTIN_RECEIVE: return BUILTIN_VAL(newBuiltin(receiveBuiltin));
-        case BUILTIN_SHARE: return BUILTIN_VAL(newBuiltin(shareChannelBuiltin));
-        case BUILTIN_CPEEK: return BUILTIN_VAL(newBuiltin(cpeekBuiltin));
-        case BUILTIN_MAKE_SYNCGROUP: return BUILTIN_VAL(newBuiltin(makeSyncGroupBuiltin));
-        case BUILTIN_LEN: return BUILTIN_VAL(newBuiltin(lenBuiltin));
-        case BUILTIN_PIN: return BUILTIN_VAL(newBuiltin(pinBuiltin));
-        case BUILTIN_NEW: return BUILTIN_VAL(newBuiltin(new_Builtin));
-        case BUILTIN_INT8: return BUILTIN_VAL(newBuiltin(int8Builtin));
-        case BUILTIN_INT16: return BUILTIN_VAL(newBuiltin(int16Builtin));
-        case BUILTIN_UINT16: return BUILTIN_VAL(newBuiltin(uint16Builtin));
-        case BUILTIN_UINT8: return BUILTIN_VAL(newBuiltin(uint8Builtin));
-        case BUILTIN_INT32: return BUILTIN_VAL(newBuiltin(int32Builtin));
-        case BUILTIN_UINT32: return BUILTIN_VAL(newBuiltin(uint32Builtin));
-        case BUILTIN_INT64: return BUILTIN_VAL(newBuiltin(int64Builtin));
-        case BUILTIN_UINT64: return BUILTIN_VAL(newBuiltin(uint64Builtin));
-        case BUILTIN_INT: return BUILTIN_VAL(newBuiltin(intBuiltin));
-        case BUILTIN_MFLOAT64: return BUILTIN_VAL(newBuiltin(floatBuiltin));
-        case BUILTIN_STRING: return BUILTIN_VAL(newBuiltin(stringBuiltin));
-        case BUILTIN_LOAD: return BUILTIN_VAL(newBuiltin(loadBuiltin));
+        case BUILTIN_PEEK: return peekBuiltin;
+        case BUILTIN_READ_YARG_SOURCE: return readYargSourceBuiltin;
+        case BUILTIN_READ_XIP_FILE: return readYargROMSourceBuiltin;
+        case BUILTIN_COMPILE: return compileBuiltin;
+        case BUILTIN_MAKE_ROUTINE: return makeRoutineBuiltin;
+        case BUILTIN_RESUME: return resumeBuiltin;
+        case BUILTIN_START: return startBuiltin;
+        case BUILTIN_MAKE_CHANNEL: return makeChannelBuiltin;
+        case BUILTIN_SEND: return sendChannelBuiltin;
+        case BUILTIN_RECEIVE: return receiveBuiltin;
+        case BUILTIN_SHARE: return shareChannelBuiltin;
+        case BUILTIN_CPEEK: return cpeekBuiltin;
+        case BUILTIN_MAKE_SYNCGROUP: return makeSyncGroupBuiltin;
+        case BUILTIN_LEN: return lenBuiltin;
+        case BUILTIN_PIN: return pinBuiltin;
+        case BUILTIN_NEW: return new_Builtin;
+        case BUILTIN_INT8: return int8Builtin;
+        case BUILTIN_INT16: return int16Builtin;
+        case BUILTIN_UINT16: return uint16Builtin;
+        case BUILTIN_UINT8: return uint8Builtin;
+        case BUILTIN_INT32: return int32Builtin;
+        case BUILTIN_UINT32: return uint32Builtin;
+        case BUILTIN_INT64: return int64Builtin;
+        case BUILTIN_UINT64: return uint64Builtin;
+        case BUILTIN_INT: return intBuiltin;
+        case BUILTIN_MFLOAT64: return floatBuiltin;
+        case BUILTIN_STRING: return stringBuiltin;
+        case BUILTIN_LOAD: return loadBuiltin;
 #ifndef CYARG_FEATURE_TEST_SYSTEM
-        default: return NIL_VAL;
+        default: return NULL;
 #else
         default: return getTestSystemBuiltin(builtin);
 #endif

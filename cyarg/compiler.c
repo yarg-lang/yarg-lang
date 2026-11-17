@@ -520,6 +520,47 @@ static void generateExprCall(ObjExprCall* call) {
     emitBytes(OP_CALL, call->arguments.objectCount);
 }
 
+static BuiltinFn builtinExprToBuiltinFn(ExprBuiltin bfn) {
+    switch(bfn) {
+        case EXPR_BUILTIN_READ_YARG_SOURCE: return BUILTIN_READ_YARG_SOURCE;
+        case EXPR_BUILTIN_READ_XIP_FILE: return BUILTIN_READ_XIP_FILE;
+        case EXPR_BUILTIN_COMPILE: return BUILTIN_COMPILE;
+        case EXPR_BUILTIN_MAKE_ROUTINE: return BUILTIN_MAKE_ROUTINE;
+        case EXPR_BUILTIN_MAKE_CHANNEL: return BUILTIN_MAKE_CHANNEL;
+        case EXPR_BUILTIN_MAKE_SYNCGROUP: return BUILTIN_MAKE_SYNCGROUP;
+        case EXPR_BUILTIN_RESUME: return BUILTIN_RESUME;
+        case EXPR_BUILTIN_START: return BUILTIN_START;
+        case EXPR_BUILTIN_RECEIVE: return BUILTIN_RECEIVE;
+        case EXPR_BUILTIN_SEND: return BUILTIN_SEND;
+        case EXPR_BUILTIN_CPEEK: return BUILTIN_CPEEK;
+        case EXPR_BUILTIN_SHARE: return BUILTIN_SHARE;
+        case EXPR_BUILTIN_PEEK: return BUILTIN_PEEK;
+        case EXPR_BUILTIN_LEN: return BUILTIN_LEN;
+        case EXPR_BUILTIN_PIN: return BUILTIN_PIN;
+        case EXPR_BUILTIN_NEW: return BUILTIN_NEW;
+        case EXPR_BUILTIN_INT8: return BUILTIN_INT8;
+        case EXPR_BUILTIN_UINT8: return BUILTIN_UINT8;
+        case EXPR_BUILTIN_INT16: return BUILTIN_INT16;
+        case EXPR_BUILTIN_UINT16: return BUILTIN_UINT16;
+        case EXPR_BUILTIN_INT32: return BUILTIN_INT32;
+        case EXPR_BUILTIN_UINT32: return BUILTIN_UINT32;
+        case EXPR_BUILTIN_INT64: return BUILTIN_INT64;
+        case EXPR_BUILTIN_UINT64: return BUILTIN_UINT64;
+        case EXPR_BUILTIN_TS_SET: return BUILTIN_TS_SET;
+        case EXPR_BUILTIN_TS_READ: return BUILTIN_TS_READ;
+        case EXPR_BUILTIN_TS_WRITE: return BUILTIN_TS_WRITE;
+        case EXPR_BUILTIN_TS_INTERRUPT: return BUILTIN_TS_INTERRUPT;
+        case EXPR_BUILTIN_TS_SYNC: return BUILTIN_TS_SYNC;
+        case EXPR_BUILTIN_INT: return BUILTIN_INT;
+        case EXPR_BUILTIN_MFLOAT64: return BUILTIN_MFLOAT64;
+        case EXPR_BUILTIN_STRING: return BUILTIN_STRING;
+        case EXPR_BUILTIN_LOAD: return BUILTIN_LOAD;
+        default:
+            error("Unknown builtin expression.");
+            return 0;
+    }
+}
+
 static void generateExprCallBuiltin(ObjExprCallBuiltin* call) {
     switch (call->callee->builtin) {
         case EXPR_BUILTIN_LEN:
@@ -527,13 +568,14 @@ static void generateExprCallBuiltin(ObjExprCallBuiltin* call) {
                 errorAt("len", "len expects exactly one argument.");
                 return;
             }
-            emitByte(OP_POP);
             generateCallExprs(&call->arguments, false);
             emitByte(OP_LEN_BUILTIN);
             break;
         default:
             generateCallExprs(&call->arguments, true);
-            emitBytes(OP_CALL_BUILTIN, call->arguments.objectCount);
+            emitByte(OP_CALL_BUILTIN);
+            emitByte(builtinExprToBuiltinFn(call->callee->builtin));
+            emitByte(call->arguments.objectCount);
             break;
     }
 }
@@ -581,40 +623,8 @@ static void generateExprCollectionElement(ObjExprCollectionElement* collection) 
 }
 
 static void generateExprBuiltin(ObjExprBuiltin* fn) {
-    switch(fn->builtin) {
-        case EXPR_BUILTIN_READ_YARG_SOURCE: emitBytes(OP_GET_BUILTIN, BUILTIN_READ_YARG_SOURCE); break;
-        case EXPR_BUILTIN_READ_XIP_FILE: emitBytes(OP_GET_BUILTIN, BUILTIN_READ_XIP_FILE); break;
-        case EXPR_BUILTIN_COMPILE: emitBytes(OP_GET_BUILTIN, BUILTIN_COMPILE); break;
-        case EXPR_BUILTIN_MAKE_ROUTINE: emitBytes(OP_GET_BUILTIN, BUILTIN_MAKE_ROUTINE); break;
-        case EXPR_BUILTIN_MAKE_CHANNEL: emitBytes(OP_GET_BUILTIN, BUILTIN_MAKE_CHANNEL); break;
-        case EXPR_BUILTIN_MAKE_SYNCGROUP: emitBytes(OP_GET_BUILTIN, BUILTIN_MAKE_SYNCGROUP); break;
-        case EXPR_BUILTIN_RESUME: emitBytes(OP_GET_BUILTIN, BUILTIN_RESUME); break;
-        case EXPR_BUILTIN_START: emitBytes(OP_GET_BUILTIN, BUILTIN_START); break;
-        case EXPR_BUILTIN_RECEIVE: emitBytes(OP_GET_BUILTIN, BUILTIN_RECEIVE); break;
-        case EXPR_BUILTIN_SEND: emitBytes(OP_GET_BUILTIN, BUILTIN_SEND); break;
-        case EXPR_BUILTIN_CPEEK: emitBytes(OP_GET_BUILTIN, BUILTIN_CPEEK); break;
-        case EXPR_BUILTIN_SHARE: emitBytes(OP_GET_BUILTIN, BUILTIN_SHARE); break;
-        case EXPR_BUILTIN_PEEK: emitBytes(OP_GET_BUILTIN, BUILTIN_PEEK); break;
-        case EXPR_BUILTIN_LEN: emitBytes(OP_GET_BUILTIN, BUILTIN_LEN); break;
-        case EXPR_BUILTIN_PIN: emitBytes(OP_GET_BUILTIN, BUILTIN_PIN); break;
-        case EXPR_BUILTIN_NEW: emitBytes(OP_GET_BUILTIN, BUILTIN_NEW); break;
-        case EXPR_BUILTIN_INT8: emitBytes(OP_GET_BUILTIN, BUILTIN_INT8); break;
-        case EXPR_BUILTIN_UINT8: emitBytes(OP_GET_BUILTIN, BUILTIN_UINT8); break;
-        case EXPR_BUILTIN_INT16: emitBytes(OP_GET_BUILTIN, BUILTIN_INT16); break;
-        case EXPR_BUILTIN_UINT16: emitBytes(OP_GET_BUILTIN, BUILTIN_UINT16); break;
-        case EXPR_BUILTIN_INT32: emitBytes(OP_GET_BUILTIN, BUILTIN_INT32); break;
-        case EXPR_BUILTIN_UINT32: emitBytes(OP_GET_BUILTIN, BUILTIN_UINT32); break;
-        case EXPR_BUILTIN_INT64: emitBytes(OP_GET_BUILTIN, BUILTIN_INT64); break;
-        case EXPR_BUILTIN_UINT64: emitBytes(OP_GET_BUILTIN, BUILTIN_UINT64); break;
-        case EXPR_BUILTIN_TS_SET: emitBytes(OP_GET_BUILTIN, BUILTIN_TS_SET); break;
-        case EXPR_BUILTIN_TS_READ: emitBytes(OP_GET_BUILTIN, BUILTIN_TS_READ); break;
-        case EXPR_BUILTIN_TS_WRITE: emitBytes(OP_GET_BUILTIN, BUILTIN_TS_WRITE); break;
-        case EXPR_BUILTIN_TS_INTERRUPT: emitBytes(OP_GET_BUILTIN, BUILTIN_TS_INTERRUPT); break;
-        case EXPR_BUILTIN_TS_SYNC: emitBytes(OP_GET_BUILTIN, BUILTIN_TS_SYNC); break;
-        case EXPR_BUILTIN_INT: emitBytes(OP_GET_BUILTIN, BUILTIN_INT); break;
-        case EXPR_BUILTIN_MFLOAT64: emitBytes(OP_GET_BUILTIN, BUILTIN_MFLOAT64); break;
-        case EXPR_BUILTIN_STRING: emitBytes(OP_GET_BUILTIN, BUILTIN_STRING); break;
-        case EXPR_BUILTIN_LOAD: emitBytes(OP_GET_BUILTIN, BUILTIN_LOAD); break;
+    if (!fn->calledImmediately) {
+        emitBytes(OP_GET_BUILTIN, builtinExprToBuiltinFn(fn->builtin));
     }
 }
 

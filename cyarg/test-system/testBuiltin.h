@@ -5,6 +5,6 @@
 //  Created by dlm on 12/12/2025.
 //
 
-#include "../value.h"
+#include "../builtin.h"
 
-Value getTestSystemBuiltin(uint8_t builtin);
+BuiltinFun getTestSystemBuiltin(uint8_t builtin);
