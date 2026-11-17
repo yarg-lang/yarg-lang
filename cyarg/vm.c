@@ -29,6 +29,7 @@
 #include "xip_library.h"
 #include "yargstructtype.h"
 #include "packed_containers.h"
+#include "keyvaluestore.h"
 
 VM vm;
 
@@ -127,10 +128,7 @@ static void defineNative(ObjRoutine* context, const char* name, NativeFn functio
     ObjNative* native = newNative(function);
     push(context, IMPL_OBJ_VAL(native));
 
-    ValueCell cell;
-    cell.value = NATIVE_VAL(native);
-    cell.cellType = NULL;
-    tableCellSet(&vm.globals, nameString, cell);
+    keyValueStoreSetValue(&vm.globals, nameString, &NATIVE_VAL(native));
     pop(context);
     pop(context);
 }
@@ -139,10 +137,7 @@ static void defineGlobal(ObjRoutine* context, const char* name, Value value) {
     ObjString* nameString = copyString(name, (int)strlen(name));
     push(context, STRING_VAL(nameString));
 
-    ValueCell cell;
-    cell.value = value;
-    cell.cellType = NULL;
-    tableCellSet(&vm.globals, nameString, cell);
+    keyValueStoreSetValue(&vm.globals, nameString, &value);
     pop(context);
 }
 
@@ -167,6 +162,10 @@ void initVMRuntime(void) {
     vm.pinnedRoutineHandlers[8] = pinnedRoutine8;
     vm.pinnedRoutineHandlers[9] = pinnedRoutine9;
 
+    // must be done before initRoutine()
+    keyValueStoreInit(&vm.globals);
+    stringStoreInit(&vm.stringStore);
+
     // We have two Obj here not on the heap. hack up their init.
     vm.core0.obj.type = OBJ_ROUTINE;
     initRoutine(&vm.core0);
@@ -174,9 +173,6 @@ void initVMRuntime(void) {
     vm.bootFunction.obj.type = OBJ_FUNCTION;
     initFunction(&vm.bootFunction);
 
-    initCellTable(&vm.globals);
-    initTable(&vm.strings);
-    
     vm.initString = copyString("init", 4);
 
     defineNative(&vm.core0, "clock", clockNative);
@@ -207,9 +203,13 @@ void initVMRuntime(void) {
     defineNative(&vm.core0, "vm_xip_string_node", vm_xip_string_nodeNative);
 }
 
-void freeVM() {
-    freeCellTable(&vm.globals);
-    freeTable(&vm.strings);
+void freeVM(void) {
+    keyValueStoreFree(&vm.globals);
+#if defined CYARG_ORDERED_STRING_TREE
+    stringStoreInit(&vm.stringStore); // nothing allocated in the string store
+#else
+    freeTable(&vm.stringStore);
+#endif
     freeRoutine(&vm.core0);
     freeFunction(&vm.bootFunction);
     vm.core1 = NULL;
@@ -238,7 +238,7 @@ void markVMRoots(void) {
     }
 
     markObject((Obj*)vm.libraryPath);
-    markCellTable(&vm.globals);
+    keyValueStoreMark(&vm.globals);
     markObject((Obj*)vm.initString);
 }
 
@@ -274,7 +274,7 @@ static InterpretResult callValue(ObjRoutine* routine, Value callee, int argCount
         target->value = INSTANCE_VAL(newInstance(klass));
         target->cellType = NULL;
         Value initializer;
-        if (tableGet(&klass->methods, vm.initString, &initializer)) {
+        if (keyValueStoreGetValue(&klass->methods, vm.initString, &initializer)) {
             return callfn(routine, AS_CLOSURE(initializer), argCount) ? INTERPRET_OK : INTERPRET_RUNTIME_ERROR;
         } else if (argCount != 0) {
             runtimeError(routine, "Expected 0 arguments but got %d.", argCount);
@@ -311,7 +311,7 @@ static InterpretResult callValue(ObjRoutine* routine, Value callee, int argCount
 static InterpretResult invokeFromClass(ObjRoutine* routine, ObjClass* klass, ObjString* name,
                             int argCount) {
     Value method;
-    if (!tableGet(&klass->methods, name, &method)) {
+    if (!keyValueStoreGetValue(&klass->methods, name, &method)) {
         runtimeError(routine, "Undefined property '%s'.", name->chars);
         return INTERPRET_RUNTIME_ERROR;
     }
@@ -330,7 +330,7 @@ static InterpretResult invoke(ObjRoutine* routine, ObjString* name, int argCount
         ObjInstance* instance = AS_INSTANCE(receiver);
 
         Value value;
-        if (tableGet(&instance->fields, name, &value)) {
+        if (keyValueStoreGetValue(&instance->fields, name, &value)) {
             ValueCell* target = peekCell(routine, argCount);
 
             target->value = value;
@@ -360,7 +360,7 @@ static InterpretResult invoke(ObjRoutine* routine, ObjString* name, int argCount
 
 static void bindMethod(ObjRoutine* routine, ObjClass* klass, ObjString* name) {
     Value method;
-    if (!tableGet(&klass->methods, name, &method)) {
+    if (!keyValueStoreGetValue(&klass->methods, name, &method)) {
         runtimeError(routine, "Undefined property '%s'.", name->chars);
         return;
     }
@@ -397,7 +397,7 @@ static ObjUpvalue* captureUpvalue(ObjRoutine* routine, ValueCell* local, size_t 
 static void defineMethod(ObjRoutine* routine, ObjString* name) {
     Value method = peek(routine, 0);
     ObjClass* klass = AS_CLASS(peek(routine, 1));
-    tableSet(&klass->methods, name, method);
+    keyValueStoreSetValue(&klass->methods, name, &method);
     pop(routine);
 }
 
@@ -444,7 +444,7 @@ static bool derefMapElement(ObjRoutine* routine) {
     }
     ObjMap* map = AS_MAP(mapVal);
     Value result;
-    if (!tableGet(&map->entries, AS_STRING(key), &result)) {
+    if (!keyValueStoreGetValue(&map->entries, AS_STRING(key), &result)) {
         result = NIL_VAL;
     }
     pop(routine);
@@ -516,7 +516,7 @@ static bool setMapElement(ObjRoutine* routine, ObjMap* map, Value key, Value rhs
         runtimeError(routine, "Expected a string key for map assignment.");
         return false;
     }
-    tableSet(&map->entries, AS_STRING(key), rhs);
+    keyValueStoreSetValue(&map->entries, AS_STRING(key), &rhs);
     return true;
 }
 
@@ -859,7 +859,7 @@ InterpretResult run(ObjRoutine* routine) {
                 vm_mutex_enter_blocking(&vm.env);
                 ObjString* name = READ_STRING();
                 ValueCell cell;
-                if (!tableCellGet(&vm.globals, name, &cell)) {
+                if (!keyValueStoreGet(&vm.globals, name, &cell)) {
                     runtimeError(routine, "Undefined variable (OP_GET_GLOBAL) '%s'.", name->chars);
                     vm_mutex_exit(&vm.env);
                     return INTERPRET_RUNTIME_ERROR;
@@ -871,7 +871,7 @@ InterpretResult run(ObjRoutine* routine) {
             case OP_DEFINE_GLOBAL: {
                 vm_mutex_enter_blocking(&vm.env);
                 ObjString* name = READ_STRING();
-                tableCellSet(&vm.globals, name, *peekCell(routine, 0));
+                keyValueStoreSet(&vm.globals, name, peekCell(routine, 0));
                 pop(routine);
                 vm_mutex_exit(&vm.env);
                 break;
@@ -880,7 +880,7 @@ InterpretResult run(ObjRoutine* routine) {
                 vm_mutex_enter_blocking(&vm.env);
                 ObjString* name = READ_STRING();
                 ValueCell* lhs = NULL;
-                if (tableCellGetPlace(&vm.globals, name, &lhs)) {
+                if (keyValueStorePlace(&vm.globals, name, &lhs)) {
                     ValueCell* rhs = peekCell(routine, 0);
                     ValueCellTarget lhsTrg = { .cellType = lhs->cellType, .value = &lhs->value };
 
@@ -954,7 +954,7 @@ InterpretResult run(ObjRoutine* routine) {
                     ObjString* name = READ_STRING();
 
                     Value value;
-                    if (tableGet(&instance->fields, name, &value)) {
+                    if (keyValueStoreGetValue(&instance->fields, name, &value)) {
                         pop(routine); // Instance
                         push(routine, value);
                         break;
@@ -1012,7 +1012,8 @@ InterpretResult run(ObjRoutine* routine) {
                 }
                 if (IS_INSTANCE(peek(routine, 1))) {
                     ObjInstance* instance = AS_INSTANCE(peek(routine, 1));
-                    tableSet(&instance->fields, READ_STRING(), peek(routine, 0));
+                    Value v = peek(routine, 0);
+                    keyValueStoreSetValue(&instance->fields, READ_STRING(), &v);
                     Value value = pop(routine);
                     pop(routine);
                     push(routine, value);
@@ -1386,7 +1387,7 @@ InterpretResult run(ObjRoutine* routine) {
                 }
 
                 ObjClass* subclass = AS_CLASS(peek(routine, 0));
-                tableAddAll(&AS_CLASS(superclass)->methods, &subclass->methods);
+                keyValueStoreAddAll(&AS_CLASS(superclass)->methods, &subclass->methods);
                 pop(routine); // Subclass.
                 break;
             }

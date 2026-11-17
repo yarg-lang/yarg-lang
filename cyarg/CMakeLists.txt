@@ -134,6 +134,7 @@ add_executable(cyarg
     channel.c
     yargtype.h
     yargstructtype.h
+    orderedtreetypes.h
     yargtype.c
     yargobject.h
     yargobject.c
@@ -153,6 +154,10 @@ add_executable(cyarg
     pack.h
     ../external/o1heap/o1heap/o1heap.c
     ../external/o1heap/o1heap/o1heap.h
+    stringstore.h
+    stringstore.c
+    keyvaluestore.h
+    keyvaluestore.c
     )
 
 if (CYARG_HOSTING STREQUAL "HOSTED")

@@ -487,7 +487,7 @@ bool lenBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         return true;
     } else if (IS_MAP(arg)) {
         ObjMap* map = AS_MAP(arg);
-        size_t count = map->entries.count;
+        size_t count = keyValueStoreCount(&map->entries);
         allocateIntValue(result, sizeof (size_t) / sizeof (uint16_t));
         int_set_u(count, AS_INT(*result));
         return true;

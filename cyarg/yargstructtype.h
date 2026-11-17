@@ -4,12 +4,13 @@
 #include "yargtype.h"
 #include "value.h"
 #include "table.h"
+#include "orderedtreetypes.h"
 
 #include <stddef.h>
 
 typedef struct ObjConcreteYargTypeStruct {
     ObjConcreteYargType core;
-    ValueTable field_names;
+    KeyValueStore field_names;
     size_t* field_indexes;
     ObjConcreteYargType** field_types;
     size_t field_count;

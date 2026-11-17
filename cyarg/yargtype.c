@@ -105,7 +105,7 @@ ObjConcreteYargType* newYargStructType(size_t fieldCount) {
     ObjConcreteYargTypeStruct* t = ALLOCATE_OBJ(ObjConcreteYargTypeStruct, OBJ_YARGTYPE_STRUCT);
     t->core.yt = TypeStruct;
     t->alignment = 1;
-    initTable(&t->field_names);
+    keyValueStoreInit(&t->field_names);
     tempObjRootPush((Obj*)t);
 
     ObjConcreteYargType** fieldTypes = ALLOCATE(ObjConcreteYargType*, fieldCount);
@@ -135,12 +135,12 @@ ObjConcreteYargType* newYargPointerType(const ObjConcreteYargType* targetType) {
 }
 
 void appendFieldType(ObjConcreteYargTypeStruct* st, ObjConcreteYargType* type, ObjString* name) {
-    size_t index = st->field_names.count;
+    size_t index = keyValueStoreCount(&st->field_names);
 
     assert(st->field_types[index] == NULL);
 
     st->field_types[index] = type;
-    tableSet(&st->field_names, name, SIZE_T_UI_VAL(index));
+    keyValueStoreSetValue(&st->field_names, name, &SIZE_T_UI_VAL(index));
 
     size_t fieldAlignment = yt_alignmentfor_type_storage(type);
     size_t fieldOffset = st->storage_size;
@@ -155,12 +155,12 @@ void appendFieldType(ObjConcreteYargTypeStruct* st, ObjConcreteYargType* type, O
 }
 
 void appendFieldTypeAtOffset(ObjConcreteYargTypeStruct* st, ObjConcreteYargType* type, size_t offset, ObjString* name) {
-    size_t index = st->field_names.count;
+    size_t index = keyValueStoreCount(&st->field_names);
 
     assert(st->field_types[index] == NULL);
 
     st->field_types[index] = type;
-    tableSet(&st->field_names, name, SIZE_T_UI_VAL(index));
+    keyValueStoreSetValue(&st->field_names, name, &SIZE_T_UI_VAL(index));
     st->field_indexes[index] = offset;
     st->storage_size = offset + yt_sizeof_type_storage(type);
 }
@@ -567,7 +567,7 @@ ObjString* typeToString(const ObjConcreteYargType* type) {
 
 bool structFieldIndex(const ObjConcreteYargTypeStruct* type, ObjString* name, size_t* index) {
     Value indexVal;
-    if (tableGet(&type->field_names, name, &indexVal)) {
+    if (keyValueStoreGetValue(&type->field_names, name, &indexVal)) {
         *index = AS_SIZE_T(indexVal);
         return true;
     }

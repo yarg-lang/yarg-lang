@@ -12,6 +12,8 @@
 #include "yargobject.h"
 #include "debug.h"
 
+#if !defined CYARG_ORDERED_STRING_TREE
+
 #define TABLE_MAX_LOAD 0.75
 
 bool tableInvariant(ValueTable* table);
@@ -376,3 +378,4 @@ void printCellTable(ValueCellTable* table) {
         }
     }
 }
+#endif //!defined CYARG_ORDERED_STRING_TREE

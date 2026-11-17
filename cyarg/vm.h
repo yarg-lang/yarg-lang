@@ -6,6 +6,8 @@
 #include "object_gc.h"
 #include "yargobject.h"
 #include "table.h"
+#include "stringstore.h"
+#include "keyvaluestore.h"
 #include "value.h"
 #include "vm-result.h"
 
@@ -26,8 +28,8 @@ typedef struct {
     
     vm_mutex env;
     
-    ValueCellTable globals;
-    ValueTable strings;
+    KeyValueStore globals;
+    StringStore stringStore;
     ObjString* initString;
     ObjString* libraryPath;
 
