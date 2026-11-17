@@ -78,6 +78,13 @@ Int *int_init_concrete2(IntConcrete2 *i)
     return (Int *) i;
 }
 
+Int* int_init_concrete2_u8(IntConcrete2 *i, uint8_t to)
+{
+    (void) int_init_concrete2(i);
+    int_set_u8(to, (Int *) i);
+    return (Int *) i;
+}
+
 Int *int_init_concrete4(IntConcrete4 *i)
 {
     i->m_ = 4;

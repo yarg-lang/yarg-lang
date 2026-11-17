@@ -120,6 +120,7 @@ void int_init(Int *);
 Int *int_init_concrete2(IntConcrete2 *);
 Int *int_init_concrete4(IntConcrete4 *);
 Int *int_init_concrete254(IntConcrete254 *);
+Int *int_init_concrete2_u8(IntConcrete2 *, uint8_t);
 void int_set_i(int64_t, Int *);
 void int_set_u(uint64_t, Int *);
 void int_set_u8(uint8_t, Int *);

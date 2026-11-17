@@ -815,12 +815,15 @@ InterpretResult run(ObjRoutine* routine) {
                 {
                     num += 65536 * READ_BYTE();
                 }
-
                 Value i = { .type = &yargTypes.integer };
-                (void) int_init_concrete2(&i.as.bigSmallInt.i_);
+                if (instruction == OP_IMMEDIATE_P8) {
+                    (void) int_init_concrete2_u8(&i.as.bigSmallInt.i_, (uint8_t)num);
+                } else {
+                    (void) int_init_concrete2(&i.as.bigSmallInt.i_);
+                    int_set_u(num, (Int *)&i.as.bigSmallInt.i_);
+                    i.as.bigSmallInt.i_.neg_ = instruction == OP_IMMEDIATE_N8 || instruction == OP_IMMEDIATE_N16 || instruction == OP_IMMEDIATE_N24;
+                }
                 i.as.bigSmallInt.i_.literal_ = true;
-                int_set_u(num, (Int *)&i.as.bigSmallInt.i_);
-                i.as.bigSmallInt.i_.neg_ = instruction == OP_IMMEDIATE_N8 || instruction == OP_IMMEDIATE_N16 || instruction == OP_IMMEDIATE_N24;
                 int_invariant(AS_INT(i));
                 push(routine, i);
                 break;
