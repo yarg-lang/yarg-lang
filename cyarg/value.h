@@ -15,8 +15,8 @@ typedef struct ObjConcreteYargType ObjConcreteYargType;
 // All Yarg values (including nil) can be stored in a Value, and all
 // Yarg values are typed (except nil which exists outside the type system)
 typedef struct Value {
+    AnyValue as; // having this before type means values use three words rather than four on target
     const ObjConcreteYargType* type;
-    AnyValue as;
 } Value;
 
 // placed values exist with a defined memory layout, so the
