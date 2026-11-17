@@ -21,7 +21,7 @@ class Tree {
   }
 }
 
-var depth = 3;
+var depth = 5;
 var reps = 100;
 
 var tree = Tree(depth);
