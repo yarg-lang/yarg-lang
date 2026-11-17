@@ -1,6 +1,5 @@
 #include "vmobject.h"
 
-#include "common.h"
 #include "memory.h"
 #include "yargobject.h"
 
