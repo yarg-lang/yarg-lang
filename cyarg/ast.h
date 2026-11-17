@@ -306,6 +306,7 @@ ObjExprOperation* newExprOperation(ObjExpr* rhs, ExprOp op);
 ObjExprGrouping* newExprGrouping(ObjExpr* expression);
 ObjExprNamedVariable* newExprNamedVariable(ObjRoutine* context, const char* name, int nameLength);
 ObjExprCall* newExprCall();
+ObjExprCall* newExprCallBuiltin();
 ObjExprCollectionInitializer* newExprCollectionInitializer();
 ObjExprCollectionElement* newExprCollectionElement();
 ObjExprBuiltin* newExprBuiltin(ExprBuiltin fn, int arity);

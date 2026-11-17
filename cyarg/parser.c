@@ -366,7 +366,12 @@ static ObjExpr* collectioninit(ObjParser* parser, bool canAssign) {
 }
 
 static ObjExpr* call(ObjParser* parser, bool canAssign) {
-    ObjExprCall* call = newExprCall();
+    ObjExprCall* call;
+    if (parser->prevExpr && parser->prevExpr->obj.type == OBJ_EXPR_BUILTIN) {
+        call = newExprCallBuiltin();
+    } else {
+        call = newExprCall();
+    }
     pushWorkingNode(parser, (Obj*)call);
     expressionList(parser, &call->arguments);
     popWorkingNode(parser);

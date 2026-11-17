@@ -142,6 +142,11 @@ ObjExprCall* newExprCall() {
     return call;
 }
 
+ObjExprCall* newExprCallBuiltin() {
+    ObjExprCall* call = ALLOCATE_OBJ(ObjExprCall, OBJ_EXPR_CALL_BUILTIN);
+    return call;
+}
+
 ObjExprCollectionInitializer* newExprCollectionInitializer() {
     ObjExprCollectionInitializer* collection = ALLOCATE_OBJ(ObjExprCollectionInitializer, OBJ_EXPR_COLLECTION_INITIALIZER);
     return collection;
