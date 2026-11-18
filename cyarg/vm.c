@@ -222,7 +222,7 @@ void freeVM(void) {
 }
 
 void vmRemoveUnmarkedRoots() {
-    tableRemoveWhite(&vm.strings);
+    stringStoreDeleteUnmarked(&vm.stringStore);
 }
 
 void markVMRoots(void) {

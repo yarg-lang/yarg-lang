@@ -12,6 +12,7 @@
 #include "yargobject.h"
 #include "value_cell.h"
 #include "memory.h"
+#include "object_gc_impl.h"
 
 #include <assert.h>
 #include <string.h>
@@ -69,11 +70,13 @@ int keyValueStoreCount(KeyValueStore const *kvs) {
     return r;
 }
 
+typedef void (*kv_free_func)(void *);
+
 // Note this doesn’t visit nodes in sort order.
 // Nodes are investigated:
 // On the way in if they are leaf nodes
 // On the way back after both branches have been visited
-void keyValueStoreFree(KeyValueStore *kvs) {
+static void keyValueStoreFreeImpl(KeyValueStore *kvs, kv_free_func free_func) {
     int n = keyValueStoreCount(kvs); // todo:debug only
     ValueCellStoreNode *s = kvs->root;
     while (s != 0) { // going in to the leaves
@@ -85,7 +88,7 @@ void keyValueStoreFree(KeyValueStore *kvs) {
             s = s->r;
         } else {
             ValueCellStoreNode *t = s->t;
-            gc_free(s); n--;
+            free_func(s); n--;
 
             while (t != 0) { // going back toward root
                 if (t->p == 0 && t->r != 0) { // go right in to right branch
@@ -95,13 +98,21 @@ void keyValueStoreFree(KeyValueStore *kvs) {
                 } else {
                     s = t;
                     t = t->t;
-                    gc_free(s); n--;
+                    free_func(s); n--;
                 }
             }
             s = t;
         }
     }
     assert(n == 0);
+}
+
+void keyValueStoreFree(KeyValueStore *kvs) {
+    keyValueStoreFreeImpl(kvs, vm_free);
+}
+
+void keyValueStoreGCFree(KeyValueStore *kvs) {
+    keyValueStoreFreeImpl(kvs, gc_free);
 }
 
 bool keyValueStoreGet(KeyValueStore const *kvs, ObjString const *key, ValueCell *c) {

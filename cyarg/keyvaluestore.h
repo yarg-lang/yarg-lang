@@ -16,7 +16,8 @@ typedef struct Value Value;
 
 void keyValueStoreInit(KeyValueStore *);
 int keyValueStoreCount(KeyValueStore const *);
-void keyValueStoreFree(KeyValueStore *); // vm_mutex_enter_blocking()/vm_mutex_exit() must be called around this function
+void keyValueStoreFree(KeyValueStore *); // takes needed locks
+void keyValueStoreGCFree(KeyValueStore *); // vm_mutex_enter_blocking()/vm_mutex_exit() must be called around this function
 bool keyValueStoreGet(KeyValueStore const *, ObjString const *key, ValueCell *);
 bool keyValueStoreGetValue(KeyValueStore const *, ObjString const *key, Value *);
 bool keyValueStorePlace(const KeyValueStore *, ObjString const *key, ValueCell **);

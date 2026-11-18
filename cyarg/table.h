@@ -20,12 +20,14 @@ typedef struct Entry {
 
 void initTable(ValueTable* table);
 void freeTable(ValueTable* table);
+void gc_freeTable(ValueTable* table);
 bool tableGet(const ValueTable* table, ObjString* key, Value* value);
 bool tableSet(ValueTable* table, ObjString* key, Value value);
 void tableRemoveWhite(ValueTable* table);
 ObjString* tableFindString(ValueTable* table, const char* chars, int length, uint32_t hash);
 
 inline static void stringStoreInit(StringStore *ss) {
+    freeTable(ss);
     return initTable(ss);
 }
 inline static ObjString *stringStoreStore(StringStore *ss, ObjString *s) {
@@ -67,6 +69,7 @@ typedef struct KeyValueStore ValueCellTable;
 
 void initCellTable(ValueCellTable* table);
 void freeCellTable(ValueCellTable* table);
+void gc_freeCellTable(ValueCellTable* table);
 bool tableCellGet(ValueCellTable* table, ObjString* key, ValueCell* value);
 bool tableCellGetPlace(ValueCellTable* table, ObjString* key, ValueCell** place);
 bool tableCellSet(ValueCellTable* table, ObjString* key, ValueCell value);
@@ -83,6 +86,9 @@ inline static int keyValueStoreCount(KeyValueStore const *kvs) {
 }
 inline static void keyValueStoreFree(KeyValueStore *kvs) {
     return freeCellTable(kvs);
+}
+inline static void keyValueStoreGCFree(KeyValueStore *kvs) {
+    return gc_freeCellTable(kvs);
 }
 inline static bool keyValueStoreGet(KeyValueStore const *kvs, ObjString const *key, ValueCell *vc) {
     return tableCellGet((KeyValueStore *)kvs, (ObjString *)key, vc);

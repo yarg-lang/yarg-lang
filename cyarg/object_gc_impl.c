@@ -3,6 +3,7 @@
 #include "common.h"
 #include "heap.h"
 #include "object.h"
+#include "keyvaluestore.h"
 
 #include "chunk.h"
 #include "value_cell.h"
@@ -71,7 +72,7 @@ void blackenObject(Obj* object) {
         case OBJ_CLASS: {
             ObjClass* klass = (ObjClass*)object;
             markObject((Obj*)klass->name);
-            markTable(&klass->methods);
+            keyValueStoreMark(&klass->methods);
             break;
         }
         case OBJ_CLOSURE: {
@@ -91,7 +92,7 @@ void blackenObject(Obj* object) {
         case OBJ_INSTANCE: {
             ObjInstance* instance = (ObjInstance*)object;
             markObject((Obj*)instance->klass);
-            markTable(&instance->fields);
+            keyValueStoreMark(&instance->fields);
             break;
         }
         case OBJ_UPVALUE:
@@ -126,7 +127,7 @@ void blackenObject(Obj* object) {
         case OBJ_MAP: {
             ObjMap* map = (ObjMap*)object;
             markObject((Obj*)map->type);
-            markTable(&map->entries);
+            keyValueStoreMark(&map->entries);
             break;
         }
         case OBJ_YARGTYPE: break;
@@ -137,7 +138,7 @@ void blackenObject(Obj* object) {
         }
         case OBJ_YARGTYPE_STRUCT: {
             ObjConcreteYargTypeStruct* type = (ObjConcreteYargTypeStruct*)object;
-            markTable(&type->field_names);
+            keyValueStoreMark(&type->field_names);
             for (int i = 0; i < type->field_count; i++) {
                 ObjConcreteYargType* field_type = type->field_types[i];
                 markObject((Obj*)field_type);
@@ -367,12 +368,8 @@ void gc_freeDynamicObjArray(DynamicObjArray* array) {
     gc_free(array->objects);
 }
 
-static void gc_freeDynamicValueArray(DynamicValueArray* array) {
+inline static void gc_freeDynamicValueArray(DynamicValueArray* array) {
     heap_free(array->values);
-}
-
-static void gc_freeTable(ValueTable* table) {
-    heap_free(table->entries);
 }
 
 static void gc_freeChunk(Chunk* chunk) {
@@ -393,7 +390,7 @@ void freeObject(Obj* object) {
         case OBJ_BOUND_METHOD: break;
         case OBJ_CLASS: {
             ObjClass* klass = (ObjClass*)object;
-            gc_freeTable(&klass->methods);
+            keyValueStoreGCFree(&klass->methods);
             break;
         }
         case OBJ_CLOSURE: heap_free(((ObjClosure*)object)->upvalues); break;
@@ -404,7 +401,7 @@ void freeObject(Obj* object) {
         }
         case OBJ_INSTANCE: {
             ObjInstance* instance = (ObjInstance*)object;
-            gc_freeTable(&instance->fields);
+            keyValueStoreGCFree(&instance->fields);
             break;
         }
         case OBJ_NATIVE: break;
@@ -424,7 +421,7 @@ void freeObject(Obj* object) {
         case OBJ_PACKEDCONTAINER: break;
         case OBJ_MAP: {
             ObjMap* map = (ObjMap*)object;
-            gc_freeTable(&map->entries);
+            keyValueStoreGCFree(&map->entries);
             break;
         }
         case OBJ_YARGTYPE: break;
@@ -433,7 +430,7 @@ void freeObject(Obj* object) {
             ObjConcreteYargTypeStruct* t = (ObjConcreteYargTypeStruct*)object;
             heap_free(t->field_types);
             heap_free(t->field_indexes);
-            gc_freeTable(&t->field_names);
+            keyValueStoreGCFree(&t->field_names);
             break;
         }
         case OBJ_YARGTYPE_MAP: break;
