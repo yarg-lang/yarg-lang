@@ -13,4 +13,10 @@
 
 void fatalVMError(const char* format, ...);
 
+#ifdef NDEBUG
+#define DEBUG_ONLY(stmt) ((void)0)
+#else
+#define DEBUG_ONLY(stmt) (stmt)
+#endif
+
 #endif
