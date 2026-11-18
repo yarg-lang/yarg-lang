@@ -521,6 +521,7 @@ size_t as_positive_integer(Value a) {
         }
     }
 #endif
+    fatalVMError("Value is not a positive integer.");
     return 0;
 }
 
