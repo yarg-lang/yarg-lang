@@ -214,6 +214,43 @@ bool tableInvariant(ValueTable* table) {
     }
 }
 
+void stringStoreInit(StringStore *ss) {
+    freeTable(ss);
+    return initTable(ss);
+}
+
+ObjString *stringStoreStore(StringStore *ss, ObjString *s) {
+    char const *key = s->chars;
+    int length = 0;
+    uint32_t hash = 2166136261u;
+    while (*key != 0) {
+        hash ^= (uint8_t)*key++;
+        hash += 16777619;
+        length++;
+    }
+    s->hash = hash;
+
+    tempRootPush(STRING_VAL(s));
+    tableSet(ss, s, NIL_VAL);
+    tempRootPop();
+    return s;
+}
+
+void stringStoreDeleteUnmarked(StringStore *ss) {
+    return tableRemoveWhite(ss);
+}
+
+ObjString *stringStoreGet(StringStore *ss, char const *cs, int length) {
+    char const *key = cs;
+    uint32_t hash = 2166136261u;
+    while (*key != 0) {
+        hash ^= (uint8_t)*key++;
+        hash += 16777619;
+    }
+    ObjString* s = tableFindString(ss, cs, length, hash);
+    return s;
+}
+
 void initCellTable(ValueCellTable* table) {
     table->count = 0;
     table->capacity = 0;

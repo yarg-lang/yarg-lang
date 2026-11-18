@@ -27,39 +27,10 @@ bool tableSet(ValueTable* table, ObjString* key, Value value);
 void tableRemoveWhite(ValueTable* table);
 ObjString* tableFindString(ValueTable* table, const char* chars, int length, uint32_t hash);
 
-inline static void stringStoreInit(StringStore *ss) {
-    freeTable(ss);
-    return initTable(ss);
-}
-inline static ObjString *stringStoreStore(StringStore *ss, ObjString *s) {
-    char const *key = s->chars;
-    int length = 0;
-    uint32_t hash = 2166136261u;
-    while (*key != 0) {
-        hash ^= (uint8_t)*key++;
-        hash += 16777619;
-        length++;
-    }
-    s->hash = hash;
-
-    tempRootPush(STRING_VAL(s));
-    tableSet(ss, s, NIL_VAL);
-    tempRootPop();
-    return s;
-}
-inline static void stringStoreDeleteUnmarked(StringStore *ss) {
-    return tableRemoveWhite(ss);
-}
-inline static ObjString *stringStoreGet(StringStore *ss, char const *cs, int length) {
-    char const *key = cs;
-    uint32_t hash = 2166136261u;
-    while (*key != 0) {
-        hash ^= (uint8_t)*key++;
-        hash += 16777619;
-    }
-    ObjString* s = tableFindString(ss, cs, length, hash);
-    return s;
-}
+void stringStoreInit(StringStore *ss);
+ObjString *stringStoreStore(StringStore *ss, ObjString *s);
+void stringStoreDeleteUnmarked(StringStore *ss);
+ObjString *stringStoreGet(StringStore *ss, char const *cs, int length);
 
 typedef struct EntryCell {
     ObjString* key;
