@@ -6,6 +6,7 @@
 #include "value.h"
 #include "value_cell.h"
 #include "orderedtreetypes.h"
+#include "object_gc.h"
 #include "yargobject.h"
 #include "memory.h"
 
@@ -77,46 +78,6 @@ void tableCellAddAll(ValueCellTable* from, ValueCellTable* to);
 ObjString* tableCellFindString(ValueCellTable* table, const char* chars, int length, uint32_t hash);
 void tableCellRemoveWhite(ValueCellTable* table);
 void markCellTable(ValueCellTable* table);
-
-inline static void keyValueStoreInit(KeyValueStore *kvs) {
-    return initCellTable(kvs);
-}
-inline static int keyValueStoreCount(KeyValueStore const *kvs) {
-    return kvs->count;
-}
-inline static void keyValueStoreFree(KeyValueStore *kvs) {
-    return freeCellTable(kvs);
-}
-inline static void keyValueStoreGCFree(KeyValueStore *kvs) {
-    return gc_freeCellTable(kvs);
-}
-inline static bool keyValueStoreGet(KeyValueStore const *kvs, ObjString const *key, ValueCell *vc) {
-    return tableCellGet((KeyValueStore *)kvs, (ObjString *)key, vc);
-}
-inline static bool keyValueStoreGetValue(KeyValueStore const *kvs, ObjString const *key, Value *v) {
-    ValueCell vc;
-    bool r = tableCellGet((KeyValueStore *)kvs, (ObjString *)key, &vc);
-    if (r) {
-        *v = vc.value;
-    }
-    return r;
-}
-inline static bool keyValueStorePlace(KeyValueStore const *kvs, ObjString const *key, ValueCell **vc) {
-    return tableCellGetPlace((KeyValueStore *)kvs, (ObjString *)key, vc);
-}
-inline static bool keyValueStoreSet(KeyValueStore *kvs, ObjString const *key, ValueCell const *vc) {
-    return tableCellSet(kvs, (ObjString *)key, *vc);
-}
-inline static bool keyValueStoreSetValue(KeyValueStore *kvs, ObjString const *key, Value const *v) {
-    ValueCell vc = { .value = *v };
-    return tableCellSet(kvs, (ObjString *)key, vc);
-}
-inline static void keyValueStoreAddAll(KeyValueStore const *from, KeyValueStore *to) {
-    return tableCellAddAll((KeyValueStore *)from, to);
-}
-inline static void keyValueStoreMark(KeyValueStore *kvs) {
-    return markCellTable(kvs);
-}
 
 #endif // !defined CYARG_ORDERED_STRING_TREE
 #endif // !cyarg_table_h
