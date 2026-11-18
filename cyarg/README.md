@@ -23,3 +23,21 @@ https://github.com/raspberrypi/pico-vscode
 
   - raspberry-pi-pico.cmakeAutoConfigure: Set from true to false.
   - raspberry-pi-pico.useCmakeTools: Set from false to true."
+
+## Useful C defines for choosing options in the cyarg tree
+
+See also CMakeLists.txt
+
+CYARG_ORDERED_STRING_TREE
+  - on by default, prefer the tree based key-value store
+
+CYARG_CSTDLIB_HEAP
+  - off by default, pass all heap operations directly to c's malloc()/free()
+    family in the c standard library
+
+DEBUG_STRESS_GC
+  - off by default, unless interactive trace is enabled. Calls GC on every
+    memory allocation. On during interactive trace to catch lifetime issues early
+
+DEBUG_LOG_GC
+  - off by default. Trace GC operations.

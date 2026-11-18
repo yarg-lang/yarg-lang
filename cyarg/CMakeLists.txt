@@ -20,6 +20,15 @@ if (EXISTS ${picoVscode})
 endif()
 # ====================================================================================
 
+# some common definitions for all builds of the cyarg source tree
+# note that some have corresponding cmake configuration options for
+# CMakeUserPresets.json
+add_compile_definitions(CYARG_ORDERED_STRING_TREE)
+#add_compile_definitions(CYARG_CSTDLIB_HEAP)
+#add_compile_definitions(DEBUG_STRESS_GC)
+#add_compile_definitions(DEBUG_LOG_GC)
+
+
 # Yarg device selection: RASPBERRY_PI_PICO or GENERIC_HOST
 # determines if cyarg is built as hosted or self-hosted binary
 # for Pico, sets the PICO_BOARD variable for the Pico SDK
@@ -34,12 +43,10 @@ endif()
 if (CYARG_HOSTING STREQUAL "SELF_HOSTED")
 add_compile_definitions(CYARG_SELF_HOSTED)
 add_compile_definitions(CYARG_FEATURE_SELF_HOSTED_REPL)
-add_compile_definitions(CYARG_ORDERED_STRING_TREE)
 set(CYARG_FEATURE_FILESYSTEM "LITTLEFS" CACHE STRING "Filesystem feature to include")
 elseif(CYARG_HOSTING STREQUAL "HOSTED")
 add_compile_definitions(CYARG_OS_HOSTED)
 add_compile_definitions(CYARG_FEATURE_HOSTED_REPL)
-add_compile_definitions(CYARG_ORDERED_STRING_TREE)
 set(CYARG_FEATURE_FILESYSTEM "CSTDLIB" CACHE STRING "Filesystem feature to include")
 set(CYARG_FEATURE_TEST_SYSTEM "TRUE" CACHE STRING "Include the test system")
 endif()
