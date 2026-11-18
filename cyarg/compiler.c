@@ -569,7 +569,7 @@ static void generateExprCallBuiltin(ObjExprCallBuiltin* call) {
                 return;
             }
             generateCallExprs(&call->arguments, false);
-            emitByte(OP_LEN_BUILTIN);
+            emitByte(OP_LEN);
             break;
         default: {
             bool byValue = true;

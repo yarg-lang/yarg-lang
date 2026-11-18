@@ -655,6 +655,40 @@ void runtimeBinaryOpTypeError(ObjRoutine* routine, const char* op, const char* m
     runtimeError(routine, "%s Operands %s %s must both be %s", op, lhsTypeName->chars, rhsTypeName->chars, message);
 }
 
+Value op_len(ObjRoutine* context) {
+    Value arg = peek(context, 0);
+    size_t length = 0;
+
+    if (IS_STRING(arg)) {
+        ObjString* string = AS_STRING(arg);
+        length = string->length;
+    } else if (IS_UNIFORMARRAY(arg)) {
+        ObjConcreteYargTypeArray* arrayType = (ObjConcreteYargTypeArray*) arg.type;
+        length = arrayType->cardinality;
+    } else if (IS_MAP(arg)) {
+        ObjMap* map = AS_MAP(arg);
+        length = keyValueStoreCount(&map->entries);
+    } else {
+        runtimeError(context, "Expected a string, array or map.");
+        return NIL_VAL;
+    }
+    
+    size_t numDigits;
+    if (length < UINT16_MAX) {
+        numDigits = 1;
+    } else if (length < UINT32_MAX) {
+        numDigits = 2;
+    } else {
+        numDigits = sizeof(size_t) / sizeof(uint16_t);
+    }
+    
+    Value result;
+    allocateIntValue(&result, numDigits);
+    int_set_u(length, AS_INT(result));
+
+    return result;
+}
+
 InterpretResult run(ObjRoutine* routine) {
     CallFrame* frame = &routine->frames[routine->frameCount - 1];
     routine->state = EXEC_RUNNING;
@@ -1318,14 +1352,13 @@ InterpretResult run(ObjRoutine* routine) {
                 frame->ip -= offset;
                 break;
             }
-            case OP_LEN_BUILTIN: {
-                Value result = NIL_VAL;
-                if (lenBuiltin(routine, 1, &result)) {
-                    popN(routine, 1);
-                    push(routine, result);
-                } else {
+            case OP_LEN: {
+                Value result = op_len(routine);
+                if (IS_NIL(result)) {
                     return INTERPRET_RUNTIME_ERROR;
                 }
+                popN(routine, 1);
+                push(routine, result);
                 break;
             }
             case OP_CALL_BUILTIN: {

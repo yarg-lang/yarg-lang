@@ -55,4 +55,6 @@ bool removePinnedRoutine(uintptr_t address);
 
 void runOnCore1(ObjRoutine* routine);
 
+Value op_len(ObjRoutine* context);
+
 #endif
