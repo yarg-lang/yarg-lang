@@ -14,7 +14,7 @@ typedef struct ObjConcreteYargType ObjConcreteYargType;
 
 // All Yarg values (including nil) can be stored in a Value, and all
 // Yarg values are typed (except nil which exists outside the type system)
-typedef struct {
+typedef struct Value {
     const ObjConcreteYargType* type;
     AnyValue as;
 } Value;
