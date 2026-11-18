@@ -8,5 +8,6 @@ picotool load -f build/benchmark.uf2
 sleep 2
 for bench in $BENCHMARKS
 do
+    ./tools/pico-reset &> /dev/null
     ./bin/yarg run device:$bench.ya
 done
