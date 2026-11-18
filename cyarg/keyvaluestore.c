@@ -9,6 +9,7 @@
 
 #include "keyvaluestore.h"
 
+#include "common.h"
 #include "yargobject.h"
 #include "value_cell.h"
 #include "memory.h"
@@ -17,7 +18,7 @@
 #include <assert.h>
 #include <string.h>
 
-typedef struct ValueCellStoreNode { // todo move into valuecellstore.c
+typedef struct ValueCellStoreNode {
     ValueCell cell;
     ObjString const *key;
 
@@ -77,7 +78,9 @@ typedef void (*kv_free_func)(void *);
 // On the way in if they are leaf nodes
 // On the way back after both branches have been visited
 static void keyValueStoreFreeImpl(KeyValueStore *kvs, kv_free_func free_func) {
-    int n = keyValueStoreCount(kvs); // todo:debug only
+#ifndef NDEBUG
+    int n = keyValueStoreCount(kvs);
+#endif
     ValueCellStoreNode *s = kvs->root;
     while (s != 0) { // going in to the leaves
         if (s->l != 0) {
@@ -88,7 +91,7 @@ static void keyValueStoreFreeImpl(KeyValueStore *kvs, kv_free_func free_func) {
             s = s->r;
         } else {
             ValueCellStoreNode *t = s->t;
-            free_func(s); n--;
+            free_func(s); DEBUG_ONLY(n--);
 
             while (t != 0) { // going back toward root
                 if (t->p == 0 && t->r != 0) { // go right in to right branch
@@ -98,7 +101,7 @@ static void keyValueStoreFreeImpl(KeyValueStore *kvs, kv_free_func free_func) {
                 } else {
                     s = t;
                     t = t->t;
-                    free_func(s); n--;
+                    free_func(s); DEBUG_ONLY(n--);
                 }
             }
             s = t;
