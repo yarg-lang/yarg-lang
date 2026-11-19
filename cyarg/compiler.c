@@ -466,6 +466,29 @@ static void generateGetNamedVariable(ObjString* name) {
     emitBytes(getOp, (uint8_t)arg);
 }
 
+static void generateByValueExpression(ObjExpr* expr, bool byValue) {
+    // OP_VALUE_BY_VALUE will ensure an expression is passed by value
+    // we can avoid emitting it when we know the expression will 
+    // be passed by value due to it's implementation.
+    bool byValueFlag = byValue;
+    if (expr->obj.type == OBJ_EXPR_LITERAL) {
+        byValueFlag = false;
+    } else if (expr->obj.type == OBJ_EXPR_STRING) {
+        byValueFlag = false;
+    } else if (expr->obj.type == OBJ_EXPR_ADDRESS) {
+        byValueFlag = false;
+    } else if (expr->obj.type == OBJ_EXPR_NUMBER) {
+        ObjExprNumber* num = (ObjExprNumber*)expr;
+        if (num->type == NUMBER_DOUBLE) {
+            byValueFlag = false;
+        }
+    }
+    generateExpr(expr);
+    if (byValueFlag) {
+        emitByte(OP_VALUE_BY_VALUE);
+    }
+}
+
 static void generateExprNamedVariable(ObjExprNamedVariable* var) {
 
     ObjString* this_ = copyString("this", 4);
@@ -490,8 +513,7 @@ static void generateExprNamedVariable(ObjExprNamedVariable* var) {
     }
     
     if (var->assignment) {
-        generateExpr(var->assignment);
-        emitByte(OP_VALUE_BY_VALUE);
+        generateByValueExpression(var->assignment, true);
         emitBytes(setOp, (uint8_t)arg);
     } else {
         emitBytes(getOp, (uint8_t)arg);
@@ -508,10 +530,7 @@ static void generateExprLiteral(ObjExprLiteral* lit) {
 
 static void generateCallExprs(DynamicObjArray* args, bool byValue) {
     for (int i = 0; i < args->objectCount; i++) {
-        generateExpr((ObjExpr*)args->objects[i]);
-        if (byValue) {
-            emitByte(OP_VALUE_BY_VALUE);
-        }
+        generateByValueExpression((ObjExpr*)args->objects[i], byValue);
     } 
 }
 
@@ -868,13 +887,11 @@ static void generateVarDeclaration(ObjStmtVarDeclaration* decl) {
         generateExpr(decl->type);
         emitByte(OP_INITIALISE_DEFAULT);
     } else if (decl->type == NULL && decl->initialiser) {
-        generateExpr(decl->initialiser);
-        emitByte(OP_VALUE_BY_VALUE);
+        generateByValueExpression(decl->initialiser, true);
     } else {
         assert(decl->type && decl->initialiser);
         generateExpr(decl->type);
-        generateExpr(decl->initialiser);
-        emitByte(OP_VALUE_BY_VALUE);
+        generateByValueExpression(decl->initialiser, true);
         emitByte(OP_INITIALISE);
     }
 
