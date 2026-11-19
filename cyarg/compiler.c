@@ -439,27 +439,43 @@ static void generateGetNamedVariable(ObjString* name) {
     emitBytes(getOp, (uint8_t)arg);
 }
 
-static void generateByValueExpression(ObjExpr* expr, bool byValue) {
+// pass the value at the top of the stack by value, for call sites
+// and initialisation. Note that some call sites for builtins 
+// may not expect by Value, typically because they don't attempt
+// to modify their arguments.
+static void generateByValueExpression(ObjExpr* expr, bool byValueExpected) {
+
+    bool byValueRequired = byValueExpected;
+
     // OP_VALUE_BY_VALUE will ensure an expression is passed by value
     // we can avoid emitting it when we know the expression will 
     // be passed by value due to it's implementation.
-    bool byValueFlag = byValue;
     if (isNilExpr(expr)) {
-        byValueFlag = false;
+        byValueRequired = false;
     } else if (expr->obj.type == OBJ_EXPR_VALUE_LITERAL) {
         ObjExprValueLiteral* lit = (ObjExprValueLiteral*)expr;
         if (IS_BOOL(lit->value)) {
-            byValueFlag = false;
+            byValueRequired = false;
         } else if (IS_ADDRESS(lit->value)) {
-            byValueFlag = false;
+            byValueRequired = false;
         } else if (IS_STRING(lit->value)) {
-            byValueFlag = false;
+            byValueRequired = false;
         } else if (IS_DOUBLE(lit->value)) {
-            byValueFlag = false;
+            byValueRequired = false;
+
+        // todo: review pass-by-value requirements for ints.
+        //       ints probably don't need op_value_by_value, 
+        //       but the current vm implementation assumes they do
+        //       due to their introduction before OP_VALUE_BY_VALUE
+        //       existed.
+        } else if (IS_SMALL_INT(lit->value)) {
+            byValueRequired = false;
+        } else if (IS_INT(lit->value)) {
+            byValueRequired = !AS_INT(lit->value)->literal_;
         }
     }
     generateExpr(expr);
-    if (byValueFlag) {
+    if (byValueRequired) {
         emitByte(OP_VALUE_BY_VALUE);
     }
 }
