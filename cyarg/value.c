@@ -157,6 +157,8 @@ Value duplicateValue(Value src) {
         Value lhs;
         allocateIntValue(&lhs, AS_BIG_SMALL_INT(src).objInt_->bigInt.d_);
         int_set_t(&AS_BIG_SMALL_INT(src).objInt_->bigInt, AS_INT(lhs));
+        AS_BIG_SMALL_INT(lhs).literal_ = AS_INT(src)->literal_;
+        AS_INT(lhs)->literal_ = AS_INT(src)->literal_;
         return lhs;
     } else if (IS_STRUCT(src)) {
         return duplicateStruct(src);
