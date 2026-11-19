@@ -135,12 +135,6 @@ ObjExpr* newExprValueNil() {
     return (ObjExpr*) newExprValueLiteral(NIL_VAL);
 }
 
-ObjExprAddress* newExprAddress(uintptr_t value) {
-    ObjExprAddress* addr = ALLOCATE_OBJ(ObjExprAddress, OBJ_EXPR_ADDRESS);
-    addr->address = value;
-    return addr;
-}
-
 ObjExprString* newExprString(ObjRoutine* context, const char* str, int strLength) {
     ObjExprString* string = ALLOCATE_OBJ(ObjExprString, OBJ_EXPR_STRING);
     push(context, IMPL_OBJ_VAL(string));

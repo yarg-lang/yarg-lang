@@ -260,11 +260,6 @@ void blackenObject(Obj* object) {
             markObject((Obj*)expr->expr.nextExpr);
             break;
         }
-        case OBJ_EXPR_ADDRESS: {
-            ObjExprAddress* addr = (ObjExprAddress*)object;
-            markObject((Obj*)addr->expr.nextExpr);
-            break;
-        }       
         case OBJ_EXPR_OPERATION: {
             markExpr(object);
             ObjExprOperation* expr = (ObjExprOperation*)object;
@@ -476,7 +471,6 @@ void freeObject(Obj* object) {
         }
         case OBJ_EXPR_VALUE_LITERAL: break;
         case OBJ_EXPR_NUMBER: break;
-        case OBJ_EXPR_ADDRESS: break;
         case OBJ_EXPR_OPERATION: break;
         case OBJ_EXPR_GROUPING: break;
         case OBJ_EXPR_NAMEDVARIABLE: break;

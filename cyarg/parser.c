@@ -773,8 +773,7 @@ static ObjExpr* address(ObjParser* parser, bool canAssign) {
     int hex_digit_len = parser->previous.length - 2;
     uint64_t value = strtoNum(hex_digit_start, hex_digit_len, 16);
 
-    ObjExprAddress* val = newExprAddress(value);
-    return (ObjExpr*) val;
+    return (ObjExpr*) newExprValueLiteral(ADDRESS_VAL(value));
 }
 
 static ObjExpr* reserved(ObjParser* parser, bool canAssign) {
