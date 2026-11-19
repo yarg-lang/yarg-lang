@@ -677,8 +677,7 @@ Value op_len(ObjRoutine* context) {
     }
     
     Value result;
-    allocateIntValue(&result, numDigits);
-    int_set_u(length, AS_INT(result));
+    allocateIntValueFromCuint64(&result, length);
 
     return result;
 }

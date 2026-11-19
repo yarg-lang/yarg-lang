@@ -145,5 +145,6 @@ Value as_val(Obj* object);
 bool isInitialisableType(const ObjConcreteYargType* lhsType, Value rhsValue, Value *promotedRhs); // promotedRhs will be VAL_NIL if no promotion
 
 void allocateIntValue(Value *newBigSmallInt, size_t numDigits);
+void allocateIntValueFromCuint64(Value *newBigSmallInt, uint64_t number);
 
 #endif

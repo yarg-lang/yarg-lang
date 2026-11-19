@@ -987,8 +987,7 @@ bool intBuiltin(ObjRoutine* routineContext, int argCount, Value* result) {
         s = 2;
     } else if (IS_UI64(arg)) {
         uint64_t u = AS_UI64(arg);
-        allocateIntValue(result, 4);
-        int_set_u(u, AS_INT(*result));
+        allocateIntValueFromCuint64(result, u);
         return true;
     } else if (IS_STRING(arg)) {
         char *s = AS_CSTRING(arg);

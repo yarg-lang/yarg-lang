@@ -537,3 +537,16 @@ void allocateIntValue(Value *newBigSmallInt, size_t numDigits) {
         (void) int_init_concrete2(&bsi->i_);
     }
 }
+
+void allocateIntValueFromCuint64(Value *newBigSmallInt, uint64_t number) {
+    size_t numDigits;
+    if (number < UINT16_MAX) {
+        numDigits = 1;
+    } else if (number < UINT32_MAX) {
+        numDigits = 2;
+    } else {
+        numDigits = sizeof(uint64_t) / sizeof(uint16_t);
+    }
+    allocateIntValue(newBigSmallInt, numDigits);
+    int_set_u(number, AS_INT(*newBigSmallInt));
+}
