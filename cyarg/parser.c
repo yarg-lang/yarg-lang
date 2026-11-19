@@ -359,7 +359,7 @@ static ObjExpr* collectioninit(ObjParser* parser, bool canAssign) {
     collectionInitializers(parser, collection);
     consume(parser, TOKEN_RIGHT_SQUARE_BRACKET, "Expect ']' initialising map or array.");
 
-    collection->cardinality = (ObjExpr*) newExprNumberFromCint(collection->initializers.objectCount);
+    collection->cardinality = (ObjExpr*) newExprNumberFromCint(parser->context, collection->initializers.objectCount);
     
     popWorkingNode(parser);
     return (ObjExpr*)collection;
@@ -667,7 +667,7 @@ static ObjExpr* number(ObjParser* parser, bool canAssign) {
         radix = 10;
     }
 
-    ObjExprNumber* val = NULL;
+    ObjExprValueLiteral* val = NULL;
 
     if (radix == 10) {
         // N == [0-9]
@@ -734,13 +734,13 @@ static ObjExpr* number(ObjParser* parser, bool canAssign) {
         if (state == NUMBER_ZERO || state == NUMBER_MSB) {
             char *heapChars = ALLOCATE(char, number_len + 1);
             heapChars[number - msb] = '\0';
-            memcpy(heapChars, msb, number - msb);
-            val = newExprNumberInt((int)(msb - number_start + number_len));
-            int_set_s(heapChars, &val->bigInt);
+            memcpy(heapChars, msb, number - msb);            
+            val = newExprNumberFromCstring(parser->context, heapChars, number_len);
             vm_free(heapChars);
         } else if (state == NUMBER_DOT_AND_MSB || state == NUMBER_FRAC || state == NUMBER_EXPONENT) {
             char *end;
-            val = newExprNumberDouble(strtod(number_start, &end));
+            double dbl = strtod(number_start, &end);
+            val = newExprValueLiteral(DOUBLE_VAL(dbl));
             if (end - number_start != number_len) {
                 errorAtCurrent(parser, "misformed float literal");
                 return 0;
@@ -761,8 +761,7 @@ static ObjExpr* number(ObjParser* parser, bool canAssign) {
         else
             decimalDigits = 20;
 
-        val = newExprNumberInt(decimalDigits);
-        int_set_u(value, &val->bigInt);
+        val = newExprNumberFromCuint64(parser->context, value);
     }
     return (ObjExpr*) val;
 }

@@ -255,11 +255,6 @@ void blackenObject(Obj* object) {
             markDynamicObjArray(&decl->methods);
             break;
         }
-        case OBJ_EXPR_NUMBER: {
-            ObjExprNumber* expr = (ObjExprNumber*)object;
-            markObject((Obj*)expr->expr.nextExpr);
-            break;
-        }
         case OBJ_EXPR_OPERATION: {
             markExpr(object);
             ObjExprOperation* expr = (ObjExprOperation*)object;
@@ -464,7 +459,6 @@ void freeObject(Obj* object) {
             break;
         }
         case OBJ_EXPR_VALUE_LITERAL: break;
-        case OBJ_EXPR_NUMBER: break;
         case OBJ_EXPR_OPERATION: break;
         case OBJ_EXPR_GROUPING: break;
         case OBJ_EXPR_NAMEDVARIABLE: break;

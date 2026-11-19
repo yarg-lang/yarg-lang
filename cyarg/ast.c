@@ -91,32 +91,6 @@ ObjExprGrouping* newExprGrouping(ObjExpr* expression) {
     return grp;
 }
 
-ObjExprNumber* newExprNumberDouble(double value) {
-    ObjExprNumber* num = ALLOCATE_OBJ(ObjExprNumber, OBJ_EXPR_NUMBER);
-    num->type = NUMBER_DOUBLE;
-    num->dbl = value;
-    return num;
-}
-
-ObjExprNumber* newExprNumberInt(int numberDecimalDigits) {
-    uint8_t s = INT_DIGITS_FOR_S(numberDecimalDigits);
-    s += s % 2;
-    ObjExprNumber *num = (ObjExprNumber *) vm_object_alloc(sizeof (ObjExprNumber) + sizeof (uint16_t) * s, OBJ_EXPR_NUMBER);
-    num->bigInt.m_ = s;
-    num->type = NUMBER_INT;
-    return num;
-}
-
-ObjExprNumber* newExprNumberFromCint(int constant) {
-    int64_t val = constant;
-    uint8_t s = (uint8_t) (sizeof(int) / sizeof(uint16_t));
-    ObjExprNumber *num = (ObjExprNumber *) vm_object_alloc(sizeof (ObjExprNumber) + sizeof (uint16_t) * s, OBJ_EXPR_NUMBER);
-    num->type = NUMBER_INT;
-    num->bigInt.m_ = s;
-    int_set_i(val, &num->bigInt);
-    return num;
-}
-
 ObjExprNamedVariable* newExprNamedVariable(ObjRoutine* context, const char* name, int nameLength) {
     ObjExprNamedVariable* var = ALLOCATE_OBJ(ObjExprNamedVariable, OBJ_EXPR_NAMEDVARIABLE);
     push(context, IMPL_OBJ_VAL(var));
@@ -142,6 +116,42 @@ ObjExprValueLiteral* newExprStringLiteral(ObjRoutine* context, const char* str, 
     pop(context);
     return string;
 }
+
+ObjExprValueLiteral* newExprNumberFromCint(ObjRoutine* context, int constant) {
+    ObjExprValueLiteral* lit = ALLOCATE_OBJ(ObjExprValueLiteral, OBJ_EXPR_VALUE_LITERAL);
+    push(context, IMPL_OBJ_VAL(lit));
+    allocateIntValue(&lit->value, DECIMAL_DIGITS_BOUND(int));
+    int_set_i(constant, AS_INT(lit->value));
+    AS_BIG_SMALL_INT(lit->value).literal_ = true;
+    AS_INT(lit->value)->literal_ = true;
+    pop(context);
+    return lit;
+}
+
+ObjExprValueLiteral* newExprNumberFromCstring(ObjRoutine* context, const char* str, int strLength) {
+    ObjExprValueLiteral* val = ALLOCATE_OBJ(ObjExprValueLiteral, OBJ_EXPR_VALUE_LITERAL);
+    int il = INT_DIGITS_FOR_S(strLength);
+    push(context, IMPL_OBJ_VAL((Obj*)val));
+
+    allocateIntValue(&val->value, il);
+    int_set_s(str, AS_INT(val->value));
+    AS_BIG_SMALL_INT(val->value).literal_ = true;
+    AS_INT(val->value)->literal_ = true;
+
+    pop(context);
+    return val;
+}
+
+ObjExprValueLiteral* newExprNumberFromCuint64(ObjRoutine* context, uint64_t number) {
+    ObjExprValueLiteral* lit = ALLOCATE_OBJ(ObjExprValueLiteral, OBJ_EXPR_VALUE_LITERAL);
+    push(context, IMPL_OBJ_VAL(lit));
+    allocateIntValueFromCuint64(&lit->value, number);
+    AS_BIG_SMALL_INT(lit->value).literal_ = true;
+    AS_INT(lit->value)->literal_ = true;
+    pop(context);
+    return lit;
+}
+
 
 ObjExprCall* newExprCall() {
     ObjExprCall* call = ALLOCATE_OBJ(ObjExprCall, OBJ_EXPR_CALL);
@@ -380,19 +390,6 @@ void printExpr(ObjExpr* expr) {
                 printf("(");
                 printExpr(expr->expression);
                 printf(")");
-                break;
-            }
-            case OBJ_EXPR_NUMBER: {
-                char s[INT_STRLEN_FOR_INT254];
-                ObjExprNumber* num = (ObjExprNumber*)cursor;
-                switch (num->type) {
-                case NUMBER_DOUBLE:
-                    printf("%f", num->dbl);
-                    break;
-                case NUMBER_INT:
-                    printf("%s", int_to_s(&num->bigInt, s, INT_STRLEN_FOR_INT254));
-                    break;
-                }
                 break;
             }
             case OBJ_EXPR_NAMEDVARIABLE: {

@@ -352,25 +352,6 @@ static uint8_t parseVariable(ObjString* name) {
 
 static void generateStmt(ObjStmt* stmt);
 
-static void generateNumber(ObjExprNumber* num) {
-    switch(num->type) {
-    case NUMBER_DOUBLE:
-        emitConstant(DOUBLE_VAL(num->dbl));
-        break;
-    case NUMBER_INT: {
-        Value v;
-        allocateIntValue(&v, num->bigInt.d_);
-        AS_BIG_SMALL_INT(v).literal_ = true;
-        AS_INT(v)->literal_ = true;
-        int_set_t(&num->bigInt, AS_INT(v));
-        emitConstant(v);
-        break;
-    }
-    default:
-        assert(!"fatal");
-    }
-}
-
 static void generateExprLogicalAnd(ObjExprOperation* bin) {
     int endJump = emitJump(OP_JUMP_IF_FALSE);
 
@@ -473,10 +454,7 @@ static void generateByValueExpression(ObjExpr* expr, bool byValue) {
             byValueFlag = false;
         } else if (IS_STRING(lit->value)) {
             byValueFlag = false;
-        }
-    } else if (expr->obj.type == OBJ_EXPR_NUMBER) {
-        ObjExprNumber* num = (ObjExprNumber*)expr;
-        if (num->type == NUMBER_DOUBLE) {
+        } else if (IS_DOUBLE(lit->value)) {
             byValueFlag = false;
         }
     }
@@ -525,6 +503,10 @@ static void generateExprValueLiteral(ObjExprValueLiteral* lit) {
     } else if (IS_ADDRESS(lit->value)) {
         emitConstant(lit->value);
     } else if (IS_STRING(lit->value)) {
+        emitConstant(lit->value);
+    } else if (IS_DOUBLE(lit->value)) {
+        emitConstant(lit->value);
+    } else if (IS_INT(lit->value)) {
         emitConstant(lit->value);
     }
 }
@@ -643,7 +625,7 @@ static void generateExprCollectionInit(ObjExprCollectionInitializer* collection)
             generateExpr(pair->b);
             emitByte(OP_SET_ELEMENT);
         } else {
-            ObjExpr* element = (ObjExpr*)newExprNumberFromCint(i);
+            ObjExpr* element = (ObjExpr*)newExprNumberFromCint(current->context, i);
             push(current->context, IMPL_OBJ_VAL((Obj*)element));
             generateExpr(element);
             generateExpr((ObjExpr*)item_or_pair);
@@ -757,11 +739,6 @@ static void generateExprTypeIndexedCollection(ObjExprTypeIndexedCollection* coll
 static void generateExprElt(ObjExpr* expr) {
     
     switch (expr->obj.type) {
-        case OBJ_EXPR_NUMBER: {
-            ObjExprNumber* num = (ObjExprNumber*)expr;
-            generateNumber(num);
-            break;
-        }
         case OBJ_EXPR_OPERATION: {
             ObjExprOperation* op = (ObjExprOperation*)expr;
             generateExprOperation(op);

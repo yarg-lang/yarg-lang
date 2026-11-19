@@ -111,20 +111,6 @@ typedef struct {
     ObjExpr* assignment;
 } ObjExprNamedVariable;
 
-typedef enum {
-    NUMBER_INT,
-    NUMBER_DOUBLE
-} NumberType;
-
-typedef struct {
-    ObjExpr expr;
-    NumberType type;
-    union {
-        Int bigInt;
-        double dbl;
-    };
-} ObjExprNumber;
-
 typedef struct {
     ObjExpr expr;
     DynamicObjArray arguments;
@@ -289,9 +275,9 @@ ObjAst* newObjAst();
 ObjExprValueLiteral* newExprValueLiteral(Value value);
 ObjExpr* newExprValueNil(void);
 ObjExprValueLiteral* newExprStringLiteral(ObjRoutine* context, const char* str, int strLength);
-ObjExprNumber* newExprNumberDouble(double value);
-ObjExprNumber* newExprNumberInt(int numberDecimalDigits);
-ObjExprNumber* newExprNumberFromCint(int constant);
+ObjExprValueLiteral* newExprNumberFromCint(ObjRoutine* context, int constant);
+ObjExprValueLiteral* newExprNumberFromCstring(ObjRoutine* context, const char* str, int strLength);
+ObjExprValueLiteral* newExprNumberFromCuint64(ObjRoutine* context, uint64_t number);
 ObjExprPair* newExprPair(ObjExpr* a, ObjExpr* b);
 ObjExprOperation* newExprOperation(ObjExpr* rhs, ExprOp op);
 ObjExprGrouping* newExprGrouping(ObjExpr* expression);
