@@ -851,7 +851,8 @@ InterpretResult run(ObjRoutine* routine) {
                     int_set_u(num, (Int *)&i.as.bigSmallInt.i_);
                     i.as.bigSmallInt.i_.neg_ = instruction == OP_IMMEDIATE_N8 || instruction == OP_IMMEDIATE_N16 || instruction == OP_IMMEDIATE_N24;
                 }
-                i.as.bigSmallInt.i_.literal_ = true;
+                AS_BIG_SMALL_INT(i).literal_ = true;
+                AS_INT(i)->literal_ = true;
                 int_invariant(AS_INT(i));
                 push(routine, i);
                 break;
