@@ -135,10 +135,10 @@ ObjExpr* newExprValueNil() {
     return (ObjExpr*) newExprValueLiteral(NIL_VAL);
 }
 
-ObjExprString* newExprString(ObjRoutine* context, const char* str, int strLength) {
-    ObjExprString* string = ALLOCATE_OBJ(ObjExprString, OBJ_EXPR_STRING);
+ObjExprValueLiteral* newExprStringLiteral(ObjRoutine* context, const char* str, int strLength) {
+    ObjExprValueLiteral* string = ALLOCATE_OBJ(ObjExprValueLiteral, OBJ_EXPR_VALUE_LITERAL);
     push(context, IMPL_OBJ_VAL(string));
-    string->string = copyStringWithEscapes(str, strLength);
+    string->value = STRING_VAL(copyStringWithEscapes(str, strLength));
     pop(context);
     return string;
 }
@@ -213,6 +213,10 @@ ObjExprTypeStruct* newExprTypeStruct() {
 }
 
 static int indendation = 0;
+
+void printSourceValue(Value val) {
+    fprintSourceValue(stdout, val);
+}
 
 void printIndentation() {
     for (int i = 0; i < indendation; i++) {
@@ -402,14 +406,7 @@ void printExpr(ObjExpr* expr) {
             }
             case OBJ_EXPR_VALUE_LITERAL: {
                 ObjExprValueLiteral* lit = (ObjExprValueLiteral*)cursor;
-                printValue(lit->value);
-                break;
-            }
-            case OBJ_EXPR_STRING: {
-                ObjExprString* str = (ObjExprString*)cursor;
-                printf("\"");
-                printValue(STRING_VAL(str->string));
-                printf("\"");
+                printSourceValue(lit->value);
                 break;
             }
             case OBJ_EXPR_CALL: {
@@ -653,7 +650,7 @@ ObjString* valueAsSourceString(Value value) {
 }
 
 
-void printSourceValue(FILE* op, Value value) {
+void fprintSourceValue(FILE* op, Value value) {
     ObjString* str = valueAsSourceString(value);
     tempRootPush(STRING_VAL(str));
     fprintf(op, "%s", str->chars);

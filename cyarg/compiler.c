@@ -371,10 +371,6 @@ static void generateNumber(ObjExprNumber* num) {
     }
 }
 
-static void generateExprString(ObjExprString* str) {
-    emitConstant(STRING_VAL(str->string));
-}
-
 static void generateExprLogicalAnd(ObjExprOperation* bin) {
     int endJump = emitJump(OP_JUMP_IF_FALSE);
 
@@ -475,9 +471,9 @@ static void generateByValueExpression(ObjExpr* expr, bool byValue) {
             byValueFlag = false;
         } else if (IS_ADDRESS(lit->value)) {
             byValueFlag = false;
+        } else if (IS_STRING(lit->value)) {
+            byValueFlag = false;
         }
-    } else if (expr->obj.type == OBJ_EXPR_STRING) {
-        byValueFlag = false;
     } else if (expr->obj.type == OBJ_EXPR_NUMBER) {
         ObjExprNumber* num = (ObjExprNumber*)expr;
         if (num->type == NUMBER_DOUBLE) {
@@ -527,6 +523,8 @@ static void generateExprValueLiteral(ObjExprValueLiteral* lit) {
     } else if (IS_BOOL(lit->value)) {
         emitByte(AS_BOOL(lit->value) ? OP_TRUE : OP_FALSE);
     } else if (IS_ADDRESS(lit->value)) {
+        emitConstant(lit->value);
+    } else if (IS_STRING(lit->value)) {
         emitConstant(lit->value);
     }
 }
@@ -782,11 +780,6 @@ static void generateExprElt(ObjExpr* expr) {
         case OBJ_EXPR_VALUE_LITERAL: {
             ObjExprValueLiteral* lit = (ObjExprValueLiteral*)expr;
             generateExprValueLiteral(lit);
-            break;
-        }
-        case OBJ_EXPR_STRING: {
-            ObjExprString* str = (ObjExprString*)expr;
-            generateExprString(str);
             break;
         }
         case OBJ_EXPR_CALL_BUILTIN: {

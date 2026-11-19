@@ -387,7 +387,7 @@ static ObjExpr* call(ObjParser* parser, bool canAssign) {
 }
 
 static ObjExpr* string(ObjParser* parser, bool canAssign) {
-    return (ObjExpr*) newExprString(parser->context, parser->previous.start + 1, parser->previous.length - 2);
+    return (ObjExpr*) newExprStringLiteral(parser->context, parser->previous.start + 1, parser->previous.length - 2);
 }
 
 static ObjExpr* literal(ObjParser* parser, bool canAssign) {     

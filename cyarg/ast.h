@@ -127,11 +127,6 @@ typedef struct {
 
 typedef struct {
     ObjExpr expr;
-    ObjString* string;
-} ObjExprString;
-
-typedef struct {
-    ObjExpr expr;
     DynamicObjArray arguments;
 } ObjExprCall;
 
@@ -293,10 +288,10 @@ ObjAst* newObjAst();
 
 ObjExprValueLiteral* newExprValueLiteral(Value value);
 ObjExpr* newExprValueNil(void);
+ObjExprValueLiteral* newExprStringLiteral(ObjRoutine* context, const char* str, int strLength);
 ObjExprNumber* newExprNumberDouble(double value);
 ObjExprNumber* newExprNumberInt(int numberDecimalDigits);
 ObjExprNumber* newExprNumberFromCint(int constant);
-ObjExprString* newExprString(ObjRoutine* context, const char* str, int strLength);
 ObjExprPair* newExprPair(ObjExpr* a, ObjExpr* b);
 ObjExprOperation* newExprOperation(ObjExpr* rhs, ExprOp op);
 ObjExprGrouping* newExprGrouping(ObjExpr* expression);
@@ -323,6 +318,6 @@ ObjString* valueAsSourceString(Value value);
 
 void printStmts(ObjStmt* stmts);
 void printExpr(ObjExpr* expr);
-void printSourceValue(FILE* op, Value value);
+void fprintSourceValue(FILE* op, Value value);
 
 #endif

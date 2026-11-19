@@ -286,12 +286,6 @@ void blackenObject(Obj* object) {
             markValue(lit->value);
             break;
         }
-        case OBJ_EXPR_STRING: {
-            ObjExprString* str = (ObjExprString*)object;
-            markObject((Obj*)str->expr.nextExpr);
-            markObject((Obj*)str->string);
-            break;
-        }
         case OBJ_EXPR_CALL_BUILTIN: {
             markExpr(object);
             ObjExprCallBuiltin* call = (ObjExprCallBuiltin*)object;
@@ -474,7 +468,6 @@ void freeObject(Obj* object) {
         case OBJ_EXPR_OPERATION: break;
         case OBJ_EXPR_GROUPING: break;
         case OBJ_EXPR_NAMEDVARIABLE: break;
-        case OBJ_EXPR_STRING: break;
         case OBJ_EXPR_CALL_BUILTIN: {
             ObjExprCallBuiltin* call = (ObjExprCallBuiltin*)object;
             gc_freeDynamicObjArray(&call->arguments);
