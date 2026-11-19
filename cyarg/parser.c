@@ -392,9 +392,9 @@ static ObjExpr* string(ObjParser* parser, bool canAssign) {
 
 static ObjExpr* literal(ObjParser* parser, bool canAssign) {     
     switch (parser->previous.type) {
-        case TOKEN_FALSE: return (ObjExpr*) newExprLiteral(EXPR_LITERAL_FALSE);
-        case TOKEN_NIL: return (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL);
-        case TOKEN_TRUE: return (ObjExpr*) newExprLiteral(EXPR_LITERAL_TRUE);
+        case TOKEN_FALSE: return (ObjExpr*) newExprValueLiteral(BOOL_VAL(false));
+        case TOKEN_NIL: return newExprValueNil();
+        case TOKEN_TRUE: return (ObjExpr*) newExprValueLiteral(BOOL_VAL(true));
         default: return NULL; // Unreachable.
     } 
 }
@@ -443,14 +443,14 @@ static ObjStmtFieldDeclaration* fieldStmt(ObjParser* parser) {
     if (checkTypeToken(parser)) {
         type = (ObjExpr*) typeExpression(parser);
     } else {
-        type = (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL);
+        type = newExprValueNil();
     }
     pushWorkingNode(parser, (Obj*)type);
     ObjExpr* offset = NULL;
     if (match(parser, TOKEN_AT)) {
         offset = expression(parser);
     } else {
-        offset = (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL);
+        offset = newExprValueNil();
     }
     pushWorkingNode(parser, (Obj*)offset);
 
@@ -508,7 +508,7 @@ static ObjExpr* type(ObjParser* parser, bool canAssign) {
         ObjExpr* expression = NULL;
 
         switch (parser->previous.type) {
-            case TOKEN_ANY: expression = (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL); break;
+            case TOKEN_ANY: expression = newExprValueNil(); break;
             case TOKEN_BOOL: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_BOOL); break;
             case TOKEN_INT8: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT8); break;
             case TOKEN_UINT8: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT8); break;
@@ -967,7 +967,7 @@ static ObjExpr* typeExpression(ObjParser* parser) {
             case TOKEN_UINT64: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_UINT64); break;
             case TOKEN_BOOL: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_BOOL); break;
             case TOKEN_TYPE_STRING: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_STRING); break;
-            case TOKEN_ANY: expression = (ObjExpr*) newExprLiteral(EXPR_LITERAL_NIL); break;
+            case TOKEN_ANY: expression = newExprValueNil(); break;
             case TOKEN_STRUCT: expression = (ObjExpr*) structExpression(parser); break;
             case TOKEN_INT: expression = (ObjExpr*) newExprType(EXPR_TYPE_LITERAL_INT); break;
             default:

@@ -471,8 +471,13 @@ static void generateByValueExpression(ObjExpr* expr, bool byValue) {
     // we can avoid emitting it when we know the expression will 
     // be passed by value due to it's implementation.
     bool byValueFlag = byValue;
-    if (expr->obj.type == OBJ_EXPR_LITERAL) {
+    if (isNilExpr(expr)) {
         byValueFlag = false;
+    } else if (expr->obj.type == OBJ_EXPR_VALUE_LITERAL) {
+        ObjExprValueLiteral* lit = (ObjExprValueLiteral*)expr;
+        if (IS_BOOL(lit->value)) {
+            byValueFlag = false;
+        }
     } else if (expr->obj.type == OBJ_EXPR_STRING) {
         byValueFlag = false;
     } else if (expr->obj.type == OBJ_EXPR_ADDRESS) {
@@ -520,11 +525,11 @@ static void generateExprNamedVariable(ObjExprNamedVariable* var) {
     }
 }
 
-static void generateExprLiteral(ObjExprLiteral* lit) {
-    switch (lit->literal) {
-        case EXPR_LITERAL_FALSE: emitByte(OP_FALSE); break;
-        case EXPR_LITERAL_TRUE: emitByte(OP_TRUE); break;
-        case EXPR_LITERAL_NIL: emitByte(OP_NIL); break;
+static void generateExprValueLiteral(ObjExprValueLiteral* lit) {
+    if (IS_NIL(lit->value)) {
+        emitByte(OP_NIL);
+    } else if (IS_BOOL(lit->value)) {
+        emitByte(AS_BOOL(lit->value) ? OP_TRUE : OP_FALSE);
     }
 }
 
@@ -776,9 +781,9 @@ static void generateExprElt(ObjExpr* expr) {
             generateExprNamedVariable(var);
             break;
         }
-        case OBJ_EXPR_LITERAL: {
-            ObjExprLiteral* lit = (ObjExprLiteral*)expr;
-            generateExprLiteral(lit);
+        case OBJ_EXPR_VALUE_LITERAL: {
+            ObjExprValueLiteral* lit = (ObjExprValueLiteral*)expr;
+            generateExprValueLiteral(lit);
             break;
         }
         case OBJ_EXPR_ADDRESS: {

@@ -67,6 +67,15 @@ void appendPlaceAlias(ObjRoutine* context, ObjStmtPlaceDeclaration* place, ObjEx
     pop(context);
 }
 
+bool isNilExpr(ObjExpr* expr) {
+    if (expr->obj.type == OBJ_EXPR_VALUE_LITERAL) {
+        ObjExprValueLiteral* lit = (ObjExprValueLiteral*)expr;
+        return IS_NIL(lit->value);
+    } else {
+        return false;
+    }
+}
+
 ObjExprOperation* newExprOperation(ObjExpr* rhs, ExprOp op) {
     ObjExprOperation* operation = ALLOCATE_OBJ(ObjExprOperation, OBJ_EXPR_OPERATION);
     operation->rhs = rhs;
@@ -116,11 +125,14 @@ ObjExprNamedVariable* newExprNamedVariable(ObjRoutine* context, const char* name
     return var;
 }
 
-ObjExprLiteral* newExprLiteral(ExprLiteral literal) {
-    ObjExprLiteral* lit = ALLOCATE_OBJ(ObjExprLiteral, OBJ_EXPR_LITERAL);
-    lit->expr.nextExpr = NULL;
-    lit->literal = literal;
+ObjExprValueLiteral* newExprValueLiteral(Value value) {
+    ObjExprValueLiteral* lit = ALLOCATE_OBJ(ObjExprValueLiteral, OBJ_EXPR_VALUE_LITERAL);
+    lit->value = value;
     return lit;
+}
+
+ObjExpr* newExprValueNil() {
+    return (ObjExpr*) newExprValueLiteral(NIL_VAL);
 }
 
 ObjExprAddress* newExprAddress(uintptr_t value) {
@@ -316,11 +328,8 @@ void printExprBuiltin(ObjExprBuiltin* fn) {
 }
 
 static void printExprType(ObjExpr* type) {
-    if (type->obj.type == OBJ_EXPR_LITERAL) {
-        ObjExprLiteral* literal = (ObjExprLiteral*)type;
-        if (literal->literal == EXPR_LITERAL_NIL) {
-            printf("any");
-        }
+    if (isNilExpr(type)) {
+        printf("any");
         return;
     } else if (type->obj.type == OBJ_EXPR_TYPE) {
         ObjExprTypeLiteral* typeObject = (ObjExprTypeLiteral*)type;
@@ -397,13 +406,9 @@ void printExpr(ObjExpr* expr) {
                 }
                 break;
             }
-            case OBJ_EXPR_LITERAL: {
-                ObjExprLiteral* lit = (ObjExprLiteral*)cursor;
-                switch (lit->literal) {
-                    case EXPR_LITERAL_FALSE: printf("false"); break;
-                    case EXPR_LITERAL_TRUE: printf("true"); break;
-                    case EXPR_LITERAL_NIL: printf("nil"); break;
-                }
+            case OBJ_EXPR_VALUE_LITERAL: {
+                ObjExprValueLiteral* lit = (ObjExprValueLiteral*)cursor;
+                printValue(lit->value);
                 break;
             }
             case OBJ_EXPR_STRING: {
@@ -583,14 +588,6 @@ static void printStmtPlaceDeclaration(ObjStmtPlaceDeclaration* decl) {
         }
         printf(" }");
     }
-}
-
-static bool isNilExpr(ObjExpr* expr) {
-    if (expr->obj.type == OBJ_EXPR_LITERAL) {
-        ObjExprLiteral* lit = (ObjExprLiteral*)expr;
-        return lit->literal == EXPR_LITERAL_NIL;
-    }
-    return false;
 }
 
 static void printStmtFieldDeclaration(ObjStmtFieldDeclaration* decl) {

@@ -53,12 +53,6 @@ typedef enum {
 } ExprOp;
 
 typedef enum {
-    EXPR_LITERAL_TRUE,
-    EXPR_LITERAL_FALSE,
-    EXPR_LITERAL_NIL
-} ExprLiteral;
-
-typedef enum {
     EXPR_BUILTIN_READ_YARG_SOURCE,
     EXPR_BUILTIN_READ_XIP_FILE,
     EXPR_BUILTIN_COMPILE,
@@ -94,6 +88,11 @@ typedef enum {
     EXPR_BUILTIN_LOAD
 } ExprBuiltin;
 
+typedef struct ObjExprValueLiteral {
+    ObjExpr expr;
+    Value   value;
+} ObjExprValueLiteral;
+
 typedef struct {
     ObjExpr expr;
     ExprOp operation;
@@ -111,11 +110,6 @@ typedef struct {
     ObjString* name;
     ObjExpr* assignment;
 } ObjExprNamedVariable;
-
-typedef struct {
-    ObjExpr expr;
-    ExprLiteral literal;
-} ObjExprLiteral;
 
 typedef enum {
     NUMBER_INT,
@@ -302,10 +296,11 @@ typedef struct {
 
 ObjAst* newObjAst();
 
+ObjExprValueLiteral* newExprValueLiteral(Value value);
+ObjExpr* newExprValueNil(void);
 ObjExprNumber* newExprNumberDouble(double value);
 ObjExprNumber* newExprNumberInt(int numberDecimalDigits);
 ObjExprNumber* newExprNumberFromCint(int constant);
-ObjExprLiteral* newExprLiteral(ExprLiteral literal);
 ObjExprAddress* newExprAddress(uintptr_t value);
 ObjExprString* newExprString(ObjRoutine* context, const char* str, int strLength);
 ObjExprPair* newExprPair(ObjExpr* a, ObjExpr* b);
@@ -327,6 +322,8 @@ ObjStmt* pushNewStmt(ObjRoutine* context, ObjType type, int line);
 ObjStmt* pushNewStmtDeclaration(ObjRoutine* context, ObjType type, const char* name, int nameLength, int line);
 
 void appendPlaceAlias(ObjRoutine* context, ObjStmtPlaceDeclaration* place, ObjExpr* location, const char* name, int nameLength);
+
+bool isNilExpr(ObjExpr* expr);
 
 ObjString* valueAsSourceString(Value value);
 
