@@ -94,8 +94,10 @@ ObjRoutine* newRoutine() {
 }
 
 void runAndRenter(ObjRoutine* routine) {
-    run(routine);
-    pop(routine);
+    InterpretResult execResult = run(routine);
+    if (execResult != INTERPRET_OK) {
+        pop(routine);
+    }
     pushEntryElements(routine);
     enterEntryFunction(routine);
 }
