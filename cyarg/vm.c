@@ -161,6 +161,9 @@ void initVMRuntime(void) {
     vm.pinnedRoutineHandlers[8] = pinnedRoutine8;
     vm.pinnedRoutineHandlers[9] = pinnedRoutine9;
 
+    // Initialise the mutex for VM runtime env
+    vm_mutex_init(&vm.env);
+
     // must be done before initRoutine()
     keyValueStoreInit(&vm.globals);
     stringStoreInit(&vm.stringStore);
