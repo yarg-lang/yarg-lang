@@ -154,6 +154,8 @@ bool syncBuiltin(ObjRoutine *routineContext, int argCount, Value *result)
     }
     vm_free(log->i_);
     log->i_ = NULL;
+    log->n_ = 0;
+    log->e_ = 0;
     tempRootPop(); // array
     *result = resultArrayVal;
     log->n_ = 0;
