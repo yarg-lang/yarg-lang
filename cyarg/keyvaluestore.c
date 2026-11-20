@@ -108,6 +108,7 @@ static void keyValueStoreFreeImpl(KeyValueStore *kvs, kv_free_func free_func) {
         }
     }
     assert(n == 0);
+    kvs->root = 0;
 }
 
 void keyValueStoreFree(KeyValueStore *kvs) {
