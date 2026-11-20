@@ -69,8 +69,7 @@ bool readYargSourceBuiltin(ObjRoutine* routineContext, int argCount, Value* resu
             return false;
         }
 
-        ObjString* sourceString = copyString(source, (int)strlen(source));
-        vm_free(source);
+        ObjString* sourceString = takeString(source, (int)strlen(source));
 
         *result = STRING_VAL(sourceString);
     }
